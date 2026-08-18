@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trader Tools Suite · skyler.tools</title>
 <meta name="description" content="A local-first trader tools suite from skyler.tools — position sizing, journal, and compound.">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" id="favicon" href="favicon.svg" type="image/svg+xml" sizes="any">
 <script>
 // Pre-paint theme: data-theme is ALWAYS set (design-system single-selector rule)
 (function () {
@@ -16,6 +16,8 @@
     document.documentElement.setAttribute('data-theme', t);
 })();
 </script>
+<script src="icons.js"></script>
+<script>paintFaviconFromStorage();</script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -900,7 +902,6 @@
 <!-- ============ TOASTS ============ -->
 <div class="toast-root" id="toastRoot" aria-live="polite"></div>
 
-<script src="icons.js"></script>
 <script src="motion.js"></script>
 <script src="engine.js"></script>
 <script src="compound.js"></script>

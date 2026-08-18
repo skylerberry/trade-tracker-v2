@@ -3,6 +3,9 @@
    No CDN, no dependency: the handful of icons the app uses,
    inlined. Hydration: any <span data-icon="name"> gets filled at
    init; JS templates use ICONS.name directly.
+
+   Also owns accent seeds + the tab favicon (Lucide trending-up
+   on a rounded tile, painted in the active theme/accent).
    ============================================================ */
 'use strict';
 
@@ -56,4 +59,75 @@ function hydrateIcons(root = document) {
         const svg = ICONS[el.dataset.icon];
         if (svg && !el.firstElementChild) el.innerHTML = svg;
     });
+}
+
+/* Accent seeds — Tailwind 600 / 500 / 400. Shared by the picker and the tab icon. */
+const ACCENT_SEEDS = {
+    navy:     { light: '#1a365d', dark: '#3b82f6', oled: '#60a5fa' },
+    violet:   { light: '#7c3aed', dark: '#8b5cf6', oled: '#a855f7' },
+    cyan:     { light: '#0891b2', dark: '#06b6d4', oled: '#22d3ee' },
+    emerald:  { light: '#059669', dark: '#10b981', oled: '#34d399' },
+    amber:    { light: '#b45309', dark: '#f59e0b', oled: '#fbbf24' },
+    orange:   { light: '#c2410c', dark: '#f97316', oled: '#fb923c' },
+    rose:     { light: '#e11d48', dark: '#f43f5e', oled: '#fb7185' },
+    graphite: { light: '#475569', dark: '#64748b', oled: '#e4e4e7' },
+};
+
+function accentSeedFor(name, mode) {
+    const a = ACCENT_SEEDS[name] || ACCENT_SEEDS.navy;
+    if (mode === 'oled') return a.oled || a.dark;
+    if (mode === 'dark') return a.dark;
+    return a.light;
+}
+
+function contrastInk(hex) {
+    const h = String(hex).replace('#', '');
+    const rgb = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
+    const lin = rgb.map(v => {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    const lum = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+    return 1.05 / (lum + 0.05) < 3.5 ? '#16181d' : '#ffffff';
+}
+
+function faviconSvg(fill, ink) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="${fill}"/><g fill="none" stroke="${ink}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 20 13 14 17 18 25 10"/><polyline points="19 10 25 10 25 16"/></g></svg>`;
+}
+
+/* Discrete accent/theme changes paint immediately. Rainbow is queued so the
+   tab icon steps instead of rewriting every animation frame. */
+function paintFavicon(fill) {
+    if (!fill) return;
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    if (paintFavicon._lock && now - paintFavicon._at < 280) {
+        paintFavicon._pending = fill;
+        if (!paintFavicon._timer) {
+            paintFavicon._timer = setTimeout(() => {
+                paintFavicon._timer = 0;
+                paintFavicon._lock = false;
+                const next = paintFavicon._pending;
+                paintFavicon._pending = '';
+                if (next) paintFavicon(next);
+            }, 280);
+        }
+        return;
+    }
+    const ink = contrastInk(fill);
+    const href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(faviconSvg(fill, ink));
+    const link = document.getElementById('favicon') || document.querySelector('link[rel="icon"]');
+    if (!link || link.getAttribute('href') === href) return;
+    link.type = 'image/svg+xml';
+    link.sizes = 'any';
+    link.href = href;
+    paintFavicon._lock = true;
+    paintFavicon._at = now;
+}
+
+function paintFaviconFromStorage() {
+    const mode = document.documentElement.getAttribute('data-theme') || 'light';
+    let name = '';
+    try { name = localStorage.getItem('tradeTracker_accent') || ''; } catch (_) { /* private mode */ }
+    if (name === 'rainbow') name = 'violet';
+    paintFavicon(accentSeedFor(name, mode));
 }

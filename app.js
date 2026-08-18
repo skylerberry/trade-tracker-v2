@@ -221,25 +221,13 @@
        inline on <html>, overriding the stylesheet defaults. OLED seeds
        sit one step brighter so they read as neon on true black. */
     /* Tailwind 600s (light fills) / 500s (dark fills) / 400s (OLED fills).
-       8 + rainbow = a clean 3×3 grid. */
-    const ACCENTS = {
-        navy:     { light: '#1a365d', dark: '#3b82f6', oled: '#60a5fa' }, // brand classic
-        violet:   { light: '#7c3aed', dark: '#8b5cf6', oled: '#a855f7' },
-        cyan:     { light: '#0891b2', dark: '#06b6d4', oled: '#22d3ee' },
-        emerald:  { light: '#059669', dark: '#10b981', oled: '#34d399' },
-        amber:    { light: '#b45309', dark: '#f59e0b', oled: '#fbbf24' },
-        orange:   { light: '#c2410c', dark: '#f97316', oled: '#fb923c' },
-        rose:     { light: '#e11d48', dark: '#f43f5e', oled: '#fb7185' },
-        graphite: { light: '#475569', dark: '#64748b', oled: '#e4e4e7' },
-    };
+       8 + rainbow = a clean 3×3 grid. Seeds live in icons.js so the
+       tab favicon can resolve the same colors before app.js loads. */
+    const ACCENTS = ACCENT_SEEDS;
     let accentName = 'navy';
     let rainbowRAF = null;
     function accentSeed(name) {
-        const a = ACCENTS[name] || ACCENTS.navy;
-        const mode = themeMode();
-        if (mode === 'oled') return a.oled || a.dark;
-        if (mode === 'dark') return a.dark;
-        return a.light;
+        return accentSeedFor(name, themeMode());
     }
     const hexRgb = (hex) => { const h = hex.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
     const rgbHex = (rgb) => '#' + rgb.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
@@ -269,6 +257,7 @@
         // hero CTA (cap radialblue, derived from the accent)
         s.setProperty('--cta-grad', `radial-gradient(90% 100% at 15% 12%, ${mix(main, '#ffffff', 0.42)} 0%, ${main} 100%)`);
         s.setProperty('--cta-ring', `0 0 0 1px ${mix(main, dark ? '#ffffff' : '#000000', 0.2)}`);
+        paintFavicon(main);
     }
     function rainbowFrame(ts) {
         const dark = isDarkMode();

@@ -1769,9 +1769,14 @@ body[data-view="compound"] .float-bar .fb-sep { display: none; }
 .compound-side .currency-prefix { font-weight: 600; }
 .compound-side .preset-row {
     display: flex; flex-wrap: nowrap; align-items: center;
-    gap: 4px; margin-top: 0;
+    gap: 8px; margin-top: 0;
 }
-.compound-side .preset-row .btn-sm { flex: 1 1 0; min-width: 0; padding: 0 4px; }
+.compound-side .preset-row .btn-sm { flex: 1 1 0; min-width: 0; padding: 0 10px; }
+#compoundPresets {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
 .compound-side .contribution-fields { display: flex; flex-direction: column; gap: 12px; }
 .compound-side .field > label {
     font-size: 0.66rem; letter-spacing: 0.08em;
@@ -1799,7 +1804,7 @@ body[data-view="compound"] .float-bar .fb-sep { display: none; }
 .compound-side .preset-row .btn-sm,
 #contributionModeToggle .btn-sm,
 #compoundRates .btn-sm {
-    height: 28px; font-size: 0.72rem;
+    height: 32px; font-size: 0.78rem;
     border-radius: var(--radius-full);
 }
 .compound-hero {
