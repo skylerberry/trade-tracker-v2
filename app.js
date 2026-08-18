@@ -31,7 +31,7 @@
     /* ---------- state ---------- */
     let trades = [];
     let prefs = {
-        scope: 'month', calcOpen: true, watchOpen: false, metricsOpen: true,
+        scope: 'month', calcOpen: true, watchOpen: false, metricsOpen: true, scenariosOpen: true,
         riskPreset: '0.5', riskCustom: 0.5, maxPreset: '20', maxCustom: 20,
         plan: 'half-1r', showSeconds: false,
         direction: 'long', vehicle: 'shares',
@@ -576,6 +576,28 @@
         panels.metricsBlock = { set, section: $('metricsBlock') };
     }
 
+    function syncScenariosToggle() {
+        const open = prefs.scenariosOpen !== false;
+        const btn = $('riskScenariosToggle');
+        if (!btn) return;
+        btn.setAttribute('aria-expanded', String(open));
+        btn.setAttribute('aria-label', open ? 'Hide risk scenarios' : 'Show risk scenarios');
+    }
+
+    function wireRiskScenarios() {
+        const open = prefs.scenariosOpen !== false;
+        prefs.scenariosOpen = open;
+        const set = M.collapsible($('riskScenarios'), $('riskScenariosBody'), open);
+        $('riskScenariosToggle').addEventListener('click', () => {
+            prefs.scenariosOpen = !prefs.scenariosOpen;
+            set(prefs.scenariosOpen);
+            syncScenariosToggle();
+            savePrefs();
+        });
+        syncScenariosToggle();
+        panels.riskScenarios = { set, section: $('riskScenarios') };
+    }
+
     function wireInstantTips() {
         const tip = $('instantTip');
         if (!tip || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
@@ -767,7 +789,7 @@
         segs.risk.set(prefs.riskPreset);
         savePrefs();
         recalc();
-        M.flash($('riskScenarios'), 'scenario-pulse');
+        if (prefs.scenariosOpen !== false) M.flash($('riskScenarios'), 'scenario-pulse');
     }
 
     function readCalc() {
@@ -3279,6 +3301,7 @@
         wirePanel('watchSection', 'watchBodyWrap', 'watchToggle', 'watchOpen');
         wirePanel('formSection', 'formBodyWrap', 'formToggle', 'formOpen');
         wireMetrics();
+        wireRiskScenarios();
         wireInstantTips();
         if (prefs.formOpen === undefined) { prefs.formOpen = false; panels.formSection.set(false, true); }
         $('fDate').value = E.todayLocalISO();

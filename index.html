@@ -270,31 +270,34 @@
                     </div>
                 </div>
 
-                <section class="risk-scenarios" id="riskScenarios" data-state="empty" aria-labelledby="riskScenariosTitle">
-                    <div class="risk-scenarios-head">
-                        <div class="risk-scenarios-title">
+                <section class="risk-scenarios collapsible is-open" id="riskScenarios" data-state="empty" aria-labelledby="riskScenariosTitle">
+                    <button type="button" class="risk-scenarios-toggle" id="riskScenariosToggle" aria-expanded="true" aria-controls="riskScenariosBody">
+                        <span class="risk-scenarios-title">
                             <span data-icon="activity" aria-hidden="true"></span>
                             <span id="riskScenariosTitle">Risk scenarios</span>
-                        </div>
+                        </span>
                         <span class="risk-scenarios-context" id="riskScenariosContext">Fill entry and stop to compare</span>
-                    </div>
-                    <div class="risk-scenarios-empty" id="riskScenariosEmpty">See how the same setup changes at half and double your selected risk.</div>
-                    <div class="risk-scenarios-grid" id="riskScenariosGrid" hidden>
-                        <button type="button" class="risk-scenario" data-scenario="safer">
-                            <span class="risk-scenario-top"><span class="risk-scenario-name">Safer</span><span class="risk-scenario-pct">—</span></span>
-                            <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
-                            <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
-                        </button>
-                        <button type="button" class="risk-scenario is-current" data-scenario="current" aria-pressed="true">
-                            <span class="risk-scenario-top"><span class="risk-scenario-name">Current</span><span class="risk-scenario-pct">—</span></span>
-                            <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
-                            <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
-                        </button>
-                        <button type="button" class="risk-scenario" data-scenario="higher">
-                            <span class="risk-scenario-top"><span class="risk-scenario-name">Higher</span><span class="risk-scenario-pct">—</span></span>
-                            <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
-                            <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
-                        </button>
+                        <span class="risk-scenarios-chev" data-icon="chevron-down" aria-hidden="true"></span>
+                    </button>
+                    <div class="risk-scenarios-body" id="riskScenariosBody">
+                        <div class="risk-scenarios-empty" id="riskScenariosEmpty">See how the same setup changes at half and double your selected risk.</div>
+                        <div class="risk-scenarios-grid" id="riskScenariosGrid" hidden>
+                            <button type="button" class="risk-scenario" data-scenario="safer">
+                                <span class="risk-scenario-top"><span class="risk-scenario-name">Safer</span><span class="risk-scenario-pct">—</span></span>
+                                <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
+                                <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
+                            </button>
+                            <button type="button" class="risk-scenario is-current" data-scenario="current" aria-pressed="true">
+                                <span class="risk-scenario-top"><span class="risk-scenario-name">Current</span><span class="risk-scenario-pct">—</span></span>
+                                <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
+                                <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
+                            </button>
+                            <button type="button" class="risk-scenario" data-scenario="higher">
+                                <span class="risk-scenario-top"><span class="risk-scenario-name">Higher</span><span class="risk-scenario-pct">—</span></span>
+                                <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
+                                <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
+                            </button>
+                        </div>
                     </div>
                 </section>
 

@@ -829,9 +829,11 @@ body.is-splash > .app-footer {
                 filter var(--dur-slow) ease-out, opacity var(--dur-slow) ease-out;
 }
 .collapsible:not(.is-open) .panel-body-wrap,
-.collapsible:not(.is-open) .metrics-row-wrap { filter: blur(5px); opacity: 0; }
+.collapsible:not(.is-open) .metrics-row-wrap,
+.collapsible:not(.is-open) .risk-scenarios-body { filter: blur(5px); opacity: 0; }
 .collapsible.is-open .panel-body-wrap,
-.collapsible.is-open .metrics-row-wrap { filter: blur(0); opacity: 1; }
+.collapsible.is-open .metrics-row-wrap,
+.collapsible.is-open .risk-scenarios-body { filter: blur(0); opacity: 1; }
 .panel-body { padding: 16px; border-top: 1px solid var(--border); }
 
 /* ---------- calculator ---------- */
@@ -1117,13 +1119,17 @@ body.is-splash > .app-footer {
     background: var(--surface-2);
     transition: border-color var(--dur-base), background-color var(--dur-base);
 }
-.risk-scenarios-head {
+.risk-scenarios-toggle {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 12px;
+    width: 100%;
     padding: 0 3px 8px;
+    color: inherit;
+    background: transparent;
+    text-align: left;
 }
+.risk-scenarios-toggle:hover .risk-scenarios-title { color: var(--text); }
 .risk-scenarios-title {
     display: inline-flex;
     align-items: center;
@@ -1135,7 +1141,27 @@ body.is-splash > .app-footer {
     text-transform: uppercase;
 }
 .risk-scenarios-title .lucide { width: 13px; height: 13px; color: var(--primary); }
-.risk-scenarios-context { color: var(--text-3); font-size: 0.69rem; }
+.risk-scenarios-context {
+    margin-left: auto;
+    color: var(--text-3);
+    font-size: 0.69rem;
+}
+.risk-scenarios-chev {
+    display: inline-flex;
+    flex: none;
+    color: var(--text-3);
+    transition: transform var(--dur-base) var(--ease-standard);
+}
+.risk-scenarios-chev .lucide { width: 13px; height: 13px; }
+.risk-scenarios:not(.is-open) { padding-block: 6px; }
+.risk-scenarios:not(.is-open) .risk-scenarios-toggle { padding-bottom: 0; }
+.risk-scenarios:not(.is-open) .risk-scenarios-context { display: none; }
+.risk-scenarios:not(.is-open) .risk-scenarios-chev { transform: rotate(-90deg); }
+.risk-scenarios-body {
+    height: auto; overflow: hidden;
+    transition: height var(--dur-slow) var(--ease-out-expo),
+                filter 250ms ease-out, opacity 250ms ease-out;
+}
 .risk-scenarios-empty {
     padding: 9px 10px 10px;
     border-top: 1px solid var(--border);
@@ -3330,7 +3356,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     .option-inputs { grid-template-columns: 1fr; }
     .option-guidance { grid-column: auto; }
     .risk-scenarios { padding: 8px; }
-    .risk-scenarios-head { align-items: flex-start; }
+    .risk-scenarios-toggle { align-items: flex-start; }
     .risk-scenarios-context { max-width: 48%; text-align: right; line-height: 1.3; }
     .risk-scenario { padding: 8px 7px 9px; }
     .risk-scenario-position { display: block; }
