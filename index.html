@@ -848,24 +848,33 @@
 
 <!-- Sync setup -->
 <template id="tpl-sync">
-    <div class="modal-card">
+    <div class="modal-card sync-card">
         <div class="modal-head">
             <div class="modal-title">Cloud sync</div>
             <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
         </div>
+        <p class="sync-lead">Optional. Keeps this book on your phone and laptop through a <b>private GitHub Gist you own</b>. The token stays in this browser — we never send it to skyler.tools.</p>
         <div class="sync-status">
             <span class="sync-status-dot" data-s="off"></span>
             <span class="sync-status-text">Not linked</span>
             <button class="btn btn-ghost btn-sm sync-now" hidden>Sync now</button>
         </div>
+        <ol class="sync-steps">
+            <li>
+                Create a GitHub personal access token and check the <b>gist</b> box.
+                <a class="sync-token-link" href="https://github.com/settings/tokens/new?description=skyler.tools%20sync&amp;scopes=gist" target="_blank" rel="noopener">Create a token <span data-icon="external-link" aria-hidden="true"></span></a>
+            </li>
+            <li>Paste it below. Leave Gist ID blank to make a new private gist, or paste one from another device to join it.</li>
+            <li>Tap <b>Link &amp; sync</b>. Same token + gist ID on the next device is all it takes.</li>
+        </ol>
         <div class="sync-fields">
             <div class="field">
-                <label>GitHub token <span class="label-opt">(gist scope only)</span></label>
+                <label>GitHub token <span class="label-opt">gist scope only</span></label>
                 <input type="password" class="sy-token" placeholder="ghp_…" autocomplete="off">
             </div>
             <div class="field">
-                <label>Gist ID <span class="label-opt">(blank = create a new private gist)</span></label>
-                <input type="text" class="sy-gist" placeholder="existing gist id" autocomplete="off">
+                <label>Gist ID <span class="label-opt">blank = create a new private gist</span></label>
+                <input type="text" class="sy-gist" placeholder="only if you already have one" autocomplete="off">
             </div>
         </div>
         <div class="sync-error muted-note" role="alert" hidden></div>
@@ -878,8 +887,11 @@
         </div>
         <hr class="sync-divider">
         <div class="sync-backup-row">
-            <span class="muted-note">Token-free safety net</span>
-            <span>
+            <span class="sync-backup-copy">
+                <strong>Skip GitHub</strong>
+                <span class="muted-note">Download a JSON backup any time and restore it here.</span>
+            </span>
+            <span class="sync-backup-actions">
                 <button class="btn btn-ghost btn-sm sy-backup">Download backup</button>
                 <button class="btn btn-ghost btn-sm sy-restore">Restore from file…</button>
             </span>

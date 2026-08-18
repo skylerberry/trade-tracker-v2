@@ -3153,6 +3153,7 @@
                 qs('.sy-token').value = sync.token;
                 qs('.sy-gist').value = sync.gistId;
                 qs('.sy-token').disabled = qs('.sy-gist').disabled = linked;
+                card.classList.toggle('is-linked', linked);
             };
             refresh();
             qs('.sync-now').addEventListener('click', () => { syncPull(); });

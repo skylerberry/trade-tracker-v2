@@ -582,6 +582,14 @@ body.is-splash > .app-footer {
 .sync-ind[data-s="syncing"] { background: var(--warning); animation: ttPulse 1.2s ease-in-out infinite; }
 .sync-ind[data-s="error"], .sync-ind[data-s="conflict"] { background: var(--danger); }
 .sync-ind[data-s="paused"] { background: var(--warning); }
+.sync-card { max-width: 500px; }
+.sync-lead {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+.sync-lead b { color: var(--text); font-weight: 600; }
 .sync-status { display: flex; align-items: center; gap: 9px; font-size: 0.88rem; }
 .sync-status .sync-now { margin-left: auto; }
 .sync-status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--border-2); flex: none; transition: background-color var(--dur-slow); }
@@ -589,9 +597,37 @@ body.is-splash > .app-footer {
 .sync-status-dot[data-s="syncing"] { background: var(--warning); animation: ttPulse 1.2s ease-in-out infinite; }
 .sync-status-dot[data-s="error"], .sync-status-dot[data-s="conflict"] { background: var(--danger); }
 .sync-status-dot[data-s="paused"] { background: var(--warning); }
+.sync-steps {
+    margin: 0;
+    padding: 10px 12px 10px 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+.sync-steps li + li { margin-top: 7px; }
+.sync-steps b { color: var(--text); font-weight: 600; }
+.sync-token-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 4px;
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.sync-token-link:hover { text-decoration: underline; }
+.sync-token-link .lucide { width: 11px; height: 11px; }
+.sync-card.is-linked .sync-steps { display: none; }
 .sync-fields { display: flex; flex-direction: column; gap: 12px; }
 .sync-divider { border: none; border-top: 1px solid var(--border); margin: 2px 0; }
 .sync-backup-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sync-backup-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sync-backup-copy strong { font-size: 0.78rem; font-weight: 600; color: var(--text); }
+.sync-backup-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .sync-error { color: var(--danger); }
 
 @keyframes ttPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
@@ -1008,17 +1044,25 @@ body.is-splash > .app-footer {
 }
 .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .stepper-wrap { position: relative; display: flex; }
-.stepper-wrap input { padding-right: 30px; }
+.stepper-wrap input { padding-right: 34px; }
 .steppers {
-    position: absolute; right: 4px; top: 4px; bottom: 4px;
-    display: flex; flex-direction: column; justify-content: center;
+    position: absolute; right: 4px; top: 5px; bottom: 5px;
+    display: flex; flex-direction: column;
+    width: 22px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface-2);
+    overflow: hidden;
 }
 .steppers button {
-    font-size: 0.62rem; line-height: 1; color: var(--text-3);
-    padding: 2px 5px; border-radius: 3px;
+    flex: 1;
+    font-size: 0.68rem; line-height: 1; color: var(--text-3);
+    padding: 0;
+    border-radius: 0;
     transition: background-color var(--dur-fast), color var(--dur-fast);
 }
-.steppers button:hover { background: var(--surface-2); color: var(--text); }
+.steppers button + button { border-top: 1px solid var(--border); }
+.steppers button:hover { background: var(--surface); color: var(--text); }
 /* actions column behaves exactly like a field: ghost label reserves the
    label row so the buttons share the inputs' baseline */
 .ghost-label { visibility: hidden; user-select: none; }
