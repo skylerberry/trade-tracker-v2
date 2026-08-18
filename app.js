@@ -1336,15 +1336,34 @@
 
         const s = E.computeStats(trades, prefs.scope);
         const scopeName = prefs.scope === 'month' ? s.monthName : 'All time';
-        const line = $('scoreboardLine');
-        if (s.n < 3) {
-            line.innerHTML = `${scopeName} <span class="dim">· ${s.n} trade${s.n === 1 ? '' : 's'} logged — stats unlock as you log</span>`;
+        const ready = s.n >= 3;
+        const setSign = (el, n) => {
+            el.dataset.sign = E.isNum(n) && n > 0 ? 'up' : E.isNum(n) && n < 0 ? 'down' : '';
+        };
+        $('sbTrades').textContent = String(s.n);
+        $('sbRecord').textContent = s.n ? `${s.wins}W / ${s.losses}L` : '';
+        if (ready) {
+            $('sbWin').textContent = s.winRate === null ? '—' : Math.round(s.winRate * 100) + '%';
+            $('sbR').textContent = E.fmtR(s.sumR);
+            $('sbPnl').textContent = E.fmtMoney(s.sumPnl, true);
+            $('sbExp').textContent = s.expectancy === null ? '—'
+                : (s.expectancy > 0 ? '+' : s.expectancy < 0 ? '−' : '') + Math.abs(s.expectancy).toFixed(2) + 'R';
+            setSign($('sbR'), s.sumR);
+            setSign($('sbPnl'), s.sumPnl);
+            setSign($('sbExp'), s.expectancy);
         } else {
-            const win = s.winRate === null ? '—' : Math.round(s.winRate * 100) + '%';
-            const exp = s.expectancy === null ? '—' : (s.expectancy > 0 ? '+' : '') + s.expectancy.toFixed(2) + 'R';
-            line.innerHTML = `${scopeName} <span class="dim">·</span> ${s.n} trades <span class="dim">·</span> ${win} win <span class="dim">·</span> ${E.fmtR(s.sumR)} <span class="dim">·</span> exp ${exp}`;
+            $('sbWin').textContent = '—';
+            $('sbR').textContent = '—';
+            $('sbPnl').textContent = '—';
+            $('sbExp').textContent = '—';
+            setSign($('sbR'), null);
+            setSign($('sbPnl'), null);
+            setSign($('sbExp'), null);
         }
-        $('scoreboardNote').textContent = s.excluded ? `${s.excluded} trade${s.excluded === 1 ? '' : 's'} excluded (no share counts)` : '';
+        const notes = [];
+        if (!ready) notes.push(`${scopeName} · stats unlock after 3 closed trades`);
+        if (s.excluded) notes.push(`${s.excluded} trade${s.excluded === 1 ? '' : 's'} excluded (no share counts)`);
+        $('scoreboardNote').textContent = notes.join(' · ');
 
         const stale = E.staleTrades(trades);
         const chip = $('staleChip');

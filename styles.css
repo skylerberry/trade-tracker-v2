@@ -734,9 +734,47 @@ body.is-splash > .app-footer {
 
 .scoreboard { flex: 1; min-width: 280px; }
 .scoreboard-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.scoreboard-line { font-size: 1.02rem; font-weight: 600; color: var(--header-text); margin-top: 3px; }
-.scoreboard-line .dim { color: var(--text-3); font-weight: 500; }
-.scoreboard-sub { display: flex; gap: 10px; align-items: center; min-height: 18px; }
+.scoreboard-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 10px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.sb-stat {
+    min-width: 0;
+    padding: 8px 10px 9px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.sb-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+}
+.sb-stat b {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--header-text);
+    font-variant-numeric: tabular-nums;
+}
+.sb-stat b[data-sign="up"] { color: var(--success); }
+.sb-stat b[data-sign="down"] { color: var(--danger); }
+.sb-sub {
+    min-height: 1em;
+    color: var(--text-3);
+    font-size: 0.68rem;
+    font-weight: 500;
+}
+.scoreboard-sub { display: flex; gap: 10px; align-items: center; min-height: 18px; margin-top: 6px; }
 .muted-note { font-size: 0.74rem; color: var(--text-3); }
 .stale-chip {
     font-size: 0.7rem; font-weight: 600; color: var(--warning);
@@ -3440,6 +3478,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     .rail { grid-template-columns: 1fr; }
     .rail-side { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 12px; }
     .metrics-row { gap: 16px; }
+    .scoreboard-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .brand-row { grid-template-columns: 1fr auto; gap: 10px 12px; }
     .brand { grid-column: 1; grid-row: 1; }
     .header-chrome { grid-column: 2; grid-row: 1; }
@@ -3481,6 +3520,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     .compound-table-key { gap: 8px; }
     .open-risk-num { font-size: 1.45rem; }
     .metric-card { width: 100%; }
+    .scoreboard-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .daily-clock { width: 100%; grid-template-columns: auto 1fr auto; }
 }
 
