@@ -78,7 +78,7 @@
                     <span class="metrics-eye-on" data-icon="eye"></span>
                     <span class="metrics-eye-off" data-icon="eye-off"></span>
                 </span>
-                Summary
+                <span class="metrics-toggle-label">Summary</span>
             </button>
         </nav>
         <div class="metrics-block collapsible is-open" id="metricsBlock">
@@ -103,31 +103,35 @@
                                 <button data-seg="all" role="tab">all</button>
                             </div>
                         </div>
-                        <div class="scoreboard-stats" id="scoreboardStats">
-                            <div class="sb-stat">
+                        <div class="scoreboard-line" id="scoreboardLine">
+                            <span class="sb-item">
                                 <span class="sb-label">Trades</span>
                                 <b id="sbTrades">—</b>
                                 <span class="sb-sub" id="sbRecord"></span>
-                            </div>
-                            <div class="sb-stat">
+                            </span>
+                            <span class="sb-sep" aria-hidden="true"></span>
+                            <span class="sb-item">
                                 <span class="sb-label">Win rate</span>
                                 <b id="sbWin">—</b>
-                            </div>
-                            <div class="sb-stat">
+                            </span>
+                            <span class="sb-sep" aria-hidden="true"></span>
+                            <span class="sb-item">
                                 <span class="sb-label">Total R</span>
                                 <b id="sbR">—</b>
-                            </div>
-                            <div class="sb-stat">
+                            </span>
+                            <span class="sb-sep" aria-hidden="true"></span>
+                            <span class="sb-item">
                                 <span class="sb-label">P&amp;L</span>
                                 <b id="sbPnl">—</b>
-                            </div>
-                            <div class="sb-stat">
+                            </span>
+                            <span class="sb-sep" aria-hidden="true"></span>
+                            <span class="sb-item">
                                 <span class="sb-label has-field-tooltip" aria-describedby="sbExpHelp">
                                     <span class="field-help-label">Expectancy</span>
                                     <span class="field-tooltip" id="sbExpHelp" role="tooltip">Average R you keep per closed trade. Wins and losses rolled together.</span>
                                 </span>
                                 <b id="sbExp">—</b>
-                            </div>
+                            </span>
                         </div>
                         <div class="scoreboard-sub">
                             <span id="scoreboardNote" class="muted-note"></span>
@@ -709,7 +713,7 @@
 
 <footer class="app-footer">
     <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerBackup" class="tiny-link">backup</button> · <button id="footerFeedback" class="tiny-link">feedback</button></span>
-    <a class="footer-made" href="https://x.com/skylerber" target="_blank" rel="noopener">made with <span class="footer-marks"><span class="footer-heart" data-icon="heart" aria-hidden="true"></span><span class="footer-coffee" data-icon="coffee" aria-hidden="true"></span></span> by skyler</a>
+    <a class="footer-made" href="https://x.com/skylerber" target="_blank" rel="noopener">made with <span class="footer-marks"><span class="footer-heart" data-icon="heart" aria-hidden="true"></span><span class="footer-plus" aria-hidden="true">+</span><span class="footer-coffee" data-icon="coffee" aria-hidden="true"></span></span> by skyler</a>
 </footer>
 
 <!-- Netlify parses this static form at deploy. The modal POSTs the same fields. -->
@@ -890,9 +894,10 @@
             <div class="modal-title">Cloud sync</div>
             <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
         </div>
-        <p class="sync-lead">Optional. Keeps this book on your phone and laptop through a <b>private GitHub Gist you own</b>. The token stays in this browser — we never send it to skyler.tools.</p>
+        <p class="sync-lead">Optional. Keeps this book on your phone and laptop through a <b>private GitHub Gist you own</b>. The token stays in this browser — it never goes to skyler.tools.</p>
         <div class="sync-status">
             <span class="sync-status-dot" data-s="off"></span>
+            <span class="sync-status-kicker">Status</span>
             <span class="sync-status-text">Not linked</span>
             <button class="btn btn-ghost btn-sm sync-now" hidden>Sync now</button>
         </div>

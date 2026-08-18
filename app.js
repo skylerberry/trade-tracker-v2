@@ -1194,6 +1194,7 @@
 
     function applyAlert(parsed) {
         if (!parsed) { toast('Could not parse that alert', { error: true }); return; }
+        if (view !== 'positions') setView('positions');
         if (parsed.ticker) $('tickerInput').value = parsed.ticker;
         if (parsed.entry !== null) $('entryPrice').value = String(parsed.entry);
         if (parsed.stop !== null) $('stopLoss').value = String(parsed.stop);
@@ -1203,10 +1204,18 @@
             else { prefs.riskPreset = 'custom'; prefs.riskCustom = parsed.riskPct; $('riskCustom').value = String(parsed.riskPct); segs.risk.set('custom'); }
             savePrefs();
         }
-        if (!panels.calcSection.section.classList.contains('is-open')) { prefs.calcOpen = true; panels.calcSection.set(true); }
+        const wasClosed = !panels.calcSection.section.classList.contains('is-open');
+        if (wasClosed) { prefs.calcOpen = true; panels.calcSection.set(true); }
         recalc();
         M.flash($('positionCard'), 'flash');
         toast(`Imported <b>${E.escapeHtml(parsed.ticker || 'alert')}</b> — check the numbers, then Log`);
+        const delay = wasClosed && !M.reduceMotion ? 280 : 80;
+        setTimeout(() => {
+            $('calcResults').scrollIntoView({
+                behavior: M.reduceMotion ? 'auto' : 'smooth',
+                block: 'center',
+            });
+        }, delay);
     }
 
     function openPasteAlertModal(prefill = '') {
