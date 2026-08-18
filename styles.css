@@ -1203,9 +1203,11 @@ body.is-splash > .app-footer {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--surface-2);
-    transition: border-color var(--dur-base), background-color var(--dur-base);
+    transition: border-color var(--dur-base), background-color var(--dur-base),
+                padding var(--dur-base), margin-top var(--dur-base);
 }
 .risk-scenarios-toggle {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1215,7 +1217,7 @@ body.is-splash > .app-footer {
     color: inherit;
     background: transparent;
     text-align: left;
-    transition: border-color 120ms ease-out;
+    transition: border-color 120ms ease-out, padding var(--dur-base), gap var(--dur-base);
 }
 .risk-scenarios-toggle:hover .risk-scenarios-title { color: var(--text); }
 .risk-scenarios-title {
@@ -1242,8 +1244,34 @@ body.is-splash > .app-footer {
     transition: transform var(--dur-base) var(--ease-standard);
 }
 .risk-scenarios-chev .lucide { width: 13px; height: 13px; }
-.risk-scenarios:not(.is-open) .risk-scenarios-toggle { border-bottom-color: transparent; }
-.risk-scenarios:not(.is-open) .risk-scenarios-context { opacity: 0; }
+.risk-scenarios:not(.is-open) {
+    margin-top: 8px;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+}
+.risk-scenarios:not(.is-open) .risk-scenarios-toggle {
+    width: auto;
+    gap: 5px;
+    padding: 2px 0;
+    border-bottom-color: transparent;
+}
+.risk-scenarios:not(.is-open) .risk-scenarios-title {
+    color: var(--text-3);
+    font-weight: 600;
+}
+.risk-scenarios:not(.is-open) .risk-scenarios-title .lucide,
+.risk-scenarios:not(.is-open) .risk-scenarios-chev { color: var(--text-3); }
+.risk-scenarios:not(.is-open) .risk-scenarios-title .lucide,
+.risk-scenarios:not(.is-open) .risk-scenarios-chev .lucide { width: 12px; height: 12px; }
+.risk-scenarios:not(.is-open) .risk-scenarios-toggle:hover .risk-scenarios-title { color: var(--text-2); }
+.risk-scenarios:not(.is-open) .risk-scenarios-context {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
 .risk-scenarios:not(.is-open) .risk-scenarios-chev { transform: rotate(-90deg); }
 .risk-scenarios-body {
     height: auto; overflow: hidden;
