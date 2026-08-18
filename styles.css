@@ -55,6 +55,7 @@
     --tier-3: color-mix(in srgb, var(--primary) 52%, var(--surface));
     --danger: #dc2626;
     --danger-soft: rgba(239, 68, 68, 0.10);
+    --made-heart: #e07a7a;
     --gain-card: #2d6a4f;
     --loss-card: #9b2226;
     --focus-ring: rgba(26, 54, 93, 0.18);
@@ -96,6 +97,7 @@
     --tier-3: color-mix(in srgb, var(--primary) 58%, var(--surface));
     --danger: #ef4444;
     --danger-soft: rgba(239, 68, 68, 0.14);
+    --made-heart: #f07178;
     --gain-card: #1a4d3a;
     --loss-card: #6b2c2c;
     --focus-ring: rgba(96, 165, 250, 0.35);
@@ -138,6 +140,7 @@
     --tier-2: color-mix(in srgb, var(--primary) 46%, var(--surface));
     --tier-3: color-mix(in srgb, var(--primary) 66%, var(--surface));
     --danger: #ff4d6d;
+    --made-heart: #ff3d5a;
     --danger-soft: rgba(255, 77, 109, 0.12);
     --gain-card: #063d24;
     --loss-card: #4a1220;
@@ -3022,6 +3025,10 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 .pager .btn { width: 30px; padding-inline: 0; }
 .pager .lucide { width: 14px; height: 14px; }
 .app-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
     text-align: center;
     padding: 0 20px 40px;
     font-size: 0.74rem;
@@ -3030,6 +3037,20 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 .app-footer a { color: var(--text-2); font-weight: 600; text-decoration: none; }
 .app-footer a:hover { color: var(--accent); }
 .footer-product { color: var(--text-3); }
+.app-footer a.footer-made {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-3);
+    font-weight: 500;
+}
+.app-footer a.footer-made:hover { color: var(--text-2); }
+.footer-heart {
+    display: inline-flex;
+    color: var(--made-heart);
+}
+.footer-heart .lucide { width: 11px; height: 11px; }
+.app-footer a.footer-made:hover .footer-heart { color: var(--made-heart); }
 .feedback-lead {
     margin: 0;
     color: var(--text-2);
