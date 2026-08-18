@@ -63,8 +63,8 @@ the repository root.
 ## Production
 
 Deployed on the existing Netlify site for [skyler.tools](https://skyler.tools)
-(`unique-cupcake-bbbd71`). `netlify.toml` copies the runtime files into `dist/`
-and publishes that folder.
+(`unique-cupcake-bbbd71`). Pushes to `main` publish through GitHub Actions.
+`netlify.toml` copies the runtime files into `dist/` and publishes that folder.
 
 ## Test
 

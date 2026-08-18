@@ -5,9 +5,9 @@ Ground-up reimplementation of lite.skyler.tools on branch `v2-cap-motion`
 `docs/WIREFRAME_SPEC.md`. Visual/motion language: the `cap-design` +
 `cap-motion` skills blended with the v1 navy/blue flat identity.
 
-**Fully static.** Production target is lite.skyler.tools — no backend, no
-API keys, no `/api`. (An Alpaca live-data layer existed briefly during
-development and was deliberately removed on 2026-08-06.)
+**Fully static.** Production is [skyler.tools](https://skyler.tools) — no
+backend, no API keys, no `/api`. (An Alpaca live-data layer existed briefly
+during development and was deliberately removed on 2026-08-06.)
 
 ## Run it locally
 
