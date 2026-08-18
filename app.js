@@ -1050,10 +1050,26 @@
         toast(`Copied <b>${b.dataset.r}R · ${b.dataset.copy}</b> — set your alert`);
     });
 
-    /* keyboard contract: Enter advances, focus selects, Tab order via DOM order */
-    calcFields.forEach((id, i) => {
+    /* keyboard contract: Enter advances, Tab-in selects so the next key
+       replaces. Pointer/touch must not select — tap-out on iOS leaves the
+       highlight, and the next tap + keystroke wipes the field. */
+    function selectOnKeyboardFocus(el) {
+        let fromPointer = false;
+        el.addEventListener('pointerdown', () => { fromPointer = true; });
+        el.addEventListener('focus', () => {
+            if (fromPointer) { fromPointer = false; return; }
+            el.select();
+        });
+        el.addEventListener('blur', () => {
+            fromPointer = false;
+            const n = el.value.length;
+            try { el.setSelectionRange(n, n); } catch (_) { /* type=number etc. */ }
+        });
+    }
+
+    calcFields.forEach((id) => {
         const el = $(id);
-        el.addEventListener('focus', () => el.select());
+        selectOnKeyboardFocus(el);
         el.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
