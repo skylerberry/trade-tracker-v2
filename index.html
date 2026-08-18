@@ -915,22 +915,23 @@
 <template id="tpl-feedback">
     <div class="modal-card feedback-card">
         <div class="modal-head">
-            <div class="modal-title">Send feedback</div>
+            <div class="modal-title">Feedback</div>
             <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
         </div>
-        <p class="feedback-lead">A bug, a missing piece, or something that felt off. One send — it lands in my inbox. No trades or account data are included.</p>
+        <p class="feedback-lead">Help me make this better. A bug, a missing piece, or something that just felt off — I’ll actually read it.</p>
         <div class="field">
-            <label for="feedbackMessage">What’s on your mind</label>
-            <textarea id="feedbackMessage" class="feedback-message" data-autofocus rows="5" maxlength="4000" placeholder="Keep it short. Context helps."></textarea>
+            <label class="sr-only" for="feedbackMessage">Feedback</label>
+            <textarea id="feedbackMessage" class="feedback-message" data-autofocus rows="5" maxlength="4000" placeholder="Tell me what you think…"></textarea>
         </div>
         <div class="field">
             <label for="feedbackEmail">Email <span class="label-opt">optional, if you want a reply</span></label>
             <input type="email" id="feedbackEmail" class="feedback-email" placeholder="you@email.com" autocomplete="email">
         </div>
+        <p class="muted-note">No trades or account data go with this.</p>
         <div class="feedback-error muted-note" role="alert" hidden></div>
         <div class="modal-actions">
             <button class="btn btn-ghost modal-cancel">Cancel</button>
-            <button class="btn btn-primary feedback-send"><span data-icon="message-square" aria-hidden="true"></span>Send</button>
+            <button class="btn btn-primary feedback-send">Submit feedback</button>
         </div>
     </div>
 </template>
