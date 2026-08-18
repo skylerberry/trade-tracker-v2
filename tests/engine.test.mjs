@@ -139,6 +139,22 @@ eq(E.parseAlert('Starter $AAPL @ $10.93\nStop loss @ $10.33\nRisking 0.25%'), { 
 eq(E.parseAlert('Adding $BRK.B @ $412.50 · SL: $409.25'), { ticker: 'BRK.B', entry: 412.5, stop: 409.25, riskPct: null }, 'alert parser accepts dotted ticker and colon stop');
 eq(E.parseAlert('nothing tradable here'), null, 'garbage → null');
 
+/* ---- watchlist ticker paste: any separators, skip junk, keep order ---- */
+eq(E.parseWatchlistTickers('GOOGL, AAPL'), ['GOOGL', 'AAPL'], 'comma list');
+eq(E.parseWatchlistTickers('googl, AAPL,'), ['GOOGL', 'AAPL'], 'lowercase and trailing comma');
+eq(E.parseWatchlistTickers('GOOGL AAPL'), ['GOOGL', 'AAPL'], 'space-separated');
+eq(E.parseWatchlistTickers('GOOGL,AAPL'), ['GOOGL', 'AAPL'], 'commas without spaces');
+eq(E.parseWatchlistTickers('$NVDA $AAPL'), ['NVDA', 'AAPL'], 'dollar prefixes');
+eq(E.parseWatchlistTickers('GOOGL\nAAPL\tTSLA'), ['GOOGL', 'AAPL', 'TSLA'], 'newlines and tabs');
+eq(E.parseWatchlistTickers('GOOGL; AAPL | META'), ['GOOGL', 'AAPL', 'META'], 'semicolons and pipes');
+eq(E.parseWatchlistTickers('NVDA'), ['NVDA'], 'single ticker');
+eq(E.parseWatchlistTickers('NVDA, NVDA, AAPL'), ['NVDA', 'AAPL'], 'dedupes, first wins');
+eq(E.parseWatchlistTickers('TOOOLONG, AAPL, 123'), ['AAPL'], 'drops invalid tokens');
+eq(E.parseWatchlistTickers('BRK.B, AAPL'), ['AAPL'], 'dotted class share is not a 1–5 letter ticker');
+eq(E.parseWatchlistTickers('  , , '), [], 'separators only');
+eq(E.parseWatchlistTickers(''), [], 'empty string');
+eq(E.parseWatchlistTickers(null), [], 'null');
+
 /* ---- formatting: real minus U+2212, BE band, null → dash ---- */
 eq(E.fmtMoney(-1020, true), '−$1,020.00', 'signed currency uses U+2212');
 eq(E.fmtR(0.02), 'BE', '|R|<0.05 renders BE');

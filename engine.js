@@ -412,6 +412,20 @@ const ENGINE = (() => {
         });
     }
 
+    /* ---------- watchlist paste: "GOOGL, AAPL" / "googl AAPL," / "$NVDA" ---- */
+    function parseWatchlistTickers(text) {
+        if (text == null || text === '') return [];
+        const seen = new Set();
+        const out = [];
+        for (const raw of String(text).split(/[\s,;|]+/)) {
+            const ticker = raw.replace(/^\$/, '').toUpperCase();
+            if (!/^[A-Z]{1,5}$/.test(ticker) || seen.has(ticker)) continue;
+            seen.add(ticker);
+            out.push(ticker);
+        }
+        return out;
+    }
+
     /* ---------- alert parser ($TICKER @ entry sl stop [risk X%]) ---------- */
     function parseAlert(text) {
         if (!text) return null;
@@ -712,7 +726,7 @@ const ENGINE = (() => {
         deriveStatus, statusLabel,
         calcPosition, calcOptionPosition, buildSellPlan, pendingTargets, breakevenStop, freerollSharesAtPrice,
         computeStats, accountRisk, staleTrades, lastExitDate,
-        parseAlert, toCSV,
+        parseAlert, parseWatchlistTickers, toCSV,
         COMPOUND_RATES, compoundAnnualContribution, compoundValue, compoundGlow,
         compoundPath, periodicRate, yearsToTarget, compoundWithYearShock, compoundPerspective,
         migrateLiveSiteTrade, migrateLiveSiteJournal,
