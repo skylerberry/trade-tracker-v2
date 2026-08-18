@@ -3523,7 +3523,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     .calc-mode-context { margin-left: 0; justify-content: center; }
     .option-inputs { grid-template-columns: 1fr; }
     .option-guidance { grid-column: auto; }
-    .risk-scenarios { padding: 8px; }
+    .risk-scenarios.is-open { padding: 8px; }
     .risk-scenarios-toggle { align-items: flex-start; }
     .risk-scenarios-context { max-width: 48%; text-align: right; line-height: 1.3; }
     .risk-scenario { padding: 8px 7px 9px; }
