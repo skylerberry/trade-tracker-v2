@@ -683,8 +683,19 @@
 </main>
 
 <footer class="app-footer">
-    <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerBackup" class="tiny-link">backup</button></span>
+    <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerBackup" class="tiny-link">backup</button> · <button id="footerFeedback" class="tiny-link">feedback</button></span>
 </footer>
+
+<!-- Netlify parses this static form at deploy. The modal POSTs the same fields. -->
+<form name="feedback" method="POST" action="/" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="feedback">
+    <input name="bot-field">
+    <textarea name="message"></textarea>
+    <input name="email">
+    <input name="view">
+    <input name="theme">
+    <input name="accent">
+</form>
 
 <!-- ============ MODAL LAYER ============ -->
 <div class="instant-tip" id="instantTip" hidden></div>
@@ -895,6 +906,30 @@
                 <button class="btn btn-ghost btn-sm sy-backup">Download backup</button>
                 <button class="btn btn-ghost btn-sm sy-restore">Restore from file…</button>
             </span>
+        </div>
+    </div>
+</template>
+
+<!-- Feedback -->
+<template id="tpl-feedback">
+    <div class="modal-card feedback-card">
+        <div class="modal-head">
+            <div class="modal-title">Send feedback</div>
+            <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        </div>
+        <p class="feedback-lead">A bug, a missing piece, or something that felt off. One send — it lands in my inbox. No trades or account data are included.</p>
+        <div class="field">
+            <label for="feedbackMessage">What’s on your mind</label>
+            <textarea id="feedbackMessage" class="feedback-message" data-autofocus rows="5" maxlength="4000" placeholder="Keep it short. Context helps."></textarea>
+        </div>
+        <div class="field">
+            <label for="feedbackEmail">Email <span class="label-opt">optional, if you want a reply</span></label>
+            <input type="email" id="feedbackEmail" class="feedback-email" placeholder="you@email.com" autocomplete="email">
+        </div>
+        <div class="feedback-error muted-note" role="alert" hidden></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost modal-cancel">Cancel</button>
+            <button class="btn btn-primary feedback-send"><span data-icon="message-square" aria-hidden="true"></span>Send</button>
         </div>
     </div>
 </template>

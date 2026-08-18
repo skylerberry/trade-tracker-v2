@@ -2917,6 +2917,58 @@
     $('footerBackup').addEventListener('click', () => {
         downloadBackup();
     });
+    function openFeedbackModal() {
+        openModal('tpl-feedback', (card, close) => {
+            const qs = (sel) => card.querySelector(sel);
+            const msg = qs('.feedback-message');
+            const err = qs('.feedback-error');
+            const send = qs('.feedback-send');
+            const submit = async () => {
+                const text = msg.value.trim();
+                if (!text) {
+                    err.hidden = false;
+                    err.textContent = 'Write a note first.';
+                    msg.focus();
+                    return;
+                }
+                err.hidden = true;
+                send.disabled = true;
+                try {
+                    const body = new URLSearchParams({
+                        'form-name': 'feedback',
+                        'bot-field': '',
+                        message: text,
+                        email: qs('.feedback-email').value.trim(),
+                        view: view || '',
+                        theme: themeMode() || '',
+                        accent: accentName || '',
+                    });
+                    const res = await fetch('/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body,
+                    });
+                    if (!res.ok) throw new Error(String(res.status));
+                    close();
+                    toast('Feedback sent — thank you');
+                } catch {
+                    err.hidden = false;
+                    err.textContent = /skyler\.tools$|netlify\.app$/.test(location.hostname)
+                        ? 'Couldn’t send. Try again in a moment.'
+                        : 'Feedback sends from the live site (skyler.tools).';
+                    send.disabled = false;
+                }
+            };
+            send.addEventListener('click', submit);
+            msg.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    submit();
+                }
+            });
+        });
+    }
+    $('footerFeedback').addEventListener('click', openFeedbackModal);
     $('restoreFile').addEventListener('change', async (e) => {
         const file = e.target.files[0];
         e.target.value = '';
