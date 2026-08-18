@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Style Options - Trade Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f5;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: #18181b;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #71717a;
+            margin-bottom: 40px;
+            font-size: 0.9rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto 60px;
+        }
+
+        .option {
+            background: white;
+            border: 1px solid #e4e4e7;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .option-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e4e4e7;
+            background: #fafafa;
+        }
+
+        .option-header h2 {
+            font-size: 1rem;
+            color: #18181b;
+            margin-bottom: 4px;
+        }
+
+        .option-header p {
+            font-size: 0.8rem;
+            color: #71717a;
+        }
+
+        .option-content {
+            padding: 24px;
+        }
+
+        .button-group {
+            margin-bottom: 24px;
+        }
+
+        .button-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .button-group-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #71717a;
+            margin-bottom: 12px;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Mock table row for context */
+        .mock-table-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .mock-table-row .ticker {
+            font-weight: 600;
+            color: #18181b;
+        }
+
+        .mock-table-row .price {
+            color: #3f3f46;
+        }
+
+        .mock-table-row .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ========================================
+           CURRENT STYLE
+           ======================================== */
+        .current .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .current .btn-primary {
+            background: #1a365d;
+            color: white;
+            border: none;
+        }
+
+        .current .btn-primary:hover {
+            background: #2d4a7c;
+            transform: translateY(-1px);
+        }
+
+        .current .btn-view {
+            background: #fafafa;
+            color: #1a365d;
+            border: 1px solid #1a365d;
+        }
+
+        .current .btn-view:hover {
+            background: #1a365d;
+            color: white;
+        }
+
+        .current .btn-edit {
+            background: #fafafa;
+            color: #fbbf24;
+            border: 1px solid #fbbf24;
+        }
+
+        .current .btn-edit:hover {
+            background: #fbbf24;
+            color: white;
+        }
+
+        .current .btn-delete {
+            background: #fafafa;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .current .btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* ========================================
+           OPTION A: Minimal Text Buttons
+           ======================================== */
+        .option-a .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            border: none;
+        }
+
+        .option-a .btn-primary {
+            background: #1a365d;
+            color: white;
+            border: 1px solid #1a365d;
+        }
+
+        .option-a .btn-primary:hover {
+            background: #2d4a7c;
+            border-color: #2d4a7c;
+        }
+
+        .option-a .btn-view {
+            background: transparent;
+            color: #3f3f46;
+        }
+
+        .option-a .btn-view:hover {
+            background: #f4f4f5;
+            color: #18181b;
+        }
+
+        .option-a .btn-edit {
+            background: transparent;
+            color: #3f3f46;
+        }
+
+        .option-a .btn-edit:hover {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .option-a .btn-delete {
+            background: transparent;
+            color: #71717a;
+        }
+
+        .option-a .btn-delete:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* ========================================
+           OPTION B: Icon-Only Buttons
+           ======================================== */
+        .option-b .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            border: 1px solid #1a365d;
+        }
+
+        .option-b .btn-primary {
+            background: #1a365d;
+            color: white;
+        }
+
+        .option-b .btn-primary:hover {
+            background: #2d4a7c;
+            border-color: #2d4a7c;
+        }
+
+        .option-b .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            background: transparent;
+        }
+
+        .option-b .btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .option-b .btn-icon-view {
+            color: #71717a;
+        }
+
+        .option-b .btn-icon-view:hover {
+            background: #f4f4f5;
+            color: #1a365d;
+        }
+
+        .option-b .btn-icon-edit {
+            color: #71717a;
+        }
+
+        .option-b .btn-icon-edit:hover {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .option-b .btn-icon-delete {
+            color: #71717a;
+        }
+
+        .option-b .btn-icon-delete:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* ========================================
+           OPTION C: Refined Current Style
+           ======================================== */
+        .option-c .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .option-c .btn-primary {
+            background: #1a365d;
+            color: white;
+            border: 1px solid #1a365d;
+        }
+
+        .option-c .btn-primary:hover {
+            background: #2d4a7c;
+            border-color: #2d4a7c;
+        }
+
+        .option-c .btn-view {
+            background: transparent;
+            color: #1a365d;
+            border: 1px solid #d4d4d8;
+        }
+
+        .option-c .btn-view:hover {
+            background: #f4f4f5;
+            border-color: #a1a1aa;
+        }
+
+        .option-c .btn-edit {
+            background: transparent;
+            color: #92400e;
+            border: 1px solid #d4d4d8;
+        }
+
+        .option-c .btn-edit:hover {
+            background: #fef3c7;
+            border-color: #fbbf24;
+        }
+
+        .option-c .btn-delete {
+            background: transparent;
+            color: #dc2626;
+            border: 1px solid #d4d4d8;
+        }
+
+        .option-c .btn-delete:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        /* ========================================
+           OPTION D: Pill-style Minimal
+           ======================================== */
+        .option-d .btn {
+            padding: 6px 14px;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .option-d .btn-primary {
+            background: #1a365d;
+            color: white;
+            border: 1px solid #1a365d;
+        }
+
+        .option-d .btn-primary:hover {
+            background: #2d4a7c;
+            border-color: #2d4a7c;
+        }
+
+        .option-d .btn-view {
+            background: #f4f4f5;
+            color: #3f3f46;
+            border: 1px solid #e4e4e7;
+        }
+
+        .option-d .btn-view:hover {
+            background: #e4e4e7;
+            border-color: #d4d4d8;
+        }
+
+        .option-d .btn-edit {
+            background: #f4f4f5;
+            color: #3f3f46;
+            border: 1px solid #e4e4e7;
+        }
+
+        .option-d .btn-edit:hover {
+            background: #fef3c7;
+            border-color: #fcd34d;
+            color: #92400e;
+        }
+
+        .option-d .btn-delete {
+            background: #f4f4f5;
+            color: #71717a;
+            border: 1px solid #e4e4e7;
+        }
+
+        .option-d .btn-delete:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #dc2626;
+        }
+
+        /* ========================================
+           DARK MODE SECTION
+           ======================================== */
+        .dark-section {
+            background: #18181b;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .dark-section h2 {
+            color: #f4f4f5;
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .dark-options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .dark-option {
+            background: #27272a;
+            border: 1px solid #3f3f46;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .dark-option h3 {
+            color: #a1a1aa;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .dark-option .mock-table-row {
+            background: #1f1f22;
+        }
+
+        .dark-option .mock-table-row .ticker {
+            color: #f4f4f5;
+        }
+
+        .dark-option .mock-table-row .price {
+            color: #a1a1aa;
+        }
+
+        /* Dark mode button styles */
+        .dark-option-a .btn-view,
+        .dark-option-a .btn-edit,
+        .dark-option-a .btn-delete {
+            background: transparent;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .dark-option-a .btn-view {
+            color: #a1a1aa;
+        }
+
+        .dark-option-a .btn-view:hover {
+            background: #3f3f46;
+            color: #f4f4f5;
+        }
+
+        .dark-option-a .btn-edit {
+            color: #a1a1aa;
+        }
+
+        .dark-option-a .btn-edit:hover {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+
+        .dark-option-a .btn-delete {
+            color: #71717a;
+        }
+
+        .dark-option-a .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+
+        /* Dark Option B - Icons */
+        .dark-option-b .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            background: transparent;
+        }
+
+        .dark-option-b .btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .dark-option-b .btn-icon-view {
+            color: #71717a;
+        }
+
+        .dark-option-b .btn-icon-view:hover {
+            background: #3f3f46;
+            color: #93c5fd;
+        }
+
+        .dark-option-b .btn-icon-edit {
+            color: #71717a;
+        }
+
+        .dark-option-b .btn-icon-edit:hover {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+
+        .dark-option-b .btn-icon-delete {
+            color: #71717a;
+        }
+
+        .dark-option-b .btn-icon-delete:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+
+        /* Dark Option C - Refined borders */
+        .dark-option-c .btn-view,
+        .dark-option-c .btn-edit,
+        .dark-option-c .btn-delete {
+            background: transparent;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            border: 1px solid #52525b;
+        }
+
+        .dark-option-c .btn-view {
+            color: #93c5fd;
+        }
+
+        .dark-option-c .btn-view:hover {
+            background: rgba(147, 197, 253, 0.1);
+            border-color: #93c5fd;
+        }
+
+        .dark-option-c .btn-edit {
+            color: #fbbf24;
+        }
+
+        .dark-option-c .btn-edit:hover {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: #fbbf24;
+        }
+
+        .dark-option-c .btn-delete {
+            color: #f87171;
+        }
+
+        .dark-option-c .btn-delete:hover {
+            background: rgba(248, 113, 113, 0.1);
+            border-color: #f87171;
+        }
+
+        /* Dark Option D - Pill minimal */
+        .dark-option-d .btn-view,
+        .dark-option-d .btn-edit,
+        .dark-option-d .btn-delete {
+            background: #2d2d30;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            border: 1px solid #3f3f46;
+        }
+
+        .dark-option-d .btn-view {
+            color: #a1a1aa;
+        }
+
+        .dark-option-d .btn-view:hover {
+            background: #3f3f46;
+            color: #f4f4f5;
+        }
+
+        .dark-option-d .btn-edit {
+            color: #a1a1aa;
+        }
+
+        .dark-option-d .btn-edit:hover {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+
+        .dark-option-d .btn-delete {
+            color: #71717a;
+        }
+
+        .dark-option-d .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #f87171;
+            color: #f87171;
+        }
+
+        /* Recommendation badge */
+        .recommended {
+            position: relative;
+        }
+
+        .recommended::after {
+            content: 'Recommended';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #22c55e;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 900px) {
+            .options-grid,
+            .dark-options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Button Style Options</h1>
+    <p class="subtitle">Comparing current style with refined alternatives - hover to see interactions</p>
+
+    <div class="options-grid">
+        <!-- Current Style -->
+        <div class="option current">
+            <div class="option-header">
+                <h2>Current Style</h2>
+                <p>Colored borders, fill on hover, transform effect</p>
+            </div>
+            <div class="option-content">
+                <div class="button-group">
+                    <div class="button-group-label">Primary Actions</div>
+                    <div class="button-row">
+                        <button class="btn btn-primary">Add New Trade</button>
+                        <button class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <div class="button-group-label">Table Actions</div>
+                    <div class="mock-table-row">
+                        <span class="ticker">NVDA</span>
+                        <span class="price">$142.50</span>
+                        <div class="actions">
+                            <button class="btn btn-view">View</button>
+                            <button class="btn btn-edit">Edit</button>
+                            <button class="btn btn-delete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option A: Minimal Text -->
+        <div class="option option-a recommended">
+            <div class="option-header">
+                <h2>Option A: Minimal Text</h2>
+                <p>No borders, subtle background on hover, clean look</p>
+            </div>
+            <div class="option-content">
+                <div class="button-group">
+                    <div class="button-group-label">Primary Actions</div>
+                    <div class="button-row">
+                        <button class="btn btn-primary">Add New Trade</button>
+                        <button class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <div class="button-group-label">Table Actions</div>
+                    <div class="mock-table-row">
+                        <span class="ticker">NVDA</span>
+                        <span class="price">$142.50</span>
+                        <div class="actions">
+                            <button class="btn btn-view">View</button>
+                            <button class="btn btn-edit">Edit</button>
+                            <button class="btn btn-delete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option B: Icon Only -->
+        <div class="option option-b">
+            <div class="option-header">
+                <h2>Option B: Icon-Only</h2>
+                <p>Compact icons, subtle hover states, minimal footprint</p>
+            </div>
+            <div class="option-content">
+                <div class="button-group">
+                    <div class="button-group-label">Primary Actions</div>
+                    <div class="button-row">
+                        <button class="btn btn-primary">Add New Trade</button>
+                        <button class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <div class="button-group-label">Table Actions</div>
+                    <div class="mock-table-row">
+                        <span class="ticker">NVDA</span>
+                        <span class="price">$142.50</span>
+                        <div class="actions">
+                            <button class="btn-icon btn-icon-view" title="View">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="btn-icon btn-icon-edit" title="Edit">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="btn-icon btn-icon-delete" title="Delete">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option C: Refined Current -->
+        <div class="option option-c">
+            <div class="option-header">
+                <h2>Option C: Refined Borders</h2>
+                <p>Neutral borders, colored text, subtle tinted hover</p>
+            </div>
+            <div class="option-content">
+                <div class="button-group">
+                    <div class="button-group-label">Primary Actions</div>
+                    <div class="button-row">
+                        <button class="btn btn-primary">Add New Trade</button>
+                        <button class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <div class="button-group-label">Table Actions</div>
+                    <div class="mock-table-row">
+                        <span class="ticker">NVDA</span>
+                        <span class="price">$142.50</span>
+                        <div class="actions">
+                            <button class="btn btn-view">View</button>
+                            <button class="btn btn-edit">Edit</button>
+                            <button class="btn btn-delete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option D: Pill Minimal -->
+        <div class="option option-d">
+            <div class="option-header">
+                <h2>Option D: Pill Style</h2>
+                <p>Rounded pills, neutral base, tinted hover</p>
+            </div>
+            <div class="option-content">
+                <div class="button-group">
+                    <div class="button-group-label">Primary Actions</div>
+                    <div class="button-row">
+                        <button class="btn btn-primary">Add New Trade</button>
+                        <button class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <div class="button-group-label">Table Actions</div>
+                    <div class="mock-table-row">
+                        <span class="ticker">NVDA</span>
+                        <span class="price">$142.50</span>
+                        <div class="actions">
+                            <button class="btn btn-view">View</button>
+                            <button class="btn btn-edit">Edit</button>
+                            <button class="btn btn-delete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dark Mode Section -->
+    <div class="dark-section">
+        <h2>Dark Mode Variants</h2>
+        <div class="dark-options-grid">
+            <div class="dark-option dark-option-a">
+                <h3>Option A: Minimal Text</h3>
+                <div class="mock-table-row">
+                    <span class="ticker">NVDA</span>
+                    <span class="price">$142.50</span>
+                    <div class="actions">
+                        <button class="btn-view">View</button>
+                        <button class="btn-edit">Edit</button>
+                        <button class="btn-delete">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dark-option dark-option-b">
+                <h3>Option B: Icon-Only</h3>
+                <div class="mock-table-row">
+                    <span class="ticker">NVDA</span>
+                    <span class="price">$142.50</span>
+                    <div class="actions">
+                        <button class="btn-icon btn-icon-view" title="View">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                        <button class="btn-icon btn-icon-edit" title="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="btn-icon btn-icon-delete" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dark-option dark-option-c">
+                <h3>Option C: Refined Borders</h3>
+                <div class="mock-table-row">
+                    <span class="ticker">NVDA</span>
+                    <span class="price">$142.50</span>
+                    <div class="actions">
+                        <button class="btn-view">View</button>
+                        <button class="btn-edit">Edit</button>
+                        <button class="btn-delete">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dark-option dark-option-d">
+                <h3>Option D: Pill Style</h3>
+                <div class="mock-table-row">
+                    <span class="ticker">NVDA</span>
+                    <span class="price">$142.50</span>
+                    <div class="actions">
+                        <button class="btn-view">View</button>
+                        <button class="btn-edit">Edit</button>
+                        <button class="btn-delete">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watchlist Mockup Options</title>
+    <style>
+        :root {
+            --color-bg: #1a1a2e;
+            --color-surface: #242438;
+            --color-surface-raised: #2d2d44;
+            --color-gray-200: #3d3d5c;
+            --color-gray-300: #4d4d6d;
+            --color-gray-400: #6b6b8a;
+            --color-gray-500: #8b8ba8;
+            --color-gray-600: #a8a8c0;
+            --color-gray-700: #d0d0e0;
+            --color-accent: #6c8cff;
+            --color-accent-hover: #5a7aee;
+            --color-text: #e8e8f0;
+            --color-text-muted: #a8a8c0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            padding: 40px;
+            line-height: 1.5;
+        }
+
+        h1 {
+            color: var(--color-accent);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .subtitle {
+            color: var(--color-text-muted);
+            margin-bottom: 40px;
+            font-size: 0.9rem;
+        }
+
+        .option {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .option:last-child {
+            border-bottom: none;
+        }
+
+        .option-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-gray-700);
+        }
+
+        .option-desc {
+            font-size: 0.85rem;
+            color: var(--color-gray-500);
+            margin-bottom: 20px;
+        }
+
+        .demo-area {
+            background: var(--color-bg);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--color-gray-200);
+        }
+
+        .demo-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-gray-500);
+            margin-bottom: 12px;
+        }
+
+        /* Buttons row (same for all) */
+        .buttons-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--color-gray-300);
+            color: var(--color-gray-600);
+        }
+
+        /* Pill styles */
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: var(--color-surface-raised);
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .pill:hover {
+            background: var(--color-gray-200);
+        }
+
+        .pill .remove {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            margin-left: 2px;
+        }
+
+        .pill-add {
+            background: transparent;
+            border: 1px dashed var(--color-gray-300);
+            color: var(--color-gray-500);
+        }
+
+        .pill-add:hover {
+            border-color: var(--color-gray-400);
+            color: var(--color-gray-600);
+        }
+
+        /* ================================================
+           OPTION A: Contained Card
+           ================================================ */
+        .watchlist-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .watchlist-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .watchlist-card-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-gray-500);
+            font-weight: 600;
+        }
+
+        .watchlist-card-action {
+            font-size: 0.75rem;
+            color: var(--color-accent);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .watchlist-card-action:hover {
+            text-decoration: underline;
+        }
+
+        .watchlist-card-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .watchlist-card-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+
+        .watchlist-card-empty button {
+            background: none;
+            border: none;
+            color: var(--color-accent);
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-left: 4px;
+        }
+
+        /* Empty State v2: Icon + Description */
+        .watchlist-card-empty-v2 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .empty-icon {
+            color: var(--color-gray-400);
+            opacity: 0.6;
+        }
+
+        .empty-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .empty-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--color-gray-600);
+        }
+
+        .empty-desc {
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+
+        .empty-action {
+            margin-top: 4px;
+            padding: 8px 16px;
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .empty-action:hover {
+            background: var(--color-accent-hover);
+        }
+
+        /* Empty State v3: Inline prompt */
+        .watchlist-card-empty-v3 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 4px;
+        }
+
+        .empty-hint {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+
+        .empty-action-inline {
+            padding: 6px 14px;
+            background: transparent;
+            color: var(--color-accent);
+            border: 1px solid var(--color-accent);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .empty-action-inline:hover {
+            background: rgba(108, 140, 255, 0.1);
+        }
+
+        /* Empty State v3b: Input ready */
+        .watchlist-card-hint {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            font-weight: 400;
+        }
+
+        .watchlist-input {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--color-bg);
+            border: 1px dashed var(--color-gray-300);
+            border-radius: 6px;
+            color: var(--color-text);
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .watchlist-input::placeholder {
+            color: var(--color-gray-500);
+        }
+
+        .watchlist-input:focus {
+            border-style: solid;
+            border-color: var(--color-accent);
+        }
+
+        /* ================================================
+           OPTION B: Inline with subtle background
+           ================================================ */
+        .watchlist-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--color-surface);
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
+        .watchlist-inline-label {
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+            font-weight: 500;
+        }
+
+        .watchlist-inline-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .watchlist-inline-empty {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        /* ================================================
+           OPTION C: Integrated into calculator panel
+           ================================================ */
+        .calc-panel {
+            background: var(--color-surface);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--color-gray-200);
+        }
+
+        .calc-panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .calc-panel-title {
+            color: var(--color-accent);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .calc-watchlist-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .calc-watchlist-row .pill {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+        }
+
+        .calc-watchlist-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+
+        .calc-divider {
+            height: 1px;
+            background: var(--color-gray-200);
+            margin: 16px 0;
+        }
+
+        .calc-placeholder {
+            height: 60px;
+            background: var(--color-surface-raised);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+
+        /* ================================================
+           OPTION D: Collapsible/expandable section
+           ================================================ */
+        .watchlist-section {
+            border: 1px solid var(--color-gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .watchlist-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--color-surface);
+            cursor: pointer;
+        }
+
+        .watchlist-section-header:hover {
+            background: var(--color-surface-raised);
+        }
+
+        .watchlist-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+        }
+
+        .watchlist-section-count {
+            background: var(--color-gray-200);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            color: var(--color-gray-600);
+        }
+
+        .watchlist-section-chevron {
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+            transition: transform 0.2s;
+        }
+
+        .watchlist-section.expanded .watchlist-section-chevron {
+            transform: rotate(180deg);
+        }
+
+        .watchlist-section-content {
+            padding: 12px 14px;
+            background: var(--color-bg);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .watchlist-section-content.collapsed {
+            display: none;
+        }
+
+        /* ================================================
+           OPTION E: Minimal with left accent
+           ================================================ */
+        .watchlist-accent {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-left: 3px solid var(--color-accent);
+            background: linear-gradient(90deg, rgba(108, 140, 255, 0.08) 0%, transparent 100%);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .watchlist-accent-label {
+            font-size: 0.8rem;
+            color: var(--color-gray-600);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .watchlist-accent-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .watchlist-accent-empty {
+            color: var(--color-gray-500);
+            font-size: 0.85rem;
+        }
+
+        .side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .side-by-side {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Watchlist UI Options</h1>
+    <p class="subtitle">Exploring ways to make the watchlist feel more defined and intentional</p>
+
+    <!-- OPTION A: Contained Card - EMPTY STATE VARIATIONS -->
+    <div class="option">
+        <div class="option-title">Option A: Empty State Variations</div>
+        <p class="option-desc">Different ways to make the empty state feel more complete and explain the feature.</p>
+
+        <div class="side-by-side">
+            <div class="demo-area">
+                <div class="demo-label">Empty State 1: Icon + Description</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                </div>
+                <div class="watchlist-card">
+                    <div class="watchlist-card-header">
+                        <span class="watchlist-card-title">Watchlist</span>
+                    </div>
+                    <div class="watchlist-card-empty-v2">
+                        <div class="empty-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                        </div>
+                        <div class="empty-text">
+                            <div class="empty-title">Quick access to your tickers</div>
+                            <div class="empty-desc">Add tickers to quickly load them into the calculator</div>
+                        </div>
+                        <button class="empty-action">+ Add Ticker</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-area">
+                <div class="demo-label">Empty State 2: Inline prompt</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                </div>
+                <div class="watchlist-card">
+                    <div class="watchlist-card-header">
+                        <span class="watchlist-card-title">Watchlist</span>
+                    </div>
+                    <div class="watchlist-card-empty-v3">
+                        <span class="empty-hint">Save tickers for quick access</span>
+                        <button class="empty-action-inline">+ Add Ticker</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-by-side" style="margin-top: 20px;">
+            <div class="demo-area">
+                <div class="demo-label">Empty State 3: Just the input ready</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                </div>
+                <div class="watchlist-card">
+                    <div class="watchlist-card-header">
+                        <span class="watchlist-card-title">Watchlist</span>
+                        <span class="watchlist-card-hint">Click a ticker to load it</span>
+                    </div>
+                    <div class="watchlist-card-pills">
+                        <input type="text" class="watchlist-input" placeholder="Type ticker and press Enter...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-area">
+                <div class="demo-label">With Tickers (same for all)</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                </div>
+                <div class="watchlist-card">
+                    <div class="watchlist-card-header">
+                        <span class="watchlist-card-title">Watchlist</span>
+                        <button class="watchlist-card-action">Clear all</button>
+                    </div>
+                    <div class="watchlist-card-pills">
+                        <span class="pill">GOOGL <span class="remove">×</span></span>
+                        <span class="pill">AAPL <span class="remove">×</span></span>
+                        <span class="pill">NVDA <span class="remove">×</span></span>
+                        <span class="pill pill-add">+ Add</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION B: Inline with subtle background -->
+    <div class="option">
+        <div class="option-title">Option B: Inline Row with Background</div>
+        <p class="option-desc">Keep the inline layout but add a subtle background to define the space. Compact but grounded.</p>
+
+        <div class="side-by-side">
+            <div class="demo-area">
+                <div class="demo-label">Empty State</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                    <button class="btn btn-ghost">Manage Watchlist</button>
+                </div>
+                <div class="watchlist-inline">
+                    <span class="watchlist-inline-label">Watchlist:</span>
+                    <div class="watchlist-inline-pills">
+                        <span class="pill pill-add">+ Add ticker</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-area">
+                <div class="demo-label">With Tickers</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                    <button class="btn btn-ghost">Manage Watchlist</button>
+                </div>
+                <div class="watchlist-inline">
+                    <span class="watchlist-inline-label">Watchlist:</span>
+                    <div class="watchlist-inline-pills">
+                        <span class="pill">GOOGL <span class="remove">×</span></span>
+                        <span class="pill">AAPL <span class="remove">×</span></span>
+                        <span class="pill">NVDA <span class="remove">×</span></span>
+                        <span class="pill pill-add">+ Add</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION C: Part of Calculator Panel -->
+    <div class="option">
+        <div class="option-title">Option C: Integrated into Calculator Panel</div>
+        <p class="option-desc">Move watchlist inside the calculator panel as a top section. Groups related features together.</p>
+
+        <div class="side-by-side">
+            <div class="demo-area">
+                <div class="demo-label">Empty State</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                </div>
+                <div class="calc-panel">
+                    <div class="calc-panel-header">
+                        <span class="calc-panel-title">Position Size Calculator</span>
+                        <div class="calc-watchlist-row">
+                            <span class="calc-watchlist-label">Quick picks:</span>
+                            <span class="pill pill-add" style="font-size: 0.8rem; padding: 4px 8px;">+ Add tickers</span>
+                        </div>
+                    </div>
+                    <div class="calc-placeholder">Calculator inputs...</div>
+                </div>
+            </div>
+
+            <div class="demo-area">
+                <div class="demo-label">With Tickers</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                </div>
+                <div class="calc-panel">
+                    <div class="calc-panel-header">
+                        <span class="calc-panel-title">Position Size Calculator</span>
+                        <div class="calc-watchlist-row">
+                            <span class="calc-watchlist-label">Quick picks:</span>
+                            <span class="pill" style="font-size: 0.8rem; padding: 4px 8px;">GOOGL</span>
+                            <span class="pill" style="font-size: 0.8rem; padding: 4px 8px;">AAPL</span>
+                            <span class="pill" style="font-size: 0.8rem; padding: 4px 8px;">NVDA</span>
+                            <span class="pill pill-add" style="font-size: 0.8rem; padding: 4px 8px;">+</span>
+                        </div>
+                    </div>
+                    <div class="calc-placeholder">Calculator inputs...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION D: Collapsible Section -->
+    <div class="option">
+        <div class="option-title">Option D: Collapsible Section</div>
+        <p class="option-desc">Make it expandable/collapsible. Clean when closed, functional when open. Good for power users.</p>
+
+        <div class="side-by-side">
+            <div class="demo-area">
+                <div class="demo-label">Collapsed (Empty)</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                    <button class="btn btn-ghost">Manage Watchlist</button>
+                </div>
+                <div class="watchlist-section">
+                    <div class="watchlist-section-header">
+                        <span class="watchlist-section-title">
+                            Watchlist
+                            <span class="watchlist-section-count">0</span>
+                        </span>
+                        <span class="watchlist-section-chevron">▼</span>
+                    </div>
+                    <div class="watchlist-section-content collapsed"></div>
+                </div>
+            </div>
+
+            <div class="demo-area">
+                <div class="demo-label">Expanded (With Tickers)</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                    <button class="btn btn-ghost">Manage Watchlist</button>
+                </div>
+                <div class="watchlist-section expanded">
+                    <div class="watchlist-section-header">
+                        <span class="watchlist-section-title">
+                            Watchlist
+                            <span class="watchlist-section-count">3</span>
+                        </span>
+                        <span class="watchlist-section-chevron">▼</span>
+                    </div>
+                    <div class="watchlist-section-content">
+                        <span class="pill">GOOGL <span class="remove">×</span></span>
+                        <span class="pill">AAPL <span class="remove">×</span></span>
+                        <span class="pill">NVDA <span class="remove">×</span></span>
+                        <span class="pill pill-add">+ Add</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION E: Minimal with accent -->
+    <div class="option">
+        <div class="option-title">Option E: Minimal with Left Accent</div>
+        <p class="option-desc">Subtle left border accent gives definition without adding too much visual weight.</p>
+
+        <div class="side-by-side">
+            <div class="demo-area">
+                <div class="demo-label">Empty State</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                    <button class="btn btn-ghost">Manage Watchlist</button>
+                </div>
+                <div class="watchlist-accent">
+                    <span class="watchlist-accent-label">Watchlist:</span>
+                    <div class="watchlist-accent-pills">
+                        <span class="pill pill-add">+ Add ticker</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-area">
+                <div class="demo-label">With Tickers</div>
+                <div class="buttons-row">
+                    <button class="btn btn-primary">- Hide Calculator</button>
+                    <button class="btn btn-ghost">Manage Watchlist</button>
+                </div>
+                <div class="watchlist-accent">
+                    <span class="watchlist-accent-label">Watchlist:</span>
+                    <div class="watchlist-accent-pills">
+                        <span class="pill">GOOGL <span class="remove">×</span></span>
+                        <span class="pill">AAPL <span class="remove">×</span></span>
+                        <span class="pill">NVDA <span class="remove">×</span></span>
+                        <span class="pill pill-add">+ Add</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

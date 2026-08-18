@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trader Tools Suite · skyler.tools</title>
+<meta name="description" content="A local-first trader tools suite from skyler.tools — position sizing, journal, and compound.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>
+// Pre-paint theme: data-theme is ALWAYS set (design-system single-selector rule)
+(function () {
+    var t = localStorage.getItem('tradeTracker_theme');
+    if (t !== 'light' && t !== 'dark' && t !== 'oled') {
+        t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ HEADER — numbers outrank branding ============ -->
+<header class="app-header">
+    <div class="header-inner">
+        <div class="brand-row">
+            <div class="brand">
+                <span class="brand-mark" data-icon="chart-candlestick" aria-hidden="true"></span>
+                <span class="brand-lockup">
+                    <a class="brand-name" href="#positions">skyler.tools<sup class="brand-version">2.0</sup></a>
+                    <span class="brand-product">Trader Tools Suite</span>
+                </span>
+            </div>
+            <div class="daily-clock" id="dailyClock" aria-label="Local date and time">
+                <span class="daily-clock-icon" data-icon="calendar-days" aria-hidden="true"></span>
+                <div class="daily-clock-copy">
+                    <span class="daily-clock-date" id="dailyDate"></span>
+                    <time class="daily-clock-time" id="localTime">
+                        <span id="dailyTime" data-roll-blur></span><span id="dailySeconds" data-roll-blur hidden></span>
+                        <span class="daily-clock-period" id="dailyPeriod"></span>
+                        <span class="daily-clock-zone" id="dailyZoneTag" aria-hidden="true">
+                            <span id="dailyZone">—</span><sup id="marketOffset">—</sup><span class="daily-clock-market">ET</span>
+                        </span>
+                    </time>
+                </div>
+                <button class="daily-clock-seconds" id="secondsToggle" type="button" aria-pressed="false" title="Show seconds">:SS</button>
+            </div>
+            <div class="header-chrome">
+                <button id="syncBtn" class="icon-btn sync-btn" aria-label="Cloud sync" title="Cloud sync">
+                    <span data-icon="cloud"></span>
+                    <span class="sync-ind" id="syncInd" data-s="off"></span>
+                </button>
+                <div class="menu-wrap">
+                    <button id="accentBtn" class="icon-btn" aria-label="Accent color" title="Accent color" aria-haspopup="menu" aria-expanded="false">
+                        <span data-icon="palette"></span>
+                    </button>
+                    <div class="menu accent-menu" id="accentMenu" role="menu" hidden></div>
+                </div>
+                <div class="seg seg-mini seg-theme" id="themeSeg" role="tablist" aria-label="Color mode">
+                    <span class="seg-pill" aria-hidden="true"></span>
+                    <button data-seg="light" role="tab" aria-label="Light mode" title="Light mode"><span data-icon="sun"></span></button>
+                    <button data-seg="dark" role="tab" aria-label="Dark mode" title="Dark mode"><span data-icon="moon"></span></button>
+                    <button data-seg="oled" role="tab" aria-label="OLED mode" title="OLED · pure black"><span data-icon="sparkles"></span></button>
+                </div>
+            </div>
+        </div>
+        <nav class="app-nav" aria-label="Site">
+            <div class="seg seg-nav" id="viewSeg" role="tablist" aria-label="Views">
+                <span class="seg-pill" aria-hidden="true"></span>
+                <button data-seg="positions" class="is-active" role="tab">Positions</button>
+                <button data-seg="journal" role="tab">Journal</button>
+                <button data-seg="compound" role="tab">Compound</button>
+            </div>
+            <button type="button" class="metrics-toggle" id="metricsToggle" aria-expanded="true" aria-controls="metricsRowWrap" aria-label="Hide summary">
+                <span class="metrics-eye" aria-hidden="true">
+                    <span class="metrics-eye-on" data-icon="eye"></span>
+                    <span class="metrics-eye-off" data-icon="eye-off"></span>
+                </span>
+                Summary
+            </button>
+        </nav>
+        <div class="metrics-block collapsible is-open" id="metricsBlock">
+            <div class="metrics-row-wrap" id="metricsRowWrap">
+                <div class="metrics-row">
+                    <div class="metric-card open-risk" id="openRiskBlock">
+                        <div class="metric-label"><span data-icon="gauge" aria-hidden="true"></span>Open risk</div>
+                        <div class="open-risk-main">
+                            <span id="openRiskDollars" class="roller open-risk-num">$0.00</span>
+                            <span id="openRiskLevel" class="risk-badge" data-level="CASH">CASH</span>
+                        </div>
+                        <div class="open-risk-sub">
+                            <span id="openRiskPct">0.00% of account</span>
+                        </div>
+                    </div>
+                    <div class="metric-card scoreboard">
+                        <div class="scoreboard-top">
+                            <div class="metric-label"><span data-icon="trending-up" aria-hidden="true"></span>Scoreboard</div>
+                            <div class="seg seg-mini" id="scopeSeg" role="tablist" aria-label="Stats scope">
+                                <span class="seg-pill" aria-hidden="true"></span>
+                                <button data-seg="month" class="is-active" role="tab">month</button>
+                                <button data-seg="all" role="tab">all</button>
+                            </div>
+                        </div>
+                        <div id="scoreboardLine" class="scoreboard-line">—</div>
+                        <div class="scoreboard-sub">
+                            <span id="scoreboardNote" class="muted-note"></span>
+                            <button id="staleChip" class="stale-chip" hidden></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Floating condensed header (cap.so pill nav) — open risk always visible -->
+<div class="float-bar" id="floatBar" aria-hidden="true">
+    <span class="brand-mark brand-mark-sm" data-icon="chart-candlestick" aria-hidden="true"></span>
+    <span class="fb-name"><b>skyler.tools<sup class="fb-version">2.0</sup></b><span>Trader Tools Suite</span></span>
+    <span class="fb-sep" aria-hidden="true"></span>
+    <span class="fb-metric"><span class="fb-label">Risk</span><b id="fbRisk" class="roller">$0.00</b><span id="fbBadge" class="risk-badge" data-level="CASH">CASH</span></span>
+    <span class="fb-sep" aria-hidden="true"></span>
+    <span class="fb-score" id="fbScore">—</span>
+    <button class="btn btn-primary btn-sm" id="fbCalc">Calculator</button>
+</div>
+
+<main class="app-main">
+<div id="trackerMount">
+
+    <!-- ============ POSITION CALCULATOR ============ -->
+    <section class="panel collapsible" id="calcSection">
+        <button class="panel-toggle" id="calcToggle" aria-expanded="true" aria-controls="calcBody">
+            <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+            <span class="panel-ic" data-icon="calculator" aria-hidden="true"></span>
+            <span class="panel-title">Position Calculator</span>
+            <span class="panel-hint" id="calcHint"></span>
+        </button>
+        <div class="panel-body-wrap" id="calcBodyWrap">
+            <div class="panel-body" id="calcBody">
+
+                <div class="calc-modebar" aria-label="Position type">
+                    <div class="calc-mode-control">
+                        <span class="calc-mode-label">Direction</span>
+                        <div class="seg seg-mode" id="directionSeg" role="tablist" aria-label="Trade direction">
+                            <span class="seg-pill" aria-hidden="true"></span>
+                            <button data-seg="long" role="tab">Long</button>
+                            <button data-seg="short" role="tab">Short</button>
+                        </div>
+                    </div>
+                    <div class="calc-mode-control">
+                        <span class="calc-mode-label">Instrument</span>
+                        <div class="seg seg-mode" id="vehicleSeg" role="tablist" aria-label="Position instrument">
+                            <span class="seg-pill" aria-hidden="true"></span>
+                            <button data-seg="shares" role="tab">Shares</button>
+                            <button data-seg="option" role="tab">Options</button>
+                        </div>
+                    </div>
+                    <div class="calc-mode-context" id="calcModeContext">
+                        <span data-icon="trending-up" aria-hidden="true"></span>
+                        <span id="calcModeContextText">Long shares</span>
+                    </div>
+                </div>
+
+                <div class="calc-settings">
+                    <div class="setting">
+                        <label class="has-field-tooltip" for="accountSize" aria-describedby="accountSizeHelp">
+                            <span class="field-help-label">Account size</span>
+                            <span class="field-tooltip" id="accountSizeHelp" role="tooltip">Your total trading account value, not just available cash. Risk dollars and the position cap are calculated from this amount.</span>
+                        </label>
+                        <div class="input-money input-money--wide">
+                            <span class="currency-prefix" aria-hidden="true">$</span>
+                            <input type="text" inputmode="decimal" id="accountSize" placeholder="25,000" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="has-field-tooltip" aria-describedby="riskHelp">
+                            <span class="field-help-label">Risk</span>
+                            <span class="field-tooltip" id="riskHelp" role="tooltip">The maximum percentage of your account you are willing to lose if the stop is hit. This controls risk, not position size.</span>
+                        </label>
+                        <div class="seg" id="riskSeg">
+                            <span class="seg-pill" aria-hidden="true"></span>
+                            <button data-seg="0.1" tabindex="-1">.1%</button>
+                            <button data-seg="0.25" tabindex="-1">.25%</button>
+                            <button data-seg="0.5" tabindex="-1">.5%</button>
+                            <button data-seg="1" tabindex="-1">1%</button>
+                            <span class="seg-custom" data-seg="custom"><input type="text" inputmode="decimal" id="riskCustom" placeholder="…" aria-label="Custom risk percent" tabindex="-1"><b>%</b></span>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="has-field-tooltip" id="maxPctLabel" aria-describedby="maxPctHelp">
+                            <span class="field-help-label" id="maxPctLabelText">Max % of account</span>
+                            <span class="field-tooltip" id="maxPctHelp" role="tooltip">Caps how much of your account can go into one position. If this limit reduces your risk-based share count, the original count is shown struck through.</span>
+                        </label>
+                        <div class="seg" id="maxSeg">
+                            <span class="seg-pill" aria-hidden="true"></span>
+                            <button data-seg="5" tabindex="-1">5</button>
+                            <button data-seg="10" tabindex="-1">10</button>
+                            <button data-seg="20" tabindex="-1">20</button>
+                            <button data-seg="50" tabindex="-1">50</button>
+                            <button data-seg="100" tabindex="-1">100</button>
+                            <span class="seg-custom" data-seg="custom"><input type="text" inputmode="decimal" id="maxCustom" placeholder="…" aria-label="Custom max percent" tabindex="-1"><b>%</b></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calc-inputs">
+                    <div class="field">
+                        <label for="entryPrice">Entry price</label>
+                        <div class="stepper-wrap currency-input">
+                            <span class="currency-prefix" aria-hidden="true">$</span>
+                            <input type="text" inputmode="decimal" id="entryPrice" autocomplete="off" placeholder="0.00">
+                            <div class="steppers"><button data-step="up" data-for="entryPrice" tabindex="-1" aria-label="Entry up">+</button><button data-step="down" data-for="entryPrice" tabindex="-1" aria-label="Entry down">−</button></div>
+                        </div>
+                    </div>
+                    <div class="field" id="stopLossField">
+                        <label for="stopLoss">Stop loss <button id="copyStop" class="tiny-link" tabindex="-1" title="Copy stop to clipboard">copy</button></label>
+                        <div class="stepper-wrap currency-input">
+                            <span class="currency-prefix" aria-hidden="true">$</span>
+                            <input type="text" inputmode="decimal" id="stopLoss" autocomplete="off" placeholder="0.00">
+                            <div class="steppers"><button data-step="up" data-for="stopLoss" tabindex="-1" aria-label="Stop up">+</button><button data-step="down" data-for="stopLoss" tabindex="-1" aria-label="Stop down">−</button></div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="tickerInput">Ticker <a id="tickerLink" class="tiny-link" href="#" target="_blank" rel="noopener" hidden tabindex="-1">chart ↗</a></label>
+                        <input type="text" id="tickerInput" autocomplete="off" placeholder="NVDA" maxlength="8" style="text-transform:uppercase">
+                    </div>
+                    <div class="field">
+                        <label for="targetPrice">Target <span class="label-opt">(optional)</span></label>
+                        <div class="stepper-wrap currency-input">
+                            <span class="currency-prefix" aria-hidden="true">$</span>
+                            <input type="text" inputmode="decimal" id="targetPrice" autocomplete="off" placeholder="0.00">
+                            <div class="steppers"><button data-step="up" data-for="targetPrice" tabindex="-1" aria-label="Target up">+</button><button data-step="down" data-for="targetPrice" tabindex="-1" aria-label="Target down">−</button></div>
+                        </div>
+                    </div>
+                    <div class="field calc-actions-field">
+                        <label class="ghost-label" aria-hidden="true">&nbsp;</label>
+                        <div class="calc-actions">
+                            <button id="pasteAlertBtn" class="btn btn-ghost" title="Paste a Discord-style alert"><span data-icon="clipboard"></span>Paste alert</button>
+                            <button id="clearCalc" class="btn btn-ghost" title="Reset calculator inputs"><span data-icon="x"></span>Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calc-validation" id="calcValidation" role="status" aria-live="polite" aria-hidden="true">
+                    <span class="calc-validation-icon" data-icon="circle-x" aria-hidden="true"></span>
+                    <span class="calc-validation-text" id="calcValidationText"></span>
+                    <button type="button" class="calc-validation-switch" id="calcValidationSwitch" tabindex="-1">
+                        <span id="calcValidationSwitchText">Switch to Short</span>
+                        <span data-icon="arrow-right" aria-hidden="true"></span>
+                    </button>
+                </div>
+
+                <div class="option-inputs" id="optionInputs" hidden>
+                    <div class="field">
+                        <label for="optionDelta">Entry delta <span class="label-opt">(absolute)</span></label>
+                        <input type="text" inputmode="decimal" id="optionDelta" autocomplete="off" placeholder="0.50">
+                    </div>
+                    <div class="field">
+                        <label for="optionPremium">Option premium</label>
+                        <div class="input-money">
+                            <span class="currency-prefix" aria-hidden="true">$</span>
+                            <input type="text" inputmode="decimal" id="optionPremium" autocomplete="off" placeholder="2.40">
+                        </div>
+                    </div>
+                    <div class="option-guidance">
+                        <span data-icon="info" aria-hidden="true"></span>
+                        <span id="optionGuidanceText">Long calls only. Delta estimates the premium response at your underlying stop; it is not a live quote.</span>
+                    </div>
+                </div>
+
+                <section class="risk-scenarios" id="riskScenarios" data-state="empty" aria-labelledby="riskScenariosTitle">
+                    <div class="risk-scenarios-head">
+                        <div class="risk-scenarios-title">
+                            <span data-icon="activity" aria-hidden="true"></span>
+                            <span id="riskScenariosTitle">Risk scenarios</span>
+                        </div>
+                        <span class="risk-scenarios-context" id="riskScenariosContext">Fill entry and stop to compare</span>
+                    </div>
+                    <div class="risk-scenarios-empty" id="riskScenariosEmpty">See how the same setup changes at half and double your selected risk.</div>
+                    <div class="risk-scenarios-grid" id="riskScenariosGrid" hidden>
+                        <button type="button" class="risk-scenario" data-scenario="safer">
+                            <span class="risk-scenario-top"><span class="risk-scenario-name">Safer</span><span class="risk-scenario-pct">—</span></span>
+                            <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
+                            <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
+                        </button>
+                        <button type="button" class="risk-scenario is-current" data-scenario="current" aria-pressed="true">
+                            <span class="risk-scenario-top"><span class="risk-scenario-name">Current</span><span class="risk-scenario-pct">—</span></span>
+                            <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
+                            <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
+                        </button>
+                        <button type="button" class="risk-scenario" data-scenario="higher">
+                            <span class="risk-scenario-top"><span class="risk-scenario-name">Higher</span><span class="risk-scenario-pct">—</span></span>
+                            <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
+                            <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
+                        </button>
+                    </div>
+                </section>
+
+                <div class="calc-results" id="calcResults">
+                    <div class="result-card position-card" id="positionCard">
+                        <div class="shares-hero">
+                            <button class="shares-num-btn" id="sharesCopyBtn" title="Copy share count">
+                                <span id="sharesHero" class="roller shares-hero-num">0</span>
+                            </button>
+                            <div class="shares-cap" id="sharesCap" hidden></div>
+                            <div class="shares-label-row">
+                                <span class="shares-label" id="positionUnitLabel">shares</span>
+                            </div>
+                        </div>
+                        <div class="account-exposure">
+                            <span class="account-exposure-icon" data-icon="gauge" aria-hidden="true"></span>
+                            <span class="account-exposure-label" id="rPctAcctLabel">% of account</span>
+                            <b class="account-exposure-value" id="rPctAcct">—</b>
+                        </div>
+                        <div class="result-rows">
+                            <div class="rrow"><span id="rStopDistLabel">Stop distance</span><b id="rStopDist">—</b></div>
+                            <div class="rrow"><span id="rPosSizeLabel">Position size</span><b id="rPosSize">—</b></div>
+                            <div class="rrow"><span id="rTotalRiskLabel">Total risk</span><b id="rTotalRisk">—</b></div>
+                        </div>
+                    </div>
+                    <div class="result-card target-card" id="targetCard" data-state="empty">
+                        <div class="target-topline">
+                            <div class="target-head" id="targetHead">At target</div>
+                            <span class="target-r-badge" id="tRr" hidden>—</span>
+                        </div>
+                        <div class="target-profit-label" id="targetProfitLabel" hidden>Projected P&amp;L</div>
+                        <div class="target-profit roller" id="targetProfit">set a target</div>
+                        <div class="target-metrics">
+                            <div class="target-metric"><span>Target price</span><b id="tPrice">—</b></div>
+                            <div class="target-metric"><span id="tPerShareLabel">Per share</span><b id="tPerShare">—</b></div>
+                            <div class="target-metric"><span id="tRoiLabel">ROI</span><b id="tRoi">—</b></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="freeroll-plan" id="freerollPlan">
+                    <div class="freeroll-head">
+                        <span class="freeroll-title" id="planTitle">Freeroll plan</span>
+                        <div class="seg" id="planSeg">
+                            <span class="seg-pill" aria-hidden="true"></span>
+                            <button data-seg="half-1r" tabindex="-1">½ @ 1R</button>
+                            <button data-seg="third-2r" tabindex="-1">⅓ @ 2R</button>
+                            <button data-seg="backfill" tabindex="-1">Back-fill</button>
+                            <button data-seg="off" tabindex="-1">Off</button>
+                        </div>
+                    </div>
+                    <div class="freeroll-sentence" id="planSentence">No plan — manual management</div>
+                    <div class="r-ladder" id="rLine" role="group" aria-label="R prices — select a price to copy" hidden></div>
+                    <div class="r-ladder-note" id="rLineNote" hidden>
+                        <span data-icon="clipboard" aria-hidden="true"></span>
+                        <span id="rLineNoteText">Select a price to copy · calculator fields stay unchanged</span>
+                    </div>
+                </div>
+
+                <div class="log-row">
+                    <button id="logTradeBtn" class="btn btn-primary btn-log" disabled>Log trade</button>
+                    <div id="logConfirm" class="log-confirm" hidden>
+                        <span class="log-confirm-check ic-draw" data-icon="circle-check"></span>
+                        <span id="logConfirmText"></span>
+                        <button id="logUndoBtn" class="btn btn-ghost btn-sm">Undo</button>
+                        <button id="logEditBtn" class="btn btn-ghost btn-sm">Edit details</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ WATCHLIST ============ -->
+    <section class="panel collapsible" id="watchSection">
+        <button class="panel-toggle" id="watchToggle" aria-expanded="false" aria-controls="watchBody">
+            <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+            <span class="panel-ic" data-icon="eye" aria-hidden="true"></span>
+            <span class="panel-title">Watchlist</span>
+            <span class="count-badge" id="watchCount">0</span>
+        </button>
+        <div class="panel-body-wrap" id="watchBodyWrap">
+            <div class="panel-body watch-body" id="watchBody">
+                <div class="watch-empty" id="watchEmpty" hidden>
+                    <span class="watch-empty-ic ic-draw" data-icon="eye" aria-hidden="true"></span>
+                    <strong>No tickers yet</strong>
+                    <p>Add symbols you’re watching to fill the calculator in one click.</p>
+                    <button type="button" class="btn btn-primary btn-sm watch-empty-cta" id="watchEmptyAdd">
+                        <span data-icon="plus" aria-hidden="true"></span>Add a ticker
+                    </button>
+                </div>
+                <div class="watch-pills" id="watchPills"></div>
+                <form id="watchAddForm" class="watch-add">
+                    <input type="text" id="watchAddInput" placeholder="Ticker, e.g. NVDA" maxlength="5" style="text-transform:uppercase" aria-label="Add ticker to watchlist">
+                    <button type="submit" class="btn btn-ghost btn-sm watch-add-submit"><span data-icon="plus" aria-hidden="true"></span>Add</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ MANUAL ADD / EDIT ============ -->
+    <section class="panel collapsible" id="formSection">
+        <button class="panel-toggle" id="formToggle" aria-expanded="false" aria-controls="formBody">
+            <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+            <span class="panel-ic" data-icon="square-pen" aria-hidden="true"></span>
+            <span class="panel-title" id="formTitle">Add trade manually</span>
+            <span class="panel-hint">backfill &amp; edits — the calculator is the fast path</span>
+        </button>
+        <div class="panel-body-wrap" id="formBodyWrap">
+            <div class="panel-body" id="formBody">
+                <form id="tradeForm" class="trade-form" autocomplete="off">
+                    <input type="hidden" id="editTradeId">
+                    <input type="hidden" id="fDirection" value="long">
+                    <div class="manual-direction">
+                        <span class="calc-mode-label">Direction</span>
+                        <div class="seg seg-mode" id="formDirectionSeg" role="tablist" aria-label="Trade direction">
+                            <span class="seg-pill" aria-hidden="true"></span>
+                            <button type="button" data-seg="long" role="tab">Long</button>
+                            <button type="button" data-seg="short" role="tab">Short</button>
+                        </div>
+                        <span class="manual-direction-hint" id="manualDirectionHint">Stop sits below entry</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field"><label for="fTicker">Ticker</label><input type="text" id="fTicker" required maxlength="8" style="text-transform:uppercase"></div>
+                        <div class="field"><label for="fEntry">Entry price</label><input type="text" inputmode="decimal" id="fEntry" required></div>
+                        <div class="field">
+                            <label id="fDateLabel">Entry date</label>
+                            <button type="button" class="date-field date-field-block" id="fDateBtn" aria-labelledby="fDateLabel" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop">
+                                <span class="date-field-value"></span>
+                                <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
+                            </button>
+                            <input type="hidden" id="fDate" value="">
+                        </div>
+                        <div class="field"><label for="fShares">Shares</label><input type="text" inputmode="numeric" id="fShares" placeholder="unknown ok"></div>
+                        <div class="field"><label for="fInitialSL">Initial stop</label><input type="text" inputmode="decimal" id="fInitialSL" required></div>
+                        <div class="field"><label for="fCurrentSL">Current stop <button type="button" id="fCopyInitial" class="tiny-link" tabindex="-1">= initial</button></label><input type="text" inputmode="decimal" id="fCurrentSL"></div>
+                    </div>
+                    <div class="form-status-note" id="formStatusNote">Status is derived from exits — log them from the table.</div>
+                    <div class="form-actions">
+                        <button type="button" id="formCancel" class="btn btn-ghost">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="formSubmit">Save trade</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div class="journal-summary" id="journalSummary" hidden>
+        <div class="js-stat"><span class="js-label">P&amp;L</span><span id="jsPnl">—</span></div>
+        <div class="js-stat"><span class="js-label">Win rate</span><span id="jsWinRate">—</span></div>
+        <div class="js-stat"><span class="js-label">Record</span><span id="jsRecord">—</span></div>
+        <div class="js-stat"><span class="js-label">Avg win</span><span id="jsAvgWin">—</span></div>
+        <div class="js-stat"><span class="js-label">Avg loss</span><span id="jsAvgLoss">—</span></div>
+        <div class="js-stat"><span class="js-label">Total R</span><span id="jsR">—</span></div>
+    </div>
+
+    <!-- ============ FILTERS ============ -->
+    <div class="filters-bar">
+        <div class="seg seg-filters" id="statusSeg" role="tablist" aria-label="Status filter">
+            <span class="seg-pill" aria-hidden="true"></span>
+            <button data-seg="active" class="is-active" role="tab">Active</button>
+            <button data-seg="open" role="tab">Open</button>
+            <button data-seg="freerolled" role="tab">Freerolled</button>
+            <button data-seg="partial" role="tab">Partial</button>
+            <button data-seg="closed" role="tab">Closed</button>
+            <button data-seg="stopped" role="tab">Stopped</button>
+            <button data-seg="archived" role="tab">Archived</button>
+        </div>
+        <div class="seg seg-filters" id="journalSeg" role="tablist" aria-label="Journal filter" hidden>
+            <span class="seg-pill" aria-hidden="true"></span>
+            <button data-seg="all" class="is-active" role="tab">All</button>
+            <button data-seg="closed" role="tab">Closed</button>
+            <button data-seg="winners" role="tab">Winners</button>
+            <button data-seg="losers" role="tab">Losers</button>
+            <button data-seg="open" role="tab">Open</button>
+            <button data-seg="archived" role="tab">Archived</button>
+        </div>
+        <div class="filters-right">
+            <label class="search-field" id="searchField">
+                <span class="search-ic" data-icon="search" aria-hidden="true"></span>
+                <input type="search" id="tradeSearch" placeholder="Search trades…" aria-label="Search trades" autocomplete="off" spellcheck="false">
+                <button type="button" class="search-clear" id="searchClear" aria-label="Clear search" hidden><span data-icon="x" aria-hidden="true"></span></button>
+            </label>
+            <div class="date-range" id="dateRange">
+                <input type="hidden" id="dateFrom" value="">
+                <input type="hidden" id="dateTo" value="">
+                <div class="date-fields">
+                <button type="button" class="date-field is-empty" id="dateFromBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop" aria-label="From date">
+                    <span class="date-field-value">From</span>
+                    <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
+                </button>
+                <span class="date-sep">–</span>
+                <button type="button" class="date-field is-empty" id="dateToBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop" aria-label="To date">
+                    <span class="date-field-value">To</span>
+                    <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
+                </button>
+                </div>
+                <span class="date-clear-slot">
+                    <button type="button" id="dateClear" class="icon-btn date-clear danger" data-tip="Clear dates" aria-label="Clear dates">
+                        <span data-icon="x" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+            <div class="menu-wrap">
+                <button id="exportBtn" class="btn btn-ghost btn-sm" aria-haspopup="menu" aria-expanded="false"><span data-icon="download"></span>Export</button>
+                <div class="menu" id="exportMenu" role="menu" hidden>
+                    <button role="menuitem" data-export="csv">Download CSV</button>
+                    <button role="menuitem" data-export="tsv">Download TSV</button>
+                    <button role="menuitem" data-export="excel">Copy for Excel</button>
+                    <hr>
+                    <button role="menuitem" data-export="backup">Download backup</button>
+                    <button role="menuitem" data-export="restore">Restore from file…</button>
+                </div>
+                <input type="file" id="restoreFile" accept=".json" hidden>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TABLE ============ -->
+    <div class="table-card">
+        <div class="table-scroll">
+            <table class="trades-table" id="tradesTable">
+                <thead>
+                    <tr>
+                        <th class="th-ticker"><button type="button" class="th-sort" data-sort="ticker">Ticker<span class="sort-ic" data-icon="chevron-down" aria-hidden="true"></span></button></th>
+                        <th class="num"><button type="button" class="th-sort" data-sort="entry">Entry<span class="sort-ic" data-icon="chevron-down" aria-hidden="true"></span></button></th>
+                        <th class="num"><button type="button" class="th-sort" data-sort="stop">Stop<span class="sort-ic" data-icon="chevron-down" aria-hidden="true"></span></button></th>
+                        <th class="num th-group"><button type="button" class="th-sort" data-sort="realized">Realized<span class="sort-ic" data-icon="chevron-down" aria-hidden="true"></span></button></th>
+                        <th class="num"><button type="button" class="th-sort" data-sort="r">R<span class="sort-ic" data-icon="chevron-down" aria-hidden="true"></span></button></th>
+                        <th class="th-next"><span class="th-sort is-static">Next step</span></th>
+                        <th class="th-status"><button type="button" class="th-sort" data-sort="status">Status<span class="sort-ic" data-icon="chevron-down" aria-hidden="true"></span></button></th>
+                        <th class="th-actions"><span class="th-sort is-static">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody id="tradesBody"></tbody>
+            </table>
+        </div>
+        <div class="empty-state" id="emptyState" hidden>
+            <div class="empty-ic ic-draw" data-icon="chart-candlestick" aria-hidden="true"></div>
+            <div class="empty-title">No trades yet</div>
+            <div class="empty-sub">Fill the calculator and hit <b>Log trade</b> — one click, done.</div>
+            <button id="seedDemo" class="btn btn-ghost btn-sm">Load sample trades</button>
+        </div>
+        <div class="table-footer" id="tableFooter" hidden>
+            <span id="footerTotals" class="footer-totals"></span>
+            <div class="pager" id="pager" hidden>
+                <button id="pagePrev" class="btn btn-ghost btn-sm" aria-label="Previous page"><span data-icon="chevron-left" aria-hidden="true"></span></button>
+                <span id="pageInfo"></span>
+                <button id="pageNext" class="btn btn-ghost btn-sm" aria-label="Next page"><span data-icon="chevron-right" aria-hidden="true"></span></button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    <section class="compound-view" id="compoundView" hidden aria-labelledby="compoundTitle">
+        <header class="view-head">
+            <h1 class="view-title" id="compoundTitle">Compound calculator</h1>
+            <p class="view-sub">What a steady yearly return does to your capital over 10 years. Pick a starting amount and a rate — the path, the milestones and the full table all follow it.</p>
+        </header>
+        <div class="compound-layout">
+            <aside class="compound-side">
+                <div class="panel is-open">
+                    <div class="panel-static-head">Starting capital</div>
+                    <div class="panel-body">
+                        <div class="field">
+                            <label for="compoundStartingCapital" class="sr-only">Starting capital amount</label>
+                            <div class="input-money input-money--wide">
+                                <span class="currency-prefix" aria-hidden="true">$</span>
+                                <input type="text" id="compoundStartingCapital" inputmode="decimal" value="10,000" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="preset-row" id="compoundPresets">
+                            <button type="button" class="btn btn-ghost btn-sm" data-capital="1000">$1K</button>
+                            <button type="button" class="btn btn-ghost btn-sm" data-capital="5000">$5K</button>
+                            <button type="button" class="btn btn-ghost btn-sm" data-capital="10000">$10K</button>
+                            <button type="button" class="btn btn-ghost btn-sm" data-capital="25000">$25K</button>
+                            <button type="button" class="btn btn-ghost btn-sm" data-capital="50000">$50K</button>
+                            <button type="button" class="btn btn-ghost btn-sm" data-capital="100000">$100K</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel is-open">
+                    <div class="panel-static-head">Contributions <span class="label-opt">optional</span></div>
+                    <div class="panel-body">
+                        <div class="preset-row" id="contributionModeToggle">
+                            <button type="button" class="btn btn-ghost btn-sm" data-mode="deposits">Deposits</button>
+                            <button type="button" class="btn btn-ghost btn-sm" data-mode="withdrawals">Withdrawals</button>
+                            <button type="button" class="btn btn-ghost btn-sm" data-mode="both">Both</button>
+                        </div>
+                        <div id="contributionFieldsWrapper" class="contribution-fields" hidden>
+                            <div class="field" id="depositFields" hidden>
+                                <label for="depositAmount">Deposit</label>
+                                <div class="compound-contrib-row">
+                                    <div class="input-money input-money--wide">
+                                        <span class="currency-prefix" aria-hidden="true">$</span>
+                                        <input type="text" id="depositAmount" inputmode="decimal" placeholder="0" autocomplete="off">
+                                    </div>
+                                    <select id="depositFrequency" aria-label="Deposit frequency">
+                                        <option value="monthly" selected>Monthly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field" id="withdrawalFields" hidden>
+                                <label for="withdrawalAmount">Withdrawal</label>
+                                <div class="compound-contrib-row">
+                                    <div class="input-money input-money--wide">
+                                        <span class="currency-prefix" aria-hidden="true">$</span>
+                                        <input type="text" id="withdrawalAmount" inputmode="decimal" placeholder="0" autocomplete="off">
+                                    </div>
+                                    <select id="withdrawalFrequency" aria-label="Withdrawal frequency">
+                                        <option value="monthly" selected>Monthly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="compound-note muted-note">Every number here is hypothetical — one constant return, compounded. Real equity curves are lumpier than this.</p>
+            </aside>
+            <div class="compound-main">
+                <div class="compound-map">
+                    <div class="compound-table-head">
+                        <div class="compound-table-kicker">The full map · click a column to read that rate below <span class="compound-table-more" id="compoundTableMore" hidden> · scroll for the rest</span></div>
+                        <div class="compound-table-key" aria-hidden="true">
+                            <span class="ck ck-white">$100K+</span>
+                            <span class="ck ck-green">$1M+</span>
+                            <span class="ck ck-gold">$5M+</span>
+                        </div>
+                    </div>
+                    <div class="compound-table-frame" data-edge-start="off" data-edge-end="off">
+                        <div class="compound-table-scroll" id="compoundTableScroll" tabindex="0" role="region"
+                             aria-label="Year-by-year value at every yearly return, scrollable sideways">
+                            <table class="compound-table" id="compoundTable">
+                                <caption class="sr-only">Account value by year for each yearly return, from year 1 to year 10.</caption>
+                                <thead><tr><th class="compound-th compound-th--year" scope="col">Year</th></tr></thead>
+                                <tbody id="compoundTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="compound-hero">
+                    <div class="compound-hero-copy">
+                        <div class="compound-hero-kicker" id="compoundHeroKicker">This is you in ten years</div>
+                        <div class="compound-hero-end" id="compoundHeroEnd"></div>
+                        <div class="compound-hero-rate" id="compoundHeroRate"></div>
+                        <div class="compound-hero-pace" id="compoundHeroPace"></div>
+                    </div>
+                    <div class="compound-rate-block">
+                        <div class="compound-hero-kicker">Yearly return</div>
+                        <div class="preset-row" id="compoundRates"></div>
+                    </div>
+                    <div class="compound-split" id="compoundSplit" hidden></div>
+                </div>
+                <div class="compound-chart-card">
+                    <div class="compound-chart-head">
+                        <span class="compound-chart-heading">
+                            <span id="compoundChartTitle">Year 10</span>
+                        </span>
+                        <span class="compound-chart-legend" id="compoundChartLegend"></span>
+                    </div>
+                    <div class="compound-chart" id="compoundChart"></div>
+                    <div class="compound-scrub">
+                        <label class="compound-scrub-label" for="compoundYearScrub">Year</label>
+                        <div class="compound-scrub-rail" id="compoundYearRail" style="--scrub: 1">
+                            <span class="compound-scrub-track" aria-hidden="true"></span>
+                            <span class="compound-scrub-fill" aria-hidden="true"></span>
+                            <input type="range" id="compoundYearScrub" min="0" max="10" value="10" step="1">
+                        </div>
+                        <span class="compound-scrub-read" id="compoundYearRead">Y10</span>
+                    </div>
+                </div>
+                <div class="compound-metrics" id="compoundMetrics"></div>
+                <div class="compound-reads" id="compoundReads"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="app-footer">
+    <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerBackup" class="tiny-link">backup</button></span>
+</footer>
+
+<!-- ============ MODAL LAYER ============ -->
+<div class="instant-tip" id="instantTip" hidden></div>
+<div class="date-pop" id="datePop" hidden role="dialog" aria-label="Choose date">
+    <div class="date-pop-head">
+        <button type="button" class="icon-btn" data-cal="prev" aria-label="Previous month"><span data-icon="chevron-left"></span></button>
+        <div class="date-pop-title" id="datePopTitle"></div>
+        <button type="button" class="icon-btn" data-cal="next" aria-label="Next month"><span data-icon="chevron-right"></span></button>
+    </div>
+    <div class="date-pop-dows" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+    <div class="date-pop-grid" id="datePopGrid"></div>
+    <div class="date-pop-foot">
+        <button type="button" class="tiny-link" id="datePopClear" data-cal="clear">Clear</button>
+        <button type="button" class="tiny-link" data-cal="today">Today</button>
+    </div>
+</div>
+<div class="modal-root" id="modalRoot"></div>
+
+<!-- Trim / Exit -->
+<template id="tpl-trim">
+    <div class="modal-card trim-modal">
+        <div class="modal-head">
+            <div class="modal-title">Trim / Exit <b class="tm-ticker"></b></div>
+            <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        </div>
+        <div class="tm-context muted-note"></div>
+        <div class="tm-risk-manager" data-enabled="true">
+            <span class="tm-risk-manager-ic" data-icon="shield-check" aria-hidden="true"></span>
+            <span class="tm-risk-manager-copy">
+                <strong>Freeroll Risk Manager</strong>
+                <span>R prices auto-size the minimum trim needed to reduce open risk to $0.</span>
+            </span>
+            <button type="button" class="tm-risk-toggle" role="switch" aria-checked="true" aria-label="Freeroll Risk Manager">
+                <span class="tm-risk-toggle-knob" aria-hidden="true"></span>
+                <span class="tm-risk-toggle-label">On</span>
+            </button>
+        </div>
+        <div class="tm-size-ask" hidden>
+            <label>Position size? <span class="label-opt">needed to track P&amp;L</span></label>
+            <input type="text" inputmode="numeric" class="tm-size-input" placeholder="shares">
+        </div>
+        <div class="field">
+            <label>Exit price</label>
+            <input type="text" inputmode="decimal" class="tm-price">
+            <div class="preset-row tm-r-presets"></div>
+        </div>
+        <div class="field">
+            <label><span class="tm-shares-label">Shares to sell</span> <span class="tm-remaining label-opt"></span></label>
+            <input type="text" inputmode="numeric" class="tm-shares">
+            <div class="seg seg-fractions tm-frac-seg">
+                <span class="seg-pill" aria-hidden="true"></span>
+                <button data-seg="0.5" tabindex="-1">½</button>
+                <button data-seg="0.333" tabindex="-1">⅓</button>
+                <button data-seg="0.25" tabindex="-1">¼</button>
+                <button data-seg="1" tabindex="-1">All</button>
+            </div>
+            <div class="tm-risk-note" id="tmRiskNote"></div>
+        </div>
+        <div class="tm-row2">
+            <div class="field">
+                <label>Date</label>
+                <button type="button" class="date-field date-field-block tm-date-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop" aria-label="Exit date">
+                    <span class="date-field-value"></span>
+                    <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
+                </button>
+                <input type="hidden" class="tm-date" value="">
+            </div>
+            <div class="field">
+                <label>New stop <span class="label-opt">(optional)</span> <button class="tiny-link tm-be" tabindex="-1">BE</button></label>
+                <input type="text" inputmode="decimal" class="tm-stop" placeholder="keep">
+            </div>
+        </div>
+        <div class="tm-preview" aria-live="polite" hidden></div>
+        <div class="tm-error" role="alert" hidden></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost modal-cancel">Cancel</button>
+            <button class="btn btn-primary tm-confirm">Confirm</button>
+        </div>
+    </div>
+</template>
+
+<!-- Add to Position -->
+<template id="tpl-addto">
+    <div class="modal-card">
+        <div class="modal-head">
+            <div class="modal-title">Add to <b class="ap-ticker"></b></div>
+            <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        </div>
+        <div class="ap-context muted-note"></div>
+        <div class="tm-row2">
+            <div class="field"><label>Add shares</label><input type="text" inputmode="numeric" class="ap-shares"></div>
+            <div class="field"><label>At price</label><input type="text" inputmode="decimal" class="ap-price"></div>
+        </div>
+        <div class="field"><label>New stop <span class="label-opt">(optional)</span></label><input type="text" inputmode="decimal" class="ap-stop" placeholder="keep current"></div>
+        <div class="tm-preview ap-preview" aria-live="polite" hidden></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost modal-cancel">Cancel</button>
+            <button class="btn btn-primary ap-confirm">Add shares</button>
+        </div>
+    </div>
+</template>
+
+<!-- Paste alert -->
+<template id="tpl-paste">
+    <div class="modal-card">
+        <div class="modal-head">
+            <div class="modal-title">Paste alert</div>
+            <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        </div>
+        <div class="muted-note">e.g. <code>$NVDA @ 101.20 sl 99.80 risk 0.5%</code> — or just paste anywhere on the page.</div>
+        <textarea class="paste-box" rows="3" placeholder="paste alert text"></textarea>
+        <div class="modal-actions">
+            <button class="btn btn-ghost modal-cancel">Cancel</button>
+            <button class="btn btn-primary paste-import">Import</button>
+        </div>
+    </div>
+</template>
+
+<!-- Returning-user import from previous skyler.tools -->
+<template id="tpl-import">
+    <div class="modal-card welcome-card">
+        <div class="wc-mark" data-icon="download" aria-hidden="true"></div>
+        <div class="wc-lockup">
+            <span class="brand-name">skyler.tools<sup class="brand-version">2.0</sup></span>
+            <h2 class="wc-title">Trades from the previous site</h2>
+        </div>
+        <p class="wc-sub import-copy">This browser still has trades from the last skyler.tools. Import them into the suite — nothing on the old site is deleted.</p>
+        <div class="wc-actions">
+            <button class="btn btn-primary wc-import">Import trades</button>
+            <button class="btn btn-ghost modal-cancel">Start fresh</button>
+        </div>
+        <div class="wc-note muted-note">You can still export a JSON backup from the old data later if you keep this browser profile.</div>
+    </div>
+</template>
+
+<!-- First-run welcome -->
+<template id="tpl-welcome">
+    <div class="modal-card welcome-card">
+        <div class="wc-mark" data-icon="chart-candlestick" aria-hidden="true"></div>
+        <div class="wc-lockup">
+            <span class="brand-name">skyler.tools<sup class="brand-version">2.0</sup></span>
+            <h2 class="wc-title">Trader Tools Suite</h2>
+        </div>
+        <p class="wc-sub">Size the risk. Log the trade. Compound the years. Local-first — your data stays in this browser.</p>
+        <ul class="wc-features">
+            <li>Positions</li>
+            <li>Journal</li>
+            <li>Compound</li>
+        </ul>
+        <div class="wc-actions">
+            <div class="wc-cta">
+                <span class="wc-rec">Recommended</span>
+                <button class="btn btn-primary wc-sync"><span data-icon="cloud"></span>Set up cloud sync</button>
+            </div>
+            <button class="btn btn-ghost wc-sample">Load sample trades</button>
+            <button class="btn btn-ghost wc-fresh modal-cancel">Start fresh</button>
+        </div>
+        <div class="wc-note muted-note">Sync keeps trades &amp; settings on every device — phone included — via a private GitHub gist you own.</div>
+    </div>
+</template>
+
+<!-- Sync setup -->
+<template id="tpl-sync">
+    <div class="modal-card">
+        <div class="modal-head">
+            <div class="modal-title">Cloud sync</div>
+            <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        </div>
+        <div class="sync-status">
+            <span class="sync-status-dot" data-s="off"></span>
+            <span class="sync-status-text">Not linked</span>
+            <button class="btn btn-ghost btn-sm sync-now" hidden>Sync now</button>
+        </div>
+        <div class="sync-fields">
+            <div class="field">
+                <label>GitHub token <span class="label-opt">(gist scope only)</span></label>
+                <input type="password" class="sy-token" placeholder="ghp_…" autocomplete="off">
+            </div>
+            <div class="field">
+                <label>Gist ID <span class="label-opt">(blank = create a new private gist)</span></label>
+                <input type="text" class="sy-gist" placeholder="existing gist id" autocomplete="off">
+            </div>
+        </div>
+        <div class="sync-error muted-note" role="alert" hidden></div>
+        <div class="modal-actions sync-linked-actions" hidden>
+            <button class="btn btn-danger sy-unlink">Unlink</button>
+        </div>
+        <div class="modal-actions sync-unlinked-actions">
+            <button class="btn btn-ghost modal-cancel">Cancel</button>
+            <button class="btn btn-primary sy-link">Link &amp; sync</button>
+        </div>
+        <hr class="sync-divider">
+        <div class="sync-backup-row">
+            <span class="muted-note">Token-free safety net</span>
+            <span>
+                <button class="btn btn-ghost btn-sm sy-backup">Download backup</button>
+                <button class="btn btn-ghost btn-sm sy-restore">Restore from file…</button>
+            </span>
+        </div>
+    </div>
+</template>
+
+<!-- Confirm (whole-dataset ops only) -->
+<template id="tpl-confirm">
+    <div class="modal-card confirm-card">
+        <div class="modal-head">
+            <div class="modal-title cf-title"></div>
+            <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        </div>
+        <div class="cf-body muted-note"></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost modal-cancel">Cancel</button>
+            <button class="btn btn-danger cf-yes">Confirm</button>
+        </div>
+    </div>
+</template>
+
+<!-- ============ TOASTS ============ -->
+<div class="toast-root" id="toastRoot" aria-live="polite"></div>
+
+<script src="icons.js"></script>
+<script src="motion.js"></script>
+<script src="engine.js"></script>
+<script src="compound.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

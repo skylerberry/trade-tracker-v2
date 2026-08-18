@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toast Candidates · skyler.tools</title>
+<style>
+    :root {
+        color-scheme: light;
+        --bg: #f7f7f8;
+        --surface: #ffffff;
+        --surface-2: #f1f1f3;
+        --surface-3: #e7e7ea;
+        --text: #18181b;
+        --text-2: #3f3f46;
+        --text-3: #71717a;
+        --border: #e0e0e4;
+        --border-2: #cbccd2;
+        --primary: #b45309;
+        --primary-hover: #994707;
+        --primary-border: #823c06;
+        --primary-ink: #fff;
+        --primary-soft: #fff4e8;
+        --success: #16a34a;
+        --success-soft: #eaf7ee;
+        --danger: #dc2626;
+        --danger-soft: #fff0f0;
+        --shadow: 0 18px 52px rgba(24, 24, 27, .13), 0 2px 8px rgba(24, 24, 27, .07);
+        --shadow-soft: 0 10px 30px rgba(24, 24, 27, .08), 0 1px 3px rgba(24, 24, 27, .06);
+        --inset-hi: inset 0 1.5px 0 rgba(255,255,255,.20);
+        --ease: cubic-bezier(.16, 1, .3, 1);
+        --spring: cubic-bezier(.34, 1.56, .64, 1);
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    body.dark {
+        color-scheme: dark;
+        --bg: #18181b;
+        --surface: #27272a;
+        --surface-2: #202023;
+        --surface-3: #343438;
+        --text: #f4f4f5;
+        --text-2: #e4e4e7;
+        --text-3: #a1a1aa;
+        --border: #3f3f46;
+        --border-2: #52525b;
+        --primary: #f97316;
+        --primary-hover: #d95f0d;
+        --primary-border: #ae4708;
+        --primary-ink: #171717;
+        --primary-soft: #3a291e;
+        --success: #22c55e;
+        --success-soft: #1f3928;
+        --danger: #f87171;
+        --danger-soft: #412727;
+        --shadow: 0 22px 58px rgba(0,0,0,.38), 0 2px 8px rgba(0,0,0,.25);
+        --shadow-soft: 0 12px 32px rgba(0,0,0,.28), 0 1px 3px rgba(0,0,0,.2);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        transition: background-color 200ms, color 200ms;
+    }
+    button { border: 0; font: inherit; color: inherit; cursor: pointer; }
+    button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    svg { display: block; }
+    .icon { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .page { width: min(1220px, calc(100% - 36px)); margin: 0 auto; padding: 34px 0 80px; }
+
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 24px; }
+    .eyebrow { color: var(--primary); font-size: 11px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 8px 0 8px; font-size: clamp(30px, 5vw, 52px); line-height: 1; letter-spacing: -.05em; }
+    .lede { max-width: 760px; margin: 0; color: var(--text-2); font-size: 15px; line-height: 1.6; }
+    .top-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .bubble-button {
+        min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+        padding: 0 14px; border: 1px solid var(--border-2); border-radius: 999px;
+        background: var(--surface); box-shadow: inset 0 1.5px 0 rgba(255,255,255,.18);
+        font-size: 13px; font-weight: 650;
+        transition: transform 200ms var(--spring), border-color 160ms, background-color 160ms;
+    }
+    .bubble-button:hover { transform: translateY(-1px); border-color: var(--primary); }
+    .bubble-button:active { transform: scale(.96); }
+    .bubble-button.icon-only { width: 38px; padding: 0; }
+
+    .controlbar {
+        display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        margin-bottom: 20px; padding: 11px 13px; border: 1px solid var(--border);
+        border-radius: 16px; background: var(--surface); box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    .control-copy { color: var(--text-3); font-size: 12px; }
+    .control-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .seg { display: inline-flex; padding: 2px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2); }
+    .seg button { min-height: 29px; padding: 0 11px; border-radius: 999px; background: transparent; color: var(--text-3); font-size: 12px; font-weight: 700; }
+    .seg button.active { color: var(--primary-ink); background: var(--primary); border: 1px solid var(--primary-border); box-shadow: var(--inset-hi); }
+    .swatches { display: inline-flex; gap: 6px; }
+    .swatch { width: 24px; height: 24px; padding: 0; border: 2px solid var(--surface); border-radius: 50%; box-shadow: 0 0 0 1px var(--border); }
+    .swatch.active { box-shadow: 0 0 0 2px var(--text); }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .candidate { min-width: 0; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: var(--surface); }
+    .candidate.wide { grid-column: 1 / -1; }
+    .candidate-head { display: flex; justify-content: space-between; gap: 18px; padding: 16px 17px 13px; border-bottom: 1px solid var(--border); }
+    .candidate-kicker { color: var(--primary); font: 750 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .candidate h2 { margin: 6px 0 3px; font-size: 18px; letter-spacing: -.025em; }
+    .candidate p { margin: 0; color: var(--text-3); font-size: 12px; line-height: 1.45; }
+    .replay { flex: none; align-self: center; }
+    .stage {
+        min-height: 238px; display: grid; place-items: center; position: relative; overflow: hidden;
+        padding: 28px 22px; background:
+            radial-gradient(circle at 50% 0, color-mix(in srgb, var(--primary) 5%, transparent), transparent 46%),
+            var(--surface-2);
+    }
+    .stage::after {
+        content: ""; position: absolute; inset: 16px; pointer-events: none; border: 1px dashed color-mix(in srgb, var(--border-2) 70%, transparent); border-radius: 14px;
+    }
+    .demo-toast { position: relative; z-index: 1; max-width: 100%; }
+    .demo-toast b { font-weight: 720; }
+    .undo { display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: none; border-radius: 999px; font-weight: 720; }
+
+    /* A — Signal Capsule */
+    .signal-capsule {
+        width: min(420px, 100%); min-height: 60px; display: flex; align-items: center; gap: 11px;
+        padding: 8px 8px 8px 10px; border: 1px solid var(--border-2); border-radius: 999px;
+        background: var(--surface); box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.25);
+    }
+    .signal-orb { width: 38px; height: 38px; display: grid; place-items: center; position: relative; flex: none; border-radius: 50%; color: var(--success); background: var(--success-soft); }
+    .signal-orb svg.icon { width: 18px; height: 18px; }
+    .signal-ring { position: absolute; inset: 2px; width: 34px; height: 34px; transform: rotate(-90deg); }
+    .signal-ring circle { fill: none; stroke: color-mix(in srgb, var(--success) 58%, transparent); stroke-width: 1.5; stroke-dasharray: 94; stroke-dashoffset: 0; }
+    .signal-copy { min-width: 0; flex: 1; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ticker-token { font-family: var(--mono); font-weight: 800; letter-spacing: .03em; }
+    .signal-capsule .undo { min-height: 42px; padding: 0 17px; color: var(--primary-ink); background: var(--primary); border: 1px solid var(--primary-border); box-shadow: var(--inset-hi); }
+    .signal-capsule .undo:hover { background: var(--primary-hover); }
+    .is-playing.signal-capsule { animation: capsule-in 500ms var(--spring); }
+    .is-playing .signal-ring circle { animation: ring-out 6s linear forwards; }
+
+    /* B — Split Action Dock */
+    .split-dock {
+        width: min(430px, 100%); display: grid; grid-template-columns: minmax(0,1fr) auto; overflow: hidden;
+        border: 1px solid var(--border-2); border-radius: 15px; background: var(--surface); box-shadow: var(--shadow-soft);
+    }
+    .dock-message { min-width: 0; display: flex; align-items: center; gap: 11px; padding: 12px 15px; }
+    .dock-icon { width: 28px; height: 28px; display: grid; place-items: center; flex: none; color: var(--success); border-radius: 9px; background: var(--success-soft); }
+    .dock-copy { min-width: 0; }
+    .dock-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dock-meta { margin-top: 2px; color: var(--text-3); font: 10px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    .dock-action { min-width: 92px; display: grid; place-items: center; border-left: 1px solid var(--border); background: color-mix(in srgb, var(--primary) 5%, var(--surface)); color: var(--primary); font-size: 13px; font-weight: 750; }
+    .dock-action:hover { background: var(--primary-soft); }
+    .dock-ticks { position: absolute; left: 17px; right: 102px; bottom: 6px; display: grid; grid-template-columns: repeat(12,1fr); gap: 3px; }
+    .dock-ticks i { height: 2px; border-radius: 2px; background: color-mix(in srgb, var(--primary) 38%, transparent); }
+    .is-playing.split-dock { animation: dock-in 430ms var(--ease); }
+    .is-playing .dock-ticks i { animation: tick-fade 6s linear forwards; animation-delay: calc(var(--i) * 90ms); }
+
+    /* C — Trade Receipt */
+    .trade-receipt {
+        width: min(370px, 100%); padding: 13px; border: 1px solid var(--border); border-radius: 18px;
+        background: var(--surface); box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    .receipt-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .receipt-label { display: flex; align-items: center; gap: 7px; color: var(--success); font: 750 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .receipt-time { color: var(--text-3); font: 10px/1 var(--mono); }
+    .receipt-main { margin-top: 11px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .receipt-message { font-size: 16px; letter-spacing: -.015em; }
+    .receipt-message span { color: var(--text-3); font-weight: 500; }
+    .trade-receipt .undo { min-height: 34px; padding: 0 11px; color: var(--text-2); border: 1px solid var(--border-2); background: var(--surface-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.16); }
+    .trade-receipt .undo:hover { color: var(--primary); border-color: var(--primary); }
+    .receipt-meter { margin-top: 12px; height: 5px; padding: 1px; border-radius: 999px; background: var(--surface-2); }
+    .receipt-meter i { display: block; width: 100%; height: 3px; border-radius: inherit; background: linear-gradient(90deg, var(--success), color-mix(in srgb, var(--success) 35%, transparent)); transform-origin: left; }
+    .is-playing.trade-receipt { animation: receipt-in 520ms var(--spring); }
+    .is-playing .receipt-meter i { animation: meter-out 6s linear forwards; }
+
+    /* D — Night Signal */
+    .night-signal {
+        width: min(420px, 100%); min-height: 62px; display: flex; align-items: center; gap: 12px;
+        padding: 9px 9px 9px 12px; border: 1px solid rgba(255,255,255,.13); border-radius: 16px;
+        color: #f4f4f5; background: rgba(23,23,26,.94); box-shadow: 0 20px 56px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.09);
+        backdrop-filter: blur(18px);
+    }
+    .night-mark { width: 34px; height: 34px; display: grid; place-items: center; flex: none; border: 1px solid color-mix(in srgb, var(--success) 50%, transparent); border-radius: 11px; color: #4ade80; background: rgba(34,197,94,.11); }
+    .night-copy { min-width: 0; flex: 1; }
+    .night-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .night-meta { margin-top: 2px; color: #a1a1aa; font-size: 11px; }
+    .night-signal .undo { min-height: 42px; padding: 0 16px; color: #fff; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.09); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
+    .night-signal .undo:hover { background: rgba(255,255,255,.15); }
+    .night-count { min-width: 22px; color: #a1a1aa; font: 10px/1 var(--mono); text-align: center; }
+    .is-playing.night-signal { animation: night-in 560ms var(--ease); }
+
+    /* E — Orbit Toast */
+    .orbit-toast {
+        width: min(490px, 100%); min-height: 72px; display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 14px;
+        padding: 10px 11px 10px 10px; border: 1px solid var(--border-2); border-radius: 22px;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--success) 5%, var(--surface)), var(--surface));
+        box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.22);
+    }
+    .orbit { width: 48px; height: 48px; display: grid; place-items: center; position: relative; border-radius: 16px; color: var(--success); background: var(--success-soft); }
+    .orbit::before { content: ""; position: absolute; inset: -4px; border: 1px solid color-mix(in srgb, var(--success) 22%, transparent); border-radius: 19px; }
+    .orbit-copy { min-width: 0; }
+    .orbit-label { color: var(--success); font: 750 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; }
+    .orbit-message { margin-top: 5px; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .orbit-actions { display: flex; align-items: center; gap: 7px; }
+    .orbit-toast .undo { min-height: 38px; padding: 0 14px; color: var(--primary-ink); border: 1px solid var(--primary-border); background: var(--primary); box-shadow: var(--inset-hi); }
+    .orbit-close { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: var(--text-3); background: transparent; }
+    .orbit-close:hover { color: var(--text); background: var(--surface-2); }
+    .is-playing.orbit-toast { animation: orbit-in 560ms var(--spring); }
+    .is-playing .orbit::before { animation: orbit-pulse 900ms var(--ease); }
+
+    .demo-toast.is-error .status-color { color: var(--danger) !important; }
+    .demo-toast.is-error .status-bg { color: var(--danger) !important; background: var(--danger-soft) !important; border-color: color-mix(in srgb, var(--danger) 45%, transparent) !important; }
+    .demo-toast.is-error .status-text { color: var(--danger) !important; }
+
+    @keyframes capsule-in { 0% { opacity: 0; transform: translateY(18px) scale(.94); filter: blur(6px); } 65% { opacity: 1; filter: blur(0); } 100% { transform: none; } }
+    @keyframes dock-in { 0% { opacity: 0; transform: translateX(18px); filter: blur(5px); } 100% { opacity: 1; transform: none; filter: none; } }
+    @keyframes receipt-in { 0% { opacity: 0; transform: translateY(12px) rotateX(-10deg) scale(.96); } 100% { opacity: 1; transform: none; } }
+    @keyframes night-in { 0% { opacity: 0; transform: translateY(14px) scale(.96); filter: blur(10px); } 100% { opacity: 1; transform: none; filter: blur(0); } }
+    @keyframes orbit-in { 0% { opacity: 0; transform: scale(.88); filter: blur(5px); } 70% { opacity: 1; filter: none; } 100% { transform: none; } }
+    @keyframes ring-out { to { stroke-dashoffset: 94; } }
+    @keyframes meter-out { to { transform: scaleX(0); } }
+    @keyframes tick-fade { 0%, 45% { opacity: 1; } 100% { opacity: .08; } }
+    @keyframes orbit-pulse { 0% { opacity: 0; transform: scale(.78); } 60% { opacity: 1; } 100% { transform: scale(1); } }
+
+    @media (max-width: 780px) {
+        .topbar { flex-direction: column; }
+        .top-actions { justify-content: flex-start; }
+        .grid { grid-template-columns: 1fr; }
+        .candidate.wide { grid-column: auto; }
+    }
+    @media (max-width: 520px) {
+        .page { width: min(100% - 22px, 1220px); padding-top: 22px; }
+        .candidate-head { align-items: flex-start; }
+        .stage { padding-inline: 14px; }
+        .signal-copy, .dock-title, .orbit-message { white-space: normal; }
+        .dock-action { min-width: 74px; }
+        .night-meta, .receipt-time, .orbit-close { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+    }
+</style>
+</head>
+<body>
+<main class="page">
+    <header class="topbar">
+        <div>
+            <div class="eyebrow">skyler.tools · interaction study</div>
+            <h1>Five toast directions</h1>
+            <p class="lede">Five structural approaches for reversible trade actions. None uses the generic left status stripe. Replay them, switch state, and test the palette in both themes.</p>
+        </div>
+        <div class="top-actions">
+            <button class="bubble-button" id="replayAll" type="button">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+                Replay all
+            </button>
+            <button class="bubble-button icon-only" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="controlbar" aria-label="Mockup controls">
+        <span class="control-copy">Scenario: reversible delete · six-second dismissal</span>
+        <div class="control-actions">
+            <div class="seg" id="stateSeg" aria-label="Toast state">
+                <button class="active" data-state="success">Success</button>
+                <button data-state="error">Error</button>
+            </div>
+            <div class="swatches" aria-label="Accent">
+                <button class="swatch active" style="background:#b45309" data-light="#b45309" data-dark="#f97316" aria-label="Orange"></button>
+                <button class="swatch" style="background:#1a365d" data-light="#1a365d" data-dark="#3b82f6" aria-label="Navy"></button>
+                <button class="swatch" style="background:#e11d48" data-light="#e11d48" data-dark="#f43f5e" aria-label="Rose"></button>
+                <button class="swatch" style="background:#059669" data-light="#059669" data-dark="#10b981" aria-label="Emerald"></button>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid">
+        <article class="candidate">
+            <header class="candidate-head">
+                <div><div class="candidate-kicker">Candidate A</div><h2>Signal Capsule</h2><p>Closest to the app’s current footprint, but with a radial countdown and a true primary action.</p></div>
+                <button class="bubble-button icon-only replay" aria-label="Replay Signal Capsule"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+            </header>
+            <div class="stage">
+                <div class="demo-toast signal-capsule is-playing">
+                    <span class="signal-orb status-bg">
+                        <svg class="signal-ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15"/></svg>
+                        <svg class="icon status-color" viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/><circle cx="12" cy="12" r="9"/></svg>
+                    </span>
+                    <span class="signal-copy"><span class="ticker-token">RGTI</span> deleted</span>
+                    <button class="undo">Undo</button>
+                </div>
+            </div>
+        </article>
+
+        <article class="candidate">
+            <header class="candidate-head">
+                <div><div class="candidate-kicker">Candidate B</div><h2>Split Action Dock</h2><p>Message and recovery action become two deliberate zones. Quiet timeline ticks replace a progress stripe.</p></div>
+                <button class="bubble-button icon-only replay" aria-label="Replay Split Action Dock"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+            </header>
+            <div class="stage">
+                <div class="demo-toast split-dock is-playing">
+                    <div class="dock-message">
+                        <span class="dock-icon status-bg"><svg class="icon status-color" viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/><circle cx="12" cy="12" r="9"/></svg></span>
+                        <div class="dock-copy"><div class="dock-title"><b>RGTI</b> deleted</div><div class="dock-meta">Position removed</div></div>
+                    </div>
+                    <button class="dock-action">Undo</button>
+                    <span class="dock-ticks" aria-hidden="true">
+                        <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i><i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i>
+                    </span>
+                </div>
+            </div>
+        </article>
+
+        <article class="candidate">
+            <header class="candidate-head">
+                <div><div class="candidate-kicker">Candidate C</div><h2>Trade Receipt</h2><p>A compact two-level record: state first, trade event second. Best when future toasts need richer context.</p></div>
+                <button class="bubble-button icon-only replay" aria-label="Replay Trade Receipt"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+            </header>
+            <div class="stage">
+                <div class="demo-toast trade-receipt is-playing">
+                    <div class="receipt-top">
+                        <span class="receipt-label status-text"><svg class="icon" viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/><circle cx="12" cy="12" r="9"/></svg>Trade updated</span>
+                        <span class="receipt-time">6 sec</span>
+                    </div>
+                    <div class="receipt-main">
+                        <div class="receipt-message"><b>RGTI</b> <span>deleted</span></div>
+                        <button class="undo"><svg class="icon" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5"/><path d="M20 17a7 7 0 0 0-7-7H4"/></svg>Undo</button>
+                    </div>
+                    <div class="receipt-meter"><i></i></div>
+                </div>
+            </div>
+        </article>
+
+        <article class="candidate">
+            <header class="candidate-head">
+                <div><div class="candidate-kicker">Candidate D</div><h2>Night Signal</h2><p>A high-contrast system island that stays identical across themes. Strongest separation from page content.</p></div>
+                <button class="bubble-button icon-only replay" aria-label="Replay Night Signal"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+            </header>
+            <div class="stage">
+                <div class="demo-toast night-signal is-playing">
+                    <span class="night-mark status-bg"><svg class="icon status-color" viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/><circle cx="12" cy="12" r="9"/></svg></span>
+                    <div class="night-copy"><div class="night-title"><b>RGTI</b> deleted</div><div class="night-meta">Your trade log has been updated</div></div>
+                    <span class="night-count">6s</span>
+                    <button class="undo">Undo</button>
+                </div>
+            </div>
+        </article>
+
+        <article class="candidate wide">
+            <header class="candidate-head">
+                <div><div class="candidate-kicker">Candidate E</div><h2>Orbit Toast</h2><p>A memorable status block with more spatial presence. Best fit if the toast becomes a signature interaction rather than utility chrome.</p></div>
+                <button class="bubble-button icon-only replay" aria-label="Replay Orbit Toast"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+            </header>
+            <div class="stage">
+                <div class="demo-toast orbit-toast is-playing">
+                    <span class="orbit status-bg"><svg class="icon status-color" viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/><circle cx="12" cy="12" r="9"/></svg></span>
+                    <div class="orbit-copy"><div class="orbit-label status-text">Trade log updated</div><div class="orbit-message"><b>RGTI</b> deleted from active positions</div></div>
+                    <div class="orbit-actions"><button class="undo">Undo</button><button class="orbit-close" aria-label="Dismiss"><svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+                </div>
+            </div>
+        </article>
+    </section>
+</main>
+<script>
+    const root = document.documentElement;
+    const body = document.body;
+    let isDark = false;
+    let state = 'success';
+
+    function hexRgb(hex) {
+        const h = hex.replace('#','');
+        return [0,2,4].map(i => parseInt(h.slice(i,i+2),16));
+    }
+    function mix(hex, target, amount) {
+        const a = hexRgb(hex), b = hexRgb(target);
+        return '#' + a.map((v,i)=>Math.round(v+(b[i]-v)*amount).toString(16).padStart(2,'0')).join('');
+    }
+    function applyAccent(button) {
+        document.querySelectorAll('.swatch').forEach(x=>x.classList.toggle('active',x===button));
+        const main = button.dataset[isDark ? 'dark' : 'light'];
+        const [r,g,b] = hexRgb(main);
+        root.style.setProperty('--primary',main);
+        root.style.setProperty('--primary-hover',mix(main,'#000000',.15));
+        root.style.setProperty('--primary-border',mix(main,'#000000',.28));
+        root.style.setProperty('--primary-soft',`rgba(${r},${g},${b},${isDark ? .14 : .08})`);
+    }
+    function replay(toast) {
+        toast.classList.remove('is-playing');
+        void toast.offsetWidth;
+        toast.classList.add('is-playing');
+    }
+    function replayAll() { document.querySelectorAll('.demo-toast').forEach(replay); }
+    function applyState(next) {
+        state = next;
+        document.querySelectorAll('#stateSeg button').forEach(b=>b.classList.toggle('active',b.dataset.state===state));
+        document.querySelectorAll('.demo-toast').forEach(t=>t.classList.toggle('is-error',state==='error'));
+        document.querySelectorAll('svg.status-color').forEach(svg=>svg.innerHTML=state==='error'
+            ? '<path d="m9 9 6 6M15 9l-6 6"/><circle cx="12" cy="12" r="9"/>'
+            : '<path d="m7 12 3 3 7-7"/><circle cx="12" cy="12" r="9"/>');
+        document.querySelectorAll('.signal-copy').forEach(x=>x.innerHTML=state==='error'?'<span class="ticker-token">RGTI</span> not deleted':'<span class="ticker-token">RGTI</span> deleted');
+        document.querySelectorAll('.dock-title').forEach(x=>x.innerHTML=state==='error'?'<b>RGTI</b> not deleted':'<b>RGTI</b> deleted');
+        document.querySelectorAll('.receipt-message').forEach(x=>x.innerHTML=state==='error'?'<b>RGTI</b> <span>not deleted</span>':'<b>RGTI</b> <span>deleted</span>');
+        document.querySelectorAll('.night-title').forEach(x=>x.innerHTML=state==='error'?'<b>RGTI</b> not deleted':'<b>RGTI</b> deleted');
+        document.querySelectorAll('.orbit-message').forEach(x=>x.innerHTML=state==='error'?'<b>RGTI</b> remains in active positions':'<b>RGTI</b> deleted from active positions');
+        document.querySelectorAll('.dock-meta').forEach(x=>x.textContent=state==='error'?'Action could not complete':'Position removed');
+        document.querySelectorAll('.receipt-label').forEach(x=>x.lastChild.textContent=state==='error'?'Action failed':'Trade updated');
+        document.querySelectorAll('.orbit-label').forEach(x=>x.textContent=state==='error'?'Trade action failed':'Trade log updated');
+        replayAll();
+    }
+
+    document.querySelectorAll('.candidate').forEach(card=>card.querySelector('.replay').addEventListener('click',()=>replay(card.querySelector('.demo-toast'))));
+    document.getElementById('replayAll').addEventListener('click',replayAll);
+    document.getElementById('themeToggle').addEventListener('click',()=>{
+        isDark=!isDark; body.classList.toggle('dark',isDark);
+        applyAccent(document.querySelector('.swatch.active'));
+    });
+    document.querySelectorAll('#stateSeg button').forEach(b=>b.addEventListener('click',()=>applyState(b.dataset.state)));
+    document.querySelectorAll('.swatch').forEach(b=>b.addEventListener('click',()=>applyAccent(b)));
+</script>
+</body>
+</html>

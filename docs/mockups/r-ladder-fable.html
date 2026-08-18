@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R-Ladder Showroom — Fable candidates</title>
+<style>
+/* ============================================================
+   R-LADDER SHOWROOM — three candidates by Claude (Fable)
+   Tokens + motion vocabulary lifted from the 2.0 app so every
+   candidate drops straight into the freeroll container.
+   ============================================================ */
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-overshoot-in: cubic-bezier(0.175, 0.885, 0.12, 1.175);
+    --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --dur-fast: 150ms; --dur-base: 200ms; --dur-slow: 300ms;
+    --radius-lg: 12px; --radius-card: 16px; --radius-full: 9999px;
+    --inset-hi: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.18);
+
+    --bg: #fbfbfc; --surface: #ffffff; --surface-2: #f4f4f5; --surface-3: #ececee;
+    --border: #e4e4e7; --border-2: #d4d4d8;
+    --text: #18181b; --text-2: #3f3f46; --text-3: #71717a;
+    --primary: #1a365d; --primary-contrast: #ffffff;
+    --accent: #1a365d; --accent-soft: rgba(26, 54, 93, 0.08);
+    --success: #16a34a; --success-soft: rgba(34, 197, 94, 0.12);
+    --danger: #dc2626; --danger-soft: rgba(239, 68, 68, 0.10);
+    --warning: #b45309; --warning-soft: rgba(251, 191, 36, 0.16);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #18181b; --surface: #27272a; --surface-2: #1f1f22; --surface-3: #2d2d30;
+    --border: #3f3f46; --border-2: #52525b;
+    --text: #f4f4f5; --text-2: #e4e4e7; --text-3: #a1a1aa;
+    --primary: #3b82f6; --primary-contrast: #ffffff;
+    --accent: #93c5fd; --accent-soft: rgba(147, 197, 253, 0.10);
+    --success: #22c55e; --success-soft: rgba(34, 197, 94, 0.14);
+    --danger: #ef4444; --danger-soft: rgba(239, 68, 68, 0.14);
+    --warning: #fbbf24; --warning-soft: rgba(251, 191, 36, 0.14);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    font-size: 15px; line-height: 1.45;
+    transition: background-color var(--dur-base), color var(--dur-base);
+    padding-bottom: 80px;
+}
+.num { font-variant-numeric: tabular-nums; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+/* ---------- showroom chrome ---------- */
+.wrap { max-width: 1020px; margin: 0 auto; padding: 26px 20px; }
+.show-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+.show-title { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; }
+.show-sub { color: var(--text-3); font-size: 0.86rem; margin-bottom: 18px; }
+.controls {
+    position: sticky; top: 10px; z-index: 40;
+    display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-card); box-shadow: var(--shadow-lg);
+    padding: 14px 16px; margin-bottom: 26px;
+}
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
+.field input {
+    font: inherit; font-variant-numeric: tabular-nums;
+    width: 96px; padding: 6px 10px;
+    color: var(--text); background: var(--surface);
+    border: 1px solid var(--border-2); border-radius: var(--radius-lg);
+    transition: border-color var(--dur-base), box-shadow var(--dur-base);
+}
+.field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--accent-soft); }
+.seg {
+    position: relative; display: inline-flex; align-items: center;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-full); padding: 2px; isolation: isolate;
+}
+.seg button {
+    position: relative; z-index: 1; padding: 4px 12px;
+    font-size: 0.78rem; font-weight: 600; color: var(--text-3);
+    border-radius: var(--radius-full); white-space: nowrap;
+    transition: color var(--dur-base);
+}
+.seg button.is-active { color: var(--primary-contrast); }
+.seg .seg-pill {
+    position: absolute; top: 2px; bottom: 2px; left: 0;
+    background: var(--primary); border-radius: var(--radius-full);
+    opacity: 0; will-change: transform;
+}
+.btn-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; font-size: 0.8rem; font-weight: 500;
+    border: 1px solid var(--border-2); border-radius: var(--radius-full);
+    color: var(--text-2);
+    transition: background-color var(--dur-base), border-color var(--dur-base), transform var(--dur-base);
+}
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-ghost:active { transform: scale(0.96); }
+
+.candidate {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-card); overflow: hidden; margin-bottom: 30px;
+    transition: background-color var(--dur-base), border-color var(--dur-base);
+}
+.cand-head { display: flex; align-items: baseline; gap: 12px; padding: 14px 18px 0; flex-wrap: wrap; }
+.cand-tag {
+    font-size: 0.66rem; font-weight: 600; letter-spacing: 0.1em;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 2px 10px; border-radius: var(--radius-full);
+}
+.cand-name { font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; }
+.cand-desc { color: var(--text-3); font-size: 0.8rem; flex: 1; min-width: 240px; }
+.cand-head .btn-ghost { margin-left: auto; }
+.cand-body { padding: 10px 18px 20px; }
+
+.toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    background: var(--surface); border: 1px solid var(--border-2);
+    border-left: 3px solid var(--primary);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+    padding: 9px 16px; font-size: 0.85rem; z-index: 100;
+    will-change: transform;
+}
+
+/* ============================================================
+   A · FLIGHT PATH — horizontal instrument rail
+   ============================================================ */
+.fp { position: relative; height: 168px; margin-top: 26px; }
+.fp-track {
+    position: absolute; left: 0; right: 0; top: 84px; height: 4px;
+    background: var(--surface-3); border-radius: 2px;
+}
+.fp-fill-risk, .fp-fill-house {
+    position: absolute; top: 84px; height: 4px; border-radius: 2px;
+    transform-origin: left; transform: scaleX(0);
+}
+.fp-fill-risk { background: var(--danger); opacity: 0.65; }
+.fp-fill-house { background: var(--success); opacity: 0.8; }
+.fp-node { position: absolute; top: 0; width: 0; height: 168px; }
+.fp-dot {
+    position: absolute; top: 78px; left: -8px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2.5px solid var(--border-2);
+    transition: border-color var(--dur-slow), background-color var(--dur-slow), transform var(--dur-slow) var(--ease-back);
+    will-change: transform;
+}
+.fp-node.is-entry .fp-dot { border-color: var(--primary); }
+.fp-node.is-stop .fp-dot { border-color: var(--danger); background: var(--danger); }
+.fp-node.is-house .fp-dot { border-color: var(--success); }
+.fp-node.is-plan .fp-dot { border-color: var(--success); background: var(--success); }
+.fp-node:hover .fp-dot { transform: scale(1.35); }
+.fp-above, .fp-below { position: absolute; left: 0; transform: translateX(-50%); text-align: center; white-space: nowrap; }
+.fp-above { bottom: 96px; }
+.fp-below { top: 104px; }
+.fp-rtag { display: block; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.08em; color: var(--text-3); text-transform: uppercase; }
+.fp-price {
+    display: inline-block; font-size: 0.92rem; font-weight: 600; font-variant-numeric: tabular-nums;
+    border-radius: 8px; padding: 0 6px; cursor: pointer;
+    transition: background-color var(--dur-fast), color var(--dur-fast);
+}
+.fp-price:hover { background: var(--accent-soft); color: var(--accent); }
+.fp-profit { font-size: 0.76rem; font-variant-numeric: tabular-nums; color: var(--text-3); }
+.fp-profit.gain { color: var(--success); font-weight: 600; }
+.fp-profit.loss { color: var(--danger); font-weight: 600; }
+.fp-chip {
+    position: absolute; top: 132px; transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--success); color: #fff;
+    font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+    padding: 3px 12px; border-radius: var(--radius-full);
+    box-shadow: var(--inset-hi);
+    will-change: transform, left;
+}
+.fp-chip.backfill { background: var(--warning); color: #1c1207; }
+.fp-node .coach {
+    position: absolute; bottom: 122px; left: 0; transform: translateX(-50%) translateY(4px);
+    background: var(--surface); border: 1px solid var(--border-2); border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    font-size: 0.72rem; color: var(--text-2); white-space: nowrap;
+    padding: 5px 11px; opacity: 0; pointer-events: none;
+    transition: opacity var(--dur-fast), transform var(--dur-slow) var(--ease-back);
+}
+.fp-node:hover .coach { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* entrance: nodes cascade left→right with blur settle */
+.fp-node { opacity: 0; transform: translateY(14px); filter: blur(5px); }
+.fp.is-in .fp-node {
+    opacity: 1; transform: none; filter: blur(0);
+    transition: opacity 380ms ease-out, transform 480ms var(--ease-overshoot-in), filter 380ms ease-out;
+    transition-delay: calc(var(--i) * 70ms);
+}
+.fp.is-in .fp-fill-risk { transition: transform 600ms var(--ease-out-expo) 180ms; transform: scaleX(1); }
+.fp.is-in .fp-fill-house { transition: transform 700ms var(--ease-out-expo) 420ms; transform: scaleX(1); }
+
+/* ============================================================
+   B · PROFIT SKYLINE — stair-step columns
+   ============================================================ */
+.sk { display: flex; align-items: flex-end; gap: 10px; height: 210px; margin-top: 18px; padding: 0 4px; }
+.sk-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; position: relative; }
+.sk-block {
+    border-radius: 10px 10px 4px 4px;
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding-top: 8px;
+    transform-origin: bottom; will-change: transform;
+    transition: background-color var(--dur-slow), border-color var(--dur-slow), translate var(--dur-slow) var(--ease-back);
+    cursor: pointer;
+}
+.sk-col:hover .sk-block { translate: 0 -4px; }
+.sk-block.entry { background: var(--primary); border-color: transparent; box-shadow: var(--inset-hi); }
+.sk-block.stopb { background: var(--danger-soft); border: 1px dashed var(--danger); border-radius: 4px 4px 10px 10px; }
+.sk-block.house { background: var(--success-soft); border-color: color-mix(in srgb, var(--success) 35%, transparent); }
+.sk-tagline { text-align: center; margin-top: 7px; }
+.sk-rtag { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
+.sk-price { display: block; font-size: 0.88rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sk-profit { font-size: 0.74rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.sk-block.entry .sk-profit { color: rgba(255, 255, 255, 0.85); font-weight: 500; }
+.sk-block.house .sk-profit, .sk-profit.gain { color: var(--success); }
+.sk-block.stopb .sk-profit { color: var(--danger); }
+.sk-cap {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--success); color: #fff;
+    font-size: 0.7rem; font-weight: 600; white-space: nowrap;
+    padding: 2px 11px; border-radius: var(--radius-full);
+    box-shadow: var(--inset-hi);
+    z-index: 2;
+}
+.sk-cap.backfill { background: var(--warning); color: #1c1207; }
+.sk-base { border-top: 2px solid var(--border-2); margin-top: -1px; padding-top: 2px; }
+.sk-block { scale: 1 0; }
+.sk.is-in .sk-block {
+    scale: 1 1;
+    transition: scale 560ms var(--ease-overshoot-in), background-color var(--dur-slow), border-color var(--dur-slow), translate var(--dur-slow) var(--ease-back);
+    transition-delay: calc(var(--i) * 80ms), 0ms, 0ms, 0ms;
+}
+.sk-meta { opacity: 0; transform: translateY(6px); }
+.sk.is-in .sk-meta {
+    opacity: 1; transform: none;
+    transition: opacity 300ms ease-out, transform 300ms var(--ease-out-expo);
+    transition-delay: calc(var(--i) * 80ms + 260ms);
+}
+.sk-cap.sk-meta { transform: translateX(-50%) translateY(6px); }
+.sk.is-in .sk-cap.sk-meta { transform: translateX(-50%); }
+
+/* ============================================================
+   C · TICKER RAIL — DOM tape + risk instrument
+   ============================================================ */
+.tr-grid { display: grid; grid-template-columns: minmax(300px, 1.1fr) 1fr; gap: 22px; margin-top: 14px; }
+@media (max-width: 720px) { .tr-grid { grid-template-columns: 1fr; } }
+.tr-tape { position: relative; padding-left: 18px; }
+.tr-rail {
+    position: absolute; left: 5px; top: 10px; bottom: 10px; width: 2px;
+    background: var(--border-2); border-radius: 1px;
+    transform-origin: bottom; scale: 1 0;
+}
+.tr.is-in .tr-rail { scale: 1 1; transition: scale 650ms var(--ease-out-expo); }
+.tr-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 8px; border-radius: var(--radius-lg);
+    position: relative;
+    transition: background-color var(--dur-fast);
+    cursor: pointer;
+}
+.tr-row:hover { background: var(--surface-2); }
+.tr-row::before {
+    content: ""; position: absolute; left: -17px; top: 50%; margin-top: -4px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--border-2);
+    transition: border-color var(--dur-slow), background-color var(--dur-slow);
+}
+.tr-row.is-entry::before { border-color: var(--primary); }
+.tr-row.is-stop::before { border-color: var(--danger); background: var(--danger); }
+.tr-row.is-plan::before, .tr-row.is-house::before { border-color: var(--success); }
+.tr-row.is-plan::before { background: var(--success); }
+.tr-tag {
+    width: 44px; flex: none; text-align: center;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em;
+    padding: 2px 0; border-radius: var(--radius-full);
+    background: var(--surface-3); color: var(--text-3);
+    transition: background-color var(--dur-slow), color var(--dur-slow);
+}
+.tr-row.is-entry .tr-tag { background: var(--primary); color: var(--primary-contrast); }
+.tr-row.is-stop .tr-tag { background: var(--danger-soft); color: var(--danger); }
+.tr-row.is-plan .tr-tag { background: var(--success); color: #fff; }
+.tr-price { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 64px; }
+.tr-lead { flex: 1; border-top: 1px dashed var(--border-2); height: 0; }
+.tr-profit { font-size: 0.82rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-3); }
+.tr-profit.gain { color: var(--success); }
+.tr-profit.loss { color: var(--danger); }
+.tr-note { font-size: 0.7rem; color: var(--text-3); flex-basis: 100%; padding-left: 54px; margin-top: -3px; }
+.tr-row { opacity: 0; transform: translateX(-12px); }
+.tr.is-in .tr-row {
+    opacity: 1; transform: none;
+    transition: opacity 320ms ease-out, transform 420ms var(--ease-overshoot-in), background-color var(--dur-fast);
+    transition-delay: calc(var(--i) * 65ms);
+}
+.tr-inst {
+    display: flex; flex-direction: column; gap: 14px;
+    border: 1px solid var(--border); border-radius: var(--radius-card);
+    background: var(--surface-2); padding: 18px;
+}
+.tr-inst-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+.tr-lock { font-size: 2.1rem; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tr-lock small { display: block; font-size: 0.78rem; font-weight: 500; letter-spacing: 0; color: var(--text-3); margin-top: 2px; }
+.tr-meter { position: relative; height: 10px; border-radius: 5px; background: var(--surface-3); overflow: hidden; }
+.tr-meter-fill {
+    position: absolute; inset: 0; border-radius: 5px;
+    background: linear-gradient(90deg, var(--danger), var(--warning) 55%, var(--success));
+    transform-origin: left; transform: scaleX(0); will-change: transform;
+}
+.tr-meter-row { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; color: var(--text-3); }
+.tr-state {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+    padding: 3px 12px; border-radius: var(--radius-full);
+    background: var(--warning-soft); color: var(--warning);
+    align-self: flex-start;
+    transition: background-color var(--dur-slow), color var(--dur-slow);
+}
+.tr-state.free { background: var(--success-soft); color: var(--success); }
+.tr-state .shield { display: inline-flex; will-change: transform; }
+.tr-sentence { font-size: 0.85rem; color: var(--text-2); }
+.tr-copy-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.tr-copy-row button {
+    font-size: 0.74rem; font-weight: 600; font-variant-numeric: tabular-nums;
+    border: 1px solid var(--border-2); border-radius: var(--radius-full);
+    padding: 2px 11px; color: var(--text-2);
+    transition: border-color var(--dur-fast), color var(--dur-fast), transform var(--dur-base);
+}
+.tr-copy-row button:hover { border-color: var(--accent); color: var(--accent); }
+.tr-copy-row button:active { transform: scale(0.94); }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 1ms !important; transition-delay: 0ms !important; animation-duration: 1ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="show-head">
+        <div class="show-title">R-Ladder Showroom · Fable candidates</div>
+        <div style="display:flex; gap:10px; align-items:center">
+            <button class="btn-ghost" id="themeBtn">Theme</button>
+        </div>
+    </div>
+    <div class="show-sub">Three signature treatments for the freeroll container — shared inputs below drive all three. Click any price to copy it. Hit Replay to re-judge each entrance.</div>
+
+    <div class="controls">
+        <div class="field"><label>Entry</label><input id="inEntry" inputmode="decimal" value="104.20"></div>
+        <div class="field"><label>Stop</label><input id="inStop" inputmode="decimal" value="101.60"></div>
+        <div class="field"><label>Shares</label><input id="inShares" inputmode="numeric" value="480"></div>
+        <div class="field">
+            <label>Freeroll plan</label>
+            <div class="seg" id="planSeg">
+                <span class="seg-pill"></span>
+                <button data-v="half-1r" class="is-active">½ @ 1R</button>
+                <button data-v="third-2r">⅓ @ 2R</button>
+                <button data-v="backfill">Back-fill</button>
+                <button data-v="off">Off</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- A · FLIGHT PATH -->
+    <section class="candidate">
+        <div class="cand-head">
+            <span class="cand-tag">CANDIDATE A</span>
+            <span class="cand-name">Flight Path</span>
+            <span class="cand-desc">The trade as a horizontal instrument rail — risk zone burns red from the stop, the plan chip rides its rung, and the track past freeroll turns to house money. Width is the point.</span>
+            <button class="btn-ghost" data-replay="fp">Replay</button>
+        </div>
+        <div class="cand-body"><div class="fp" id="fp"></div></div>
+    </section>
+
+    <!-- B · PROFIT SKYLINE -->
+    <section class="candidate">
+        <div class="cand-head">
+            <span class="cand-tag">CANDIDATE B</span>
+            <span class="cand-name">Profit Skyline</span>
+            <span class="cand-desc">Each rung is a building; height is R. The stop digs a red basement, entry lays the foundation, and the skyline grows out of the ground with spring stagger. A silhouette you remember.</span>
+            <button class="btn-ghost" data-replay="sk">Replay</button>
+        </div>
+        <div class="cand-body">
+            <div class="sk is-in" id="sk"></div>
+            <div class="sk-base"></div>
+        </div>
+    </section>
+
+    <!-- C · TICKER RAIL -->
+    <section class="candidate">
+        <div class="cand-head">
+            <span class="cand-tag">CANDIDATE C</span>
+            <span class="cand-name">Ticker Rail</span>
+            <span class="cand-desc">A trader's price ladder on the left, and the empty right half becomes the payoff instrument: locked profit rolling up and a risk meter that springs to FREEROLLED when the plan fires.</span>
+            <button class="btn-ghost" data-replay="tr">Replay</button>
+        </div>
+        <div class="cand-body"><div class="tr is-in" id="tr"></div></div>
+    </section>
+</div>
+
+<script>
+'use strict';
+/* ---------- minimal spring (analytic, from the app's motion.js) ---------- */
+class Spring {
+    constructor(k, c, m = 1) { this.k = k; this.c = c; this.m = m; this.pos = 0; this.vel = 0; this.target = 0; }
+    step(dtMs) {
+        const dt = dtMs / 1000, w0 = Math.sqrt(this.k / this.m), z = this.c / (2 * Math.sqrt(this.k * this.m));
+        const x0 = this.pos - this.target, v0 = this.vel; let nx, nv;
+        if (z < 0.99) {
+            const wd = w0 * Math.sqrt(1 - z * z), d = Math.exp(-z * w0 * dt), s = Math.sin(wd * dt), c2 = Math.cos(wd * dt);
+            const B = (v0 + x0 * z * w0) / Math.max(wd, 1e-4);
+            nx = d * (x0 * c2 + B * s); nv = -z * w0 * nx + d * wd * (B * c2 - x0 * s);
+        } else {
+            const d = Math.exp(-w0 * dt), B = v0 + w0 * x0;
+            nx = d * (x0 + B * dt); nv = -w0 * nx + d * B;
+        }
+        this.pos = this.target + nx; this.vel = nv;
+    }
+    settled(eps = 0.0015) { return Math.abs(this.vel) < eps && Math.abs(this.pos - this.target) < eps; }
+    snap(v) { this.pos = this.target = v; this.vel = 0; }
+}
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const drivers = [];
+let running = false, lastT = 0;
+function raf(now) {
+    const dt = lastT ? Math.min(now - lastT, 64) : 16.7; lastT = now;
+    let alive = false;
+    for (const d of drivers) {
+        if (d.sleeping) continue;
+        let done = true;
+        for (const s of d.springs) { s.step(dt); if (!s.settled(d.eps)) done = false; }
+        d.apply();
+        if (done) d.sleeping = true; else alive = true;
+    }
+    if (alive) requestAnimationFrame(raf); else running = false;
+}
+function drive(springs, apply, eps = 0.0015) {
+    const d = { springs, apply, eps, sleeping: true };
+    drivers.push(d);
+    return { poke() { d.sleeping = false; if (!running) { running = true; lastT = 0; requestAnimationFrame(raf); } } };
+}
+
+/* ---------- shared state ---------- */
+const $ = (id) => document.getElementById(id);
+const fmt$ = (n) => (n < 0 ? '−$' : '+$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtP = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const state = { entry: 104.20, stop: 101.60, shares: 480, plan: 'half-1r' };
+const PLAN = {
+    'half-1r': { r: 1, frac: 0.5, label: '½' },
+    'third-2r': { r: 2, frac: 1 / 3, label: '⅓' },
+    backfill: { r: 1, frac: 0, label: null },
+    off: null,
+};
+function compute() {
+    const rps = Math.round((state.entry - state.stop) * 10000) / 10000;
+    if (!(rps > 0) || !(state.shares > 0)) return null;
+    const rungs = [];
+    rungs.push({ key: 'stop', tag: 'Stop', price: state.stop, profit: -rps * state.shares, coach: 'Max loss. Never widen it.' });
+    rungs.push({ key: 'entry', tag: 'Entry', price: state.entry, profit: 0, coach: 'Breakeven — the line house money is measured from' });
+    for (let r = 1; r <= 5; r++) {
+        rungs.push({
+            key: 'r' + r, tag: r + 'R', r, price: Math.round((state.entry + rps * r) * 100) / 100, profit: rps * r * state.shares,
+            coach: r === 1 ? 'Covers your initial risk — house money from here' :
+                   r === 2 ? 'Trimming ⅓ here free-rolls the rest' :
+                   r === 5 ? 'Let winners run — trim light into momentum' : null,
+        });
+    }
+    const p = PLAN[state.plan];
+    let plan = null;
+    if (p) {
+        const sell = Math.ceil(state.shares * p.frac);
+        plan = {
+            r: p.r, backfill: state.plan === 'backfill', sell,
+            locked: state.plan === 'backfill' ? 0 : Math.round(sell * rps * p.r * 100) / 100,
+            label: state.plan === 'backfill'
+                ? `STOP → ${fmtP(state.entry)}`
+                : `SELL ${sell.toLocaleString()} (${p.label}) · lock ${fmt$(sell * rps * p.r)}`,
+        };
+    }
+    return { rps, rungs, plan };
+}
+
+/* ---------- rolling digits (interruptible, per-cell authority) ---------- */
+const ROLL = { duration: 300, easing: 'cubic-bezier(0.16,1,0.3,1)' };
+function rollTo(el, text, dirUp = true) {
+    const chars = [...text];
+    let cells = el.__cells;
+    if (!cells || cells.length !== chars.length) {
+        el.textContent = '';
+        el.__cells = cells = chars.map(ch => {
+            const c = document.createElement('span');
+            c.style.cssText = 'display:inline-block;position:relative;overflow:hidden;height:1.15em;line-height:1.15em;vertical-align:bottom';
+            const s = document.createElement('span'); s.style.display = 'inline-block'; s.textContent = ch;
+            c.appendChild(s); c.__cur = s; el.appendChild(c);
+            return c;
+        });
+        return;
+    }
+    chars.forEach((ch, i) => {
+        const cell = cells[i], cur = cell.__cur;
+        for (const k of [...cell.children]) if (k !== cur) k.remove();
+        if (!cur || cur.textContent === ch) return;
+        if (reduceMotion) { cur.textContent = ch; return; }
+        const inc = document.createElement('span');
+        inc.textContent = ch; inc.style.cssText = 'position:absolute;left:0;top:0;width:100%;display:inline-block';
+        cell.appendChild(inc); cell.__cur = inc;
+        cur.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${dirUp ? '-100%' : '100%'})` }], { ...ROLL, fill: 'forwards' })
+            .finished.then(() => cur.remove()).catch(() => cur.remove());
+        inc.animate([{ transform: `translateY(${dirUp ? '100%' : '-100%'})` }, { transform: 'translateY(0)' }], ROLL)
+            .finished.then(() => { if (cell.__cur === inc) { inc.style.position = 'static'; } }).catch(() => {});
+    });
+}
+function toast(msg) {
+    document.querySelectorAll('.toast').forEach(t => t.remove());
+    const el = document.createElement('div');
+    el.className = 'toast'; el.textContent = msg;
+    document.body.appendChild(el);
+    if (!reduceMotion) el.animate(
+        [{ transform: 'translateX(-50%) translateY(16px) scale(0.96)', opacity: 0 }, { transform: 'translateX(-50%)', opacity: 1 }],
+        { duration: 350, easing: 'cubic-bezier(0.175,0.885,0.12,1.175)' });
+    setTimeout(() => el.remove(), 1800);
+}
+function copyPrice(p) { navigator.clipboard?.writeText(p.toFixed(2)); toast(`Copied ${p.toFixed(2)} — set your alert`); }
+
+/* ============================================================
+   A · FLIGHT PATH
+   ============================================================ */
+const fpChipX = new Spring(400, 32);
+let fpChipDriver = null;
+function xPct(i) { return [4, 19, 35, 50.5, 66, 81.5, 96][i]; } /* stop, entry, 1..5R */
+function renderFP(replay = false) {
+    const d = compute(); if (!d) return;
+    const fp = $('fp');
+    const houseIdx = d.plan ? d.plan.r + 1 : null;
+    fp.classList.remove('is-in');
+    fp.innerHTML = '<div class="fp-track"></div>' +
+        `<div class="fp-fill-risk" style="left:${xPct(0)}%;width:${xPct(1) - xPct(0)}%"></div>` +
+        (houseIdx !== null ? `<div class="fp-fill-house" style="left:${xPct(houseIdx)}%;width:${96 - xPct(houseIdx)}%"></div>` : '');
+    d.rungs.forEach((r, i) => {
+        const node = document.createElement('div');
+        node.className = 'fp-node' +
+            (r.key === 'entry' ? ' is-entry' : '') + (r.key === 'stop' ? ' is-stop' : '') +
+            (houseIdx !== null && r.r === d.plan.r ? ' is-plan' : '') +
+            (houseIdx !== null && r.r > d.plan.r ? ' is-house' : '');
+        node.style.left = xPct(i) + '%';
+        node.style.setProperty('--i', i);
+        node.innerHTML = `
+            <span class="fp-above"><span class="fp-rtag">${r.tag}</span><span class="fp-price num">${fmtP(r.price)}</span></span>
+            <span class="fp-dot"></span>
+            <span class="fp-below"><span class="fp-profit num ${r.profit > 0 ? 'gain' : r.profit < 0 ? 'loss' : ''}">${r.key === 'entry' ? 'B/E' : fmt$(r.profit)}</span></span>
+            ${r.coach ? `<span class="coach">${r.coach}</span>` : ''}`;
+        node.querySelector('.fp-price').addEventListener('click', () => copyPrice(r.price));
+        fp.appendChild(node);
+    });
+    if (d.plan) {
+        const chip = document.createElement('span');
+        chip.className = 'fp-chip' + (d.plan.backfill ? ' backfill' : '');
+        chip.innerHTML = (d.plan.backfill ? '' : '🛡 ') + d.plan.label;
+        fp.appendChild(chip);
+        const targetPct = xPct(d.plan.r + 1);
+        if (replay || !fpChipDriver) {
+            fpChipX.snap(targetPct);
+            chip.style.left = targetPct + '%';
+            fpChipDriver = drive([fpChipX], () => {
+                const c = $('fp').querySelector('.fp-chip');
+                if (c) c.style.left = fpChipX.pos + '%';
+            });
+        } else {
+            chip.style.left = fpChipX.pos + '%';
+            fpChipX.target = targetPct;
+            fpChipDriver.poke();
+        }
+    }
+    requestAnimationFrame(() => requestAnimationFrame(() => fp.classList.add('is-in')));
+}
+
+/* ============================================================
+   B · PROFIT SKYLINE
+   ============================================================ */
+function renderSK(replay = false) {
+    const d = compute(); if (!d) return;
+    const sk = $('sk');
+    if (replay) sk.classList.remove('is-in');
+    sk.innerHTML = '';
+    const maxH = 140;
+    d.rungs.forEach((r, i) => {
+        const col = document.createElement('div');
+        col.className = 'sk-col';
+        col.style.setProperty('--i', i);
+        const isPlan = d.plan && r.r === d.plan.r;
+        const isHouse = d.plan && r.r > d.plan.r;
+        const h = r.key === 'stop' ? 34 : r.key === 'entry' ? 26 : 26 + (r.r / 5) * maxH;
+        col.innerHTML = `
+            ${isPlan ? `<span class="sk-cap sk-meta ${d.plan.backfill ? 'backfill' : ''}" style="bottom:${h + 46}px">${d.plan.backfill ? d.plan.label : '🛡 ' + d.plan.label}</span>` : ''}
+            <div class="sk-block ${r.key === 'entry' ? 'entry' : ''} ${r.key === 'stop' ? 'stopb' : ''} ${isHouse ? 'house' : ''}" style="height:${h}px">
+                ${r.key !== 'stop' ? `<span class="sk-profit num">${r.key === 'entry' ? 'B/E' : fmt$(r.profit)}</span>` : `<span class="sk-profit num">${fmt$(r.profit)}</span>`}
+            </div>
+            <div class="sk-tagline sk-meta"><span class="sk-rtag">${r.tag}</span><span class="sk-price num">${fmtP(r.price)}</span></div>`;
+        col.querySelector('.sk-block').addEventListener('click', () => copyPrice(r.price));
+        sk.appendChild(col);
+    });
+    if (replay) requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('is-in')));
+}
+
+/* ============================================================
+   C · TICKER RAIL
+   ============================================================ */
+const meterX = new Spring(260, 26, 0.9);
+let meterDriver = null, lastLock = 0;
+function renderTR(replay = false) {
+    const d = compute(); if (!d) return;
+    const tr = $('tr');
+    if (replay) tr.classList.remove('is-in');
+    const rows = [...d.rungs].reverse(); /* 5R at top, stop at bottom */
+    tr.innerHTML = `
+        <div class="tr-grid">
+            <div class="tr-tape">
+                <div class="tr-rail"></div>
+                ${rows.map((r, i) => {
+                    const isPlan = d.plan && r.r === d.plan.r;
+                    const isHouse = d.plan && r.r > d.plan.r;
+                    return `<div class="tr-row ${r.key === 'entry' ? 'is-entry' : ''} ${r.key === 'stop' ? 'is-stop' : ''} ${isPlan ? 'is-plan' : ''} ${isHouse ? 'is-house' : ''}" style="--i:${i}" data-price="${r.price}">
+                        <span class="tr-tag">${r.tag}</span>
+                        <span class="tr-price num">${fmtP(r.price)}</span>
+                        <span class="tr-lead"></span>
+                        <span class="tr-profit num ${r.profit > 0 ? 'gain' : r.profit < 0 ? 'loss' : ''}">${r.key === 'entry' ? 'B/E' : fmt$(r.profit)}</span>
+                        ${isPlan ? `<span class="tr-note">${d.plan.backfill ? 'raise stop to entry here — risk dies without selling' : 'sell ' + d.plan.sell.toLocaleString() + ' shares here — the rest is house money'}</span>` : ''}
+                    </div>`;
+                }).join('')}
+            </div>
+            <div class="tr-inst">
+                <span class="tr-inst-label">Locked at plan</span>
+                <div class="tr-lock"><span class="num" id="trLockNum">${fmt$(d.plan ? d.plan.locked : 0)}</span><small>${d.plan ? (d.plan.backfill ? 'back-fill: nothing sold, stop does the work' : `from selling ${d.plan.sell.toLocaleString()} of ${state.shares.toLocaleString()} shs at ${d.plan.r}R`) : 'no plan — manual management'}</small></div>
+                <div class="tr-meter"><div class="tr-meter-fill" id="trMeterFill"></div></div>
+                <div class="tr-meter-row"><span>AT RISK ${fmt$(-d.rps * state.shares)}</span><span>RISK $0</span></div>
+                <span class="tr-state ${d.plan ? 'free' : ''}" id="trState">${d.plan ? '<span class="shield">🛡</span> FREEROLLED AT ' + d.plan.r + 'R' : 'NO PLAN'}</span>
+                <div class="tr-copy-row">${d.rungs.filter(r => r.r).map(r => `<button data-copy="${r.price}">${r.tag} · ${fmtP(r.price)}</button>`).join('')}</div>
+            </div>
+        </div>`;
+    tr.querySelectorAll('.tr-row').forEach(row => row.addEventListener('click', () => copyPrice(parseFloat(row.dataset.price))));
+    tr.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); copyPrice(parseFloat(b.dataset.copy)); }));
+
+    /* meter springs toward "risk dead" — fraction of the way the plan carries you */
+    const target = d.plan ? 1 : 0.12;
+    const fill = $('trMeterFill');
+    if (replay || !meterDriver) {
+        meterX.snap(0);
+        meterDriver = drive([meterX], () => {
+            const f = $('trMeterFill');
+            if (f) f.style.transform = `scaleX(${Math.max(0, meterX.pos)})`;
+        });
+    }
+    if (reduceMotion) { meterX.snap(target); fill.style.transform = `scaleX(${target})`; }
+    else { meterX.target = target; meterDriver.poke(); }
+
+    /* roll the locked number + wobble shield on increase */
+    const lockNow = d.plan ? d.plan.locked : 0;
+    rollTo($('trLockNum'), fmt$(lockNow), lockNow >= lastLock);
+    if (d.plan && !d.plan.backfill && lockNow !== lastLock && !reduceMotion) {
+        const sh = tr.querySelector('.tr-state .shield');
+        if (sh) {
+            const s = new Spring(200, 9); s.snap(0); s.vel = 16;
+            drive([s], () => { const el = tr.querySelector('.tr-state .shield'); if (el) el.style.transform = `rotate(${s.pos}deg)`; }, 0.02).poke();
+        }
+    }
+    lastLock = lockNow;
+    if (replay) requestAnimationFrame(() => requestAnimationFrame(() => tr.classList.add('is-in')));
+}
+
+/* ---------- wiring ---------- */
+function renderAll(replay = false) {
+    renderFP(replay); renderSK(replay); renderTR(replay);
+}
+['inEntry', 'inStop', 'inShares'].forEach(id => $(id).addEventListener('input', () => {
+    state.entry = parseFloat($('inEntry').value) || 0;
+    state.stop = parseFloat($('inStop').value) || 0;
+    state.shares = parseInt($('inShares').value.replace(/,/g, ''), 10) || 0;
+    renderAll(false);
+}));
+const seg = $('planSeg'), pill = seg.querySelector('.seg-pill');
+const pillX = new Spring(400, 32), pillW = new Spring(400, 32);
+const pillDrv = drive([pillX, pillW], () => {
+    pill.style.transform = `translateX(${pillX.pos}px)`;
+    pill.style.width = pillW.pos + 'px';
+}, 0.05);
+function placePill(btn, instant = false) {
+    pill.style.opacity = '1';
+    if (instant || reduceMotion) {
+        pillX.snap(btn.offsetLeft); pillW.snap(btn.offsetWidth);
+        pill.style.transform = `translateX(${pillX.pos}px)`; pill.style.width = pillW.pos + 'px';
+        return;
+    }
+    pillX.target = btn.offsetLeft; pillW.target = btn.offsetWidth; pillDrv.poke();
+}
+seg.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-v]'); if (!btn) return;
+    seg.querySelectorAll('[data-v]').forEach(b => b.classList.toggle('is-active', b === btn));
+    placePill(btn);
+    state.plan = btn.dataset.v;
+    renderAll(false);
+});
+document.querySelectorAll('[data-replay]').forEach(b => b.addEventListener('click', () => {
+    ({ fp: renderFP, sk: renderSK, tr: renderTR })[b.dataset.replay](true);
+}));
+$('themeBtn').addEventListener('click', () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'dark' ? 'light' : 'dark';
+});
+
+renderAll(true);
+requestAnimationFrame(() => placePill(seg.querySelector('.is-active'), true));
+</script>
+</body>
+</html>

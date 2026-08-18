@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calculator sizing band — reorg sketches</title>
+<style>
+  :root {
+    --canvas: #f0f1f3;
+    --surface: #ffffff;
+    --surface-2: #f7f8fa;
+    --surface-3: #eef0f3;
+    --ink: #1a1a1c;
+    --ink-2: #374151;
+    --muted: #6b7280;
+    --faint: #9ca3af;
+    --border: #e5e7eb;
+    --border-2: #d1d5db;
+    --navy: #1a365d;
+    --navy-soft: color-mix(in srgb, #1a365d 10%, #fff);
+    --blue: #3b82f6;
+    --green: #166534;
+    --green-soft: #e8f5ec;
+    --green-border: color-mix(in srgb, #22c55e 28%, #e5e7eb);
+    --radius: 12px;
+    --radius-lg: 16px;
+    --radius-full: 999px;
+    --font: "Inter", "SF Pro Text", -apple-system, system-ui, sans-serif;
+    --mono: "SF Mono", ui-monospace, Menlo, monospace;
+  }
+  [data-theme="dark"] {
+    --canvas: #141416;
+    --surface: #1f1f22;
+    --surface-2: #27272a;
+    --surface-3: #2e2e32;
+    --ink: #f4f4f5;
+    --ink-2: #d4d4d8;
+    --muted: #a1a1aa;
+    --faint: #71717a;
+    --border: #3f3f46;
+    --border-2: #52525b;
+    --navy: #3b82f6;
+    --navy-soft: color-mix(in srgb, #3b82f6 14%, #1f1f22);
+    --green: #86efac;
+    --green-soft: rgba(34, 197, 94, 0.12);
+    --green-border: color-mix(in srgb, #22c55e 30%, #3f3f46);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 14px/1.45 var(--font);
+    color: var(--ink);
+    background: var(--canvas);
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1040px; margin: 0 auto; padding: 28px 18px 72px; }
+
+  .page-h {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    align-items: flex-start; justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .page-h h1 {
+    margin: 0 0 4px;
+    font-size: 20px; font-weight: 600; letter-spacing: -0.02em;
+  }
+  .page-h p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 56ch; }
+  .theme-btn {
+    height: 34px; padding: 0 14px;
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    color: var(--ink-2);
+    font: 500 13px var(--font);
+    cursor: pointer;
+  }
+
+  .nav {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 20px;
+    padding: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    width: fit-content;
+  }
+  .nav button {
+    border: 0; background: transparent;
+    height: 32px; padding: 0 12px;
+    border-radius: var(--radius-full);
+    font: 500 12.5px var(--font);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .nav button[aria-selected="true"] {
+    background: var(--navy);
+    color: #fff;
+  }
+
+  .panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .panel.active { display: block; }
+
+  .panel-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .panel-bar .chev { color: var(--muted); font-size: 12px; }
+  .panel-bar .title { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; }
+  .panel-bar .hint { margin-left: auto; font-size: 12px; color: var(--faint); }
+
+  .panel-body { padding: 14px 16px 18px; }
+
+  .meta {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+    font-size: 12.5px;
+    color: var(--ink-2);
+  }
+  .meta b { color: var(--ink); }
+  .meta .tag {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 1px 8px;
+    border-radius: var(--radius-full);
+    background: var(--navy-soft);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  /* —— shared calc chrome —— */
+  .modebar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+  }
+  .mode-ctl {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mode-lab {
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--faint);
+    margin-left: 4px;
+  }
+  .seg {
+    display: inline-flex; align-items: center;
+    padding: 3px;
+    gap: 2px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface-3);
+  }
+  .seg button {
+    border: 0; background: transparent;
+    height: 28px; padding: 0 12px;
+    border-radius: var(--radius-full);
+    font: 500 12.5px var(--font);
+    color: var(--muted);
+    cursor: default;
+  }
+  .seg button.on {
+    background: var(--navy);
+    color: #fff;
+  }
+  .seg.quiet button.on {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border-2);
+    box-shadow: 0 1px 0 rgba(0,0,0,.04);
+  }
+  .context-pill {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 30px;
+    padding: 4px 12px;
+    border: 1px solid var(--green-border);
+    border-radius: var(--radius-full);
+    background: var(--green-soft);
+    color: var(--green);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .field-lab {
+    display: block;
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 5px;
+  }
+
+  .money {
+    display: inline-flex; align-items: center;
+    height: 40px;
+    border: 1px solid var(--border-2);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 0 12px;
+    min-width: 118px;
+  }
+  .money .pfx { color: var(--faint); margin-right: 4px; font-size: 13px; }
+  .money .val { font: 500 14px var(--font); color: var(--ink); }
+
+  .settings-row {
+    display: flex; flex-wrap: wrap; gap: 16px 24px;
+    padding-bottom: 14px; margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .setting { display: flex; flex-direction: column; gap: 5px; }
+
+  .inputs-row {
+    display: flex; flex-wrap: wrap; gap: 10px 12px;
+    align-items: flex-end;
+    margin-bottom: 12px;
+  }
+  .field { min-width: 100px; flex: 1 1 100px; max-width: 140px; }
+  .field.wide { max-width: 120px; }
+  .field.actions { max-width: none; flex: 0 0 auto; }
+  .inp {
+    height: 40px;
+    border: 1px solid var(--border-2);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 0 10px;
+    font: 500 13.5px var(--font);
+    color: var(--ink);
+    display: flex; align-items: center;
+    gap: 4px;
+  }
+  .inp .pfx { color: var(--faint); }
+  .inp .ghost { color: var(--faint); }
+  .btn-ghost {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    color: var(--ink-2);
+    font: 500 12.5px var(--font);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  .opt-strip {
+    display: flex; flex-wrap: wrap; gap: 12px 16px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+  }
+  .opt-strip .note {
+    flex: 1 1 180px;
+    font-size: 12px;
+    color: var(--muted);
+    align-self: center;
+    border-left: 1px solid var(--border);
+    padding-left: 14px;
+  }
+
+  .results {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 720px) {
+    .results { grid-template-columns: 1fr; }
+  }
+  .hero {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .hero .big {
+    font-size: 36px; font-weight: 600; letter-spacing: -0.03em;
+    color: var(--navy); line-height: 1;
+  }
+  .hero .unit {
+    margin-top: 4px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .hero .rows {
+    margin-top: 14px;
+    text-align: left;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .hero .rows .r {
+    display: flex; justify-content: space-between;
+    font-size: 12.5px;
+    padding: 4px 0;
+    color: var(--muted);
+  }
+  .hero .rows .r b { color: var(--ink); font-weight: 500; }
+  .target-card {
+    border: 2px dashed var(--border-2);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+    padding: 16px;
+    color: var(--faint);
+  }
+  .target-card .lab {
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .target-card .msg { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* highlight focus for “changed” region */
+  .focus-ring {
+    position: relative;
+    outline: 2px solid #ef4444;
+    outline-offset: 3px;
+    border-radius: 10px;
+  }
+
+  /* —— A: current (baseline) —— already styled above —— */
+
+  /* —— B: collapsed chips —— */
+  .sizing-chips {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 6px 4px;
+    margin-bottom: 12px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid transparent;
+    background: transparent;
+    font: 500 12.5px var(--font);
+    color: var(--ink-2);
+    cursor: default;
+  }
+  .chip:hover { background: var(--surface); border-color: var(--border); }
+  .chip .k {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--faint);
+  }
+  .chip .v { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .chip-sep { color: var(--border-2); font-size: 12px; user-select: none; padding: 0 2px; }
+  .chip-edit {
+    margin-left: auto;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    font: 500 12px var(--font);
+    color: var(--muted);
+  }
+
+  /* —— C: budget block expanded —— */
+  .budget {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+  }
+  @media (max-width: 640px) {
+    .budget { grid-template-columns: 1fr; }
+  }
+  .budget-account {
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .budget-account .money { width: 100%; height: 44px; }
+  .budget-constraints {
+    display: flex; flex-direction: column; gap: 10px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border);
+  }
+  @media (max-width: 640px) {
+    .budget-constraints { border-left: 0; padding-left: 0; border-top: 1px solid var(--border); padding-top: 10px; }
+  }
+  .constraint {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  }
+  .constraint .lab {
+    width: 72px;
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--faint);
+    flex-shrink: 0;
+  }
+  .constraint .seg.primary button.on {
+    background: var(--navy);
+    color: #fff;
+  }
+  .constraint .seg.secondary button.on {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border-2);
+  }
+  .constraint .dollars {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .constraint .dollars b { color: var(--ink-2); font-weight: 500; }
+  .constraint.secondary .lab,
+  .constraint.secondary .dollars { opacity: 0.85; }
+  .budget-foot {
+    grid-column: 1 / -1;
+    display: flex; flex-wrap: wrap; gap: 8px 14px;
+    padding-top: 2px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .budget-foot .ok {
+    color: var(--green);
+    font-weight: 500;
+  }
+
+  /* —— D: trade-first —— */
+  .sizing-after {
+    margin: 4px 0 14px;
+  }
+
+  /* —— E: max demoted —— */
+  .settings-slim {
+    display: flex; flex-wrap: wrap; align-items: flex-end;
+    gap: 12px 18px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-slim .advanced {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px dashed var(--border-2);
+    border-radius: var(--radius-full);
+    background: transparent;
+    font: 500 12px var(--font);
+    color: var(--faint);
+  }
+  .settings-slim .advanced b {
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .rec {
+    margin-top: 22px;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .rec h2 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+  .rec p { margin: 0 0 6px; font-size: 13.5px; color: var(--ink-2); max-width: 70ch; }
+  .rec p:last-child { margin-bottom: 0; }
+  .rec code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--surface-3); padding: 1px 5px; border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="page-h">
+      <div>
+        <h1>Calculator sizing band — reorg sketches</h1>
+        <p>
+          Same options-mode snapshot as your screenshot. Red outline marks the
+          region that changes. Tabs compare current vs reorg directions.
+        </p>
+      </div>
+      <button type="button" class="theme-btn" id="themeBtn">Toggle dark</button>
+    </header>
+
+    <nav class="nav" role="tablist" aria-label="Layout variants">
+      <button type="button" role="tab" aria-selected="true" data-panel="current">0 · Current</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="chips">1 · Chips (default)</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="budget">2 · Budget block</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="tradefirst">3 · Trade first</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="demote">4 · Max demoted</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="ship">★ Ship combo</button>
+    </nav>
+
+    <!-- ========== 0 CURRENT ========== -->
+    <section class="panel active" id="panel-current" role="tabpanel">
+      <div class="panel-bar">
+        <span class="chev">▾</span>
+        <span class="title">Position Calculator</span>
+        <span class="hint">baseline · options mode</span>
+      </div>
+      <div class="panel-body">
+        <div class="modebar">
+          <div class="mode-ctl">
+            <span class="mode-lab">Direction</span>
+            <div class="seg"><button class="on">Long</button><button>Short</button></div>
+          </div>
+          <div class="mode-ctl">
+            <span class="mode-lab">Instrument</span>
+            <div class="seg"><button>Shares</button><button class="on">Options</button></div>
+          </div>
+          <span class="context-pill">↗ Long call · calculator only</span>
+        </div>
+
+        <div class="settings-row focus-ring" title="Changed region">
+          <div class="setting">
+            <span class="field-lab">Account size</span>
+            <div class="money"><span class="pfx">$</span><span class="val">10,000</span></div>
+          </div>
+          <div class="setting">
+            <span class="field-lab">Risk</span>
+            <div class="seg quiet">
+              <button>.1%</button><button class="on">.25%</button><button>.5%</button><button>1%</button><button>…</button>
+            </div>
+          </div>
+          <div class="setting">
+            <span class="field-lab">Max premium % of account</span>
+            <div class="seg quiet">
+              <button>5</button><button>10</button><button>20</button><button>50</button><button class="on">100</button><button>…</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-partial="trade"></div>
+        <div data-partial="opt"></div>
+        <div data-partial="results"></div>
+      </div>
+      <div class="meta">
+        <span class="tag">Problem</span>
+        Three peers · twin pill tracks · long options label · sizing competes with trade fields.
+      </div>
+    </section>
+
+    <!-- ========== 1 CHIPS ========== -->
+    <section class="panel" id="panel-chips" role="tabpanel">
+      <div class="panel-bar">
+        <span class="chev">▾</span>
+        <span class="title">Position Calculator</span>
+        <span class="hint">collapsed · 95% of sessions</span>
+      </div>
+      <div class="panel-body">
+        <div class="modebar">
+          <div class="mode-ctl">
+            <span class="mode-lab">Direction</span>
+            <div class="seg"><button class="on">Long</button><button>Short</button></div>
+          </div>
+          <div class="mode-ctl">
+            <span class="mode-lab">Instrument</span>
+            <div class="seg"><button>Shares</button><button class="on">Options</button></div>
+          </div>
+          <span class="context-pill">↗ Long call · calculator only</span>
+        </div>
+
+        <div class="sizing-chips focus-ring">
+          <span class="chip"><span class="k">Account</span><span class="v">$10,000</span></span>
+          <span class="chip-sep">·</span>
+          <span class="chip"><span class="k">Risk</span><span class="v">0.25%</span></span>
+          <span class="chip-sep">·</span>
+          <span class="chip"><span class="k">Max prem</span><span class="v">100%</span></span>
+          <button type="button" class="chip-edit">Edit sizing</button>
+        </div>
+
+        <div data-partial="trade"></div>
+        <div data-partial="opt"></div>
+        <div data-partial="results"></div>
+      </div>
+      <div class="meta">
+        <span class="tag">Win</span>
+        <b>Trade row becomes primary immediately.</b> One click expands to full controls (see Budget / Ship). Sizing still glanceable.
+      </div>
+    </section>
+
+    <!-- ========== 2 BUDGET ========== -->
+    <section class="panel" id="panel-budget" role="tabpanel">
+      <div class="panel-bar">
+        <span class="chev">▾</span>
+        <span class="title">Position Calculator</span>
+        <span class="hint">expanded edit state</span>
+      </div>
+      <div class="panel-body">
+        <div class="modebar">
+          <div class="mode-ctl">
+            <span class="mode-lab">Direction</span>
+            <div class="seg"><button class="on">Long</button><button>Short</button></div>
+          </div>
+          <div class="mode-ctl">
+            <span class="mode-lab">Instrument</span>
+            <div class="seg"><button>Shares</button><button class="on">Options</button></div>
+          </div>
+          <span class="context-pill">↗ Long call · calculator only</span>
+        </div>
+
+        <div class="budget focus-ring">
+          <div class="budget-account">
+            <span class="field-lab">Account</span>
+            <div class="money"><span class="pfx">$</span><span class="val">10,000</span></div>
+          </div>
+          <div class="budget-constraints">
+            <div class="constraint">
+              <span class="lab">Risk</span>
+              <div class="seg primary">
+                <button>.1%</button><button class="on">.25%</button><button>.5%</button><button>1%</button><button>…</button>
+              </div>
+              <span class="dollars">→ <b>$25</b> stop budget</span>
+            </div>
+            <div class="constraint secondary">
+              <span class="lab">Max prem</span>
+              <div class="seg secondary quiet">
+                <button>5</button><button>10</button><button>20</button><button>50</button><button class="on">100</button><button>…</button>
+              </div>
+              <span class="dollars">→ <b>$10,000</b> premium cap</span>
+            </div>
+          </div>
+          <div class="budget-foot">
+            <span class="ok">Cap not binding · risk is the active constraint</span>
+            <span>Shares mode renames Max prem → Max % of account</span>
+          </div>
+        </div>
+
+        <div data-partial="trade"></div>
+        <div data-partial="opt"></div>
+        <div data-partial="results"></div>
+      </div>
+      <div class="meta">
+        <span class="tag">Win</span>
+        Account is root; risk + max are children. Live $ kills ambiguity between the twin %. Max is visually secondary.
+      </div>
+    </section>
+
+    <!-- ========== 3 TRADE FIRST ========== -->
+    <section class="panel" id="panel-tradefirst" role="tabpanel">
+      <div class="panel-bar">
+        <span class="chev">▾</span>
+        <span class="title">Position Calculator</span>
+        <span class="hint">decision order · setup before budget</span>
+      </div>
+      <div class="panel-body">
+        <div class="modebar">
+          <div class="mode-ctl">
+            <span class="mode-lab">Direction</span>
+            <div class="seg"><button class="on">Long</button><button>Short</button></div>
+          </div>
+          <div class="mode-ctl">
+            <span class="mode-lab">Instrument</span>
+            <div class="seg"><button>Shares</button><button class="on">Options</button></div>
+          </div>
+          <span class="context-pill">↗ Long call · calculator only</span>
+        </div>
+
+        <div data-partial="trade"></div>
+        <div data-partial="opt"></div>
+
+        <div class="sizing-after">
+          <div class="sizing-chips focus-ring">
+            <span class="chip"><span class="k">Account</span><span class="v">$10,000</span></span>
+            <span class="chip-sep">·</span>
+            <span class="chip"><span class="k">Risk</span><span class="v">0.25% · $25</span></span>
+            <span class="chip-sep">·</span>
+            <span class="chip"><span class="k">Max prem</span><span class="v">100%</span></span>
+            <button type="button" class="chip-edit">Edit</button>
+          </div>
+        </div>
+
+        <div data-partial="results"></div>
+      </div>
+      <div class="meta">
+        <span class="tag">Tradeoff</span>
+        Matches “I know the setup first” flow. Sizing sits next to results — strong loop, but unusual vs classic risk-first calculators.
+      </div>
+    </section>
+
+    <!-- ========== 4 MAX DEMOTED ========== -->
+    <section class="panel" id="panel-demote" role="tabpanel">
+      <div class="panel-bar">
+        <span class="chev">▾</span>
+        <span class="title">Position Calculator</span>
+        <span class="hint">always-visible slim · max in advanced</span>
+      </div>
+      <div class="panel-body">
+        <div class="modebar">
+          <div class="mode-ctl">
+            <span class="mode-lab">Direction</span>
+            <div class="seg"><button class="on">Long</button><button>Short</button></div>
+          </div>
+          <div class="mode-ctl">
+            <span class="mode-lab">Instrument</span>
+            <div class="seg"><button>Shares</button><button class="on">Options</button></div>
+          </div>
+          <span class="context-pill">↗ Long call · calculator only</span>
+        </div>
+
+        <div class="settings-slim focus-ring">
+          <div class="setting">
+            <span class="field-lab">Account size</span>
+            <div class="money"><span class="pfx">$</span><span class="val">10,000</span></div>
+          </div>
+          <div class="setting">
+            <span class="field-lab">Risk · $25</span>
+            <div class="seg quiet">
+              <button>.1%</button><button class="on">.25%</button><button>.5%</button><button>1%</button><button>…</button>
+            </div>
+          </div>
+          <button type="button" class="advanced">Advanced · max prem <b>100%</b></button>
+        </div>
+
+        <div data-partial="trade"></div>
+        <div data-partial="opt"></div>
+        <div data-partial="results"></div>
+      </div>
+      <div class="meta">
+        <span class="tag">Win</span>
+        No twin pills. Max only expands when needed; when cap clamps, surface it on the hero card instead.
+      </div>
+    </section>
+
+    <!-- ========== SHIP COMBO ========== -->
+    <section class="panel" id="panel-ship" role="tabpanel">
+      <div class="panel-bar">
+        <span class="chev">▾</span>
+        <span class="title">Position Calculator</span>
+        <span class="hint">recommended · collapsed default</span>
+      </div>
+      <div class="panel-body">
+        <div class="modebar">
+          <div class="mode-ctl">
+            <span class="mode-lab">Direction</span>
+            <div class="seg"><button class="on">Long</button><button>Short</button></div>
+          </div>
+          <div class="mode-ctl">
+            <span class="mode-lab">Instrument</span>
+            <div class="seg"><button>Shares</button><button class="on">Options</button></div>
+          </div>
+          <span class="context-pill">↗ Long call · calculator only</span>
+        </div>
+
+        <!-- collapsed (default) -->
+        <div class="sizing-chips focus-ring" id="shipCollapsed">
+          <span class="chip"><span class="k">Account</span><span class="v">$10,000</span></span>
+          <span class="chip-sep">·</span>
+          <span class="chip"><span class="k">Risk</span><span class="v">0.25% · $25</span></span>
+          <span class="chip-sep">·</span>
+          <span class="chip"><span class="k">Max</span><span class="v">100%</span></span>
+          <button type="button" class="chip-edit" id="shipExpand">Edit sizing</button>
+        </div>
+
+        <!-- expanded (toggle) -->
+        <div class="budget focus-ring" id="shipExpanded" hidden>
+          <div class="budget-account">
+            <span class="field-lab">Account</span>
+            <div class="money"><span class="pfx">$</span><span class="val">10,000</span></div>
+          </div>
+          <div class="budget-constraints">
+            <div class="constraint">
+              <span class="lab">Risk</span>
+              <div class="seg primary">
+                <button>.1%</button><button class="on">.25%</button><button>.5%</button><button>1%</button><button>…</button>
+              </div>
+              <span class="dollars">→ <b>$25</b></span>
+            </div>
+            <div class="constraint secondary">
+              <span class="lab">Max prem</span>
+              <div class="seg secondary quiet">
+                <button>5</button><button>10</button><button>20</button><button>50</button><button class="on">100</button><button>…</button>
+              </div>
+              <span class="dollars">→ <b>$10,000</b></span>
+            </div>
+          </div>
+          <div class="budget-foot">
+            <span class="ok">Cap not binding</span>
+            <button type="button" class="chip-edit" id="shipCollapse" style="margin-left:auto">Done</button>
+          </div>
+        </div>
+
+        <div data-partial="trade"></div>
+        <div data-partial="opt"></div>
+        <div data-partial="results"></div>
+      </div>
+      <div class="meta">
+        <span class="tag">Ship</span>
+        <b>Chips default + budget expand + live $ + max secondary.</b>
+        Toggle Edit / Done below works in this tab. Trade-first (tab 3) is optional later.
+      </div>
+    </section>
+
+    <section class="rec">
+      <h2>Reading the sketches</h2>
+      <p>
+        <code>0</code> is your current strip. <code>1</code> is the quiet default.
+        <code>2</code> is what expand should look like. <code>★ Ship</code> combines them
+        with a working Edit/Done toggle.
+      </p>
+      <p>
+        Open: <code>docs/mockups/calc-settings-reorg.html</code>
+      </p>
+    </section>
+  </div>
+
+  <template id="tpl-trade">
+    <div class="inputs-row">
+      <div class="field">
+        <span class="field-lab">Entry price</span>
+        <div class="inp"><span class="pfx">$</span><span class="ghost">0.00</span></div>
+      </div>
+      <div class="field">
+        <span class="field-lab">Stop loss <span style="color:var(--blue);font-weight:500;text-transform:none;letter-spacing:0">copy</span></span>
+        <div class="inp"><span class="pfx">$</span><span class="ghost">0.00</span></div>
+      </div>
+      <div class="field wide">
+        <span class="field-lab">Ticker</span>
+        <div class="inp">NVDA</div>
+      </div>
+      <div class="field">
+        <span class="field-lab">Target <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--faint)">(optional)</span></span>
+        <div class="inp"><span class="pfx">$</span><span class="ghost">0.00</span></div>
+      </div>
+      <div class="field actions">
+        <span class="field-lab" style="opacity:0">&nbsp;</span>
+        <div style="display:flex;gap:8px">
+          <span class="btn-ghost">◻ Paste alert</span>
+          <span class="btn-ghost">× Clear</span>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="tpl-opt">
+    <div class="opt-strip">
+      <div class="field" style="max-width:140px">
+        <span class="field-lab">Entry delta (absolute)</span>
+        <div class="inp">0.50</div>
+      </div>
+      <div class="field" style="max-width:140px">
+        <span class="field-lab">Option premium</span>
+        <div class="inp"><span class="pfx">$</span>2.40</div>
+      </div>
+      <div class="note">Long calls only. Delta estimates the premium response at your underlying stop; it is not a live quote.</div>
+    </div>
+  </template>
+
+  <template id="tpl-results">
+    <div class="results">
+      <div class="hero">
+        <div class="big">0</div>
+        <div class="unit">Contracts</div>
+        <div class="rows">
+          <div class="r"><span>Estimated stop risk</span><b>—</b></div>
+          <div class="r"><span>Estimated loss / contract</span><b>—</b></div>
+          <div class="r"><span>Premium outlay</span><b>—</b></div>
+          <div class="r"><span>Max loss (premium paid)</span><b>—</b></div>
+        </div>
+      </div>
+      <div class="target-card">
+        <div class="lab">Underlying at target</div>
+        <div class="msg">set a target</div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      const r = document.documentElement;
+      r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark';
+    });
+
+    // Inject shared partials
+    const partials = {
+      trade: document.getElementById('tpl-trade'),
+      opt: document.getElementById('tpl-opt'),
+      results: document.getElementById('tpl-results'),
+    };
+    document.querySelectorAll('[data-partial]').forEach(slot => {
+      const key = slot.getAttribute('data-partial');
+      const tpl = partials[key];
+      if (tpl) slot.replaceWith(tpl.content.cloneNode(true));
+    });
+
+    // Tabs
+    const tabs = document.querySelectorAll('.nav button');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+        tab.setAttribute('aria-selected', 'true');
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+      });
+    });
+
+    // Ship combo toggle
+    const collapsed = document.getElementById('shipCollapsed');
+    const expanded = document.getElementById('shipExpanded');
+    document.getElementById('shipExpand').addEventListener('click', () => {
+      collapsed.hidden = true;
+      expanded.hidden = false;
+    });
+    document.getElementById('shipCollapse').addEventListener('click', () => {
+      expanded.hidden = true;
+      collapsed.hidden = false;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="oled" data-variant="now">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OLED journal separation — prototype</title>
+<!--
+  Three variants of OLED journal separation, switchable via ?variant=
+  on this throwaway mockup. Question: how do we keep a pitch-black
+  canvas while making cards, filters, and table rules readable?
+
+  now — shipped OLED (baseline)
+  A   — Hairlines: white-alpha borders, surfaces stay almost black
+  B   — Plates: cards/table lift one step off #000
+  C   — Ledger: zebra rows + stronger column/row rules
+-->
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  /* Violet OLED seeds — same values the accent engine would set. */
+  html {
+    --primary: #a855f7;
+    --primary-hover: #9333ea;
+    --primary-border: #7e22ce;
+    --primary-contrast: #ffffff;
+    --accent: #e9d5ff;
+    --accent-soft: rgba(168, 85, 247, 0.18);
+    --focus-ring: rgba(216, 180, 254, 0.45);
+    --header-text: #fafafa;
+  }
+
+  /* Static pills — this page does not load motion.js. */
+  .seg-pill { display: none; }
+  .seg [data-seg].is-active {
+    background: var(--primary);
+    color: var(--primary-contrast);
+    box-shadow: var(--inset-hi);
+  }
+
+  /* Prototype chrome — not part of the design being judged. */
+  .proto-note {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 14px 20px 0;
+    color: #a1a1aa;
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+  .proto-note strong { color: #fafafa; font-weight: 600; }
+  .proto-note code {
+    font-size: 0.72rem;
+    background: #121218;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 1px 6px;
+    border-radius: 6px;
+  }
+  .proto-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    z-index: 200;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px 8px 8px;
+    background: #f4f4f5;
+    color: #18181b;
+    border-radius: 9999px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .proto-bar button {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    background: #e4e4e7;
+    color: #18181b;
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .proto-bar button:hover { background: #d4d4d8; }
+  .proto-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 6px;
+    background: #18181b;
+    color: #fafafa;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+  }
+  .proto-name { min-width: 168px; }
+  .proto-name small {
+    display: block;
+    color: #52525b;
+    font-size: 0.64rem;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  /* ---- A · Hairlines ----
+     Canvas and fills stay OLED-black. Separation comes from a white-alpha
+     border ramp that actually reads on #000 (hex #1a1a1f does not). */
+  html[data-variant="A"] {
+    --border: rgba(255, 255, 255, 0.16);
+    --border-2: rgba(255, 255, 255, 0.24);
+    --surface: #050505;
+    --surface-2: #0a0a0c;
+    --surface-3: #141418;
+    --row-hover: #14141a;
+  }
+
+  /* ---- B · Plates ----
+     Canvas stays #000. Cards, filter track, dates, and the table become
+     one-step-up plates with a faint inset highlight. */
+  html[data-variant="B"] {
+    --bg: #000000;
+    --header-bg: #000000;
+    --surface: #0c0c0e;
+    --surface-2: #121216;
+    --surface-3: #1a1a20;
+    --border: rgba(255, 255, 255, 0.12);
+    --border-2: rgba(255, 255, 255, 0.20);
+    --row-hover: #18181e;
+  }
+  html[data-variant="B"] .js-stat,
+  html[data-variant="B"] .table-card,
+  html[data-variant="B"] .seg,
+  html[data-variant="B"] .date-field {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* ---- C · Ledger ----
+     Pitch-black cards. The table becomes a ruled ledger: zebra rows,
+     stronger header rule, visible column gutters. */
+  html[data-variant="C"] {
+    --bg: #000000;
+    --header-bg: #000000;
+    --surface: #000000;
+    --surface-2: #0a0a0c;
+    --surface-3: #141418;
+    --border: rgba(255, 255, 255, 0.18);
+    --border-2: rgba(255, 255, 255, 0.28);
+    --row-hover: #16161c;
+  }
+  html[data-variant="C"] .js-stat { background: #000; }
+  html[data-variant="C"] .table-card { background: #000; }
+  html[data-variant="C"] .trades-table th {
+    background: #101014;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  }
+  html[data-variant="C"] .trades-table tbody tr:nth-child(even) td { background: #0a0a0c; }
+  html[data-variant="C"] .trades-table tbody tr:nth-child(even) .cell-actions { background: #0a0a0c; }
+  html[data-variant="C"] .trades-table th:not(:last-child),
+  html[data-variant="C"] .trades-table td:not(:last-child) {
+    border-right-color: rgba(255, 255, 255, 0.10);
+  }
+  html[data-variant="C"] .table-footer {
+    background: #0a0a0c;
+    border-top-color: rgba(255, 255, 255, 0.18);
+  }
+</style>
+</head>
+<body data-view="journal">
+
+<p class="proto-note">
+  <strong>Prototype — not wired into the app.</strong>
+  Same journal markup and <code>styles.css</code>. Flip variants to judge OLED separation.
+  Canvas stays <code>#000</code> in every option.
+</p>
+
+<header class="app-header">
+  <div class="header-inner">
+    <nav class="app-nav" aria-label="Site">
+      <div class="seg seg-nav" role="tablist" aria-label="Views">
+        <span class="seg-pill" aria-hidden="true"></span>
+        <button data-seg="positions" role="tab">Positions</button>
+        <button data-seg="journal" class="is-active" role="tab" aria-selected="true">Journal</button>
+        <button data-seg="compound" role="tab">Compound</button>
+      </div>
+      <button type="button" class="metrics-toggle" aria-expanded="false">
+        <span class="metrics-eye" aria-hidden="true">
+          <span class="metrics-eye-on" data-icon="eye"></span>
+          <span class="metrics-eye-off" data-icon="eye-off"></span>
+        </span>
+        Summary
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main class="app-main">
+  <div class="journal-summary">
+    <div class="js-stat"><span class="js-label">P&amp;L</span><span id="jsPnl" data-sign="up">+$1,730.00</span></div>
+    <div class="js-stat"><span class="js-label">Win rate</span><span id="jsWinRate">50%</span></div>
+    <div class="js-stat"><span class="js-label">Record</span><span id="jsRecord">1W / 1L</span></div>
+    <div class="js-stat"><span class="js-label">Avg win</span><span id="jsAvgWin" data-sign="up">+$2,750.00</span></div>
+    <div class="js-stat"><span class="js-label">Avg loss</span><span id="jsAvgLoss" data-sign="down">−$1,020.00</span></div>
+    <div class="js-stat"><span class="js-label">Total R</span><span id="jsR">+1.7R</span></div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="seg seg-filters" role="tablist" aria-label="Journal filter">
+      <span class="seg-pill" aria-hidden="true"></span>
+      <button data-seg="all" class="is-active" role="tab" aria-selected="true">All</button>
+      <button data-seg="closed" role="tab">Closed</button>
+      <button data-seg="winners" role="tab">Winners</button>
+      <button data-seg="losers" role="tab">Losers</button>
+      <button data-seg="open" role="tab">Open</button>
+      <button data-seg="archived" role="tab">Archived</button>
+    </div>
+    <div class="filters-right">
+      <div class="date-range">
+        <div class="date-fields">
+          <button type="button" class="date-field is-empty" aria-label="From date">
+            <span class="date-field-value">From</span>
+            <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
+          </button>
+          <span class="date-sep">–</span>
+          <button type="button" class="date-field" aria-label="To date">
+            <span class="date-field-value">Aug 20</span>
+            <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm"><span data-icon="download"></span>Export</button>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="trades-table">
+        <thead>
+          <tr>
+            <th class="th-ticker">Ticker</th>
+            <th class="num">Entry</th>
+            <th class="num">Stop</th>
+            <th class="num">Realized</th>
+            <th class="num">R</th>
+            <th class="th-next">Next</th>
+            <th class="th-status">Status</th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="trade-row">
+            <td class="cell-ticker"><b>CRDO</b><span class="cell-sub"><span class="direction-tag" data-direction="long">long</span><span class="cell-dot">·</span><span class="cell-date">Aug 11</span><span class="cell-dot">·</span><span class="cell-qty">260</span></span></td>
+            <td class="num">$148.50</td>
+            <td class="num">$144.10</td>
+            <td class="num pnl-flat">—</td>
+            <td class="num pnl-flat">—</td>
+            <td class="cell-next"><span class="next-cell"><button class="next-chip">Sell 130 @ $152.90</button><button class="next-more" aria-label="Trim or exit CRDO">⋯</button></span></td>
+            <td class="cell-status"><span class="status-badge" data-s="open">Open</span><span class="plan-dots"><span class="plan-dot"></span></span></td>
+            <td class="cell-actions"><span class="row-actions">
+              <button class="icon-btn" aria-label="Add to position"><span data-icon="plus"></span></button>
+              <button class="icon-btn" aria-label="Edit"><span data-icon="pencil"></span></button>
+              <button class="icon-btn" aria-label="Archive"><span data-icon="archive"></span></button>
+              <button class="icon-btn danger" aria-label="Delete"><span data-icon="trash"></span></button>
+            </span></td>
+          </tr>
+          <tr class="trade-row">
+            <td class="cell-ticker"><b>IONQ</b><span class="cell-sub"><span class="direction-tag" data-direction="long">long</span><span class="cell-dot">·</span><span class="cell-date">Aug 12</span><span class="cell-dot">·</span><span class="cell-qty">700</span></span></td>
+            <td class="num">$42.80</td>
+            <td class="num">$41.20</td>
+            <td class="num pnl-flat">—</td>
+            <td class="num pnl-flat">—</td>
+            <td class="cell-next"><span class="next-cell"><button class="next-chip">Raise stop @ $42.80</button><button class="next-more">⋯</button></span></td>
+            <td class="cell-status"><span class="status-badge" data-s="open">Open</span><span class="plan-dots"><span class="plan-dot"></span></span></td>
+            <td class="cell-actions"><span class="row-actions">
+              <button class="icon-btn" aria-label="Add to position"><span data-icon="plus"></span></button>
+              <button class="icon-btn" aria-label="Edit"><span data-icon="pencil"></span></button>
+              <button class="icon-btn" aria-label="Archive"><span data-icon="archive"></span></button>
+              <button class="icon-btn danger" aria-label="Delete"><span data-icon="trash"></span></button>
+            </span></td>
+          </tr>
+          <tr class="trade-row">
+            <td class="cell-ticker"><b>ANET</b><span class="cell-sub"><span class="direction-tag" data-direction="long">long</span><span class="cell-dot">·</span><span class="cell-date">Jul 30</span><span class="cell-dot">·</span><span class="cell-qty">400</span></span></td>
+            <td class="num">$128.00</td>
+            <td class="num">$125.50</td>
+            <td class="num pnl-gain">+$2,750.00</td>
+            <td class="num pnl-gain">+2.8R</td>
+            <td class="cell-next"></td>
+            <td class="cell-status"><span class="status-badge" data-s="closed">Closed</span></td>
+            <td class="cell-actions"><span class="row-actions">
+              <button class="icon-btn" aria-label="Add to position"><span data-icon="plus"></span></button>
+              <button class="icon-btn" aria-label="Edit"><span data-icon="pencil"></span></button>
+              <button class="icon-btn" aria-label="Archive"><span data-icon="archive"></span></button>
+              <button class="icon-btn danger" aria-label="Delete"><span data-icon="trash"></span></button>
+            </span></td>
+          </tr>
+          <tr class="trade-row">
+            <td class="cell-ticker"><b>RGTI</b><span class="cell-sub"><span class="direction-tag" data-direction="long">long</span><span class="cell-dot">·</span><span class="cell-date">Aug 4</span><span class="cell-dot">·</span><span class="cell-qty">1,500</span></span></td>
+            <td class="num">$18.40</td>
+            <td class="num">$17.75</td>
+            <td class="num pnl-loss">−$1,020.00</td>
+            <td class="num pnl-loss">−1.1R</td>
+            <td class="cell-next"></td>
+            <td class="cell-status"><span class="status-badge" data-s="stopped">Stopped out</span></td>
+            <td class="cell-actions"><span class="row-actions">
+              <button class="icon-btn" aria-label="Add to position"><span data-icon="plus"></span></button>
+              <button class="icon-btn" aria-label="Edit"><span data-icon="pencil"></span></button>
+              <button class="icon-btn" aria-label="Archive"><span data-icon="archive"></span></button>
+              <button class="icon-btn danger" aria-label="Delete"><span data-icon="trash"></span></button>
+            </span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      <span>4 closed · 1W/1L · +1.7R · +$1,730.00</span>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button class="tiny-link">backup</button></span>
+</footer>
+
+<div class="proto-bar" role="navigation" aria-label="Prototype variants">
+  <button type="button" id="protoPrev" aria-label="Previous variant">←</button>
+  <div class="proto-name"><span class="proto-key" id="protoKey">now</span> <span id="protoLabel">Shipped OLED</span><small id="protoHint">baseline — borders disappear on #000</small></div>
+  <button type="button" id="protoNext" aria-label="Next variant">→</button>
+</div>
+
+<script src="../../icons.js"></script>
+<script>
+  const VARIANTS = [
+    { key: 'now', name: 'Shipped OLED', hint: 'baseline — borders disappear on #000' },
+    { key: 'A', name: 'Hairlines', hint: 'white-alpha borders, fills stay black' },
+    { key: 'B', name: 'Plates', hint: 'cards/table lift one step off the canvas' },
+    { key: 'C', name: 'Ledger', hint: 'zebra rows + stronger table rules' },
+  ];
+
+  function currentKey() {
+    const raw = new URLSearchParams(location.search).get('variant') || 'now';
+    return VARIANTS.some(v => v.key === raw) ? raw : 'now';
+  }
+  function apply(key) {
+    const v = VARIANTS.find(x => x.key === key) || VARIANTS[0];
+    document.documentElement.dataset.variant = v.key;
+    document.getElementById('protoKey').textContent = v.key;
+    document.getElementById('protoLabel').textContent = v.name;
+    document.getElementById('protoHint').textContent = v.hint;
+  }
+  function go(delta) {
+    const i = VARIANTS.findIndex(v => v.key === currentKey());
+    const next = VARIANTS[(i + delta + VARIANTS.length) % VARIANTS.length];
+    const url = new URL(location.href);
+    url.searchParams.set('variant', next.key);
+    history.replaceState(null, '', url);
+    apply(next.key);
+  }
+
+  apply(currentKey());
+  document.getElementById('protoPrev').addEventListener('click', () => go(-1));
+  document.getElementById('protoNext').addEventListener('click', () => go(1));
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const tag = document.activeElement?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+    go(e.key === 'ArrowRight' ? 1 : -1);
+  });
+  hydrateIcons();
+</script>
+</body>
+</html>

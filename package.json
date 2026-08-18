@@ -1,0 +1,13 @@
+{
+  "name": "trade-tracker",
+  "version": "1.0.0",
+  "description": "A local-first swing-trade risk calculator and position tracker.",
+  "private": true,
+  "scripts": {
+    "start": "node serve.mjs",
+    "mockup:oled": "node -e \"console.log('OLED journal mockup → http://localhost:4173/docs/mockups/oled-journal-separation.html')\" && node serve.mjs",
+    "test": "node tests/engine.test.mjs"
+  },
+  "license": "ISC",
+  "type": "commonjs"
+}

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trades table — refinement candidates</title>
+<style>
+/* ============================================================
+   Tokens lifted verbatim from styles.css (light + dark + oled),
+   with the VIOLET accent pre-applied the way app.js setAccentVars()
+   computes it, so the specimens match the screenshot.
+   ============================================================ */
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --dur-fast: 150ms; --dur-base: 200ms; --dur-slow: 300ms;
+    --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 12px;
+    --radius-card: 16px; --radius-full: 9999px;
+    --inset-hi: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.20);
+
+    --bg: #fbfbfc;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --surface-3: #ececee;
+    --border: #e4e4e7;
+    --border-2: #d4d4d8;
+    --text: #18181b;
+    --text-2: #3f3f46;
+    --text-3: #71717a;
+    --primary: #7c3aed;            /* violet.light */
+    --primary-hover: #6d28d9;
+    --primary-border: #5b21b6;
+    --primary-contrast: #ffffff;
+    --accent: #7c3aed;
+    --accent-soft: rgba(124, 58, 237, 0.08);
+    --header-bg: #f8fafc;
+    --header-text: #18181b;
+    --success: #16a34a;
+    --success-soft: rgba(34, 197, 94, 0.12);
+    --warning: #b45309;
+    --warning-soft: rgba(251, 191, 36, 0.16);
+    --danger: #dc2626;
+    --danger-soft: rgba(239, 68, 68, 0.10);
+    --focus-ring: rgba(124, 58, 237, 0.18);
+    --row-hover: #fafafa;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+:is([data-theme="dark"], [data-theme="oled"]) {
+    color-scheme: dark;
+    --bg: #18181b; --surface: #27272a; --surface-2: #1f1f22; --surface-3: #2d2d30;
+    --border: #3f3f46; --border-2: #52525b;
+    --text: #f4f4f5; --text-2: #e4e4e7; --text-3: #a1a1aa;
+    --primary: #8b5cf6; --primary-hover: #7c3aed; --primary-border: #6d28d9;
+    --accent: #a78bfa; --accent-soft: rgba(167, 139, 250, 0.10);
+    --header-text: #f4f4f5;
+    --success: #22c55e; --success-soft: rgba(34, 197, 94, 0.14);
+    --warning: #fbbf24; --warning-soft: rgba(251, 191, 36, 0.14);
+    --danger: #ef4444; --danger-soft: rgba(239, 68, 68, 0.14);
+    --focus-ring: rgba(167, 139, 250, 0.35);
+    --row-hover: #2d2d30;
+}
+[data-theme="oled"] {
+    --bg: #000; --surface: #050505; --surface-2: #000; --surface-3: #0c0c0e;
+    --border: #1a1a1f; --border-2: #2a2a32;
+    --text: #fafafa; --text-2: #ececf1; --text-3: #9b9ba8;
+    --primary: #a855f7; --accent: #c084fc; --accent-soft: rgba(192, 132, 252, 0.12);
+}
+
+/* ---------- page chrome (mockup only, not app CSS) ---------- */
+* { box-sizing: border-box; }
+button { font: inherit; cursor: pointer; background: none; border: none; color: inherit; }
+body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+.num, .trades-table td { font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px 90px; }
+
+.page-head {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 14px 24px; margin: 0 -24px 26px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+}
+.page-head h1 { margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: -0.02em; }
+.page-head .spacer { flex: 1; }
+.mode-seg { display: inline-flex; gap: 2px; padding: 2px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-full); }
+.mode-seg button { padding: 4px 12px; font-size: 0.76rem; font-weight: 600; color: var(--text-3); border-radius: var(--radius-full); }
+.mode-seg button[aria-pressed="true"] { background: var(--primary); color: #fff; box-shadow: var(--inset-hi); }
+
+.spec { margin: 0 0 44px; }
+.spec-head { display: flex; align-items: baseline; gap: 10px; margin: 0 2px 12px; flex-wrap: wrap; }
+.spec-tag {
+    font-size: 0.62rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--primary); background: var(--accent-soft);
+    padding: 3px 9px; border-radius: var(--radius-full);
+}
+.spec-title { font-size: 1.04rem; font-weight: 600; letter-spacing: -0.02em; }
+.spec-sub { font-size: 0.84rem; color: var(--text-3); margin: 0 2px 14px; max-width: 74ch; line-height: 1.55; }
+
+.deltas { margin: 14px 2px 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 8px 20px; }
+.deltas li { font-size: 0.8rem; line-height: 1.5; color: var(--text-2); padding-left: 20px; position: relative; }
+.deltas li::before {
+    content: attr(data-n); position: absolute; left: 0; top: 2px;
+    font-size: 0.58rem; font-weight: 700; color: var(--primary);
+    font-variant-numeric: tabular-nums;
+}
+.deltas b { font-weight: 600; color: var(--text); }
+.deltas code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.76em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; color: var(--text-2); }
+
+/* ============================================================
+   BASELINE — a faithful copy of today's styles.css rules
+   ============================================================ */
+.toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.toolbar .spacer { flex: 1; }
+.seg { position: relative; display: inline-flex; align-items: center; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 2px; }
+.seg button { padding: 5px 13px; font-size: 0.78rem; font-weight: 600; color: var(--text-3); border-radius: var(--radius-full); white-space: nowrap; transition: color var(--dur-base); }
+.seg button:hover { color: var(--text-2); }
+.seg button.is-active { background: var(--primary); border: 1px solid var(--primary-border); color: var(--primary-contrast); box-shadow: var(--inset-hi); }
+.date-fields { display: inline-flex; align-items: center; gap: 6px; }
+.date-field {
+    display: inline-flex; align-items: center; justify-content: space-between; gap: 6px;
+    width: 108px; padding: 5px 8px 5px 10px;
+    border: 1px solid var(--border-2); border-radius: var(--radius-lg);
+    background: var(--surface); color: var(--text-3); font-size: 0.8rem;
+    transition: border-color var(--dur-base);
+}
+.date-field:hover { border-color: var(--text-3); }
+.date-sep { color: var(--text-3); font-size: 0.8rem; }
+.btn { display: inline-flex; align-items: center; gap: 6px; justify-content: center; padding: 8px 18px; border-radius: var(--radius-full); font-weight: 500; font-size: 0.9rem; border: 1px solid transparent; transition: background-color var(--dur-base), border-color var(--dur-base), color var(--dur-base); }
+.btn-ghost { border-color: var(--border-2); color: var(--text-2); }
+.btn-ghost:hover { background: var(--surface-2); border-color: var(--text-3); }
+.btn-sm { padding: 4px 12px; font-size: 0.8rem; }
+.lucide { width: 15px; height: 15px; flex: none; }
+
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); overflow: hidden; }
+.table-scroll { overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--border-2) transparent; }
+.trades-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.trades-table th {
+    background: var(--surface-2); color: var(--text-3);
+    font-size: 0.64rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.trades-table th.num { text-align: right; }
+.trades-table td {
+    padding: 13px 14px; border-bottom: 1px solid var(--border);
+    font-size: 0.82rem; color: var(--text-2); white-space: nowrap; vertical-align: middle;
+    transition: background-color var(--dur-fast);
+}
+.trades-table td.num { text-align: right; }
+.trades-table .cell-ticker, .trades-table .th-ticker,
+.trades-table th.num, .trades-table td.num,
+.trades-table .th-status, .trades-table .cell-status,
+.trades-table .th-actions, .trades-table .cell-actions { width: 1%; }
+.trades-table tbody tr { cursor: pointer; }
+.trades-table tbody tr:hover td { background: var(--row-hover); }
+.trades-table tbody tr:last-child td { border-bottom: none; }
+
+.cell-ticker b { color: var(--text); font-size: 0.92rem; font-weight: 700; letter-spacing: -0.02em; }
+.cell-sub { display: flex; align-items: baseline; margin-top: 4px; line-height: 1.25; }
+.cell-date { color: var(--text-2); font-size: 0.72rem; font-weight: 500; }
+.cell-dot { display: inline-flex; align-items: center; justify-content: center; width: 11px; flex: none; color: var(--border-2); font-size: 0.85rem; font-weight: 600; line-height: 1; }
+.direction-tag { display: inline-block; color: var(--primary); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; }
+.cell-entry-qty { display: block; margin-top: 3px; color: var(--text-3); font-size: 0.72rem; font-weight: 500; }
+.pnl-gain { color: var(--success); font-weight: 600; }
+.pnl-loss { color: var(--danger); font-weight: 600; }
+.pnl-flat { color: var(--text-3); }
+
+.next-cell { display: inline-flex; align-items: center; gap: 4px; }
+.next-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.78rem; font-weight: 600; color: var(--primary);
+    background: var(--accent-soft); border: 1px solid transparent;
+    border-radius: var(--radius-full); padding: 2px 8px;
+    transition: background-color var(--dur-base), border-color var(--dur-base);
+}
+.next-chip:hover { border-color: var(--primary); }
+.next-more { width: 22px; height: 22px; border-radius: var(--radius-md); color: var(--text-3); font-weight: 700; transition: background-color var(--dur-fast), color var(--dur-fast); }
+.next-more:hover { background: var(--surface-2); color: var(--text); }
+
+.status-badge { display: inline-flex; align-items: center; gap: 3px; vertical-align: middle; font-size: 0.64rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 7px; border-radius: var(--radius-full); }
+.status-badge[data-s="open"] { background: var(--accent-soft); color: var(--primary); }
+.status-badge[data-s="closed"] { background: var(--surface-3); color: var(--text-2); }
+.status-badge[data-s="stopped"] { background: var(--danger-soft); color: var(--danger); }
+.plan-dots { display: inline-flex; gap: 3px; margin-left: 5px; vertical-align: middle; }
+.plan-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-2); }
+.plan-dot.done { background: var(--success); }
+
+.trades-table .th-actions, .trades-table .cell-actions {
+    position: sticky; right: 0; z-index: 1; padding-left: 6px; padding-right: 8px;
+    background: var(--surface); box-shadow: inset 1px 0 0 var(--border);
+}
+.trades-table th.th-actions { background: var(--surface-2); z-index: 2; }
+.trades-table tbody tr:hover .cell-actions { background: var(--row-hover); }
+.row-actions { display: inline-flex; align-items: center; gap: 0; padding: 1px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-full); }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: var(--radius-full); color: var(--text-3); border: 1px solid var(--border); transition: background-color var(--dur-base), border-color var(--dur-base), color var(--dur-base); }
+.row-actions .icon-btn { width: 24px; height: 24px; border-color: transparent; color: var(--text-3); }
+.row-actions .icon-btn .lucide { width: 13px; height: 13px; }
+.row-actions .icon-btn:hover { background: var(--surface); color: var(--text-2); }
+.row-actions .icon-btn.danger:hover { color: var(--danger); }
+
+.table-footer {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 10px 16px; border-top: 1px solid var(--border); background: var(--surface-2);
+    font-size: 0.8rem; color: var(--text-3); font-variant-numeric: tabular-nums;
+}
+.table-footer .f-sep { padding: 0 5px; }
+
+/* ============================================================
+   VARIANT A — "Calm chrome"
+   Nothing structural. Colour, weight, hairlines, hover.
+   ============================================================ */
+.vA .trades-table th {
+    background: transparent;                              /* A1 kill the grey band */
+    font-size: 0.62rem; letter-spacing: 0.1em;
+    padding: 12px 14px 9px;
+    border-bottom: 1px solid var(--border);
+}
+.vA .trades-table th.th-actions { background: var(--surface); }
+.vA .cell-ticker b { font-weight: 600; }                  /* A2 nothing over 600 */
+.vA .trades-table td {
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, var(--surface));  /* A3 */
+}
+.vA .cell-empty { color: var(--text-3); opacity: 0.4; }   /* A4 dashes recede */
+.vA .cell-r { font-weight: 500; font-size: 0.78rem; }     /* A5 money leads, R supports */
+.vA { --row-hover: color-mix(in srgb, var(--primary) 4%, var(--surface)); }  /* A7 */
+.vA .table-footer { background: transparent; border-top: 1px solid var(--border); }
+.vA .table-footer .f-val { color: var(--text); font-weight: 600; }
+.vA .table-footer .f-sep { color: color-mix(in srgb, var(--text-3) 50%, transparent); padding: 0 5px; }
+.vA .row-actions { background: transparent; border-color: transparent; opacity: 0.5; transition: opacity var(--dur-base); }  /* A8 */
+
+/* ============================================================
+   VARIANT B — A + column rhythm
+   ============================================================ */
+.vB .trades-table th { background: transparent; font-size: 0.62rem; letter-spacing: 0.1em; padding: 12px 14px 9px; }
+.vB .trades-table th.th-actions { background: var(--surface); }
+.vB .cell-ticker b { font-weight: 600; }
+.vB .trades-table td { border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, var(--surface)); }
+.vB .cell-empty { color: var(--text-3); opacity: 0.4; }
+.vB .cell-r { font-weight: 500; font-size: 0.78rem; }
+.vB { --row-hover: color-mix(in srgb, var(--primary) 4%, var(--surface)); }
+.vB .table-footer { background: transparent; }
+.vB .table-footer .f-val { color: var(--text); font-weight: 600; }
+.vB .table-footer .f-sep { color: color-mix(in srgb, var(--text-3) 50%, transparent); padding: 0 5px; }
+
+.vB .group-start { padding-left: 26px; }                  /* B1 facts | outcome gap */
+.vB thead .group-start { position: relative; }
+.vB thead .group-start::before {
+    content: ""; position: absolute; left: 8px; top: 30%; bottom: 22%;
+    width: 1px; background: var(--border);
+}
+.vB .th-next, .vB .cell-next { width: auto; }             /* B2 Next absorbs the void */
+.vB .th-status, .vB .cell-status { text-align: right; }   /* B3 state sits beside actions */
+.vB .status-badge {                                        /* B4 outline, not blocky fill */
+    background: transparent; border: 1px solid currentColor;
+    font-size: 0.6rem; letter-spacing: 0.06em; padding: 2px 8px;
+}
+.vB .status-badge[data-s="open"] { color: var(--primary); background: var(--accent-soft); border-color: color-mix(in srgb, var(--primary) 28%, transparent); }
+.vB .status-badge[data-s="closed"] { color: var(--text-3); border-color: var(--border-2); }
+.vB .status-badge[data-s="stopped"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 34%, transparent); }
+.vB tr[data-done] .next-more { display: none; }
+
+/* ============================================================
+   VARIANT C — B + air (the full recommendation)
+   ============================================================ */
+.vC .trades-table th { background: transparent; font-size: 0.62rem; letter-spacing: 0.1em; }
+.vC .trades-table th.th-actions { background: var(--surface); }
+.vC .cell-ticker b { font-weight: 600; }
+.vC .cell-empty { color: var(--text-3); opacity: 0.4; }
+.vC .cell-r { font-weight: 500; font-size: 0.78rem; }
+.vC { --row-hover: color-mix(in srgb, var(--primary) 4%, var(--surface)); }
+.vC .table-footer .f-val { color: var(--text); font-weight: 600; }
+.vC .table-footer .f-sep { color: color-mix(in srgb, var(--text-3) 50%, transparent); padding: 0 5px; }
+.vC .group-start { padding-left: 26px; }
+.vC thead .group-start { position: relative; }
+.vC thead .group-start::before { content: ""; position: absolute; left: 8px; top: 30%; bottom: 22%; width: 1px; background: var(--border); }
+.vC .th-next, .vC .cell-next { width: auto; }
+.vC .th-status, .vC .cell-status { text-align: right; }
+.vC .status-badge { background: transparent; border: 1px solid currentColor; font-size: 0.6rem; letter-spacing: 0.06em; padding: 2px 8px; }
+.vC .status-badge[data-s="open"] { color: var(--primary); background: var(--accent-soft); border-color: color-mix(in srgb, var(--primary) 28%, transparent); }
+.vC .status-badge[data-s="closed"] { color: var(--text-3); border-color: var(--border-2); }
+.vC .status-badge[data-s="stopped"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 34%, transparent); }
+.vC tr[data-done] .next-more { display: none; }
+
+.vC .trades-table td { padding: 15px 14px; border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, var(--surface)); }  /* C1 */
+.vC .trades-table th { padding: 14px 14px 10px; }
+.vC .trades-table th:first-child, .vC .trades-table td:first-child { padding-left: 20px; }  /* C2 breathe off the radius */
+.vC .trades-table .cell-actions, .vC .trades-table .th-actions { padding-right: 14px; }
+.vC .table-footer { padding: 12px 20px; background: transparent; }
+.vC .date-field { height: 30px; padding-block: 0; }       /* C3 one toolbar height */
+.vC .btn-sm { height: 30px; padding-block: 0; }
+.vC .seg button { padding-block: 5px; }
+.vC .cell-sub { margin-top: 5px; }
+.vC .cell-ticker b { font-size: 0.9rem; letter-spacing: -0.015em; }
+
+/* ---------- checklist audit ---------- */
+.audit { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); overflow: hidden; }
+.audit th { text-align: left; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 13px 15px 10px; border-bottom: 1px solid var(--border); }
+.audit td { padding: 12px 15px; font-size: 0.8rem; color: var(--text-2); line-height: 1.52; vertical-align: top; border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, var(--surface)); }
+.audit tr:last-child td { border-bottom: none; }
+.audit .a-item { color: var(--text); font-weight: 600; white-space: nowrap; }
+.audit code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; }
+.verdict { display: inline-flex; align-items: center; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 9px; border-radius: var(--radius-full); border: 1px solid currentColor; white-space: nowrap; }
+.verdict[data-v="have"] { color: var(--success); border-color: color-mix(in srgb, var(--success) 34%, transparent); background: var(--success-soft); }
+.verdict[data-v="part"] { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 40%, transparent); background: var(--warning-soft); }
+.verdict[data-v="miss"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, transparent); background: var(--danger-soft); }
+
+/* ============================================================
+   VARIANT D — the checklist gaps. Sits ON TOP of vC (both
+   classes are applied), so it inherits every A+B+C rule.
+   ============================================================ */
+/* D1 · sticky header. The pattern already exists in this codebase
+   on .compound-th (styles.css:1953) — the trades table never got it. */
+.vD .trades-table thead th {
+    position: sticky; top: 0; z-index: 3;
+    background: var(--surface);        /* opaque is mandatory — see note D1 */
+    border-bottom: none;
+    box-shadow: inset 0 -1px 0 var(--border);
+}
+.vD .trades-table th.th-actions { z-index: 4; }
+/* demo frame only: the real app scrolls the page, not the container.
+   Bounded here purely so the pinning is visible in a mockup. */
+.vD .table-scroll { max-height: 268px; overflow: auto; scrollbar-width: thin; }
+
+/* D3 · sortable headers — the button owns the padding so the whole
+   header cell is the hit target */
+.vD .trades-table th,
+.vD .trades-table th:first-child,
+.vD .trades-table th.th-actions { padding: 0; }
+.th-sort {
+    display: inline-flex; align-items: center; gap: 5px; width: 100%;
+    padding: 14px 14px 10px;
+    font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit;
+    transition: color var(--dur-fast);
+}
+.vD th.num .th-sort { justify-content: flex-end; }
+.vD th.th-status .th-sort { justify-content: flex-end; }
+.vD th:first-child .th-sort { padding-left: 20px; }
+button.th-sort:hover { color: var(--text-2); }
+.th-sort .sort-ic { width: 11px; height: 11px; opacity: 0; transition: opacity var(--dur-fast), transform var(--dur-base); }
+button.th-sort:hover .sort-ic { opacity: 0.45; }
+.vD th[aria-sort] .th-sort { color: var(--text); }
+.vD th[aria-sort] .sort-ic { opacity: 1; color: var(--primary); }
+.vD th[aria-sort="ascending"] .sort-ic { transform: rotate(180deg); }
+
+/* D2 · search */
+.search-field {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 30px; width: 208px; padding: 0 11px;
+    background: var(--surface); border: 1px solid var(--border-2);
+    border-radius: var(--radius-lg); color: var(--text-3);
+    transition: border-color var(--dur-base), box-shadow var(--dur-base);
+}
+.search-field:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--focus-ring); }
+.search-field input { flex: 1; min-width: 0; border: none; background: none; outline: none; font-size: 0.8rem; color: var(--text); }
+.search-field input::placeholder { color: var(--text-3); }
+.search-field .lucide { width: 14px; height: 14px; flex: none; }
+
+/* D4 · under 620px the eight columns become one card per trade */
+.phone { width: 392px; max-width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border-2); border-radius: 24px; }
+.trade-cards { display: flex; flex-direction: column; gap: 8px; }
+.trade-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 13px; }
+.tc-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tc-name b { display: block; font-size: 0.95rem; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
+.tc-name .cell-sub { margin-top: 3px; }
+.tc-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px;
+    margin-top: 11px; padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--border) 55%, var(--surface));
+}
+.tc-cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tc-k { font-size: 0.56rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-3); }
+.tc-v { font-size: 0.81rem; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.tc-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.tc-foot .row-actions { opacity: 1; background: var(--surface-2); border-color: var(--border); }
+
+/* side-by-side helper */
+.compare { display: grid; gap: 18px; }
+@media (min-width: 1000px) { .compare { grid-template-columns: 1fr 1fr; } }
+.compare .toolbar, .compare .table-footer { display: none; }
+.mini-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin: 0 2px 8px; }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+    <h1>Trades table — refinement candidates</h1>
+    <span class="spacer"></span>
+    <div class="mode-seg" role="group" aria-label="Theme">
+        <button data-mode="light" aria-pressed="true">Light</button>
+        <button data-mode="dark" aria-pressed="false">Dark</button>
+        <button data-mode="oled" aria-pressed="false">OLED</button>
+    </div>
+</header>
+
+<div class="wrap">
+
+<!-- ================= BASELINE ================= -->
+<section class="spec" id="s0">
+    <div class="spec-head"><span class="spec-tag">Baseline</span><span class="spec-title">Today</span></div>
+    <p class="spec-sub">Exactly what ships now, rebuilt from <code>styles.css</code> so every comparison below is honest. Four things fight for attention at once: the grey header band, the full-strength row rules, sixteen always-on action glyphs on the right edge, and a wide dead zone between <b>Next</b> and <b>Status</b>.</p>
+    <div data-render="table" data-variant=""></div>
+</section>
+
+<!-- ================= AUDIT ================= -->
+<section class="spec" id="audit">
+    <div class="spec-head"><span class="spec-tag">Audit</span><span class="spec-title">Your checklist vs. what's in the repo</span></div>
+    <p class="spec-sub">Checked against the source, not eyeballed. Five of eight are fine or need only the cosmetic work in A–C. Three are real gaps, and one of them changes a recommendation I made above.</p>
+    <table class="audit">
+        <thead><tr><th>Item</th><th>Verdict</th><th>What's actually there</th></tr></thead>
+        <tbody>
+            <tr>
+                <td class="a-item">Table header</td>
+                <td><span class="verdict" data-v="part">Partial</span></td>
+                <td>Styled and legible — but <b>not sticky</b>. <code>.compound-th</code> (<code>styles.css:1953</code>) pins itself; <code>.trades-table th</code> never got the same rule. With <code>PAGE_SIZE = 20</code> a full page is ~1,200px tall, so the header is gone before you're halfway down it.</td>
+            </tr>
+            <tr>
+                <td class="a-item">Row style</td>
+                <td><span class="verdict" data-v="have">Covered</span></td>
+                <td>Borders plus a hover state. The refinement is in A3 (hairline rules) and A7 (a hover you can actually see).</td>
+            </tr>
+            <tr>
+                <td class="a-item">Spacing</td>
+                <td><span class="verdict" data-v="have">Covered</span></td>
+                <td>Uniform 13px cells / 10px header throughout. C1–C2 nudge it to 15px with a 20px outer gutter.</td>
+            </tr>
+            <tr>
+                <td class="a-item">Search</td>
+                <td><span class="verdict" data-v="miss">Missing</span></td>
+                <td>There is no text input anywhere in the app. <code>visibleTrades()</code> (<code>app.js:1460</code>) filters on status and date range only. Of everything on this page, this is the gap with the widest blast radius.</td>
+            </tr>
+            <tr>
+                <td class="a-item">Actions</td>
+                <td><span class="verdict" data-v="have">Covered</span></td>
+                <td>Four row icons, the Next chip, and row-click for detail. The problem was visual weight, not capability — A8 handles it.</td>
+            </tr>
+            <tr>
+                <td class="a-item">Filter <em>and sort</em></td>
+                <td><span class="verdict" data-v="part">Half</span></td>
+                <td>Filtering is solid: status pills plus a date range. <b>Sorting does not exist.</b> The headers are plain <code>&lt;th&gt;</code> with no handler and no <code>aria-sort</code>; rows render in array order.</td>
+            </tr>
+            <tr>
+                <td class="a-item">Responsiveness</td>
+                <td><span class="verdict" data-v="part">Partial</span></td>
+                <td>Horizontal scroll with a sticky Actions column — which your checklist explicitly allows as the alternative. But there is not a single table rule in the 860px or 560px media queries, so eight columns on a 390px phone is pure sideways scrolling with no rethink.</td>
+            </tr>
+            <tr>
+                <td class="a-item">Pagination</td>
+                <td><span class="verdict" data-v="have">Covered</span></td>
+                <td><code>PAGE_SIZE = 20</code> with prev/next and a <code>1 / N</code> readout (<code>app.js:1489</code>).</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- ================= A ================= -->
+<section class="spec" id="sA">
+    <div class="spec-head"><span class="spec-tag">Variant A</span><span class="spec-title">Calm chrome</span></div>
+    <p class="spec-sub">Zero structural change — same columns, same widths, same markup. This is only colour, weight and hairline work. If you ship one thing, ship this: it is the cheapest diff and it does most of the visual lifting.</p>
+    <div data-render="table" data-variant="vA"></div>
+    <ul class="deltas">
+        <li data-n="A1"><b>Header band goes transparent.</b> The <code>--surface-2</code> fill made the card read as two stacked objects. One surface, one rule underneath.</li>
+        <li data-n="A2"><b>Ticker drops 700 → 600.</b> The calm-expensive look is largely the absence of 700 text — and your own system already says so.</li>
+        <li data-n="A3"><b>Row rules go to a real hairline</b> (<code>color-mix(--border 55%, --surface)</code>). Separation comes from row rhythm; the lines just keep the eye on track.</li>
+        <li data-n="A4"><b>Empty cells recede.</b> The <code>—</code> placeholders drop to 40% so you stop counting dashes on open positions.</li>
+        <li data-n="A5"><b>Money leads, R supports.</b> Both were 600 in the same green; R steps to 500/0.78rem so the pair reads as one fact, not two.</li>
+        <li data-n="A6"><s>Mute LONG to grey.</s> <b>Rejected.</b> Direction keeps the active accent (long) and danger red (short) — greying it drained the row of its only quick colour cue.</li>
+        <li data-n="A7"><b>Row hover becomes visible.</b> <code>#fafafa</code> on <code>#ffffff</code> is a 2% delta; a 4% accent tint is legible and ties hover to the theme.</li>
+        <li data-n="A8"><s>Fade actions to 50% until hover.</s> <b>Rejected.</b> Ghosted controls read as broken, not calm. The bordered track stays at full strength; the noise is solved by removing the <code>⋯</code> where no action exists instead.</li>
+    </ul>
+</section>
+
+<!-- ================= B ================= -->
+<section class="spec" id="sB">
+    <div class="spec-head"><span class="spec-tag">Variant B</span><span class="spec-title">A + column rhythm</span></div>
+    <p class="spec-sub">Adds the structural moves. The big one is closing the void: <b>Status</b> currently floats mid-row with ~400px of nothing on either side, so a closed trade looks like a half-empty row.</p>
+    <div data-render="table" data-variant="vB"></div>
+    <ul class="deltas">
+        <li data-n="B1"><b>Numeric columns group.</b> Entry/Stop are what you did; Realized/R are what happened. A 26px gap plus one header-only hairline marks the seam — no full-height grid lines.</li>
+        <li data-n="B2"><b>Next absorbs the slack.</b> <code>width: auto</code> on the Next column so the free space lands where content can use it.</li>
+        <li data-n="B3"><b>Status right-aligns against Actions.</b> State and controls become one cluster; the row now reads left-to-right as identity → numbers → plan → state.</li>
+        <li data-n="B4"><b>Badges go outline.</b> Soft-filled pills read as buttons. A 1px tinted outline says "state" and stops <code>STOPPED OUT</code> from being the loudest thing on screen.</li>
+        <li data-n="B5"><b>No phantom <code>⋯</code> on closed rows.</b> There is nothing to trim on a closed trade, so it does not render there at all. Where it <em>does</em> render it stays fully visible — no hover gate.</li>
+    </ul>
+</section>
+
+<!-- ================= C ================= -->
+<section class="spec" id="sC">
+    <div class="spec-head"><span class="spec-tag">Variant C</span><span class="spec-title">A + B + air — the recommendation</span></div>
+    <p class="spec-sub">Same as B plus the spacing pass. Rows go 13px → 15px, content stops kissing the 16px card radius, and the toolbar settles onto one height so the filter pills, the date fields and Export read as a single row of controls instead of three sizes of thing.</p>
+    <div data-render="table" data-variant="vC"></div>
+    <ul class="deltas">
+        <li data-n="C1"><b>Row padding 13 → 15px.</b> With a two-line ticker cell the old rows were dense for a table you stare at; this is ~4px per row, not a redesign.</li>
+        <li data-n="C2"><b>20px outer gutter.</b> First and last cells were 14px from a 16px radius, so content visually collided with the corner curve.</li>
+        <li data-n="C3"><b>One toolbar height (30px).</b> Date fields keep their 12px radius (they're inputs, pills are pills) but match the pills' height and the Export button's.</li>
+        <li data-n="C4"><b>Footer earns its numbers.</b> Values in ink at 600, labels and separators muted — the summary line is the most-read text on the page and it's currently uniform grey.</li>
+    </ul>
+</section>
+
+<!-- ================= D ================= -->
+<section class="spec" id="sD">
+    <div class="spec-head"><span class="spec-tag">Variant D</span><span class="spec-title">C + the three gaps</span></div>
+    <p class="spec-sub">Everything in C, plus the items the checklist caught that pure styling can't fix. Scroll inside the table below to see the header pin — the frame is bounded here only so the behaviour is visible in a mockup; in the app the page scrolls, not the container.</p>
+    <div data-render="table" data-variant="vC vD" data-long="1" data-search="1" data-sort="1"></div>
+    <ul class="deltas">
+        <li data-n="D1"><b>Header pins on scroll.</b> Lift the rule straight off <code>.compound-th</code>. <em>Two things fall out of this:</em> a sticky header <b>cannot</b> be transparent — rows scroll through it — so <b>A1 is wrong as written</b>. Use <code>--surface</code> (the card's own colour) instead of <code>--surface-2</code>: identical "one surface" result, and sticky-safe.</li>
+        <li data-n="D1b"><b>Collision to resolve first.</b> <code>.float-bar</code> is <code>position: fixed; top: 12px; z-index: 60</code> and horizontally centred — exactly where a <code>top: 0</code> sticky header lands, and it appears under the same condition (you scrolled). Either offset the header to clear it, or suppress the float-bar while the header is pinned. Your call; I didn't pick one.</li>
+        <li data-n="D2"><b>Search.</b> 30px field, same 12px input radius as the date fields. Per your own tip, it should reach every data point — ticker, direction, status label, notes, and the sell-plan text — not just a ticker prefix match.</li>
+        <li data-n="D3"><b>Click-to-sort headers</b> with <code>aria-sort</code> and a chevron that's ghosted until hover, solid in accent when active. Full header cell is the hit target.</li>
+        <li data-n="D3b"><b>The snag in sorting.</b> The sort you'd want most is by entry date — and entry date has no column. It lives inside the ticker cell as <code>LONG · Aug 11</code>. So either the Ticker header secretly sorts by date (bad), or the date gets promoted to its own column, which costs horizontal room the row does not have. Worth deciding before any of this gets built.</li>
+        <li data-n="D4"><b>Mobile gets a rethink, not just a scrollbar</b> — see below.</li>
+    </ul>
+</section>
+
+<!-- ================= MOBILE ================= -->
+<section class="spec" id="sMobile">
+    <div class="spec-head"><span class="spec-tag">Variant D4</span><span class="spec-title">Under 620px</span></div>
+    <p class="spec-sub">Horizontal scroll is a legitimate answer and you already have it — but eight columns on a phone means the ticker is the only thing on screen. One card per trade: identity and state on top, the four numbers as a 4-up strip, the action you'd actually take on the bottom row.</p>
+    <div class="phone vC vD" data-render="cards"></div>
+</section>
+
+<!-- ================= CLOSE-UP ================= -->
+<section class="spec">
+    <div class="spec-head"><span class="spec-tag">Detail</span><span class="spec-title">Side by side, one row</span></div>
+    <p class="spec-sub">The same closed trade in both treatments, so the weight and hairline changes are visible without scrolling between sections.</p>
+    <div class="compare">
+        <div>
+            <p class="mini-label">Baseline</p>
+            <div data-render="mini" data-variant=""></div>
+        </div>
+        <div>
+            <p class="mini-label">Variant C</p>
+            <div data-render="mini" data-variant="vC"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= OPEN QUESTIONS ================= -->
+<section class="spec">
+    <div class="spec-head"><span class="spec-tag">Open</span><span class="spec-title">Two things I did not decide for you</span></div>
+    <ul class="deltas">
+        <li data-n="Q1"><b>Direction colour.</b> <code>DESIGN_SYSTEM.md</code> says long-position context uses the global success green, but <code>.direction-tag</code> in <code>styles.css:2199</code> uses <code>--primary</code>. A6 above mutes it to <code>--text-3</code>, which contradicts both. Pick one and I'll make the doc and the CSS agree.</li>
+        <li data-n="Q2"><b>Action count.</b> Four icons per row (add / edit / archive / delete) is a lot of permanent surface. A8 solves the visual noise; the alternative is add + edit inline with archive/delete behind the existing <code>⋯</code>. Bigger behavioural change, so it's not in any variant.</li>
+    </ul>
+</section>
+
+</div>
+
+<script>
+const ICON = {
+    plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+    archive: '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+    trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+    download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    'calendar-days': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+};
+const svg = n => `<svg class="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+
+const TRADES = [
+    { t: 'CRDO', dir: 'LONG', date: 'Aug 11', entry: '$148.50', qty: '260 shares', stop: '$144.10',
+      pnl: null, r: null, next: 'Sell 130 @ $152.90', status: 'open', label: 'Open', dots: 1 },
+    { t: 'IONQ', dir: 'LONG', date: 'Aug 12', entry: '$42.80', qty: '700 shares', stop: '$41.20',
+      pnl: null, r: null, next: 'Stop → $42.80', status: 'open', label: 'Open', dots: 1 },
+    { t: 'ANET', dir: 'LONG', date: 'Jul 30', entry: '$128.00', qty: '400 shares', stop: '$125.50',
+      pnl: '+$2,750.00', r: '+2.8R', sign: 'gain', next: null, status: 'closed', label: 'Closed', done: true },
+    { t: 'RGTI', dir: 'LONG', date: 'Aug 4', entry: '$18.40', qty: '1,500 shares', stop: '$17.75',
+      pnl: '−$1,020.00', r: '−1.0R', sign: 'loss', next: null, status: 'stopped', label: 'Stopped out', done: true },
+];
+
+function rowHtml(x) {
+    const cls = x.sign === 'gain' ? 'pnl-gain' : x.sign === 'loss' ? 'pnl-loss' : 'pnl-flat';
+    const dash = '<span class="cell-empty">—</span>';
+    const dots = x.dots ? `<span class="plan-dots">${'<span class="plan-dot"></span>'.repeat(x.dots)}</span>` : '';
+    return `<tr${x.done ? ' data-done' : ''}>
+        <td class="cell-ticker"><b>${x.t}</b><span class="cell-sub"><span class="direction-tag">${x.dir}</span><span class="cell-dot">·</span><span class="cell-date">${x.date}</span></span></td>
+        <td class="num">${x.entry}<span class="cell-entry-qty">${x.qty}</span></td>
+        <td class="num">${x.stop}</td>
+        <td class="num ${cls} group-start">${x.pnl || dash}</td>
+        <td class="num ${cls} cell-r">${x.r || dash}</td>
+        <td class="cell-next"><span class="next-cell">${x.next ? `<button class="next-chip">${x.next}</button>` : ''}<button class="next-more" aria-label="Trim or exit">⋯</button></span></td>
+        <td class="cell-status"><span class="status-badge" data-s="${x.status}">${x.label}</span>${dots}</td>
+        <td class="cell-actions"><span class="row-actions">
+            <button class="icon-btn" aria-label="Add to position">${svg('plus')}</button>
+            <button class="icon-btn" aria-label="Edit">${svg('pencil')}</button>
+            <button class="icon-btn" aria-label="Archive">${svg('archive')}</button>
+            <button class="icon-btn danger" aria-label="Delete">${svg('trash')}</button>
+        </span></td>
+    </tr>`;
+}
+
+/* four more so Variant D's frame actually scrolls under its pinned header */
+const MORE = [
+    { t: 'NVDA', dir: 'LONG', date: 'Jul 22', entry: '$118.20', qty: '300 shares', stop: '$114.00',
+      pnl: '+$1,410.00', r: '+1.1R', sign: 'gain', next: null, status: 'closed', label: 'Closed', done: true },
+    { t: 'SMCI', dir: 'SHORT', date: 'Jul 18', entry: '$41.60', qty: '900 shares', stop: '$43.10',
+      pnl: '−$630.00', r: '−0.5R', sign: 'loss', next: null, status: 'closed', label: 'Closed', done: true },
+    { t: 'PLTR', dir: 'LONG', date: 'Aug 6', entry: '$29.90', qty: '1,200 shares', stop: '$28.80',
+      pnl: null, r: null, next: 'Sell 600 @ $32.10', status: 'open', label: 'Open', dots: 2 },
+    { t: 'AMD', dir: 'LONG', date: 'Jul 11', entry: '$164.30', qty: '180 shares', stop: '$159.50',
+      pnl: '−$864.00', r: '−1.0R', sign: 'loss', next: null, status: 'stopped', label: 'Stopped out', done: true },
+];
+
+const FILTERS = ['All', 'Closed', 'Winners', 'Losers', 'Open', 'Archived'];
+const COLS = [
+    { label: 'Ticker', cls: 'th-ticker' },
+    { label: 'Entry', cls: 'num' },
+    { label: 'Stop', cls: 'num' },
+    { label: 'Realized', cls: 'num group-start' },
+    { label: 'R', cls: 'num', sorted: 'descending' },
+    { label: 'Next', cls: 'th-next', nosort: true },
+    { label: 'Status', cls: 'th-status' },
+    { label: 'Actions', cls: 'th-actions', nosort: true },
+];
+
+function headHtml(sortable) {
+    return COLS.map(c => {
+        if (!sortable || c.nosort) return `<th class="${c.cls}">${sortable ? `<span class="th-sort">${c.label}</span>` : c.label}</th>`;
+        const on = c.sorted ? ` aria-sort="${c.sorted}"` : '';
+        return `<th class="${c.cls}"${on}><button class="th-sort">${c.label}${svg('chevron-down').replace('lucide', 'lucide sort-ic')}</button></th>`;
+    }).join('');
+}
+
+function tableHtml(rows, opt = {}) {
+    return `
+    <div class="toolbar">
+        <div class="seg">${FILTERS.map((f, i) => `<button class="${i === 0 ? 'is-active' : ''}">${f}</button>`).join('')}</div>
+        <span class="spacer"></span>
+        ${opt.search ? `<label class="search-field">${svg('search')}<input type="search" placeholder="Search trades…" aria-label="Search trades"></label>` : ''}
+        <div class="date-fields">
+            <button class="date-field">From ${svg('calendar-days')}</button>
+            <span class="date-sep">–</span>
+            <button class="date-field">To ${svg('calendar-days')}</button>
+        </div>
+        <button class="btn btn-ghost btn-sm">${svg('download')}Export</button>
+    </div>
+    <div class="table-card">
+        <div class="table-scroll">
+        <table class="trades-table">
+            <thead><tr>${headHtml(opt.sort)}</tr></thead>
+            <tbody>${rows.map(rowHtml).join('')}</tbody>
+        </table>
+        </div>
+        <div class="table-footer">
+            <span><span class="f-val">4</span> closed<span class="f-sep">·</span><span class="f-val">1W/1L</span><span class="f-sep">·</span><span class="f-val">+1.7R</span><span class="f-sep">·</span><span class="f-val">+$1,730.00</span></span>
+        </div>
+    </div>`;
+}
+
+function cardHtml(x) {
+    const cls = x.sign === 'gain' ? 'pnl-gain' : x.sign === 'loss' ? 'pnl-loss' : 'pnl-flat';
+    const dash = '<span class="cell-empty">—</span>';
+    const cell = (k, v, c = '') => `<div class="tc-cell"><span class="tc-k">${k}</span><span class="tc-v ${c}">${v}</span></div>`;
+    return `<article class="trade-card">
+        <div class="tc-top">
+            <div class="tc-name"><b>${x.t}</b><span class="cell-sub"><span class="direction-tag">${x.dir}</span><span class="cell-dot">·</span><span class="cell-date">${x.date}</span><span class="cell-dot">·</span><span class="cell-date">${x.qty}</span></span></div>
+            <span class="status-badge" data-s="${x.status}">${x.label}</span>
+        </div>
+        <div class="tc-grid">
+            ${cell('Entry', x.entry)}${cell('Stop', x.stop)}${cell('Realized', x.pnl || dash, cls)}${cell('R', x.r || dash, cls)}
+        </div>
+        <div class="tc-foot">
+            ${x.next ? `<button class="next-chip">${x.next}</button>` : '<span></span>'}
+            <span class="row-actions">
+                <button class="icon-btn" aria-label="Add to position">${svg('plus')}</button>
+                <button class="icon-btn" aria-label="Edit">${svg('pencil')}</button>
+                <button class="icon-btn" aria-label="Archive">${svg('archive')}</button>
+                <button class="icon-btn danger" aria-label="Delete">${svg('trash')}</button>
+            </span>
+        </div>
+    </article>`;
+}
+
+document.querySelectorAll('[data-render]').forEach(el => {
+    const kind = el.dataset.render;
+    if (el.dataset.variant) el.className = el.dataset.variant;
+    if (kind === 'cards') {
+        el.innerHTML = `<div class="trade-cards">${TRADES.slice(0, 3).map(cardHtml).join('')}</div>`;
+        return;
+    }
+    const rows = kind === 'mini' ? [TRADES[2]] : el.dataset.long ? TRADES.concat(MORE) : TRADES;
+    el.innerHTML = tableHtml(rows, { search: !!el.dataset.search, sort: !!el.dataset.sort });
+});
+
+/* toy sort toggle so the aria-sort states are inspectable */
+document.querySelectorAll('.vD thead th button.th-sort').forEach(b => {
+    b.addEventListener('click', () => {
+        const th = b.closest('th'), cur = th.getAttribute('aria-sort');
+        th.closest('tr').querySelectorAll('th').forEach(o => o.removeAttribute('aria-sort'));
+        th.setAttribute('aria-sort', cur === 'descending' ? 'ascending' : 'descending');
+    });
+});
+
+document.querySelectorAll('.mode-seg button').forEach(b => {
+    b.addEventListener('click', () => {
+        document.documentElement.dataset.theme = b.dataset.mode;
+        document.querySelectorAll('.mode-seg button').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+    });
+});
+</script>
+</body>
+</html>

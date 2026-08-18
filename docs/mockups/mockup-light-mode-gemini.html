@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Light Mode Refinements - Trade Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc; /* Softer light background */
+            color: #18181b;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            color: #0f172a;
+        }
+
+        /* ========================================
+           REFINED LIGHT MODE STYLES
+           ======================================== */
+
+        /* Header Card - Using a clean border and white bg */
+        .header-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-title {
+            color: #0f172a;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .header-subtitle {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        /* Table Container - Added 1px border for definition */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0; /* DEFINITION: Added to define space */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.2s ease; /* Smooth hover transition */
+        }
+
+        /* Row Hover - Interaction parity with dark mode */
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* TEXT HIERARCHY: Ticker bold, others softened */
+        .ticker {
+            font-weight: 600;
+            color: #0f172a; /* Strongest contrast */
+        }
+
+        .price-cell {
+            color: #334155; /* Mid-tone */
+        }
+
+        .date-cell {
+            color: #64748b; /* Softest tone to reduce noise */
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* Watchlist Section */
+        .watchlist-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .watchlist-label {
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .watchlist-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* PILL STYLE: Clean border with hover lift */
+        .pill {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pill:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #eff6ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trade Dashboard Refinements (Light)</h1>
+
+        <div class="header-card">
+            <div class="header-title">Trade Management Dashboard</div>
+            <div class="header-subtitle">Consistent hierarchy and container definition.</div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Entry Date</th>
+                        <th>Price</th>
+                        <th>Stop Loss</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="ticker">NVDA</td>
+                        <td class="date-cell">Jan 15, 2026</td>
+                        <td class="price-cell">$142.50</td>
+                        <td class="price-cell">$138.25</td>
+                        <td><span class="status-badge">Open</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ticker">AAPL</td>
+                        <td class="date-cell">Jan 22, 2026</td>
+                        <td class="price-cell">$198.75</td>
+                        <td class="price-cell">$192.00</td>
+                        <td><span class="status-badge">Open</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="watchlist-container">
+            <div class="watchlist-label">Watchlist</div>
+            <div class="watchlist-pills">
+                <span class="pill">AAPL</span>
+                <span class="pill">GOOGL</span>
+                <span class="pill">TSLA</span>
+                <span class="pill">AMD</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

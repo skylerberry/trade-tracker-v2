@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Showroom — visual direction mock</title>
+<style>
+  :root{
+    --canvas:#f4f5f7; --card:#ffffff; --card-2:#fafbfc;
+    --ink:#17181c; --ink-2:#40434b; --muted:#7a7f8a; --faint:#aeb3bd;
+    --navy:#1a365d; --navy-hover:#234876; --blue:#3b82f6; --blue-soft:#eaf1fe;
+    --green:#16a34a; --green-deep:#166534; --green-soft:#e9f8ef;
+    --red:#dc2626; --amber:#d97706;
+    --hairline:rgba(23,24,28,.07);
+    --sh-rest:0 1px 2px rgba(16,24,40,.03), 0 8px 28px rgba(26,54,93,.07);
+    --sh-lift:0 2px 4px rgba(16,24,40,.04), 0 16px 44px rgba(26,54,93,.12);
+    --sh-pop:0 24px 64px rgba(16,24,40,.18);
+    --r-card:18px; --r-ctl:12px;
+    --ease:cubic-bezier(.25,.6,.3,1);
+  }
+  [data-theme="dark"]{
+    --canvas:#0d0e11; --card:#17181d; --card-2:#1d1f25;
+    --ink:#eceef1; --ink-2:#c3c7cf; --muted:#8b909b; --faint:#5b606b;
+    --navy:#3b82f6; --navy-hover:#5c97f7; --blue:#5c97f7; --blue-soft:rgba(59,130,246,.14);
+    --green:#4ade80; --green-deep:#86efac; --green-soft:rgba(34,197,94,.12);
+    --red:#f87171; --amber:#fbbf24;
+    --hairline:rgba(255,255,255,.07);
+    --sh-rest:0 1px 2px rgba(0,0,0,.3), 0 10px 32px rgba(0,0,0,.45);
+    --sh-lift:0 2px 4px rgba(0,0,0,.35), 0 18px 48px rgba(0,0,0,.6);
+    --sh-pop:0 24px 64px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{background:var(--canvas); color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; transition:background .35s var(--ease), color .35s var(--ease);}
+  main{max-width:1120px; margin:0 auto; padding:0 32px 120px;}
+  .num{font-variant-numeric:tabular-nums;}
+  .lbl{font-size:11px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:var(--muted);}
+
+  /* ---------- top bar ---------- */
+  header{position:sticky; top:0; z-index:10; backdrop-filter:blur(14px);
+    background:color-mix(in srgb, var(--canvas) 78%, transparent);
+    border-bottom:1px solid var(--hairline);}
+  .bar{max-width:1120px; margin:0 auto; padding:18px 32px; display:flex; align-items:center; gap:32px;}
+  .brand{font-size:15px; font-weight:700; letter-spacing:.02em; color:var(--ink);}
+  .brand span{color:var(--blue); font-weight:400;}
+  .risk{display:flex; align-items:baseline; gap:10px; padding:8px 18px; border-radius:100px;
+    background:var(--green-soft); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--green) 25%, transparent);}
+  .risk .lbl{color:var(--green-deep); letter-spacing:.1em;}
+  .risk b{font-size:17px; font-weight:650; color:var(--green-deep);}
+  .bar-right{margin-left:auto; display:flex; align-items:center; gap:14px;}
+  .sync{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--muted);}
+  .sync .dot{width:7px; height:7px; border-radius:50%; background:var(--green);}
+  .icon-btn{width:38px; height:38px; border-radius:50%; border:none; background:var(--card);
+    box-shadow:var(--sh-rest); color:var(--ink-2); font-size:15px; cursor:pointer;
+    transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
+  .icon-btn:hover{transform:translateY(-1px); box-shadow:var(--sh-lift);}
+
+  /* ---------- sections ---------- */
+  section{margin-top:72px;}
+  .sec-head{display:flex; align-items:baseline; gap:16px; margin-bottom:24px;}
+  .sec-head h2{font-size:24px; font-weight:650; letter-spacing:-.015em;}
+  .sec-head .lbl{transform:translateY(-2px);}
+
+  /* ---------- calculator ---------- */
+  .calc{background:var(--card); border-radius:var(--r-card); box-shadow:var(--sh-rest); padding:44px 48px;
+    transition:background .35s var(--ease);}
+  .inputs{display:grid; grid-template-columns:repeat(4, 1fr); gap:28px;}
+  .field .lbl{display:block; margin-bottom:10px;}
+  .field input{width:100%; font:inherit; font-size:19px; font-weight:550; color:var(--ink);
+    background:var(--card-2); border:1px solid transparent; border-radius:var(--r-ctl); padding:14px 16px;
+    outline:none; transition:border-color .15s, box-shadow .15s, background .2s;}
+  .field input:hover{border-color:var(--hairline);}
+  .field input:focus{border-color:var(--blue); box-shadow:0 0 0 4px var(--blue-soft); background:var(--card);}
+  .presets{display:flex; gap:8px; margin-top:12px;}
+  .preset{font-size:12px; font-weight:600; color:var(--muted); background:none; border:none;
+    padding:5px 11px; border-radius:100px; cursor:pointer; transition:all .15s var(--ease);}
+  .preset:hover{color:var(--ink); background:var(--card-2);}
+  .preset.on{color:#fff; background:var(--navy);}
+  [data-theme="dark"] .preset.on{color:#0d0e11;}
+
+  .result{display:flex; align-items:flex-end; gap:64px; margin-top:48px; padding-top:40px;
+    border-top:1px solid var(--hairline); flex-wrap:wrap;}
+  .shares .n{font-size:76px; font-weight:250; letter-spacing:-.035em; line-height:1; color:var(--ink);}
+  .shares .lbl{margin-top:10px; display:block;}
+  .facts{display:grid; grid-template-columns:auto auto; gap:10px 40px; padding-bottom:8px;}
+  .fact .lbl{display:block; margin-bottom:2px; font-size:10px;}
+  .fact b{font-size:17px; font-weight:600;}
+  .fact b.risk-val{color:var(--red);}
+  .cta{margin-left:auto; padding-bottom:6px; display:flex; gap:12px;}
+  .btn{font:inherit; font-size:14.5px; font-weight:600; border:none; cursor:pointer;
+    border-radius:100px; padding:14px 32px; transition:all .18s var(--ease);}
+  .btn-primary{background:var(--navy); color:#fff; box-shadow:0 6px 20px color-mix(in srgb, var(--navy) 35%, transparent);}
+  [data-theme="dark"] .btn-primary{color:#0d0e11;}
+  .btn-primary:hover{background:var(--navy-hover); transform:translateY(-1px);
+    box-shadow:0 10px 28px color-mix(in srgb, var(--navy) 45%, transparent);}
+  .btn-ghost{background:transparent; color:var(--ink-2); box-shadow:inset 0 0 0 1.5px var(--hairline);}
+  .btn-ghost:hover{box-shadow:inset 0 0 0 1.5px var(--faint); color:var(--ink);}
+
+  /* ---------- R ladder ---------- */
+  .ladder{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-top:20px;}
+  .rung{background:var(--card); border-radius:var(--r-card); padding:22px 24px; box-shadow:var(--sh-rest);
+    cursor:pointer; transition:transform .18s var(--ease), box-shadow .18s var(--ease);}
+  .rung:hover{transform:translateY(-3px); box-shadow:var(--sh-lift);}
+  .rung .lbl{font-size:10px;}
+  .rung .price{font-size:23px; font-weight:300; letter-spacing:-.02em; margin-top:6px;}
+  .rung .gain{font-size:13px; font-weight:600; color:var(--green-deep); margin-top:3px;}
+  .rung.active{background:var(--navy); box-shadow:0 14px 36px color-mix(in srgb, var(--navy) 40%, transparent);}
+  .rung.active .lbl{color:color-mix(in srgb, #fff 60%, var(--navy));}
+  .rung.active .price{color:#fff;}
+  .rung.active .gain{color:#fff; opacity:.85;}
+  [data-theme="dark"] .rung.active .price, [data-theme="dark"] .rung.active .gain{color:#0d0e11;}
+  [data-theme="dark"] .rung.active .lbl{color:rgba(13,14,17,.6);}
+
+  /* ---------- table ---------- */
+  .table-card{background:var(--card); border-radius:var(--r-card); box-shadow:var(--sh-rest); overflow:hidden;}
+  .table-tools{display:flex; align-items:center; gap:16px; padding:20px 28px; border-bottom:1px solid var(--hairline);}
+  .tablewrap{overflow-x:auto;}
+  table{border-collapse:collapse; width:100%; font-size:14.5px;}
+  th{text-align:left; font-size:10.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); padding:16px 28px; border-bottom:1px solid var(--hairline);}
+  td{padding:20px 28px; border-bottom:1px solid var(--hairline); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr{transition:background .15s;}
+  tbody tr:hover{background:var(--card-2);}
+  td .tk{font-weight:700; font-size:15px;}
+  td .sub{font-size:12px; color:var(--muted); margin-top:2px;}
+  .pill{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
+    padding:5px 13px; border-radius:100px;}
+  .pill::before{content:""; width:6px; height:6px; border-radius:50%;}
+  .pill.open{color:var(--green-deep); background:var(--green-soft);} .pill.open::before{background:var(--green);}
+  .pill.free{color:var(--blue); background:var(--blue-soft);} .pill.free::before{background:var(--blue);}
+  .pill.closed{color:var(--muted); background:var(--card-2); box-shadow:inset 0 0 0 1px var(--hairline);} .pill.closed::before{background:var(--faint);}
+  .r-pos{color:var(--green-deep); font-weight:650;}
+  .row-cta{font-size:13px; font-weight:600; color:var(--blue); background:var(--blue-soft);
+    border:none; border-radius:100px; padding:8px 16px; cursor:pointer; transition:all .15s var(--ease); white-space:nowrap;}
+  .row-cta:hover{transform:translateY(-1px); box-shadow:0 6px 16px color-mix(in srgb, var(--blue) 25%, transparent);}
+
+  /* ---------- custom dropdown (shown open) ---------- */
+  .dd{position:relative;}
+  .dd-btn{display:flex; align-items:center; gap:10px; font:inherit; font-size:14px; font-weight:600;
+    color:var(--ink); background:var(--card-2); border:1px solid var(--hairline); border-radius:var(--r-ctl);
+    padding:10px 16px; cursor:pointer;}
+  .dd-btn .chev{font-size:10px; color:var(--muted); transform:rotate(180deg);}
+  .dd-menu{position:absolute; top:calc(100% + 8px); left:0; min-width:210px; z-index:5;
+    background:var(--card); border-radius:14px; box-shadow:var(--sh-pop); padding:6px; border:1px solid var(--hairline);}
+  .dd-item{display:flex; align-items:center; justify-content:space-between; gap:24px;
+    font-size:14px; padding:10px 14px; border-radius:9px; color:var(--ink-2); cursor:pointer; transition:background .12s;}
+  .dd-item:hover{background:var(--card-2); color:var(--ink);}
+  .dd-item.sel{color:var(--ink); font-weight:600;}
+  .dd-item.sel::after{content:"✓"; color:var(--blue); font-weight:700;}
+  .dd-note{margin-top:120px;}
+
+  /* ---------- footer note ---------- */
+  .note{margin-top:96px; text-align:center; font-size:13px; color:var(--faint);}
+
+  @media (max-width:900px){
+    .inputs{grid-template-columns:1fr 1fr;} .ladder{grid-template-columns:repeat(2,1fr);}
+    .shares .n{font-size:56px;} .result{gap:32px;} main{padding:0 18px 80px;} .bar{padding:14px 18px;}
+    .risk{display:none;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="brand">Trade<span>Tracker</span></div>
+    <div class="risk num"><span class="lbl">Open Risk</span><b>$0 · Freerolled</b></div>
+    <div class="bar-right">
+      <div class="sync"><span class="dot"></span>Synced 2m ago</div>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">◐</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <div class="sec-head"><h2>Position</h2><span class="lbl">Calculator</span></div>
+    <div class="calc">
+      <div class="inputs">
+        <div class="field">
+          <span class="lbl">Account</span>
+          <input class="num" value="$25,000" readonly>
+          <div class="presets"><button class="preset">.25%</button><button class="preset">.5%</button><button class="preset on">1%</button><button class="preset">Custom</button></div>
+        </div>
+        <div class="field"><span class="lbl">Entry</span><input class="num" value="157.68" readonly></div>
+        <div class="field"><span class="lbl">Stop</span><input class="num" value="155.50" readonly></div>
+        <div class="field"><span class="lbl">Ticker</span><input value="NVDA" readonly></div>
+      </div>
+      <div class="result">
+        <div class="shares"><div class="n num">114</div><span class="lbl">Shares · $17,975</span></div>
+        <div class="facts num">
+          <div class="fact"><span class="lbl">Stop distance</span><b>$2.18 · 1.4%</b></div>
+          <div class="fact"><span class="lbl">Total risk</span><b class="risk-val">$250 · 1.0%</b></div>
+          <div class="fact"><span class="lbl">% of account</span><b>71.9%</b></div>
+          <div class="fact"><span class="lbl">Freeroll plan</span><b>½ @ 1R</b></div>
+        </div>
+        <div class="cta">
+          <button class="btn btn-ghost">Copy shares</button>
+          <button class="btn btn-primary">Log trade</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ladder num">
+      <div class="rung active"><span class="lbl">1R</span><div class="price">$159.86</div><div class="gain">+$249</div></div>
+      <div class="rung"><span class="lbl">2R</span><div class="price">$162.04</div><div class="gain">+$498</div></div>
+      <div class="rung"><span class="lbl">3R</span><div class="price">$164.22</div><div class="gain">+$747</div></div>
+      <div class="rung"><span class="lbl">4R</span><div class="price">$166.40</div><div class="gain">+$996</div></div>
+      <div class="rung"><span class="lbl">5R</span><div class="price">$168.58</div><div class="gain">+$1,245</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Positions</h2><span class="lbl">3 active · 1 closed this week</span></div>
+    <div class="table-card">
+      <div class="table-tools">
+        <div class="dd">
+          <button class="dd-btn">⚡ All Active <span class="chev">▲</span></button>
+          <div class="dd-menu" role="listbox">
+            <div class="dd-item sel">⚡ All Active</div>
+            <div class="dd-item">Open</div>
+            <div class="dd-item">Freerolled</div>
+            <div class="dd-item">Partially closed</div>
+            <div class="dd-item">Closed</div>
+            <div class="dd-item">Archived</div>
+          </div>
+        </div>
+        <div style="margin-left:auto"><button class="btn btn-ghost" style="padding:10px 22px; font-size:13.5px;">Export</button></div>
+      </div>
+      <div class="tablewrap">
+      <table class="num">
+        <thead><tr><th>Ticker</th><th>Entry</th><th>Stop</th><th>Progress</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="tk">NVDA</div><div class="sub">Jul 2 · 114 shs</div></td>
+            <td>157.68</td><td>155.50</td>
+            <td><span class="r-pos">+1.2R</span><div class="sub">unrealized</div></td>
+            <td><span class="pill open">Open</span></td>
+            <td><button class="row-cta">Sell 57 @ 159.86</button></td>
+          </tr>
+          <tr>
+            <td><div class="tk">PLTR</div><div class="sub">Jun 27 · 208 shs left</div></td>
+            <td>142.10</td><td>142.10</td>
+            <td><span class="r-pos">+$666 locked</span><div class="sub">⅓ sold @ 2R</div></td>
+            <td><span class="pill free">Freerolled</span></td>
+            <td><button class="row-cta">Trail runner</button></td>
+          </tr>
+          <tr>
+            <td><div class="tk">HOOD</div><div class="sub">Jun 20 · closed Jul 1</div></td>
+            <td>118.40</td><td>—</td>
+            <td><span class="r-pos">+3.4R</span><div class="sub">+$1,020 realized</div></td>
+            <td><span class="pill closed">Closed</span></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="dd-note"></div>
+  </section>
+
+  <p class="note">Static mock — "Showroom" direction · your palette, more air, soft elevation, custom controls · toggle ◐ for dark</p>
+</main>
+
+<script>
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+  if (matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme = 'dark';
+</script>
+</body>
+</html>

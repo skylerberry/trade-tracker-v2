@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade Card — Refinement Mock</title>
+<style>
+  :root{
+    --ink:#1C1917;
+    --ink-2:#44403C;
+    --sub:#78716C;
+    --faint:#A8A29E;
+    --line:#E7E5E0;
+    --line-soft:#F0EDE8;
+    --paper:#FFFFFF;
+    --bg:#F4F2EE;
+    --shell:#FBFAF8;
+    --accent:#C2410C;
+    --accent-soft:#FDF0E6;
+    --accent-line:#E8A87C;
+    --green:#15803D;
+    --green-soft:#DCFCE7;
+    --red:#B91C1C;
+    --red-soft:#FEF2F2;
+    --sans: ui-sans-serif, -apple-system, "SF Pro Text", "Segoe UI", Inter, system-ui, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    padding:40px 32px 72px;
+    font-variant-numeric:tabular-nums;
+  }
+  .wrap{max-width:1240px;margin:0 auto}
+
+  .page-eyebrow{
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--faint);font-weight:650;margin-bottom:8px;
+  }
+  .page-title{font-size:22px;font-weight:640;letter-spacing:-.01em;margin:0 0 6px}
+  .page-sub{font-size:14px;color:var(--sub);margin:0 0 28px;max-width:70ch;line-height:1.55}
+
+  /* ── card shell ─────────────────────────────── */
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 1px 2px rgba(28,25,23,.04), 0 8px 24px -18px rgba(28,25,23,.28);
+  }
+  .colhead{
+    display:grid;
+    grid-template-columns: 1.55fr .62fr .62fr .82fr .5fr .95fr 1.05fr 1.15fr;
+    align-items:center;
+    gap:12px;
+    padding:11px 24px;
+    background:var(--shell);
+    border-bottom:1px solid var(--line);
+    font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--faint);font-weight:660;
+  }
+  .colhead .num{text-align:right}
+
+  .row{
+    display:grid;
+    grid-template-columns: 1.55fr .62fr .62fr .82fr .5fr .95fr 1.05fr 1.15fr;
+    align-items:center;
+    gap:12px;
+    padding:16px 24px;
+    border-bottom:1px solid var(--line);
+  }
+  .tk{font-size:19px;font-weight:620;letter-spacing:-.01em;line-height:1.1}
+  .tk-sub{margin-top:5px;display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--sub)}
+  .side{
+    font-size:9.5px;font-weight:700;letter-spacing:.09em;
+    color:var(--green);background:var(--green-soft);
+    padding:2.5px 6px;border-radius:4px;
+  }
+  .dot-sep{color:#D6D3D1}
+  .num{text-align:right;font-size:15.5px;font-weight:560;letter-spacing:-.01em}
+  .num.pos{color:var(--green);font-weight:620}
+  .num.mut{color:var(--ink-2);font-weight:540}
+
+  .next{display:flex;align-items:center;gap:7px}
+  .next-lab{font-size:14.5px;font-weight:580}
+  .next-sub{font-size:10.5px;color:var(--sub);margin-top:2px}
+  .shield{width:15px;height:15px;color:var(--green);flex:none}
+
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--green-soft);color:var(--green);
+    font-size:10.5px;font-weight:700;letter-spacing:.08em;
+    padding:5px 11px;border-radius:999px;
+  }
+  .icons{display:flex;justify-content:flex-end;gap:4px;color:#A8A29E}
+  .ib{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;border:1px solid transparent}
+  .ib:hover{background:var(--line-soft);border-color:var(--line)}
+
+  /* ── body ───────────────────────────────────── */
+  .body{display:grid;grid-template-columns:1.28fr 1fr}
+  .left{padding:22px 26px 24px;border-right:1px solid var(--line)}
+  .right{padding:22px 26px 24px;background:#FDFCFB}
+
+  .sec{
+    font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--faint);font-weight:680;margin-bottom:16px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .sec .rt{letter-spacing:.02em;text-transform:none;font-size:11px;color:var(--sub);font-weight:500}
+
+  /* timeline */
+  .tl{position:relative;padding-left:24px}
+  .tl:before{
+    content:"";position:absolute;left:5.5px;top:9px;bottom:26px;
+    width:1.5px;background:linear-gradient(180deg,var(--line) 0%,var(--line) 70%,transparent 100%);
+  }
+  .ev{position:relative;padding-bottom:20px}
+  .ev:last-of-type{padding-bottom:4px}
+  .bullet{position:absolute;left:-24px;top:3px;width:13px;height:13px;border-radius:50%;
+    border:2px solid var(--accent);background:var(--paper)}
+  .bullet.done{background:var(--green);border-color:var(--green)}
+  .ev-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .ev-title{font-size:14.5px;font-weight:600;letter-spacing:-.005em}
+  .ev-title .qty{font-weight:620}
+  .ev-time{font-size:11px;color:var(--faint);white-space:nowrap}
+  .ev-r{font-size:12px;font-weight:640;color:var(--green)}
+
+  /* THE FIX: structured metadata instead of trailing gray mush */
+  .meta{display:flex;gap:0;margin-top:11px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#FCFBFA}
+  .meta > div{padding:8px 14px;flex:1;border-right:1px solid var(--line)}
+  .meta > div:last-child{border-right:0}
+  .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:670;display:block;margin-bottom:4px}
+  .v{font-size:14px;font-weight:580;color:var(--ink);letter-spacing:-.01em}
+  .v.red{color:var(--red)}
+  .v.green{color:var(--green)}
+  .v small{font-size:11px;color:var(--sub);font-weight:500;margin-left:3px}
+
+  .acts{display:flex;gap:10px;margin-top:22px}
+  .btn{
+    font-family:var(--sans);font-size:13.5px;font-weight:570;
+    padding:9px 18px;border-radius:999px;border:1px solid var(--line);
+    background:var(--paper);color:var(--ink-2);cursor:pointer;
+  }
+  .btn:hover{background:var(--line-soft)}
+  .btn.primary{background:#9A3F0C;border-color:#9A3F0C;color:#fff}
+  .btn.primary:hover{background:#853609}
+
+  /* right stats */
+  .stat{display:flex;align-items:baseline;justify-content:space-between;padding:9px 0}
+  .stat + .stat{border-top:1px solid #F2EFEB}
+  .stat-k{font-size:13.5px;color:var(--ink-2)}
+  .stat-v{font-size:15.5px;font-weight:590;letter-spacing:-.01em}
+  .stat-v.green{color:var(--green)}
+  .stat-v.mut{color:var(--sub);font-weight:540}
+  .stat-note{font-size:10.5px;color:var(--faint);margin-left:7px;font-weight:500}
+
+  .hr{height:1px;background:var(--line);margin:20px 0}
+
+  .jr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .jr-t{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:680}
+  .jr-d{font-size:12px;color:var(--sub);margin-top:5px}
+  .count{font-size:11px;color:var(--sub);border:1px solid var(--line);background:var(--paper);
+    padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .tabs{display:flex;gap:2px;padding:4px;background:#F4F1ED;border-radius:9px;margin-bottom:10px}
+  .tab{flex:1;text-align:center;font-size:12.5px;font-weight:540;color:var(--sub);
+    padding:7px 4px;border-radius:6px;cursor:pointer}
+  .tab.on{background:var(--paper);color:var(--accent);font-weight:600;box-shadow:0 1px 2px rgba(28,25,23,.06)}
+  .ta{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--paper);
+    padding:11px 13px;font-family:var(--sans);font-size:13.5px;color:var(--ink);
+    min-height:74px;resize:vertical}
+  .ta::placeholder{color:#B8B2AC}
+  .jr-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+  .jr-hint{font-size:11px;color:var(--faint)}
+
+  /* ── the plan rail ──────────────────────────── */
+  .plan{padding:22px 26px 20px;border-top:1px solid var(--line);background:#FCFBF9}
+  .plan-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+  .legend{display:flex;gap:16px;font-size:10.5px;color:var(--sub);align-items:center}
+  .lg{display:flex;align-items:center;gap:6px}
+  .sw{width:15px;height:9px;border-radius:2px;border:1px solid;flex:none;box-sizing:border-box}
+  .sw.done{background:#EDE9E3;border-color:#DDD8D1}
+  .sw.live{background:var(--accent-soft);border-color:var(--accent-line)}
+  .sw.plan{background:transparent;border-color:var(--accent-line);border-style:dashed}
+
+  svg{display:block;width:100%;height:auto}
+
+  .plan-foot{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    margin-top:6px;padding-top:14px;border-top:1px solid var(--line);
+  }
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;font-size:12px;
+    border:1px solid var(--line);background:var(--paper);border-radius:999px;
+    padding:6px 12px;color:var(--ink-2);cursor:pointer;
+  }
+  .chip:hover{background:var(--line-soft)}
+  .chip.ghost{border-style:dashed;color:var(--sub);background:transparent}
+  .chip b{font-weight:620;color:var(--ink)}
+  .chip .g{color:var(--green);font-weight:620}
+  .spacer{flex:1}
+
+  .footbar{
+    padding:13px 24px;background:var(--shell);border-top:1px solid var(--line);
+    font-size:12.5px;color:var(--sub);
+  }
+
+  /* ── notes ──────────────────────────────────── */
+  .notes{margin-top:44px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .note{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .note h3{margin:0 0 8px;font-size:14px;font-weight:620;letter-spacing:-.005em;display:flex;gap:9px;align-items:center}
+  .note .n{width:19px;height:19px;border-radius:5px;background:var(--accent-soft);color:var(--accent);
+    font-size:10.5px;font-weight:700;display:grid;place-items:center;flex:none}
+  .note p{margin:0;font-size:13px;line-height:1.62;color:var(--ink-2)}
+  .note p + p{margin-top:9px}
+  .note code{font-size:11.5px;background:#F4F1ED;padding:1.5px 5px;border-radius:4px;color:var(--accent)}
+
+  /* ── collapsed variant ──────────────────────── */
+  .variant{margin-top:44px}
+  .vh{font-size:13px;font-weight:620;margin-bottom:5px}
+  .vp{font-size:12.5px;color:var(--sub);margin:0 0 14px;line-height:1.55}
+  .mini{
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:15px 22px;display:grid;grid-template-columns:1.1fr 2.3fr .9fr;gap:26px;align-items:center;
+  }
+  @media (max-width: 900px){
+    .body{grid-template-columns:1fr}
+    .left{border-right:0;border-bottom:1px solid var(--line)}
+    .notes{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-eyebrow">Refinement mock · v1</div>
+  <h1 class="page-title">Trade card — metadata hierarchy + the plan rail</h1>
+  <p class="page-sub">Two changes. The trailing gray run-on under the entry becomes a real spec block, and the dead space becomes a full-width map of the position decaying across price. Everything below is static HTML — no framework, tokens listed in the notes.</p>
+
+  <!-- ═══════════ CARD ═══════════ -->
+  <div class="card">
+
+    <div class="colhead">
+      <div>Ticker</div>
+      <div class="num">Entry</div>
+      <div class="num">Stop</div>
+      <div class="num">Realized</div>
+      <div class="num">R</div>
+      <div>Next</div>
+      <div>Status</div>
+      <div></div>
+    </div>
+
+    <div class="row">
+      <div>
+        <div class="tk">GOOGL</div>
+        <div class="tk-sub">
+          <span class="side">LONG</span>
+          <span>93 / 140 shares</span>
+          <span class="dot-sep">·</span>
+          <span>day 6</span>
+        </div>
+      </div>
+      <div class="num mut">10.00</div>
+      <div class="num mut">10.00</div>
+      <div class="num pos">+$47.00</div>
+      <div class="num pos">+0.7R</div>
+      <div>
+        <div class="next">
+          <svg class="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <div>
+            <div class="next-lab">Runner</div>
+            <div class="next-sub">47 sh · trail 21 EMA</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <span class="pill">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          FREEROLLED
+        </span>
+      </div>
+      <div class="icons">
+        <div class="ib"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="ib"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg></div>
+        <div class="ib"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9M10 13h4"/></svg></div>
+        <div class="ib"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></div>
+      </div>
+    </div>
+
+    <!-- body -->
+    <div class="body">
+      <div class="left">
+        <div class="sec">Position <span class="rt">2 fills · 1 open leg</span></div>
+
+        <div class="tl">
+          <div class="ev">
+            <div class="bullet"></div>
+            <div class="ev-top">
+              <div class="ev-title">Long entry — <span class="qty">140 shares @ $10.00</span></div>
+              <div class="ev-time">Aug 7 · 9:41 AM PT</div>
+            </div>
+            <div class="meta">
+              <div><span class="k">Initial stop</span><span class="v">9.50 <small>−5.0%</small></span></div>
+              <div><span class="k">Risk / share</span><span class="v red">$0.50</span></div>
+              <div><span class="k">Total risk</span><span class="v red">$70.00 <small>1R</small></span></div>
+              <div><span class="k">Cost basis</span><span class="v">$1,400</span></div>
+            </div>
+          </div>
+
+          <div class="ev">
+            <div class="bullet done"></div>
+            <div class="ev-top">
+              <div class="ev-title">Trim 1 — <span class="qty">47 shares @ $11.00</span></div>
+              <div class="ev-time">Aug 7 · 1:12 PM PT</div>
+            </div>
+            <div class="meta">
+              <div><span class="k">Captured</span><span class="v green">+2.0R</span></div>
+              <div><span class="k">Realized</span><span class="v green">+$47.00</span></div>
+              <div><span class="k">Stop moved</span><span class="v">9.50 → 10.00</span></div>
+              <div><span class="k">Open risk</span><span class="v green">$0.00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acts">
+          <button class="btn primary">Trim / Exit</button>
+          <button class="btn">Add to position</button>
+          <button class="btn">Edit</button>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="sec">Standing</div>
+        <div class="stat"><span class="stat-k">Remaining</span><span class="stat-v">93 shares <span class="stat-note">66%</span></span></div>
+        <div class="stat"><span class="stat-k">Realized</span><span class="stat-v green">+$47.00</span></div>
+        <div class="stat"><span class="stat-k">Open risk</span><span class="stat-v mut">$0.00</span></div>
+        <div class="stat"><span class="stat-k">Risk / share</span><span class="stat-v mut">$0.50</span></div>
+        <div class="stat"><span class="stat-k">Stop distance</span><span class="stat-v mut">0.0% <span class="stat-note">at breakeven</span></span></div>
+
+        <div class="hr"></div>
+
+        <div class="jr-head">
+          <div>
+            <div class="jr-t">Trade journal</div>
+            <div class="jr-d">Timestamped decisions, not a mutable scratchpad.</div>
+          </div>
+          <div class="count">0 entries</div>
+        </div>
+        <div class="tabs">
+          <div class="tab on">Thesis</div>
+          <div class="tab">Update</div>
+          <div class="tab">Review</div>
+          <div class="tab">Lesson</div>
+        </div>
+        <textarea class="ta" placeholder="What is the setup, catalyst, and invalidation?"></textarea>
+        <div class="jr-foot">
+          <span class="jr-hint">Timestamped when added</span>
+          <button class="btn">+ Add entry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ THE PLAN RAIL ═══ -->
+    <div class="plan">
+      <div class="plan-head">
+        <div class="sec" style="margin-bottom:0">The plan <span class="rt">&nbsp;</span></div>
+        <div class="legend">
+          <span class="lg"><span class="sw done"></span> traveled</span>
+          <span class="lg"><span class="sw live"></span> live leg</span>
+          <span class="lg"><span class="sw plan"></span> planned</span>
+        </div>
+      </div>
+
+      <svg viewBox="0 0 1000 300" role="img" aria-label="Position size across price levels from stop to runner">
+        <defs>
+          <pattern id="hatchRed" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="7" stroke="#E7B4B4" stroke-width="1.6"/>
+          </pattern>
+          <pattern id="hatchOrange" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <rect width="8" height="8" fill="#FFFBF7"/>
+            <line x1="0" y1="0" x2="0" y2="8" stroke="#F3C9A6" stroke-width="1.5"/>
+          </pattern>
+          <marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 z" fill="#C2410C"/>
+          </marker>
+          <marker id="arwG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 z" fill="#15803D"/>
+          </marker>
+        </defs>
+
+        <!-- ── risk zone, retired ── -->
+        <rect x="60" y="80" width="176" height="130" fill="url(#hatchRed)" opacity=".45"/>
+        <rect x="60" y="80" width="176" height="130" fill="#FEF6F6" opacity=".55"/>
+        <line x1="60" y1="80" x2="60" y2="216" stroke="#D99A9A" stroke-width="1.6" stroke-dasharray="4 4"/>
+        <text x="66" y="98" font-family="ui-sans-serif,system-ui" font-size="9.5" letter-spacing=".1em" font-weight="680" fill="#C08A8A">RISK ZONE — RETIRED</text>
+        <text x="66" y="113" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#C08A8A" text-decoration="line-through">−$70.00 · −1R</text>
+
+        <!-- stop advance arrow -->
+        <line x1="72" y1="192" x2="222" y2="192" stroke="#15803D" stroke-width="1.6" marker-end="url(#arwG)"/>
+        <text x="72" y="185" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="640" fill="#15803D">stop advanced to breakeven</text>
+
+        <!-- ── traveled: 140 shares, entry → +2R ── -->
+        <rect x="236" y="80" width="352" height="130" fill="#EFECE6"/>
+        <text x="252" y="103" font-family="ui-sans-serif,system-ui" font-size="9.5" letter-spacing=".1em" font-weight="680" fill="#8B8378">TRAVELED · FULL SIZE</text>
+        <text x="252" y="124" font-family="ui-sans-serif,system-ui" font-size="17" font-weight="620" fill="#57534E">140 sh</text>
+
+        <!-- ── live leg: 93 shares, +2R → +3R ── -->
+        <rect x="588" y="124" width="176" height="86" fill="#FDF0E6"/>
+        <line x1="588" y1="124" x2="764" y2="124" stroke="#E8A87C" stroke-width="2"/>
+        <text x="602" y="148" font-family="ui-sans-serif,system-ui" font-size="9.5" letter-spacing=".1em" font-weight="680" fill="#C2410C">LIVE LEG</text>
+        <text x="602" y="169" font-family="ui-sans-serif,system-ui" font-size="17" font-weight="620" fill="#9A3F0C">93 sh</text>
+
+        <!-- ── runner: 47 shares, +3R → open ── -->
+        <rect x="764" y="166" width="196" height="44" fill="url(#hatchOrange)"/>
+        <line x1="764" y1="166" x2="946" y2="166" stroke="#E8A87C" stroke-width="1.8" stroke-dasharray="6 4"/>
+        <line x1="946" y1="166" x2="982" y2="166" stroke="#C2410C" stroke-width="1.8" stroke-dasharray="2 4" marker-end="url(#arw)"/>
+        <text x="776" y="185" font-family="ui-sans-serif,system-ui" font-size="9.5" letter-spacing=".1em" font-weight="680" fill="#C2410C">RUNNER</text>
+        <text x="776" y="202" font-family="ui-sans-serif,system-ui" font-size="13" font-weight="620" fill="#9A3F0C">47 sh · trail 21 EMA</text>
+
+        <!-- step risers -->
+        <line x1="588" y1="80" x2="588" y2="210" stroke="#D9D3CB" stroke-width="1.5"/>
+        <line x1="764" y1="124" x2="764" y2="210" stroke="#E8D9C9" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <!-- entry riser -->
+        <line x1="236" y1="66" x2="236" y2="216" stroke="#1C1917" stroke-width="1.6"/>
+
+        <!-- ── node flags ── -->
+        <!-- entry -->
+        <text x="228" y="58" text-anchor="end" font-family="ui-sans-serif,system-ui" font-size="9.5" letter-spacing=".1em" font-weight="680" fill="#A8A29E">ENTRY · STOP NOW</text>
+        <text x="228" y="42" text-anchor="end" font-family="ui-sans-serif,system-ui" font-size="14.5" font-weight="640" fill="#1C1917">10.00</text>
+
+        <!-- executed trim -->
+        <circle cx="588" cy="124" r="5.5" fill="#15803D"/>
+        <circle cx="588" cy="124" r="10" fill="#15803D" opacity=".14"/>
+        <text x="600" y="42" font-family="ui-sans-serif,system-ui" font-size="9.5" letter-spacing=".1em" font-weight="680" fill="#15803D">✓ FILLED · AUG 7</text>
+        <text x="600" y="61" font-family="ui-sans-serif,system-ui" font-size="14" font-weight="620" fill="#1C1917">Sold 47 @ 11.00</text>
+        <text x="600" y="78" font-family="ui-sans-serif,system-ui" font-size="12" font-weight="620" fill="#15803D">+$47.00 · +2.0R</text>
+
+        <!-- planned trim -->
+        <circle cx="764" cy="166" r="5.5" fill="#FFFFFF" stroke="#C2410C" stroke-width="2"/>
+        <text x="776" y="98" font-family="ui-sans-serif,system-ui" font-size="9.5" letter-spacing=".1em" font-weight="680" fill="#C2410C">PLANNED TRIM</text>
+        <text x="776" y="117" font-family="ui-sans-serif,system-ui" font-size="14" font-weight="620" fill="#1C1917">Sell 46 @ 11.50</text>
+        <text x="776" y="134" font-family="ui-sans-serif,system-ui" font-size="12" font-weight="580" fill="#78716C">+$69.00 · +3.0R</text>
+
+        <!-- ── axis ── -->
+        <line x1="40" y1="210" x2="985" y2="210" stroke="#D6D3D1" stroke-width="1.4"/>
+
+        <!-- ticks: price + R -->
+        <g font-family="ui-sans-serif,system-ui">
+          <line x1="60"  y1="210" x2="60"  y2="216" stroke="#D6D3D1"/>
+          <text x="60"  y="232" text-anchor="middle" font-size="12.5" font-weight="560" fill="#A8A29E" text-decoration="line-through">9.50</text>
+          <text x="60"  y="249" text-anchor="middle" font-size="10" letter-spacing=".06em" font-weight="660" fill="#C4B5B5">−1R</text>
+
+          <line x1="236" y1="210" x2="236" y2="216" stroke="#A8A29E"/>
+          <text x="236" y="232" text-anchor="middle" font-size="12.5" font-weight="640" fill="#1C1917">10.00</text>
+          <text x="236" y="249" text-anchor="middle" font-size="10" letter-spacing=".06em" font-weight="660" fill="#A8A29E">0R</text>
+
+          <line x1="412" y1="210" x2="412" y2="215" stroke="#E7E5E0"/>
+          <text x="412" y="232" text-anchor="middle" font-size="12.5" font-weight="540" fill="#A8A29E">10.50</text>
+          <text x="412" y="249" text-anchor="middle" font-size="10" letter-spacing=".06em" font-weight="660" fill="#C9C4BE">+1R</text>
+
+          <line x1="588" y1="210" x2="588" y2="216" stroke="#A8A29E"/>
+          <text x="588" y="232" text-anchor="middle" font-size="12.5" font-weight="640" fill="#1C1917">11.00</text>
+          <text x="588" y="249" text-anchor="middle" font-size="10" letter-spacing=".06em" font-weight="660" fill="#15803D">+2R</text>
+
+          <line x1="764" y1="210" x2="764" y2="216" stroke="#A8A29E"/>
+          <text x="764" y="232" text-anchor="middle" font-size="12.5" font-weight="640" fill="#1C1917">11.50</text>
+          <text x="764" y="249" text-anchor="middle" font-size="10" letter-spacing=".06em" font-weight="660" fill="#C2410C">+3R</text>
+
+          <line x1="940" y1="210" x2="940" y2="215" stroke="#E7E5E0"/>
+          <text x="940" y="232" text-anchor="middle" font-size="12.5" font-weight="540" fill="#A8A29E">12.00</text>
+          <text x="940" y="249" text-anchor="middle" font-size="10" letter-spacing=".06em" font-weight="660" fill="#C9C4BE">+4R</text>
+        </g>
+
+        <!-- axis labels -->
+        <text x="40" y="232" font-family="ui-sans-serif,system-ui" font-size="9" letter-spacing=".1em" font-weight="680" fill="#C9C4BE">PRICE</text>
+        <text x="40" y="249" font-family="ui-sans-serif,system-ui" font-size="9" letter-spacing=".1em" font-weight="680" fill="#C9C4BE">R</text>
+
+        <!-- y-axis hint -->
+        <text x="52" y="76" text-anchor="end" font-family="ui-sans-serif,system-ui" font-size="9" letter-spacing=".08em" font-weight="680" fill="#C9C4BE" transform="rotate(-90 52 76)">SHARES HELD</text>
+        <text x="278" y="278" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#A8A29E">Height = shares still on. Each step down is an exit you planned or took.</text>
+      </svg>
+
+      <div class="plan-foot">
+        <span class="chip"><b>+$47</b> <span style="color:#A8A29E">banked</span></span>
+        <span class="chip"><b>+$69</b> <span style="color:#A8A29E">if trim 2 fills</span></span>
+        <span class="chip"><span class="g">+1.7R</span> <span style="color:#A8A29E">locked at plan completion</span></span>
+        <span class="spacer"></span>
+        <span class="chip ghost">+ Add target</span>
+        <span class="chip ghost">Edit trail rule</span>
+      </div>
+    </div>
+
+    <div class="footbar">1 position · 93 shares open · $0.00 at risk</div>
+  </div>
+
+  <!-- ═══════════ NOTES ═══════════ -->
+  <div class="notes">
+    <div class="note">
+      <h3><span class="n">1</span> The metadata now has a container</h3>
+      <p>The old <code>· stop 9.50 · risk / share $0.50</code> was 11px gray text tucked behind a date — the two numbers that define the trade, styled like a footnote.</p>
+      <p>Now it's a bordered 4-up spec block under each event: 9px uppercase label above a 14px value. Same footprint, but the numbers read as data instead of prose. Risk numbers go red, captured numbers go green, so the eye lands before the brain does.</p>
+    </div>
+
+    <div class="note">
+      <h3><span class="n">2</span> The dead space is actually bottom-left</h3>
+      <p>The right column is already carrying stats plus the journal. The ~1000×500 void in your screenshot sits under the Trim/Exit buttons.</p>
+      <p>So the plan rail goes full-width below both columns rather than into the right column. It needs the width — a 5R price axis squeezed into 40% would be unreadable — and it keeps the journal where the muscle memory already is.</p>
+    </div>
+
+    <div class="note">
+      <h3><span class="n">3</span> The rail is a decay curve, not a timeline</h3>
+      <p>X is price (dual-labeled in dollars and R). Y is shares still on. The staircase says the whole story in one glance: 140 rode to 11.00, 93 are live now, 47 run open-ended.</p>
+      <p>Solid = traveled, tinted = the live leg, hatched-dashed = plan. The struck-through 9.50 and the green arrow to breakeven are what <em>earns</em> the FREEROLLED pill in the header — right now that pill asks you to take its word for it.</p>
+    </div>
+
+    <div class="note">
+      <h3><span class="n">4</span> It doubles as the planning surface</h3>
+      <p>Every node is a hit target. Drag a planned node along the axis to reprice it, click to set share count. <code>+ Add target</code> drops a new step. Filled nodes lock.</p>
+      <p>That turns the card from a record into a plan you maintain — which is the same argument the journal is making one column over.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ COLLAPSED VARIANT ═══════════ -->
+  <div class="variant">
+    <div class="vh">Collapsed row — same rail, 40px tall</div>
+    <p class="vp">If the rail only lives in the expanded card you lose it when scanning a list. This strip is the same data compressed to one line, so a 20-position table still shows where every trade sits in its plan.</p>
+
+    <div class="mini">
+      <div>
+        <div class="tk" style="font-size:16px">GOOGL <span class="side" style="margin-left:6px">LONG</span></div>
+        <div class="tk-sub" style="margin-top:4px">93 sh · freerolled</div>
+      </div>
+
+      <svg viewBox="0 0 620 48">
+        <defs>
+          <pattern id="h2" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <rect width="7" height="7" fill="#FFFBF7"/>
+            <line x1="0" y1="0" x2="0" y2="7" stroke="#F3C9A6" stroke-width="1.4"/>
+          </pattern>
+        </defs>
+        <rect x="20" y="10" width="100" height="20" fill="#FEF6F6" stroke="#EBD3D3" stroke-dasharray="3 3"/>
+        <rect x="120" y="10" width="200" height="20" fill="#EFECE6"/>
+        <rect x="320" y="10" width="100" height="20" fill="#FDF0E6"/>
+        <rect x="420" y="10" width="140" height="20" fill="url(#h2)" stroke="#E8A87C" stroke-dasharray="5 3"/>
+        <line x1="120" y1="4" x2="120" y2="36" stroke="#1C1917" stroke-width="1.5"/>
+        <circle cx="320" cy="20" r="4.5" fill="#15803D"/>
+        <circle cx="420" cy="20" r="4.5" fill="#fff" stroke="#C2410C" stroke-width="1.8"/>
+        <g font-family="ui-sans-serif,system-ui" font-size="9.5" font-weight="660" fill="#A8A29E">
+          <text x="20" y="45" text-decoration="line-through">9.50</text>
+          <text x="120" y="45" text-anchor="middle" fill="#1C1917">10.00</text>
+          <text x="320" y="45" text-anchor="middle" fill="#15803D">11.00</text>
+          <text x="420" y="45" text-anchor="middle" fill="#C2410C">11.50</text>
+          <text x="560" y="45" text-anchor="middle">open</text>
+        </g>
+      </svg>
+
+      <div style="text-align:right">
+        <div class="num pos" style="font-size:16px">+$47.00</div>
+        <div class="tk-sub" style="justify-content:flex-end;margin-top:3px">+0.7R realized</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

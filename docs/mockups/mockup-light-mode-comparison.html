@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Light Mode - Current vs Zinc Palette Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #e5e7eb;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: #18181b;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #71717a;
+            margin-bottom: 40px;
+            font-size: 0.9rem;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .version {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .version-label {
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .current .version-label {
+            background: #d1d5db;
+            color: #374151;
+        }
+
+        .proposed .version-label {
+            background: #1a365d;
+            color: white;
+        }
+
+        .demo-content {
+            background: #f9fafb;
+            padding: 24px;
+        }
+
+        /* ========================================
+           CURRENT LIGHT MODE (Gray Palette)
+           ======================================== */
+        .current .header-card {
+            background: #f8fafc;
+            border-top: 3px solid #1a365d;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .current .header-title {
+            color: #1a365d;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .current .header-subtitle {
+            color: #6b7280; /* gray-500 */
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .current .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb; /* gray-200 */
+        }
+
+        .current table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .current th {
+            background: #f3f4f6; /* gray-100 */
+            color: #1a365d;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .current td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .current tr:last-child td {
+            border-bottom: none;
+        }
+
+        .current tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .current tbody tr:hover {
+            background: #f9fafb; /* gray-50 */
+        }
+
+        .current .ticker {
+            font-weight: 600;
+            color: inherit; /* Default dark */
+        }
+
+        .current .date-cell {
+            color: #6b7280; /* gray-500 - current */
+        }
+
+        .current .price-cell {
+            color: #374151; /* gray-700 - current */
+        }
+
+        .current .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: rgba(34, 197, 94, 0.15);
+            color: #166534;
+        }
+
+        .current .watchlist-container {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .current .watchlist-label {
+            color: #6b7280;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .current .watchlist-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .current .pill {
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            color: #1a365d;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .current .pill:hover {
+            background: #1a365d;
+            border-color: #1a365d;
+            color: white;
+        }
+
+        /* ========================================
+           PROPOSED LIGHT MODE (Zinc Palette)
+           ======================================== */
+        .proposed .header-card {
+            background: #f8fafc;
+            border-top: 3px solid #1a365d;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .proposed .header-title {
+            color: #1a365d;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .proposed .header-subtitle {
+            color: #71717a; /* zinc-500 */
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .proposed .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid #e4e4e7; /* zinc-200 */
+        }
+
+        .proposed table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .proposed th {
+            background: #f4f4f5; /* zinc-100 */
+            color: #1a365d;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .proposed td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .proposed tr:last-child td {
+            border-bottom: none;
+        }
+
+        .proposed tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .proposed tbody tr:hover {
+            background: #fafafa; /* zinc-50 */
+        }
+
+        /* ZINC PALETTE TEXT HIERARCHY */
+        .proposed .ticker {
+            font-weight: 600;
+            color: #18181b; /* zinc-900 - matches dark mode bright text inverse */
+        }
+
+        .proposed .date-cell {
+            color: #71717a; /* zinc-500 - same value used in dark mode */
+        }
+
+        .proposed .price-cell {
+            color: #3f3f46; /* zinc-700 - same family as dark mode */
+        }
+
+        .proposed .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: rgba(34, 197, 94, 0.15);
+            color: #166534;
+        }
+
+        .proposed .watchlist-container {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e4e4e7;
+        }
+
+        .proposed .watchlist-label {
+            color: #71717a;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .proposed .watchlist-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .proposed .pill {
+            background: #fafafa;
+            border: 1px solid #d4d4d8; /* zinc-300 */
+            color: #1a365d;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .proposed .pill:hover {
+            background: #1a365d;
+            border-color: #1a365d;
+            color: white;
+        }
+
+        /* ========================================
+           COLOR COMPARISON TABLE
+           ======================================== */
+        .color-comparison {
+            margin-top: 60px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .color-comparison h2 {
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+            color: #18181b;
+        }
+
+        .color-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e4e4e7;
+        }
+
+        .color-table th {
+            background: #f4f4f5;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #3f3f46;
+        }
+
+        .color-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e4e4e7;
+            font-size: 0.85rem;
+        }
+
+        .color-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .color-swatch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-swatch .swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .color-swatch code {
+            font-size: 0.8rem;
+            background: #f4f4f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .benefit {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+            border-left: 3px solid #22c55e;
+        }
+
+        .benefit h3 {
+            font-size: 0.95rem;
+            color: #166534;
+            margin-bottom: 8px;
+        }
+
+        .benefit p {
+            color: #3f3f46;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1000px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Light Mode: Gray vs Zinc Palette</h1>
+    <p class="subtitle">Comparing current implementation with zinc-based colors for theme parity</p>
+
+    <div class="comparison-container">
+        <!-- CURRENT VERSION -->
+        <div class="version current">
+            <div class="version-label">Current (Gray Palette)</div>
+            <div class="demo-content">
+                <div class="header-card">
+                    <div class="header-title">Trade Management Dashboard</div>
+                    <div class="header-subtitle">Using Tailwind gray palette</div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Entry Date</th>
+                                <th>Entry</th>
+                                <th>Stop Loss</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ticker">NVDA</td>
+                                <td class="date-cell">Jan 15, 2026</td>
+                                <td class="price-cell">$142.50</td>
+                                <td class="price-cell">$138.25</td>
+                                <td><span class="status-badge">Open</span></td>
+                            </tr>
+                            <tr>
+                                <td class="ticker">AAPL</td>
+                                <td class="date-cell">Jan 22, 2026</td>
+                                <td class="price-cell">$198.75</td>
+                                <td class="price-cell">$192.00</td>
+                                <td><span class="status-badge">Open</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="watchlist-container">
+                    <div class="watchlist-label">Watchlist</div>
+                    <div class="watchlist-pills">
+                        <span class="pill">AAPL</span>
+                        <span class="pill">GOOGL</span>
+                        <span class="pill">TSLA</span>
+                        <span class="pill">AMD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROPOSED VERSION -->
+        <div class="version proposed">
+            <div class="version-label">Proposed (Zinc Palette)</div>
+            <div class="demo-content">
+                <div class="header-card">
+                    <div class="header-title">Trade Management Dashboard</div>
+                    <div class="header-subtitle">Using zinc palette for theme parity</div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Entry Date</th>
+                                <th>Entry</th>
+                                <th>Stop Loss</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ticker">NVDA</td>
+                                <td class="date-cell">Jan 15, 2026</td>
+                                <td class="price-cell">$142.50</td>
+                                <td class="price-cell">$138.25</td>
+                                <td><span class="status-badge">Open</span></td>
+                            </tr>
+                            <tr>
+                                <td class="ticker">AAPL</td>
+                                <td class="date-cell">Jan 22, 2026</td>
+                                <td class="price-cell">$198.75</td>
+                                <td class="price-cell">$192.00</td>
+                                <td><span class="status-badge">Open</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="watchlist-container">
+                    <div class="watchlist-label">Watchlist</div>
+                    <div class="watchlist-pills">
+                        <span class="pill">AAPL</span>
+                        <span class="pill">GOOGL</span>
+                        <span class="pill">TSLA</span>
+                        <span class="pill">AMD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLOR COMPARISON -->
+    <div class="color-comparison">
+        <h2>Color Value Comparison</h2>
+        <table class="color-table">
+            <thead>
+                <tr>
+                    <th>Element</th>
+                    <th>Current (Gray)</th>
+                    <th>Proposed (Zinc)</th>
+                    <th>Dark Mode Reference</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ticker text</td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: inherit"></span> <code>inherit</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #18181b"></span> <code>#18181b</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #f4f4f5"></span> <code>#f4f4f5</code></span></td>
+                </tr>
+                <tr>
+                    <td>Price text</td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #374151"></span> <code>#374151</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #3f3f46"></span> <code>#3f3f46</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #e4e4e7"></span> <code>#e4e4e7</code></span></td>
+                </tr>
+                <tr>
+                    <td>Date text</td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #6b7280"></span> <code>#6b7280</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #71717a"></span> <code>#71717a</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #a1a1aa"></span> <code>#a1a1aa</code></span></td>
+                </tr>
+                <tr>
+                    <td>Container border</td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #e5e7eb"></span> <code>#e5e7eb</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #e4e4e7"></span> <code>#e4e4e7</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #3f3f46"></span> <code>#3f3f46</code></span></td>
+                </tr>
+                <tr>
+                    <td>Row hover</td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #f9fafb"></span> <code>#f9fafb</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #fafafa"></span> <code>#fafafa</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #2d2d30"></span> <code>#2d2d30</code></span></td>
+                </tr>
+                <tr>
+                    <td>Table header bg</td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #f3f4f6"></span> <code>#f3f4f6</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #f4f4f5"></span> <code>#f4f4f5</code></span></td>
+                    <td><span class="color-swatch"><span class="swatch" style="background: #1f1f22"></span> <code>#1f1f22</code></span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="benefit">
+            <h3>Why Zinc?</h3>
+            <p>The zinc palette shares the same color family as our dark mode. Values like <code>#71717a</code> appear in both themes, creating a cohesive "family" feel. Gray and zinc are visually similar but using one consistent palette across both themes ensures perfect harmony when switching.</p>
+        </div>
+    </div>
+</body>
+</html>

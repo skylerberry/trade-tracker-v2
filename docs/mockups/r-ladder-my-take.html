@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>R-target ladder — design take (independent)</title>
+<style>
+  /* Trade Tracker flat tokens — not a restyle of existing ladder mockups */
+  :root {
+    --canvas: #f2f2f2;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-3: #f3f4f6;
+    --ink: #1a1a1c;
+    --ink-2: #374151;
+    --muted: #6b7280;
+    --faint: #9ca3af;
+    --border: #e5e7eb;
+    --border-2: #d1d5db;
+    --navy: #1a365d;
+    --navy-hover: #162e4f;
+    --blue: #3b82f6;
+    --green: #2d6a4f;
+    --green-soft: #d8f3e0;
+    --green-ink: #166534;
+    --red: #9b2226;
+    --red-soft: #fee2e2;
+    --amber-soft: #fef3c7;
+    --radius: 12px;
+    --radius-lg: 16px;
+    --font: "Inter", "SF Pro Text", -apple-system, system-ui, sans-serif;
+    --mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  [data-theme="dark"] {
+    --canvas: #18181b;
+    --surface: #1f1f22;
+    --surface-2: #27272a;
+    --surface-3: #2e2e32;
+    --ink: #f4f4f5;
+    --ink-2: #d4d4d8;
+    --muted: #a1a1aa;
+    --faint: #71717a;
+    --border: #3f3f46;
+    --border-2: #52525b;
+    --navy: #3b82f6;
+    --navy-hover: #2563eb;
+    --green: #4ade80;
+    --green-soft: rgba(34, 197, 94, 0.14);
+    --green-ink: #86efac;
+    --red: #f87171;
+    --red-soft: rgba(239, 68, 68, 0.14);
+    --amber-soft: rgba(251, 191, 36, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 14px/1.45 var(--font);
+    color: var(--ink);
+    background: var(--canvas);
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  header.page-h {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    align-items: flex-start; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  header.page-h h1 {
+    margin: 0 0 6px;
+    font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
+  }
+  header.page-h p {
+    margin: 0; max-width: 52ch; color: var(--muted); font-size: 13.5px;
+  }
+  .theme-toggle {
+    border: 1px solid var(--border-2);
+    background: var(--surface);
+    color: var(--ink-2);
+    border-radius: 999px;
+    height: 36px; padding: 0 14px;
+    font: 500 13px var(--font);
+    cursor: pointer;
+  }
+  .theme-toggle:hover { background: var(--surface-3); }
+
+  .thesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 28px;
+  }
+  .thesis h2 {
+    margin: 0 0 8px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  }
+  .thesis ul { margin: 0; padding-left: 1.15em; color: var(--ink-2); }
+  .thesis li { margin: 4px 0; }
+  .thesis strong { color: var(--ink); font-weight: 600; }
+
+  .scenario {
+    display: flex; flex-wrap: wrap; gap: 10px 18px;
+    align-items: center;
+    margin-bottom: 22px;
+    font-size: 13px; color: var(--muted);
+  }
+  .scenario b { color: var(--ink); font-weight: 600; }
+  .scenario code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--surface-3); border: 1px solid var(--border);
+    border-radius: 6px; padding: 2px 7px; color: var(--ink-2);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  @media (min-width: 900px) {
+    .grid.two { grid-template-columns: 1fr 1fr; }
+  }
+
+  .candidate {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .candidate-meta {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .candidate-meta .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .candidate-meta h3 {
+    margin: 0 0 4px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
+  }
+  .candidate-meta p {
+    margin: 0; font-size: 13px; color: var(--muted); max-width: 62ch;
+  }
+  .stage {
+    padding: 18px;
+    flex: 1;
+  }
+  .stage-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--faint);
+    margin: 0 0 10px;
+  }
+  .stage + .stage { border-top: 1px dashed var(--border); padding-top: 16px; margin-top: 4px; }
+  .verdict {
+    padding: 12px 18px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--ink-2);
+    background: var(--surface-2);
+  }
+  .verdict b { color: var(--ink); }
+
+  /* Shared freeroll plan chrome (context for all ladders) */
+  .plan-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    padding: 12px 12px 10px;
+  }
+  .plan-head {
+    display: flex; flex-wrap: wrap; align-items: center;
+    justify-content: space-between; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .plan-head .title {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .seg {
+    display: inline-flex; padding: 3px;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 999px; gap: 2px;
+  }
+  .seg button {
+    border: 0; background: transparent; color: var(--muted);
+    font: 500 12px var(--font);
+    height: 28px; padding: 0 10px; border-radius: 999px;
+    cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border-2);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+  }
+  .sentence {
+    font-size: 13px; color: var(--ink-2);
+    margin: 0 0 12px; line-height: 1.4;
+  }
+  .sentence .lock {
+    color: var(--green-ink); font-weight: 600;
+  }
+  .sentence .zero {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: var(--green-ink); font-weight: 600;
+  }
+  .shield {
+    display: inline-block; width: 14px; height: 14px;
+    vertical-align: -2px;
+  }
+  .shield svg { width: 14px; height: 14px; display: block; }
+
+  /* ========== A. Rung rail ========== */
+  .rung-rail {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+  .rung {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px;
+    padding: 10px 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    cursor: pointer;
+    text-align: center;
+    transition: background 160ms, border-color 160ms;
+    min-width: 0;
+  }
+  .rung:hover { background: var(--surface-3); border-color: var(--border-2); }
+  .rung:focus-visible {
+    outline: 2px solid var(--ink); outline-offset: 2px;
+  }
+  .rung .r {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .rung .px {
+    font-family: var(--mono); font-size: 12.5px; font-weight: 500;
+    color: var(--ink); letter-spacing: -0.02em;
+  }
+  .rung .hint {
+    font-size: 10px; color: var(--faint); line-height: 1.2;
+    min-height: 1.2em;
+  }
+  .rung.is-plan {
+    border-color: var(--green);
+    background: var(--green-soft);
+  }
+  .rung.is-plan .r { color: var(--green-ink); }
+  .rung.is-plan .px { color: var(--green-ink); }
+  .rung.is-plan .hint { color: var(--green-ink); font-weight: 500; }
+  .rung .plan-mark {
+    position: absolute; top: -7px; right: 6px;
+    width: 16px; height: 16px; border-radius: 999px;
+    background: var(--green); color: #fff;
+    display: grid; place-items: center;
+  }
+  .rung .plan-mark svg { width: 10px; height: 10px; }
+  .rung-rail-note {
+    margin: 8px 0 0;
+    font-size: 11.5px; color: var(--faint);
+  }
+
+  /* ========== B. Path strip (entry → freeroll → runner) ========== */
+  .path {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 12px 12px 10px;
+  }
+  .path-track {
+    position: relative;
+    display: grid;
+    grid-template-columns: 52px 1fr 1fr 1fr 1fr 1fr;
+    gap: 0;
+    align-items: end;
+    padding: 0 4px 4px;
+  }
+  .path-line {
+    position: absolute;
+    left: 26px; right: 26px; top: 11px;
+    height: 2px; background: var(--border-2);
+    z-index: 0;
+  }
+  .path-line .fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 20%; /* entry → 1R */
+    background: var(--green);
+    border-radius: 2px;
+  }
+  .node {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px; min-width: 0;
+  }
+  .node button {
+    width: 100%;
+    border: 0; background: transparent; cursor: pointer;
+    padding: 0; display: flex; flex-direction: column;
+    align-items: center; gap: 5px;
+    color: inherit; font: inherit;
+  }
+  .node button:focus-visible .dot {
+    outline: 2px solid var(--ink); outline-offset: 3px;
+  }
+  .dot {
+    width: 12px; height: 12px; border-radius: 999px;
+    background: var(--surface);
+    border: 2px solid var(--border-2);
+    box-sizing: border-box;
+  }
+  .node.is-entry .dot {
+    width: 14px; height: 14px;
+    border-color: var(--navy);
+    background: var(--navy);
+  }
+  .node.is-plan .dot {
+    width: 14px; height: 14px;
+    border-color: var(--green);
+    background: var(--green);
+    box-shadow: 0 0 0 3px var(--green-soft);
+  }
+  .node .lab {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--faint);
+  }
+  .node .px {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+    color: var(--ink-2); white-space: nowrap;
+  }
+  .node.is-entry .lab, .node.is-entry .px { color: var(--navy); }
+  .node.is-plan .lab, .node.is-plan .px { color: var(--green-ink); }
+  .path-caption {
+    margin-top: 10px;
+    display: flex; flex-wrap: wrap; gap: 8px 14px;
+    font-size: 12px; color: var(--muted);
+  }
+  .path-caption span b { color: var(--ink); font-weight: 600; }
+  .path-caption .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--green-soft); color: var(--green-ink);
+    border-radius: 999px; padding: 2px 8px; font-weight: 500;
+  }
+
+  /* ========== C. Alert strip (wireframe-faithful, refined) ========== */
+  .alert-strip {
+    display: flex; flex-wrap: wrap; align-items: baseline;
+    gap: 2px 0;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .alert-strip .pair {
+    display: inline-flex; align-items: baseline; gap: 5px;
+    border: 0; background: transparent;
+    padding: 3px 6px; margin: 0 1px;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit; color: inherit;
+  }
+  .alert-strip .pair:hover {
+    background: var(--surface-3);
+    color: var(--ink);
+  }
+  .alert-strip .pair:focus-visible {
+    outline: 2px solid var(--ink); outline-offset: 1px;
+  }
+  .alert-strip .pair .r {
+    font-weight: 600; font-size: 11px; letter-spacing: 0.03em;
+    color: var(--faint);
+  }
+  .alert-strip .pair .px {
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink-2);
+  }
+  .alert-strip .pair.is-plan {
+    background: var(--green-soft);
+  }
+  .alert-strip .pair.is-plan .r,
+  .alert-strip .pair.is-plan .px { color: var(--green-ink); }
+  .alert-strip .dot-sep {
+    color: var(--border-2); user-select: none; padding: 0 1px;
+  }
+
+  /* ========== D. Trim modal R keys (companion surface) ========== */
+  .trim-mock {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 14px;
+    max-width: 360px;
+  }
+  .trim-mock label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .trim-input {
+    width: 100%; height: 40px;
+    border: 1px solid var(--border-2);
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--ink);
+    font: 500 15px var(--mono);
+    padding: 0 12px;
+  }
+  .r-keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .r-key {
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 8px 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 160ms, border-color 160ms;
+  }
+  .r-key:hover { background: var(--surface-3); border-color: var(--border-2); }
+  .r-key[aria-pressed="true"] {
+    border-color: var(--navy);
+    background: color-mix(in srgb, var(--navy) 10%, var(--surface));
+  }
+  .r-key .r {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--muted); letter-spacing: 0.03em;
+  }
+  .r-key .px {
+    display: block; margin-top: 2px;
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    color: var(--ink);
+  }
+  .r-key .sh {
+    display: block; margin-top: 4px;
+    font-size: 10.5px; color: var(--green-ink); font-weight: 500;
+  }
+  .r-key:not([aria-pressed="true"]) .sh { color: var(--faint); }
+  .trim-note {
+    margin: 10px 0 0;
+    font-size: 12px; color: var(--muted);
+  }
+  .trim-note b { color: var(--green-ink); }
+
+  /* Toast for copy */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border-2);
+    border-left: 3px solid var(--navy);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    opacity: 0; pointer-events: none;
+    transition: opacity 180ms, transform 180ms;
+    z-index: 50;
+  }
+  .toast.show {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+  }
+
+  .rec {
+    margin-top: 28px;
+    padding: 18px 20px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .rec h2 {
+    margin: 0 0 8px; font-size: 15px; font-weight: 600;
+  }
+  .rec p { margin: 0 0 8px; color: var(--ink-2); font-size: 13.5px; max-width: 70ch; }
+  .rec p:last-child { margin-bottom: 0; }
+  .rec ol { margin: 8px 0 0; padding-left: 1.2em; color: var(--ink-2); }
+  .rec li { margin: 4px 0; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="page-h">
+      <div>
+        <h1>R-target ladder — independent design take</h1>
+        <p>
+          Built from the wireframe freeroll contract only (plan presets + action
+          sentence + 1R–5R copy line; trim modal R keys). No reference to other
+          ladder mockups in this repo.
+        </p>
+      </div>
+      <button type="button" class="theme-toggle" id="themeBtn">Toggle dark</button>
+    </header>
+
+    <section class="thesis">
+      <h2>Thesis</h2>
+      <ul>
+        <li><strong>Two jobs, two surfaces.</strong> Calculator ladder = read + copy for chart alerts. Trim modal R keys = write (set price + freeroll share size). Don’t force one control to do both.</li>
+        <li><strong>The freeroll knot is the hero, not every rung.</strong> Spec already gives the action sentence. The ladder only needs to make the plan R obvious and the other prices scannable.</li>
+        <li><strong>Click never mutates calculator inputs.</strong> Copy only. Visual feedback = toast, not a selected field state that looks like a form value.</li>
+        <li><strong>Density over drama.</strong> Market-hours UI. Equal-weight rungs beat proportional “price geometry” that shifts every trade.</li>
+        <li><strong>Shorts:</strong> same layout, descending prices, cover language lives in the sentence — ladder stays R-labeled, not direction-labeled.</li>
+      </ul>
+    </section>
+
+    <div class="scenario">
+      <span>Sample long · <b>NVDA</b></span>
+      <code>entry 100.00</code>
+      <code>stop 99.00</code>
+      <code>R = $1.00</code>
+      <code>1,000 sh</code>
+      <span>Plan: <b>½ @ 1R</b></span>
+    </div>
+
+    <div class="grid">
+      <!-- ========== A ========== -->
+      <article class="candidate">
+        <div class="candidate-meta">
+          <div class="tag">A · Recommended</div>
+          <h3>Rung rail</h3>
+          <p>
+            Five equal cells. Quiet by default; plan rung gets the only color.
+            Sub-hint shows the freeroll action at that R only. Click any price to copy.
+          </p>
+        </div>
+        <div class="stage">
+          <p class="stage-label">Inside freeroll plan card</p>
+          <div class="plan-card">
+            <div class="plan-head">
+              <span class="title">Freeroll plan</span>
+              <div class="seg" role="group" aria-label="Plan preset">
+                <button type="button" aria-pressed="true">½ @ 1R</button>
+                <button type="button" aria-pressed="false">⅓ @ 2R</button>
+                <button type="button" aria-pressed="false">Back-fill</button>
+                <button type="button" aria-pressed="false">Off</button>
+              </div>
+            </div>
+            <p class="sentence">
+              → Sell 500 shs (½) @ $101.00 → lock <span class="lock">+$500.00</span>,
+              risk → <span class="zero">$0 <span class="shield" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span></span>
+            </p>
+            <div class="rung-rail" role="list" aria-label="R prices, click to copy">
+              <button type="button" class="rung is-plan" data-copy="101.00" role="listitem">
+                <span class="plan-mark" title="Plan freeroll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"/></svg></span>
+                <span class="r">1R</span>
+                <span class="px">101.00</span>
+                <span class="hint">sell ½</span>
+              </button>
+              <button type="button" class="rung" data-copy="102.00" role="listitem">
+                <span class="r">2R</span>
+                <span class="px">102.00</span>
+                <span class="hint"></span>
+              </button>
+              <button type="button" class="rung" data-copy="103.00" role="listitem">
+                <span class="r">3R</span>
+                <span class="px">103.00</span>
+                <span class="hint"></span>
+              </button>
+              <button type="button" class="rung" data-copy="104.00" role="listitem">
+                <span class="r">4R</span>
+                <span class="px">104.00</span>
+                <span class="hint"></span>
+              </button>
+              <button type="button" class="rung" data-copy="105.00" role="listitem">
+                <span class="r">5R</span>
+                <span class="px">105.00</span>
+                <span class="hint"></span>
+              </button>
+            </div>
+            <p class="rung-rail-note">Click a price to copy · does not change calculator fields</p>
+          </div>
+        </div>
+        <div class="verdict">
+          <b>Why this wins:</b> hits every binding requirement, stays scannable on a phone,
+          and makes “where freeroll lives” obvious without turning the plan card into a chart.
+          4R is present (wireframe includes it; trim modal can still omit 4R for density).
+        </div>
+      </article>
+
+      <!-- ========== B ========== -->
+      <article class="candidate">
+        <div class="candidate-meta">
+          <div class="tag">B · Narrative</div>
+          <h3>Path strip</h3>
+          <p>
+            Entry + 1R–5R as a single flight path. Green segment entry → plan R.
+            Better storytelling, worse density and mobile wrap.
+          </p>
+        </div>
+        <div class="stage">
+          <p class="stage-label">Inside freeroll plan card</p>
+          <div class="plan-card">
+            <div class="plan-head">
+              <span class="title">Freeroll plan</span>
+              <div class="seg" role="group">
+                <button type="button" aria-pressed="true">½ @ 1R</button>
+                <button type="button" aria-pressed="false">⅓ @ 2R</button>
+                <button type="button" aria-pressed="false">Back-fill</button>
+                <button type="button" aria-pressed="false">Off</button>
+              </div>
+            </div>
+            <p class="sentence">
+              → Sell 500 shs (½) @ $101.00 → lock <span class="lock">+$500.00</span>,
+              risk → <span class="zero">$0</span>
+            </p>
+            <div class="path">
+              <div class="path-track">
+                <div class="path-line" aria-hidden="true"><div class="fill"></div></div>
+                <div class="node is-entry">
+                  <button type="button" data-copy="100.00" title="Copy entry">
+                    <span class="dot"></span>
+                    <span class="lab">Entry</span>
+                    <span class="px">100.00</span>
+                  </button>
+                </div>
+                <div class="node is-plan">
+                  <button type="button" data-copy="101.00" title="Copy 1R">
+                    <span class="dot"></span>
+                    <span class="lab">1R</span>
+                    <span class="px">101.00</span>
+                  </button>
+                </div>
+                <div class="node">
+                  <button type="button" data-copy="102.00"><span class="dot"></span><span class="lab">2R</span><span class="px">102.00</span></button>
+                </div>
+                <div class="node">
+                  <button type="button" data-copy="103.00"><span class="dot"></span><span class="lab">3R</span><span class="px">103.00</span></button>
+                </div>
+                <div class="node">
+                  <button type="button" data-copy="104.00"><span class="dot"></span><span class="lab">4R</span><span class="px">104.00</span></button>
+                </div>
+                <div class="node">
+                  <button type="button" data-copy="105.00"><span class="dot"></span><span class="lab">5R</span><span class="px">105.00</span></button>
+                </div>
+              </div>
+              <div class="path-caption">
+                <span class="pill">½ trim @ 1R → freeroll</span>
+                <span>Runner beyond · <b>manual</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="verdict">
+          <b>Tradeoff:</b> beautiful when ⅓ @ 2R (fill extends to 2R), but six columns
+          crush on narrow calc columns and invites “is this a chart?”. Prefer as a
+          marketing/onboarding diagram, not the daily control.
+        </div>
+      </article>
+
+      <!-- ========== C ========== -->
+      <article class="candidate">
+        <div class="candidate-meta">
+          <div class="tag">C · Minimal</div>
+          <h3>Alert strip</h3>
+          <p>
+            Wireframe literal: one quiet line of R · price pairs. Plan R is the only
+            tinted pair. Maximum calm; weakest “target” affordance.
+          </p>
+        </div>
+        <div class="stage">
+          <p class="stage-label">Inside freeroll plan card</p>
+          <div class="plan-card">
+            <div class="plan-head">
+              <span class="title">Freeroll plan</span>
+              <div class="seg" role="group">
+                <button type="button" aria-pressed="true">½ @ 1R</button>
+                <button type="button" aria-pressed="false">⅓ @ 2R</button>
+                <button type="button" aria-pressed="false">Back-fill</button>
+                <button type="button" aria-pressed="false">Off</button>
+              </div>
+            </div>
+            <p class="sentence">
+              → Sell 500 shs (½) @ $101.00 → lock <span class="lock">+$500.00</span>,
+              risk → <span class="zero">$0</span>
+            </p>
+            <div class="alert-strip" aria-label="R prices, click to copy">
+              <button type="button" class="pair is-plan" data-copy="101.00"><span class="r">1R</span><span class="px">101.00</span></button>
+              <span class="dot-sep" aria-hidden="true">·</span>
+              <button type="button" class="pair" data-copy="102.00"><span class="r">2R</span><span class="px">102.00</span></button>
+              <span class="dot-sep" aria-hidden="true">·</span>
+              <button type="button" class="pair" data-copy="103.00"><span class="r">3R</span><span class="px">103.00</span></button>
+              <span class="dot-sep" aria-hidden="true">·</span>
+              <button type="button" class="pair" data-copy="104.00"><span class="r">4R</span><span class="px">104.00</span></button>
+              <span class="dot-sep" aria-hidden="true">·</span>
+              <button type="button" class="pair" data-copy="105.00"><span class="r">5R</span><span class="px">105.00</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="verdict">
+          <b>When to use:</b> if the plan sentence already carries 95% of the cognitive load
+          and you want zero card height growth. Copy targets are small hit areas —
+          fine for desktop, weaker for touch.
+        </div>
+      </article>
+
+      <!-- ========== D companion ========== -->
+      <article class="candidate">
+        <div class="candidate-meta">
+          <div class="tag">D · Companion (required)</div>
+          <h3>Trim modal · R keys</h3>
+          <p>
+            Different component, same R math. These <em>write</em> exit price.
+            With Risk Manager on, each key also shows the freeroll share count.
+            Drop 4R here — wireframe omits it for a clean 4-up grid.
+          </p>
+        </div>
+        <div class="stage">
+          <p class="stage-label">Trim / Exit modal excerpt</p>
+          <div class="trim-mock">
+            <label for="exitPx">Exit price</label>
+            <input class="trim-input" id="exitPx" value="101.00" readonly />
+            <div class="r-keys" role="group" aria-label="R price shortcuts">
+              <button type="button" class="r-key" aria-pressed="true" data-fill="101.00" data-sh="500">
+                <span class="r">1R</span>
+                <span class="px">101.00</span>
+                <span class="sh">500 sh · $0 risk</span>
+              </button>
+              <button type="button" class="r-key" aria-pressed="false" data-fill="102.00" data-sh="334">
+                <span class="r">2R</span>
+                <span class="px">102.00</span>
+                <span class="sh">334 sh · $0 risk</span>
+              </button>
+              <button type="button" class="r-key" aria-pressed="false" data-fill="103.00" data-sh="250">
+                <span class="r">3R</span>
+                <span class="px">103.00</span>
+                <span class="sh">250 sh · $0 risk</span>
+              </button>
+              <button type="button" class="r-key" aria-pressed="false" data-fill="105.00" data-sh="167">
+                <span class="r">5R</span>
+                <span class="px">105.00</span>
+                <span class="sh">167 sh · $0 risk</span>
+              </button>
+            </div>
+            <p class="trim-note">
+              Risk Manager on · <b>½ / ⅓ / ¼ / ⅙</b> freeroll sizes (rounded up to whole shares)
+            </p>
+          </div>
+        </div>
+        <div class="verdict">
+          <b>Do not reuse the calculator rail here.</b> Modal keys need pressed state +
+          share outcome on the face of the button. Calculator rungs must stay non-selecting.
+        </div>
+      </article>
+    </div>
+
+    <section class="rec">
+      <h2>Ship recommendation</h2>
+      <p>
+        Calculator: <b>A · Rung rail</b>. Sentence stays the narrative; rail is the
+        alert clipboard. Plan rung only uses success green (same family as freeroll
+        shield). Everything else is gray steps.
+      </p>
+      <p>
+        Trim/Exit: keep a dedicated <b>R-key grid</b> (D). Optional micro-upgrade:
+        show freeroll share count under each key when Risk Manager is on — turns
+        “pick a price” into “pick a freeroll size” without an extra sentence.
+      </p>
+      <p>States to wire when implementing A:</p>
+      <ol>
+        <li><b>half-1r / third-2r</b> — mark that R with shield + hint (<code>sell ½</code> / <code>sell ⅓</code>)</li>
+        <li><b>backfill</b> — mark 1R with hint <code>stop → BE</code>, no sell fraction</li>
+        <li><b>off</b> — no plan mark; all five rungs equal quiet</li>
+        <li><b>option mode</b> — same rail, title already “Underlying R map”; no sell hints</li>
+        <li><b>short</b> — descending prices; hints still “cover ½” language if you want direction-aware copy</li>
+        <li><b>invalid calc</b> — hide rail or show em-dashes; never invent R prices</li>
+      </ol>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const root = document.documentElement;
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    });
+
+    const toast = document.getElementById('toast');
+    let tTimer;
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(tTimer);
+      tTimer = setTimeout(() => toast.classList.remove('show'), 1600);
+    }
+
+    document.querySelectorAll('[data-copy]').forEach(el => {
+      el.addEventListener('click', () => {
+        const v = el.getAttribute('data-copy');
+        if (navigator.clipboard?.writeText) navigator.clipboard.writeText(v).catch(() => {});
+        showToast(`Copied ${v}`);
+      });
+    });
+
+    // Segmented demo toggles (visual only)
+    document.querySelectorAll('.seg').forEach(seg => {
+      seg.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+      });
+    });
+
+    // Trim R keys fill demo
+    const exitPx = document.getElementById('exitPx');
+    document.querySelectorAll('.r-key').forEach(key => {
+      key.addEventListener('click', () => {
+        document.querySelectorAll('.r-key').forEach(k => k.setAttribute('aria-pressed', 'false'));
+        key.setAttribute('aria-pressed', 'true');
+        exitPx.value = key.getAttribute('data-fill');
+        showToast(`Exit ${key.getAttribute('data-fill')} · freeroll ${key.getAttribute('data-sh')} sh`);
+      });
+    });
+  </script>
+</body>
+</html>

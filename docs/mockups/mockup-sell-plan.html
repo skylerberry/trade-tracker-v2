@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Plan Feature Mockup</title>
+    <style>
+        :root {
+            --color-primary: #1a365d;
+            --color-primary-light: #dbeafe;
+            --color-success: #22c55e;
+            --color-success-light: #dcfce7;
+            --color-gray-50: #fafafa;
+            --color-gray-100: #f4f4f5;
+            --color-gray-200: #e4e4e7;
+            --color-gray-300: #d4d4d8;
+            --color-gray-400: #a1a1aa;
+            --color-gray-500: #71717a;
+            --color-gray-600: #52525b;
+            --color-gray-700: #3f3f46;
+            --color-gray-800: #27272a;
+            --color-gray-900: #18181b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f5;
+            padding: 40px;
+            color: var(--color-gray-800);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--color-gray-700);
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            color: var(--color-gray-500);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .mockup-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .mockup-label {
+            background: var(--color-primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        /* ===== OPTION A: Calculator Sell Plan Preview ===== */
+        .calc-sell-plan {
+            background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+        }
+
+        .sell-plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .sell-plan-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .sell-plan-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .sell-plan-toggle input {
+            accent-color: #3b82f6;
+        }
+
+        .sell-plan-targets {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .spt-row {
+            display: grid;
+            grid-template-columns: 50px 70px 1fr auto;
+            gap: 12px;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+
+        .spt-r-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .spt-action {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .spt-details {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .spt-profit {
+            font-weight: 600;
+            color: #4ade80;
+            font-size: 0.9rem;
+        }
+
+        .sell-plan-summary {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .sps-remaining {
+            opacity: 0.8;
+        }
+
+        .sps-total {
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        /* ===== OPTION B: Trade Details Modal - Sell Plan Progress ===== */
+        .trade-modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 500px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ticker-badge {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        /* Position Overview */
+        .position-overview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .po-stat {
+            text-align: center;
+            padding: 12px;
+            background: var(--color-gray-50);
+            border-radius: 8px;
+        }
+
+        .po-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .po-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+        }
+
+        .po-value.sold {
+            color: var(--color-success);
+        }
+
+        .po-value.remaining {
+            color: var(--color-primary);
+        }
+
+        /* Progress Bar */
+        .position-progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--color-gray-200);
+            display: flex;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .ppb-sold {
+            background: var(--color-success);
+            transition: width 0.3s ease;
+        }
+
+        .ppb-remaining {
+            background: var(--color-primary-light);
+        }
+
+        /* R-Level Progress Items */
+        .sell-plan-progress {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .spp-target {
+            display: grid;
+            grid-template-columns: 32px 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .spp-target.completed {
+            background: var(--color-success-light);
+        }
+
+        .spp-target.next {
+            background: var(--color-primary-light);
+            border: 2px solid var(--color-primary);
+        }
+
+        .spp-target.pending {
+            background: var(--color-gray-100);
+            opacity: 0.6;
+        }
+
+        .spp-status-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .spp-target.completed .spp-status-icon {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .spp-target.next .spp-status-icon {
+            background: var(--color-primary);
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .spp-target.pending .spp-status-icon {
+            background: var(--color-gray-300);
+            color: var(--color-gray-500);
+            font-size: 0.7rem;
+        }
+
+        .spp-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .spp-level {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--color-gray-800);
+        }
+
+        .spp-action {
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+
+        .spp-result {
+            text-align: right;
+        }
+
+        .spp-profit {
+            font-weight: 600;
+            color: var(--color-success);
+            display: block;
+        }
+
+        .spp-date {
+            font-size: 0.75rem;
+            color: var(--color-gray-400);
+        }
+
+        .btn-quick-sell {
+            padding: 8px 16px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-quick-sell:hover {
+            background: #2d4a7c;
+        }
+
+        /* ===== OPTION C: Table Row Indicator ===== */
+        .table-demo {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-demo th,
+        .table-demo td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .table-demo th {
+            background: var(--color-gray-50);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+        }
+
+        .table-demo td {
+            font-size: 0.9rem;
+        }
+
+        .ticker-cell {
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .sell-progress-dots {
+            display: flex;
+            gap: 4px;
+            margin-left: 8px;
+        }
+
+        .sp-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-gray-300);
+        }
+
+        .sp-dot.completed {
+            background: var(--color-success);
+        }
+
+        .sp-dot.next {
+            background: var(--color-primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-cell {
+            display: flex;
+            align-items: center;
+        }
+
+        /* ===== Quick Sell Modal ===== */
+        .quick-sell-modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .qs-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .qs-header h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .qs-header h3 span {
+            color: var(--color-primary);
+        }
+
+        .qs-ticker {
+            font-size: 0.9rem;
+            color: var(--color-gray-500);
+        }
+
+        .qs-body {
+            padding: 24px;
+        }
+
+        .qs-row {
+            margin-bottom: 20px;
+        }
+
+        .qs-row label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-gray-600);
+            margin-bottom: 8px;
+        }
+
+        .qs-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qs-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .qs-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.15);
+        }
+
+        .qs-hint {
+            font-size: 0.8rem;
+            color: var(--color-gray-400);
+        }
+
+        .qs-presets {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .qs-preset {
+            padding: 6px 12px;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 6px;
+            background: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .qs-preset:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .qs-preset.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .qs-profit-preview {
+            background: var(--color-success-light);
+            padding: 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .qs-profit-label {
+            font-size: 0.85rem;
+            color: var(--color-gray-600);
+        }
+
+        .qs-profit-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-success);
+        }
+
+        .qs-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--color-gray-300);
+            color: var(--color-gray-600);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-gray-50);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2d4a7c;
+        }
+
+        /* Layout helpers */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Sell Plan Feature Mockup</h1>
+
+    <!-- SECTION 1: Calculator Preview -->
+    <div class="mockup-section">
+        <span class="mockup-label">CALCULATOR - SELL PLAN PREVIEW</span>
+        <h2>Shows below R-levels bar when position is calculated</h2>
+
+        <div class="calc-sell-plan">
+            <div class="sell-plan-header">
+                <span class="sell-plan-title">Sell Plan</span>
+                <label class="sell-plan-toggle">
+                    <input type="checkbox" checked>
+                    <span>Include with trade</span>
+                </label>
+            </div>
+
+            <div class="sell-plan-targets">
+                <div class="spt-row">
+                    <span class="spt-r-badge">1R</span>
+                    <span class="spt-action">Sell 1/2</span>
+                    <span class="spt-details">75 shares @ $105.00</span>
+                    <span class="spt-profit">+$375</span>
+                </div>
+                <div class="spt-row">
+                    <span class="spt-r-badge">2R</span>
+                    <span class="spt-action">Sell 1/3</span>
+                    <span class="spt-details">25 shares @ $110.00</span>
+                    <span class="spt-profit">+$250</span>
+                </div>
+                <div class="spt-row">
+                    <span class="spt-r-badge">3R</span>
+                    <span class="spt-action">Sell 1/4</span>
+                    <span class="spt-details">12 shares @ $115.00</span>
+                    <span class="spt-profit">+$180</span>
+                </div>
+                <div class="spt-row">
+                    <span class="spt-r-badge">4R</span>
+                    <span class="spt-action">Sell 1/5</span>
+                    <span class="spt-details">7 shares @ $120.00</span>
+                    <span class="spt-profit">+$140</span>
+                </div>
+            </div>
+
+            <div class="sell-plan-summary">
+                <span class="sps-remaining">31 shares remaining (runner)</span>
+                <span class="sps-total">Total if all hit: +$945</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: Trade Details Modal -->
+    <div class="mockup-section">
+        <span class="mockup-label">TRADE DETAILS MODAL - SELL PLAN PROGRESS</span>
+        <h2>Shows position progress and quick-sell actions</h2>
+
+        <div class="two-col">
+            <!-- Example: Partially executed -->
+            <div class="trade-modal">
+                <div class="modal-header">
+                    <h3>
+                        <span class="ticker-badge">AAPL</span>
+                        <span class="status-badge">Partially Closed</span>
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <div class="section-title">Position Progress</div>
+
+                    <div class="position-overview">
+                        <div class="po-stat">
+                            <span class="po-label">Initial</span>
+                            <span class="po-value">150</span>
+                        </div>
+                        <div class="po-stat">
+                            <span class="po-label">Sold</span>
+                            <span class="po-value sold">75</span>
+                        </div>
+                        <div class="po-stat">
+                            <span class="po-label">Remaining</span>
+                            <span class="po-value remaining">75</span>
+                        </div>
+                    </div>
+
+                    <div class="position-progress-bar">
+                        <div class="ppb-sold" style="width: 50%"></div>
+                        <div class="ppb-remaining" style="width: 50%"></div>
+                    </div>
+
+                    <div class="sell-plan-progress">
+                        <div class="spp-target completed">
+                            <div class="spp-status-icon">✓</div>
+                            <div class="spp-info">
+                                <span class="spp-level">1R @ $105.00</span>
+                                <span class="spp-action">Sold 75 shares (1/2)</span>
+                            </div>
+                            <div class="spp-result">
+                                <span class="spp-profit">+$375</span>
+                                <span class="spp-date">Jan 15</span>
+                            </div>
+                        </div>
+
+                        <div class="spp-target next">
+                            <div class="spp-status-icon">2</div>
+                            <div class="spp-info">
+                                <span class="spp-level">2R @ $110.00</span>
+                                <span class="spp-action">Sell 25 shares (1/3)</span>
+                            </div>
+                            <button class="btn-quick-sell">Log Sale</button>
+                        </div>
+
+                        <div class="spp-target pending">
+                            <div class="spp-status-icon">3</div>
+                            <div class="spp-info">
+                                <span class="spp-level">3R @ $115.00</span>
+                                <span class="spp-action">Sell 9 shares (1/4)</span>
+                            </div>
+                        </div>
+
+                        <div class="spp-target pending">
+                            <div class="spp-status-icon">4</div>
+                            <div class="spp-info">
+                                <span class="spp-level">4R @ $120.00</span>
+                                <span class="spp-action">Sell 8 shares (1/5)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example: Fresh trade -->
+            <div class="trade-modal">
+                <div class="modal-header">
+                    <h3>
+                        <span class="ticker-badge">NVDA</span>
+                        <span class="status-badge" style="background: #dbeafe; color: #1e40af;">Open</span>
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <div class="section-title">Position Progress</div>
+
+                    <div class="position-overview">
+                        <div class="po-stat">
+                            <span class="po-label">Initial</span>
+                            <span class="po-value">200</span>
+                        </div>
+                        <div class="po-stat">
+                            <span class="po-label">Sold</span>
+                            <span class="po-value sold">0</span>
+                        </div>
+                        <div class="po-stat">
+                            <span class="po-label">Remaining</span>
+                            <span class="po-value remaining">200</span>
+                        </div>
+                    </div>
+
+                    <div class="position-progress-bar">
+                        <div class="ppb-sold" style="width: 0%"></div>
+                        <div class="ppb-remaining" style="width: 100%"></div>
+                    </div>
+
+                    <div class="sell-plan-progress">
+                        <div class="spp-target next">
+                            <div class="spp-status-icon">1</div>
+                            <div class="spp-info">
+                                <span class="spp-level">1R @ $142.50</span>
+                                <span class="spp-action">Sell 100 shares (1/2)</span>
+                            </div>
+                            <button class="btn-quick-sell">Log Sale</button>
+                        </div>
+
+                        <div class="spp-target pending">
+                            <div class="spp-status-icon">2</div>
+                            <div class="spp-info">
+                                <span class="spp-level">2R @ $147.50</span>
+                                <span class="spp-action">Sell 33 shares (1/3)</span>
+                            </div>
+                        </div>
+
+                        <div class="spp-target pending">
+                            <div class="spp-status-icon">3</div>
+                            <div class="spp-info">
+                                <span class="spp-level">3R @ $152.50</span>
+                                <span class="spp-action">Sell 17 shares (1/4)</span>
+                            </div>
+                        </div>
+
+                        <div class="spp-target pending">
+                            <div class="spp-status-icon">4</div>
+                            <div class="spp-info">
+                                <span class="spp-level">4R @ $157.50</span>
+                                <span class="spp-action">Sell 10 shares (1/5)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: Table Row Indicator -->
+    <div class="mockup-section">
+        <span class="mockup-label">TRADES TABLE - PROGRESS INDICATOR</span>
+        <h2>Small visual indicator showing sell plan progress in table</h2>
+
+        <table class="table-demo">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Entry</th>
+                    <th>Stop Loss</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="ticker-cell">AAPL</td>
+                    <td>$100.00</td>
+                    <td>$95.00</td>
+                    <td class="status-cell">
+                        <span class="status-badge" style="background: #fef3c7; color: #92400e;">Partial</span>
+                        <div class="sell-progress-dots" title="1/4 R-levels hit">
+                            <span class="sp-dot completed"></span>
+                            <span class="sp-dot next"></span>
+                            <span class="sp-dot"></span>
+                            <span class="sp-dot"></span>
+                        </div>
+                    </td>
+                    <td>View | Edit | Delete</td>
+                </tr>
+                <tr>
+                    <td class="ticker-cell">NVDA</td>
+                    <td>$137.50</td>
+                    <td>$132.50</td>
+                    <td class="status-cell">
+                        <span class="status-badge" style="background: #dbeafe; color: #1e40af;">Open</span>
+                        <div class="sell-progress-dots" title="0/4 R-levels hit">
+                            <span class="sp-dot next"></span>
+                            <span class="sp-dot"></span>
+                            <span class="sp-dot"></span>
+                            <span class="sp-dot"></span>
+                        </div>
+                    </td>
+                    <td>View | Edit | Delete</td>
+                </tr>
+                <tr>
+                    <td class="ticker-cell">TSLA</td>
+                    <td>$243.10</td>
+                    <td>$237.90</td>
+                    <td class="status-cell">
+                        <span class="status-badge" style="background: #dcfce7; color: #166534;">Closed</span>
+                        <div class="sell-progress-dots" title="4/4 R-levels hit">
+                            <span class="sp-dot completed"></span>
+                            <span class="sp-dot completed"></span>
+                            <span class="sp-dot completed"></span>
+                            <span class="sp-dot completed"></span>
+                        </div>
+                    </td>
+                    <td>View | Edit | Delete</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SECTION 4: Quick Sell Modal -->
+    <div class="mockup-section">
+        <span class="mockup-label">QUICK SELL MODAL</span>
+        <h2>Opens when clicking "Log Sale" - pre-filled with R-level data</h2>
+
+        <div class="quick-sell-modal" style="margin: 0 auto;">
+            <div class="qs-header">
+                <h3>Log Sale at <span>2R</span></h3>
+                <div class="qs-ticker">AAPL - Target: $110.00</div>
+            </div>
+
+            <div class="qs-body">
+                <div class="qs-row">
+                    <label>Shares to sell</label>
+                    <div class="qs-input-group">
+                        <input type="number" class="qs-input" value="25">
+                        <span class="qs-hint">of 75 remaining</span>
+                    </div>
+                    <div class="qs-presets">
+                        <button class="qs-preset active">1/3 (25)</button>
+                        <button class="qs-preset">1/4 (19)</button>
+                        <button class="qs-preset">1/2 (38)</button>
+                        <button class="qs-preset">All (75)</button>
+                    </div>
+                </div>
+
+                <div class="qs-row">
+                    <label>Sale price</label>
+                    <div class="qs-input-group">
+                        <input type="number" class="qs-input" value="110.00" step="0.01">
+                        <button class="qs-preset">Use $110.00</button>
+                    </div>
+                </div>
+
+                <div class="qs-row">
+                    <label>Date</label>
+                    <input type="text" class="qs-input" value="Feb 4, 2026" style="width: 100%;">
+                </div>
+
+                <div class="qs-profit-preview">
+                    <span class="qs-profit-label">Profit from this sale</span>
+                    <span class="qs-profit-value">+$250.00</span>
+                </div>
+
+                <div class="qs-actions">
+                    <button class="btn btn-secondary">Cancel</button>
+                    <button class="btn btn-primary">Log Sale</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+node_modules/
+.DS_Store
+test-results/
+status.md
+
+# Local Netlify folder
+.netlify
+
+# Internal copies and design scratch — not the public app
+_backup/
+_import/
+_greens.html
+.cursor/
+compound-feedback.txt
+
+# Screenshots are local context, not committed
+screenshots/*.png
+screenshots/*.jpg
+screenshots/*.jpeg
+!screenshots/README.md
