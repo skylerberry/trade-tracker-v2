@@ -56,6 +56,7 @@
     --danger: #dc2626;
     --danger-soft: rgba(239, 68, 68, 0.10);
     --made-heart: #e07a7a;
+    --made-coffee: #b08968;
     --gain-card: #2d6a4f;
     --loss-card: #9b2226;
     --focus-ring: rgba(26, 54, 93, 0.18);
@@ -98,6 +99,7 @@
     --danger: #ef4444;
     --danger-soft: rgba(239, 68, 68, 0.14);
     --made-heart: #f07178;
+    --made-coffee: #d4a574;
     --gain-card: #1a4d3a;
     --loss-card: #6b2c2c;
     --focus-ring: rgba(96, 165, 250, 0.35);
@@ -141,6 +143,7 @@
     --tier-3: color-mix(in srgb, var(--primary) 66%, var(--surface));
     --danger: #ff4d6d;
     --made-heart: #ff3d5a;
+    --made-coffee: #e8b86d;
     --danger-soft: rgba(255, 77, 109, 0.12);
     --gain-card: #063d24;
     --loss-card: #4a1220;
@@ -3045,12 +3048,21 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
     font-weight: 500;
 }
 .app-footer a.footer-made:hover { color: var(--text-2); }
-.footer-heart {
+.footer-marks {
     display: inline-flex;
-    color: var(--made-heart);
+    align-items: center;
+    gap: 3px;
 }
-.footer-heart .lucide { width: 11px; height: 11px; }
+.footer-heart,
+.footer-coffee {
+    display: inline-flex;
+}
+.footer-heart { color: var(--made-heart); }
+.footer-coffee { color: var(--made-coffee); }
+.footer-heart .lucide,
+.footer-coffee .lucide { width: 11px; height: 11px; }
 .app-footer a.footer-made:hover .footer-heart { color: var(--made-heart); }
+.app-footer a.footer-made:hover .footer-coffee { color: var(--made-coffee); }
 .feedback-lead {
     margin: 0;
     color: var(--text-2);
