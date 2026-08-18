@@ -1224,12 +1224,19 @@ body.is-splash > .app-footer {
     align-items: center;
     gap: 12px;
     width: 100%;
-    padding: 0 3px 8px;
-    border-bottom: 1px solid var(--border);
+    padding: 0 3px 6px;
+    border-bottom: 1px solid transparent;
     color: inherit;
     background: transparent;
     text-align: left;
     transition: border-color 120ms ease-out, padding var(--dur-base), gap var(--dur-base);
+}
+.risk-scenarios[data-state="empty"] .risk-scenarios-toggle {
+    border-bottom-color: var(--border);
+    padding-bottom: 8px;
+}
+.risk-scenarios[data-state="ready"] .risk-scenarios-toggle {
+    padding-bottom: 4px;
 }
 .risk-scenarios-toggle:hover .risk-scenarios-title { color: var(--text); }
 .risk-scenarios-title {
@@ -1300,8 +1307,8 @@ body.is-splash > .app-footer {
 .risk-scenarios-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 4px;
-    padding: 4px;
+    gap: 3px;
+    padding: 3px;
     border: 1px solid var(--border);
     border-radius: 13px;
     background: var(--surface);
@@ -1309,7 +1316,7 @@ body.is-splash > .app-footer {
 .risk-scenarios-grid[hidden] { display: none; }
 .risk-scenario {
     min-width: 0;
-    padding: 9px 11px 10px;
+    padding: 7px 11px 8px;
     border: 1px solid transparent;
     border-radius: 10px;
     color: var(--text-2);
@@ -1818,7 +1825,7 @@ button.chip:active { transform: scale(0.95); }
 .watch-pill .wp-x .lucide { width: 11px; height: 11px; }
 .watch-pill .wp-x:hover { background: var(--danger-soft); color: var(--danger); }
 .watch-add { display: flex; gap: 7px; margin-left: auto; }
-.watch-add input { width: 150px; padding: 5px 10px; font-size: 0.85rem; }
+.watch-add input { width: 220px; max-width: 100%; padding: 5px 10px; font-size: 0.85rem; }
 .watch-body.is-empty .watch-add { margin-left: 0; }
 .watch-body.is-empty .watch-add-submit {
     color: var(--primary-contrast);
@@ -3018,10 +3025,45 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 .journal-empty small { margin-top: 2px; font-size: 0.66rem; }
 .rail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
 
-/* ---------- empty state / footer ---------- */
-.empty-state { padding: 44px 20px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.empty-title { font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
-.empty-sub { color: var(--text-3); font-size: 0.88rem; margin-bottom: 6px; }
+/* ---------- empty state / footer ----------
+   Same welcome grammar as .watch-empty: chip + ink title + quiet reason + CTA. */
+.empty-state {
+    min-height: 180px;
+    padding: 36px 20px 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.empty-ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 10px;
+    border-radius: var(--radius-lg);
+    color: var(--primary);
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--primary) 16%, var(--border));
+}
+.empty-ic .lucide { width: 20px; height: 20px; stroke-width: 1.75; }
+.empty-title { font-size: 0.95rem; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+.empty-sub {
+    margin-top: 4px;
+    max-width: 420px;
+    color: var(--text-3);
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+.empty-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+}
 .table-footer {
     display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
     padding: 12px 20px;
@@ -3097,8 +3139,12 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 
     tr.rail-row { display: block; margin: -4px 0 8px; }
     tr.rail-row > td { display: block; border-radius: var(--radius-lg); border: 1px solid var(--border); }
-    .trades-table tr.filter-empty-row { display: block; }
-    .trades-table tr.filter-empty-row > td { display: block; }
+    /* rows become cards; keep the empty welcome inside a real card */
+    .table-card:has(#emptyState:not([hidden])) {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-card);
+    }
     .search-field { width: 100%; }
     .filters-right { width: 100%; }
 }
@@ -3157,7 +3203,7 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 .feedback-message {
     width: 100%;
     min-height: 120px;
-    resize: vertical;
+    resize: none;
     padding: 10px 12px;
     border: 1px solid var(--border-2);
     border-radius: var(--radius-lg);
@@ -3363,7 +3409,6 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 .tm-error { font-size: 0.8rem; color: var(--danger); font-weight: 600; }
 .ap-preview:not([hidden]) { padding: 11px 13px; }
 .ap-hint { font-size: 0.78rem; color: var(--text-3); }
-.filter-empty-row td { text-align: center; color: var(--text-3); padding: 26px 12px; }
 .watch-pill .wp-tk { color: var(--accent); font-weight: 600; font-size: 0.8rem; padding: 0; }
 .watch-pill .wp-tk:hover { text-decoration: underline; }
 .seg-fractions { margin-top: 6px; }
@@ -3474,8 +3519,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .toast-ic .lucide { width: 17px; height: 17px; }
 .toast.error .toast-ic { color: var(--danger); }
 .log-confirm-check .lucide { width: 17px; height: 17px; }
-.empty-ic { color: var(--primary); margin-bottom: 2px; }
-.empty-ic .lucide { width: 42px; height: 42px; stroke-width: 1.5; }
 
 /* ---------- accent picker (theme engine) ---------- */
 .accent-menu {

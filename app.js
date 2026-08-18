@@ -866,9 +866,14 @@
         const currentRisk = riskPct();
         const ready = currentResult.valid && currentRisk > 0;
 
-        section.dataset.state = ready ? 'ready' : 'empty';
+        const nextState = ready ? 'ready' : 'empty';
+        const stateChanged = section.dataset.state !== nextState;
+        section.dataset.state = nextState;
         grid.hidden = !ready;
         empty.hidden = ready;
+        if (stateChanged && section.classList.contains('is-open')) {
+            $('riskScenariosBody').style.height = 'auto';
+        }
         if (!ready) {
             context.textContent = E.isNum(c.entry) && E.isNum(c.stop)
                 ? 'Complete the setup to compare'
@@ -1509,10 +1514,10 @@
         if ((s === 'open' || s === 'partial') && E.isFreeRolled(t)) return 'freerolled';
         return s;
     }
-    function matchesFilter(t) {
+    function matchesFilter(t, status = filters.status) {
         const s = E.deriveStatus(t);
         const b = badgeState(t);
-        switch (filters.status) {
+        switch (status) {
             case 'active': return s === 'open' || s === 'partial' || s === 'freerolled';
             case 'open': return (s === 'open' || s === 'freerolled') && b !== 'freerolled' ? s === 'open' : s === 'open' && b === 'open';
             case 'freerolled': return b === 'freerolled';
@@ -1611,6 +1616,162 @@
         return { type: 'trim' };
     }
 
+    const STATUS_NOUN = {
+        active: 'active', open: 'open', freerolled: 'freerolled', partial: 'partial',
+        closed: 'closed', stopped: 'stopped', archived: 'archived',
+        winners: 'winners', losers: 'losers',
+    };
+
+    function emptyTitleForStatus(status) {
+        return {
+            active: 'No active trades',
+            open: 'No open trades',
+            freerolled: 'No freerolled trades',
+            partial: 'No partial trades',
+            closed: 'No closed trades',
+            stopped: 'No stopped trades',
+            archived: 'No archived trades',
+            winners: 'No winning trades',
+            losers: 'No losing trades',
+            all: 'Nothing to show',
+        }[status] || 'No trades';
+    }
+
+    function emptySubForStatus(status) {
+        return {
+            active: 'Active is open, freerolled, and partial. Nothing is live right now.',
+            open: 'No positions sitting at the original stop.',
+            freerolled: 'No trades with the stop at or beyond entry.',
+            partial: 'No trades with a trim already on.',
+            closed: 'No trades closed at a profit or scratch.',
+            stopped: 'No trades stopped out.',
+            archived: 'Archived trades live here after you put them away.',
+            winners: 'No closed trades in the green.',
+            losers: 'No closed trades in the red.',
+            all: 'Archived trades stay under Archived.',
+        }[status] || 'Nothing in this filter right now.';
+    }
+
+    function hiddenBucket() {
+        const keys = view === 'journal'
+            ? ['closed', 'winners', 'losers', 'open', 'archived']
+            : ['active', 'open', 'freerolled', 'partial', 'closed', 'stopped', 'archived'];
+        let best = null;
+        for (const key of keys) {
+            if (key === filters.status) continue;
+            let n = 0;
+            for (const t of trades) {
+                if (key !== 'archived' && t.archived) continue;
+                if (matchesFilter(t, key)) n++;
+            }
+            if (n && (!best || n > best.n)) best = { key, n };
+        }
+        return best;
+    }
+
+    function fillEmptyState() {
+        const title = document.querySelector('#emptyState .empty-title');
+        const sub = document.querySelector('#emptyState .empty-sub');
+        const cta = $('emptyCta');
+        const alt = $('emptyAlt');
+        const seed = $('seedDemo');
+        if (!title || !sub || !cta || !alt || !seed) return;
+
+        const bookEmpty = trades.length === 0;
+        const q = $('tradeSearch')?.value.trim() || '';
+
+        const setCta = (action, label) => {
+            cta.hidden = false;
+            cta.dataset.action = action;
+            cta.textContent = label;
+        };
+        const setAlt = (action, label) => {
+            if (!action) { alt.hidden = true; alt.dataset.action = ''; alt.textContent = ''; return; }
+            alt.hidden = false;
+            alt.dataset.action = action;
+            alt.textContent = label;
+        };
+
+        seed.hidden = !(bookEmpty && view !== 'journal');
+
+        if (bookEmpty && view === 'journal') {
+            title.textContent = 'No journal yet';
+            sub.textContent = 'Closed trades land here. Size and log from Positions.';
+            setCta('goto-positions', 'Go to Positions');
+            setAlt();
+            return;
+        }
+        if (bookEmpty) {
+            title.textContent = 'No trades yet';
+            sub.textContent = 'Size a position in the calculator, then log it — one click.';
+            setCta('log', 'Log a trade');
+            setAlt();
+            return;
+        }
+        if (filters.q) {
+            title.textContent = `No trades match “${q}”.`;
+            sub.textContent = 'Try a different ticker, or clear the search.';
+            setCta('clear-search', 'Clear search');
+            setAlt();
+            return;
+        }
+        if (filters.from || filters.to) {
+            title.textContent = 'No trades in this range';
+            sub.textContent = 'Nothing logged between From and To.';
+            setCta('clear-dates', 'Clear dates');
+            setAlt();
+            return;
+        }
+
+        title.textContent = emptyTitleForStatus(filters.status);
+        sub.textContent = emptySubForStatus(filters.status);
+        if (view === 'journal') setCta('goto-positions', 'Go to Positions');
+        else setCta('log', 'Log a trade');
+        const bucket = hiddenBucket();
+        const noun = bucket && STATUS_NOUN[bucket.key];
+        if (bucket && noun) setAlt(`set-status:${bucket.key}`, `View ${bucket.n} ${noun}`);
+        else setAlt();
+    }
+
+    function focusCalculator() {
+        if (view !== 'positions') setView('positions');
+        if (!panels.calcSection.section.classList.contains('is-open')) {
+            prefs.calcOpen = true;
+            panels.calcSection.set(true);
+            savePrefs();
+        }
+        const field = $('tickerInput');
+        field.scrollIntoView({ behavior: M.reduceMotion ? 'auto' : 'smooth', block: 'center' });
+        setTimeout(() => field.focus(), M.reduceMotion ? 0 : 350);
+    }
+
+    function applyEmptyAction(action) {
+        if (!action) return;
+        if (action === 'log') return focusCalculator();
+        if (action === 'goto-positions') return setView('positions');
+        if (action === 'clear-search') {
+            $('searchClear')?.click();
+            return;
+        }
+        if (action === 'clear-dates') {
+            $('dateClear')?.click();
+            return;
+        }
+        if (action.startsWith('set-status:')) {
+            const status = action.slice('set-status:'.length);
+            filters.status = status;
+            filters.page = 1;
+            if (view === 'journal') {
+                viewFilters.journal = status;
+                segs.journal?.set(status);
+            } else {
+                viewFilters.positions = status;
+                segs.status?.set(status);
+            }
+            renderTable();
+        }
+    }
+
     function renderTable() {
         const tbody = $('tradesBody');
         const vis = visibleTrades();
@@ -1619,26 +1780,10 @@
         const pageItems = vis.slice((filters.page - 1) * PAGE_SIZE, filters.page * PAGE_SIZE);
 
         tbody.textContent = '';
-        $('emptyState').hidden = trades.length > 0;
-        document.querySelector('.table-scroll').style.display = trades.length ? '' : 'none';
-        const emptyTitle = document.querySelector('#emptyState .empty-title');
-        const emptySub = document.querySelector('#emptyState .empty-sub');
-        if (emptyTitle && emptySub) {
-            if (view === 'journal') {
-                emptyTitle.textContent = 'No journal yet';
-                emptySub.innerHTML = 'Closed trades land here. Size and log from <b>Positions</b>.';
-            } else {
-                emptyTitle.textContent = 'No trades yet';
-                emptySub.innerHTML = 'Fill the calculator and hit <b>Log trade</b> — one click, done.';
-            }
-        }
-
-        if (trades.length && !vis.length) {
-            const why = filters.q
-                ? `No trades match &ldquo;${E.escapeHtml(filters.q)}&rdquo;.`
-                : `No ${filters.status === 'active' ? 'active' : E.escapeHtml(filters.status)} trades${filters.from || filters.to ? ' in this date range' : ''}.`;
-            tbody.innerHTML = `<tr class="filter-empty-row"><td colspan="8">${why}</td></tr>`;
-        }
+        const isEmpty = !vis.length;
+        $('emptyState').hidden = !isEmpty;
+        document.querySelector('.table-scroll').style.display = isEmpty ? 'none' : '';
+        if (isEmpty) fillEmptyState();
 
         for (const t of pageItems) {
             tbody.appendChild(buildRow(t));
@@ -1675,6 +1820,8 @@
     }
     $('pagePrev').addEventListener('click', () => { filters.page--; renderTable(); });
     $('pageNext').addEventListener('click', () => { filters.page++; renderTable(); });
+    $('emptyCta')?.addEventListener('click', () => applyEmptyAction($('emptyCta').dataset.action));
+    $('emptyAlt')?.addEventListener('click', () => applyEmptyAction($('emptyAlt').dataset.action));
 
     /* ---------- search ---------- */
     (function initSearch() {
@@ -2638,12 +2785,30 @@
         }
         $('watchAddInput').focus();
     });
+    function addWatchTickers(tickers) {
+        const parsed = Array.isArray(tickers) ? tickers : E.parseWatchlistTickers(tickers);
+        if (!parsed.length) { toast('Ticker must be 1–5 letters', { error: true }); return false; }
+        const room = 20 - watchlist.length;
+        if (room <= 0) { toast('Watchlist full (max 20)', { error: true }); return true; }
+        const fresh = parsed.filter(t => !watchlist.includes(t));
+        if (!fresh.length) { toast('Already on the watchlist'); return true; }
+        const added = fresh.slice(0, room);
+        watchlist.push(...added);
+        savePrefs();
+        renderWatchlist();
+        if (fresh.length > room) toast('Watchlist full (max 20)');
+        else if (added.length > 1) toast(`Added <b>${added.length}</b> tickers`);
+        return true;
+    }
     $('watchAddForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        const v = $('watchAddInput').value.trim().toUpperCase();
-        if (!/^[A-Z]{1,5}$/.test(v)) { toast('Ticker must be 1–5 letters', { error: true }); return; }
-        if (watchlist.length >= 20) { toast('Watchlist full (max 20)', { error: true }); return; }
-        if (!watchlist.includes(v)) { watchlist.push(v); savePrefs(); renderWatchlist(); }
+        if (addWatchTickers($('watchAddInput').value)) $('watchAddInput').value = '';
+    });
+    $('watchAddInput').addEventListener('paste', (e) => {
+        const parsed = E.parseWatchlistTickers(e.clipboardData.getData('text'));
+        if (parsed.length < 2) return;
+        e.preventDefault();
+        addWatchTickers(parsed);
         $('watchAddInput').value = '';
     });
 
@@ -2858,7 +3023,9 @@
         e.stopPropagation();
         $('dateFrom').value = ''; $('dateTo').value = '';
         filters.from = ''; filters.to = '';
+        filters.page = 1;
         closeDatePop();
+        syncDatePickState();
         renderTable();
     });
 

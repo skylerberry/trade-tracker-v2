@@ -420,7 +420,7 @@
                 </div>
                 <div class="watch-pills" id="watchPills"></div>
                 <form id="watchAddForm" class="watch-add">
-                    <input type="text" id="watchAddInput" placeholder="Ticker, e.g. NVDA" maxlength="5" style="text-transform:uppercase" aria-label="Add ticker to watchlist">
+                    <input type="text" id="watchAddInput" placeholder="NVDA, AAPL or paste a list" style="text-transform:uppercase" aria-label="Add tickers to watchlist">
                     <button type="submit" class="btn btn-ghost btn-sm watch-add-submit"><span data-icon="plus" aria-hidden="true"></span>Add</button>
                 </form>
             </div>
@@ -567,8 +567,12 @@
         <div class="empty-state" id="emptyState" hidden>
             <div class="empty-ic ic-draw" data-icon="chart-candlestick" aria-hidden="true"></div>
             <div class="empty-title">No trades yet</div>
-            <div class="empty-sub">Fill the calculator and hit <b>Log trade</b> — one click, done.</div>
-            <button id="seedDemo" class="btn btn-ghost btn-sm">Load sample trades</button>
+            <div class="empty-sub">Size a position in the calculator, then log it — one click.</div>
+            <div class="empty-actions">
+                <button type="button" id="emptyCta" class="btn btn-primary btn-sm" data-action="log">Log a trade</button>
+                <button type="button" id="emptyAlt" class="btn btn-ghost btn-sm" hidden></button>
+                <button type="button" id="seedDemo" class="btn btn-ghost btn-sm">Load sample trades</button>
+            </div>
         </div>
         <div class="table-footer" id="tableFooter" hidden>
             <span id="footerTotals" class="footer-totals"></span>
@@ -948,10 +952,10 @@
             <div class="modal-title">Feedback</div>
             <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
         </div>
-        <p class="feedback-lead">Help me make this better. A bug, a missing piece, or something that just felt off — I’ll actually read it.</p>
+        <p class="feedback-lead">A bug, a missing piece, or something that just felt off — I’ll actually read it.</p>
         <div class="field">
             <label class="sr-only" for="feedbackMessage">Feedback</label>
-            <textarea id="feedbackMessage" class="feedback-message" data-autofocus rows="5" maxlength="4000" placeholder="Tell me what you think…"></textarea>
+            <textarea id="feedbackMessage" class="feedback-message" data-autofocus rows="5" maxlength="4000"></textarea>
         </div>
         <div class="field">
             <label for="feedbackEmail">Email <span class="label-opt">optional, if you want a reply</span></label>
@@ -961,7 +965,7 @@
         <div class="feedback-error muted-note" role="alert" hidden></div>
         <div class="modal-actions">
             <button class="btn btn-ghost modal-cancel">Cancel</button>
-            <button class="btn btn-primary feedback-send">Submit feedback</button>
+            <button class="btn btn-primary feedback-send">Send</button>
         </div>
     </div>
 </template>
