@@ -1,7 +1,7 @@
-# Static site. No build step — the repo root is the app.
+# Static site. Copy only the runtime files so docs/tests stay off the CDN.
 [build]
-  publish = "."
-  command = ""
+  command = "mkdir -p dist && cp index.html styles.css app.js engine.js compound.js motion.js icons.js favicon.svg dist/"
+  publish = "dist"
 
 # Hash views (#positions / #journal / #compound). No SPA rewrite needed.
 

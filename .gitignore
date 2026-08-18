@@ -3,8 +3,9 @@ node_modules/
 test-results/
 status.md
 
-# Local Netlify folder
+# Local Netlify folder / publish output
 .netlify
+dist/
 
 # Internal copies and design scratch — not the public app
 _backup/

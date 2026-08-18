@@ -63,8 +63,8 @@ the repository root.
 ## Production
 
 Deployed on the existing Netlify site for [skyler.tools](https://skyler.tools)
-(`unique-cupcake-bbbd71`). No build command — `netlify.toml` publishes the
-repo root as static files.
+(`unique-cupcake-bbbd71`). `netlify.toml` copies the runtime files into `dist/`
+and publishes that folder.
 
 ## Test
 
