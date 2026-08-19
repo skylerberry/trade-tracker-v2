@@ -618,7 +618,7 @@ input::placeholder { color: var(--text-3); opacity: 0.7; }
     to { opacity: 1; }
 }
 .wc-fresh {
-    --fresh: color-mix(in srgb, var(--success) 78%, #fff);
+    --fresh: #238636; /* GitHub green, per Skyler */
     color: var(--fresh);
     border-color: var(--fresh);
     background: transparent;
@@ -678,6 +678,70 @@ body.is-splash > .app-footer {
 .sync-status-dot[data-s="paused"] { background: var(--warning); }
 /* wizard screens — one visible at a time, each brings its own spacing */
 .sync-screen { display: flex; flex-direction: column; gap: 14px; }
+/* pre-flight map of GitHub's overwhelming token page: name → expiration →
+   gist (mid-list) → green Generate at the bottom, with a scroll rail. */
+.sync-pagemap {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+}
+.pm-page { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 9px; }
+.pm-step { display: flex; align-items: flex-start; gap: 8px; font-size: 0.78rem; color: var(--text-2); }
+.pm-step b { color: var(--text); font-weight: 600; }
+.pm-step-copy { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.pm-num {
+    flex: none;
+    width: 16px; height: 16px; margin-top: 1px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-contrast);
+    font-size: 0.62rem; font-weight: 700; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.pm-chip {
+    font-size: 0.7rem; font-weight: 600;
+    padding: 2px 9px;
+    border: 1px solid var(--border-2);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text-2);
+}
+.pm-sub { font-size: 0.68rem; color: var(--text-3); }
+.pm-rec { font-size: 0.68rem; color: var(--text-3); font-weight: 500; }
+.pm-scopes {
+    display: flex; flex-direction: column; gap: 7px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+}
+.pm-skel { display: block; height: 7px; width: 70%; border-radius: 4px; background: var(--surface-3); }
+.pm-skel + .pm-skel { width: 52%; }
+.pm-check { color: var(--success); font-weight: 700; }
+.pm-genbtn {
+    align-self: flex-start;
+    background: #238636; /* GitHub's actual button green */
+    color: #fff;
+    border-radius: var(--radius-full);
+    padding: 2px 11px;
+    font-size: 0.7rem; font-weight: 600;
+    box-shadow: var(--inset-hi);
+}
+.pm-scrollrail {
+    flex: none;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    color: var(--text-3);
+}
+.pm-scrollrail::before { content: ""; flex: 1; border-left: 1px dashed var(--border-2); }
+.pm-scroll-label {
+    writing-mode: vertical-rl;
+    font-size: 0.6rem; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+}
+.pm-scroll-ic .lucide { width: 12px; height: 12px; }
 .sync-screen[hidden] { display: none; }
 .sync-choice { display: flex; flex-direction: column; gap: 8px; }
 .sync-choice .btn { width: 100%; text-decoration: none; }

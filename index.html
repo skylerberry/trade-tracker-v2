@@ -945,9 +945,47 @@
         </div>
 
         <div class="sync-screen" data-screen="token" hidden>
-            <p class="sync-lead">One button — the token name and the single <b>gist</b> permission are pre-filled. Copy what GitHub shows you, then paste it here.</p>
+            <p class="sync-lead">GitHub’s token page is a wall of checkboxes — yours is already set up. The whole trip, top to bottom:</p>
+            <div class="sync-pagemap">
+                <div class="pm-page">
+                    <div class="pm-step">
+                        <span class="pm-chip">skyler.tools sync</span>
+                        <span class="pm-sub">name — pre-filled</span>
+                    </div>
+                    <div class="pm-step">
+                        <span class="pm-num">1</span>
+                        <div class="pm-step-copy">
+                            <span>Expiration → <b>No expiration</b> <span class="pm-rec">(recommended)</span></span>
+                            <span class="pm-sub">the 30-day default kills sync when it expires — a dated token works too, you’ll just relink then</span>
+                        </div>
+                    </div>
+                    <div class="pm-scopes">
+                        <span class="pm-skel" aria-hidden="true"></span>
+                        <span class="pm-skel" aria-hidden="true"></span>
+                        <div class="pm-step">
+                            <span class="pm-num">2</span>
+                            <div class="pm-step-copy">
+                                <span><span class="pm-check" aria-hidden="true">✓</span> <b>gist</b> — already ticked</span>
+                                <span class="pm-sub">far down the list · leave the rest unchecked</span>
+                            </div>
+                        </div>
+                        <span class="pm-skel" aria-hidden="true"></span>
+                    </div>
+                    <div class="pm-step">
+                        <span class="pm-num">3</span>
+                        <div class="pm-step-copy">
+                            <span class="pm-genbtn">Generate token</span>
+                            <span class="pm-sub">green button at the very bottom — copy it, paste it here</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="pm-scrollrail" aria-hidden="true">
+                    <span class="pm-scroll-label">scroll</span>
+                    <span class="pm-scroll-ic" data-icon="chevron-down"></span>
+                </div>
+            </div>
             <div class="sync-choice">
-                <a class="btn btn-gh sy-token-cta" href="https://github.com/settings/tokens/new?description=skyler.tools%20sync&amp;scopes=gist" target="_blank" rel="noopener"><span data-icon="github" aria-hidden="true"></span>Create my token <span data-icon="external-link" aria-hidden="true"></span></a>
+                <a class="btn btn-gh sy-token-cta" href="https://github.com/settings/tokens/new?description=skyler.tools%20sync&amp;scopes=gist" target="_blank" rel="noopener"><span data-icon="github" aria-hidden="true"></span>Open the token page <span data-icon="external-link" aria-hidden="true"></span></a>
             </div>
             <div class="sync-fields">
                 <div class="field">
