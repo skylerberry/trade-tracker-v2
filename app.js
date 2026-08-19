@@ -3213,6 +3213,17 @@
                 }
                 err.hidden = true;
                 send.disabled = true;
+                const showSent = () => {
+                    card.classList.add('is-sent');
+                    qs('.feedback-form').setAttribute('aria-hidden', 'true');
+                    qs('.feedback-sent').setAttribute('aria-hidden', 'false');
+                    const done = qs('.feedback-sent-done');
+                    done.focus();
+                    const hold = setTimeout(close, M.reduceMotion ? 900 : 2200);
+                    done.addEventListener('click', () => { clearTimeout(hold); close(); });
+                };
+                const live = /(?:^|\.)skyler\.tools$|(?:^|\.)netlify\.app$/.test(location.hostname);
+                if (!live) { showSent(); return; }
                 try {
                     const body = new URLSearchParams({
                         'form-name': 'feedback',
@@ -3229,13 +3240,10 @@
                         body,
                     });
                     if (!res.ok) throw new Error(String(res.status));
-                    close();
-                    toast('Feedback sent — thank you');
+                    showSent();
                 } catch {
                     err.hidden = false;
-                    err.textContent = /skyler\.tools$|netlify\.app$/.test(location.hostname)
-                        ? 'Couldn’t send. Try again in a moment.'
-                        : 'Feedback sends from the live site (skyler.tools).';
+                    err.textContent = 'Couldn’t send. Try again in a moment.';
                     send.disabled = false;
                 }
             };

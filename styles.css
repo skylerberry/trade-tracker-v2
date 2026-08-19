@@ -3339,6 +3339,94 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
     box-shadow: 0 0 0 3px var(--focus-ring);
 }
 .feedback-send .lucide { width: 14px; height: 14px; }
+.feedback-card { position: relative; }
+.feedback-form { display: flex; flex-direction: column; gap: 13px; }
+.feedback-card.is-sent .feedback-form {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(4px);
+    pointer-events: none;
+    transition: opacity var(--dur-base) ease-out, transform var(--dur-base) var(--ease-sheet), filter var(--dur-base) ease-out;
+}
+.feedback-sent {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 24px;
+    background: var(--surface);
+    opacity: 0; pointer-events: none;
+}
+.feedback-card.is-sent .feedback-sent {
+    opacity: 1; pointer-events: auto;
+    animation: feedback-sent-in var(--dur-base) ease-out both;
+}
+.feedback-stamp {
+    width: 60px; height: 60px;
+    border-radius: var(--radius-full);
+    background: var(--success);
+    border: 1px solid color-mix(in srgb, var(--success) 78%, #000);
+    box-shadow: var(--inset-hi);
+    display: grid; place-items: center;
+    position: relative;
+    color: #fff;
+}
+.feedback-card.is-sent .feedback-stamp {
+    animation: feedback-stamp-in 520ms var(--ease-overshoot-in) both;
+}
+.feedback-stamp-ring {
+    position: absolute; inset: -7px;
+    border: 2px solid var(--success);
+    border-radius: var(--radius-full);
+    opacity: 0;
+}
+.feedback-card.is-sent .feedback-stamp-ring {
+    animation: feedback-ring-out 700ms ease-out 180ms both;
+}
+.feedback-stamp svg { width: 26px; height: 26px; }
+.feedback-check {
+    stroke-dasharray: 28;
+    stroke-dashoffset: 28;
+}
+.feedback-card.is-sent .feedback-check {
+    animation: feedback-check-draw 320ms var(--ease-out-expo) 220ms forwards;
+}
+.feedback-sent-copy { margin: 0; text-align: center; }
+.feedback-sent-copy strong {
+    display: block;
+    font-size: 1.02rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+}
+.feedback-sent-copy span { display: block; margin-top: 3px; font-size: 0.84rem; color: var(--text-3); }
+.feedback-card.is-sent .feedback-sent-copy {
+    animation: feedback-copy-up 400ms var(--ease-out-expo) 260ms both;
+}
+.feedback-sent-done { margin-top: 2px; }
+.feedback-card.is-sent .feedback-sent-done {
+    animation: feedback-copy-up 300ms ease-out 480ms both;
+}
+@keyframes feedback-sent-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes feedback-stamp-in {
+    from { transform: scale(0.38); }
+    to { transform: scale(1); }
+}
+@keyframes feedback-ring-out {
+    from { transform: scale(0.72); opacity: 0.55; }
+    to { transform: scale(1.45); opacity: 0; }
+}
+@keyframes feedback-check-draw { to { stroke-dashoffset: 0; } }
+@keyframes feedback-copy-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .feedback-card.is-sent .feedback-form { filter: none; transform: none; }
+    .feedback-card.is-sent .feedback-stamp,
+    .feedback-card.is-sent .feedback-stamp-ring,
+    .feedback-card.is-sent .feedback-check,
+    .feedback-card.is-sent .feedback-sent-copy,
+    .feedback-card.is-sent .feedback-sent-done { animation: none; }
+    .feedback-check { stroke-dashoffset: 0; }
+}
 
 /* ---------- modal layer ---------- */
 .modal-root { position: fixed; inset: 0; z-index: 100; pointer-events: none; }

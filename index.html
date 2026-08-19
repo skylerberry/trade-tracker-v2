@@ -959,24 +959,39 @@
 <!-- Feedback -->
 <template id="tpl-feedback">
     <div class="modal-card feedback-card">
-        <div class="modal-head">
-            <div class="modal-title">Feedback</div>
-            <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        <div class="feedback-form">
+            <div class="modal-head">
+                <div class="modal-title">Feedback</div>
+                <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+            </div>
+            <p class="feedback-lead">A bug, a missing piece, or something that just felt off — I’ll actually read it.</p>
+            <div class="field">
+                <label class="sr-only" for="feedbackMessage">Feedback</label>
+                <textarea id="feedbackMessage" class="feedback-message" data-autofocus rows="5" maxlength="4000"></textarea>
+            </div>
+            <div class="field">
+                <label for="feedbackEmail">Email <span class="label-opt">optional, if you want a reply</span></label>
+                <input type="email" id="feedbackEmail" class="feedback-email" placeholder="you@email.com" autocomplete="email">
+            </div>
+            <p class="muted-note">No trades or account data go with this.</p>
+            <div class="feedback-error muted-note" role="alert" hidden></div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost modal-cancel">Cancel</button>
+                <button class="btn btn-primary feedback-send">Send</button>
+            </div>
         </div>
-        <p class="feedback-lead">A bug, a missing piece, or something that just felt off — I’ll actually read it.</p>
-        <div class="field">
-            <label class="sr-only" for="feedbackMessage">Feedback</label>
-            <textarea id="feedbackMessage" class="feedback-message" data-autofocus rows="5" maxlength="4000"></textarea>
-        </div>
-        <div class="field">
-            <label for="feedbackEmail">Email <span class="label-opt">optional, if you want a reply</span></label>
-            <input type="email" id="feedbackEmail" class="feedback-email" placeholder="you@email.com" autocomplete="email">
-        </div>
-        <p class="muted-note">No trades or account data go with this.</p>
-        <div class="feedback-error muted-note" role="alert" hidden></div>
-        <div class="modal-actions">
-            <button class="btn btn-ghost modal-cancel">Cancel</button>
-            <button class="btn btn-primary feedback-send">Send</button>
+        <div class="feedback-sent" aria-hidden="true">
+            <div class="feedback-stamp">
+                <span class="feedback-stamp-ring" aria-hidden="true"></span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path class="feedback-check" d="M5 13l4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <p class="feedback-sent-copy" role="status">
+                <strong>Sent.</strong>
+                <span>I’ll read it.</span>
+            </p>
+            <button type="button" class="btn btn-ghost feedback-sent-done">Done</button>
         </div>
     </div>
 </template>
