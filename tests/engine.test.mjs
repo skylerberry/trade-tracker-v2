@@ -186,6 +186,10 @@ eq(E.marketSession(new Date('2026-08-19T03:00:00.000Z')).state, 'closed', 'Tue 2
 eq(E.marketSession(new Date('2026-08-22T15:00:00.000Z')).state, 'closed', 'Saturday is closed');
 eq(E.marketSession(new Date('2026-12-25T15:00:00.000Z')).state, 'closed', 'Christmas 2026 is closed');
 eq(E.marketSession(new Date('2026-11-27T18:30:00.000Z')).state, 'post', 'day after Thanksgiving 13:30 ET is post (early close)');
+eq(E.marketSession(new Date('2026-08-19T19:00:00.000Z')).minutesLeft, 60, 'Wed 15:00 ET → 60m left in regular session');
+eq(E.marketSession(new Date('2026-08-19T12:00:00.000Z')).minutesLeft, 90, 'Wed 8:00 ET → 90m of pre-market left');
+eq(E.marketSession(new Date('2026-08-19T23:30:00.000Z')).minutesLeft, 30, 'Wed 19:30 ET → 30m of after hours left');
+eq(E.marketSession(new Date('2026-08-22T15:00:00.000Z')).minutesLeft, null, 'closed session has no countdown');
 
 /* ---- live-site journal → v2 trades ---- */
 const liveOpen = E.migrateLiveSiteTrade({

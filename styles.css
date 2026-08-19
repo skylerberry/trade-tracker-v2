@@ -3045,6 +3045,9 @@ tr.trade-row.flash .cell-actions { animation-name: ttRowFlashSticky; }
     line-height: 1.2;
     white-space: nowrap;
     pointer-events: none;
+    /* soft entrance on first show; gliding between anchors stays instant
+       (the element never re-hides, so the animation doesn't restart) */
+    animation: tipIn 140ms ease-out;
 }
 .instant-tip[hidden] { display: none; }
 .instant-tip::after {
@@ -3638,14 +3641,24 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 
 /* ---------- modal layer ---------- */
 .modal-root { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+/* Dim + a soft live blur — the board recedes instead of just darkening.
+   The blur transitions with the fade so open/close stay one motion. */
 .modal-backdrop {
     position: absolute; inset: 0;
     background: var(--backdrop);
     opacity: 0;
-    transition: opacity var(--dur-base) ease-out;
+    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: blur(0px);
+    transition: opacity var(--dur-base) ease-out,
+                backdrop-filter var(--dur-slow) ease-out,
+                -webkit-backdrop-filter var(--dur-slow) ease-out;
     pointer-events: auto;
 }
-.modal-backdrop.in { opacity: 1; }
+.modal-backdrop.in {
+    opacity: 1;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
 .modal-holder {
     position: absolute; inset: 0;
     display: flex; align-items: flex-start; justify-content: center;
@@ -3932,6 +3945,13 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 
 /* stroke draw-in (toast check, log confirm, empty state) */
 @keyframes ttDraw { to { stroke-dashoffset: 0; } }
+@keyframes tipIn { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: blur(0); } }
+.instant-tip.is-out {
+    opacity: 0;
+    filter: blur(3px);
+    transition: opacity 130ms ease-in, filter 130ms ease-in;
+    animation: none;
+}
 .ic-draw .lucide path, .ic-draw .lucide line, .ic-draw .lucide rect, .ic-draw .lucide polyline, .ic-draw .lucide circle {
     stroke-dasharray: 64; stroke-dashoffset: 64;
     animation: ttDraw 500ms var(--ease-out-expo) forwards;
@@ -3942,6 +3962,29 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .ic-draw .lucide *:nth-child(5) { animation-delay: 360ms; }
 .ic-draw .lucide *:nth-child(6) { animation-delay: 450ms; }
 .ic-draw .lucide *:nth-child(7) { animation-delay: 540ms; }
+/* brand mark rebuilds itself on hover — same draw as the empty-state icon;
+   the selector only matches while hovered, so each entry restarts it */
+.brand:hover .brand-mark .lucide path,
+.brand:hover .brand-mark .lucide line,
+.brand:hover .brand-mark .lucide rect,
+.brand:hover .brand-mark .lucide polyline,
+.brand:hover .brand-mark .lucide circle {
+    stroke-dasharray: 64; stroke-dashoffset: 64;
+    animation: ttDraw 500ms var(--ease-out-expo) forwards;
+}
+.brand:hover .brand-mark .lucide *:nth-child(2) { animation-delay: 90ms; }
+.brand:hover .brand-mark .lucide *:nth-child(3) { animation-delay: 180ms; }
+.brand:hover .brand-mark .lucide *:nth-child(4) { animation-delay: 270ms; }
+.brand:hover .brand-mark .lucide *:nth-child(5) { animation-delay: 360ms; }
+.brand:hover .brand-mark .lucide *:nth-child(6) { animation-delay: 450ms; }
+.brand:hover .brand-mark .lucide *:nth-child(7) { animation-delay: 540ms; }
+@media (prefers-reduced-motion: reduce) {
+    .brand:hover .brand-mark .lucide * {
+        animation: none;
+        stroke-dasharray: none;
+        stroke-dashoffset: 0;
+    }
+}
 .toast-ic { flex: none; color: var(--success); }
 .toast-ic .lucide { width: 17px; height: 17px; }
 .toast.error .toast-ic { color: var(--danger); }

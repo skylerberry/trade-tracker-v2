@@ -176,7 +176,15 @@
         if (sessEl) {
             sessEl.dataset.state = session.state;
             $('marketSessLabel').textContent = session.label;
-            sessEl.title = session.detail;
+            /* instant tip with a live countdown; empty title blocks the
+               clock's native tooltip from doubling up on the badge */
+            sessEl.title = '';
+            const left = session.minutesLeft;
+            const leftText = left === null ? ''
+                : ` · ${left >= 60 ? `${Math.floor(left / 60)}h ${left % 60}m` : `${left}m`} left`;
+            sessEl.dataset.tip = session.detail + leftText;
+            const tip = $('instantTip');
+            if (tip && !tip.hidden && tip.__anchor === sessEl) tip.textContent = sessEl.dataset.tip;
         }
         $('dailyZoneTag').title = `${zone} · ${offsetPhrase}`;
         $('dailyClock').title = `${session.detail} · Local time · ${zone} · ${offsetPhrase}`;
@@ -616,16 +624,28 @@
         if (!tip || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
         let current = null;
 
+        let hideTimer = null;
         const hide = () => {
+            if (tip.hidden) return;
             current = null;
-            tip.hidden = true;
-            delete tip.dataset.place;
+            tip.__anchor = null;
+            /* fade out, then release — mirrors the entrance */
+            tip.classList.add('is-out');
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+                tip.hidden = true;
+                tip.classList.remove('is-out');
+                delete tip.dataset.place;
+            }, 130);
         };
 
         const place = (el) => {
             const text = el.getAttribute('data-tip');
             if (!text) { hide(); return; }
+            clearTimeout(hideTimer);
+            tip.classList.remove('is-out');
             current = el;
+            tip.__anchor = el;
             tip.textContent = text;
             tip.hidden = false;
             const rect = el.getBoundingClientRect();
@@ -1844,7 +1864,10 @@
         const isClosedView = ['closed', 'stopped', 'winners', 'losers', 'all'].includes(filters.status);
         count.hidden = !vis.length;
         if (vis.length) {
-            if (isClosedView) {
+            if (view === 'journal') {
+                /* the journal summary cards already carry W/L, R, and P&L */
+                count.innerHTML = `<span class="f-val">${vis.length}</span> trade${vis.length === 1 ? '' : 's'}`;
+            } else if (isClosedView) {
                 let w = 0, l = 0, r = 0, pnl = 0;
                 for (const t of vis) {
                     const p = E.getRealizedPnL(t), rr = E.getRealizedR(t);
@@ -3221,8 +3244,11 @@
     $('footerBackup').addEventListener('click', () => {
         downloadBackup();
     });
-    function openFeedbackModal() {
-        openModal('tpl-feedback', (card, close) => {
+    function openFeedbackModal({ returnToFaq = false } = {}) {
+        openModal('tpl-feedback', (card, close, entry) => {
+            let sent = false;
+            /* Came from the FAQ and didn't send → land back on the FAQ. */
+            entry.onClose = () => { if (returnToFaq && !sent) openFaqModal(); };
             const qs = (sel) => card.querySelector(sel);
             const msg = qs('.feedback-message');
             const err = qs('.feedback-error');
@@ -3238,6 +3264,7 @@
                 err.hidden = true;
                 send.disabled = true;
                 const showSent = () => {
+                    sent = true;
                     card.classList.add('is-sent');
                     qs('.feedback-form').setAttribute('aria-hidden', 'true');
                     qs('.feedback-sent').setAttribute('aria-hidden', 'false');
@@ -3300,7 +3327,7 @@
             });
             card.querySelector('.faq-feedback')?.addEventListener('click', () => {
                 close();
-                openFeedbackModal();
+                openFeedbackModal({ returnToFaq: true });
             });
         });
     }

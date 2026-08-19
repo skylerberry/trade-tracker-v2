@@ -717,10 +717,29 @@ const ENGINE = (() => {
         '2026-11-27', '2026-12-24',
         '2027-11-26',
     ]);
+    /* Session ranges follow the user's own clock convention: a locale that
+       formats 12-hour gets "9:30 AM–4:00 PM ET", a 24-hour locale keeps
+       "9:30–16:00 ET". Locale beats timezone here — it tracks the person,
+       not where they happen to be. */
+    const uses12Hour = (() => {
+        try { return new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions().hour12 === true; }
+        catch { return true; }
+    })();
+    function sessionRange(a, b) {
+        const mm = (mins) => String(mins % 60).padStart(2, '0');
+        if (!uses12Hour) return `${Math.floor(a / 60)}:${mm(a)}–${Math.floor(b / 60)}:${mm(b)}`;
+        const t = (mins, withPeriod) => {
+            const h = Math.floor(mins / 60);
+            const h12 = h % 12 === 0 ? 12 : h % 12;
+            return `${h12}:${mm(mins)}${withPeriod ? ` ${h >= 12 ? 'PM' : 'AM'}` : ''}`;
+        };
+        const samePeriod = (a >= 720) === (b >= 720);
+        return `${t(a, !samePeriod)}–${t(b, true)}`;
+    }
     const SESSION_META = {
-        open: { label: 'Open', detail: 'Regular hours · 9:30–16:00 ET' },
-        pre: { label: 'Pre-market', detail: 'Pre-market · 4:00–9:30 ET' },
-        post: { label: 'Post-market', detail: 'After hours · 16:00–20:00 ET' },
+        open: { label: 'Open', detail: `Regular hours · ${sessionRange(570, 960)} ET` },
+        pre: { label: 'Pre-market', detail: `Pre-market · ${sessionRange(240, 570)} ET` },
+        post: { label: 'Post-market', detail: `After hours · ${sessionRange(960, 1200)} ET` },
         closed: { label: 'Closed', detail: 'US cash session is closed' },
     };
 
@@ -745,13 +764,13 @@ const ENGINE = (() => {
             return { state: 'closed', ...SESSION_META.closed };
         }
         const { ymd, minutes, weekend } = nyWall(date);
-        if (weekend || NYSE_HOLIDAYS.has(ymd)) return { state: 'closed', ...SESSION_META.closed };
+        if (weekend || NYSE_HOLIDAYS.has(ymd)) return { state: 'closed', minutesLeft: null, ...SESSION_META.closed };
         const close = NYSE_EARLY_CLOSE.has(ymd) ? 13 * 60 : 16 * 60;
-        let state = 'closed';
-        if (minutes >= 4 * 60 && minutes < 9 * 60 + 30) state = 'pre';
-        else if (minutes >= 9 * 60 + 30 && minutes < close) state = 'open';
-        else if (minutes >= close && minutes < 20 * 60) state = 'post';
-        return { state, ...SESSION_META[state] };
+        let state = 'closed', minutesLeft = null;
+        if (minutes >= 4 * 60 && minutes < 9 * 60 + 30) { state = 'pre'; minutesLeft = 9 * 60 + 30 - minutes; }
+        else if (minutes >= 9 * 60 + 30 && minutes < close) { state = 'open'; minutesLeft = close - minutes; }
+        else if (minutes >= close && minutes < 20 * 60) { state = 'post'; minutesLeft = 20 * 60 - minutes; }
+        return { state, minutesLeft, ...SESSION_META[state] };
     }
 
     /* ---------- CSV export ---------- */
