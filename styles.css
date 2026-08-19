@@ -1232,7 +1232,7 @@ body.is-splash > .app-footer {
 .option-inputs {
     display: grid;
     grid-template-columns: minmax(150px, 0.7fr) minmax(150px, 0.7fr) minmax(280px, 2fr);
-    align-items: end;
+    align-items: start;
     gap: 12px;
     margin-top: 12px;
     padding: 12px;
@@ -1247,13 +1247,20 @@ body.is-splash > .app-footer {
     align-items: flex-start;
     gap: 8px;
     min-height: 38px;
-    padding: 8px 8px 8px 16px;
+    padding: 2px 8px 2px 16px;
     border-left: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
     color: var(--text-2);
     font-size: 0.75rem;
     line-height: 1.35;
 }
-.option-guidance .lucide { width: 15px; height: 15px; flex: none; margin-top: 1px; color: var(--primary); }
+.option-guidance .lucide { width: 15px; height: 15px; flex: none; margin-top: 2px; color: var(--primary); }
+.option-guidance-list {
+    margin: 0;
+    padding: 0 0 0 1.05em;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
 
 /* Compact decision aid: the same setup at half/current/double risk. */
 .risk-scenarios {
@@ -3420,6 +3427,7 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 }
 @media (prefers-reduced-motion: reduce) {
     .feedback-card.is-sent .feedback-form { filter: none; transform: none; }
+    .feedback-card.is-sent .feedback-sent,
     .feedback-card.is-sent .feedback-stamp,
     .feedback-card.is-sent .feedback-stamp-ring,
     .feedback-card.is-sent .feedback-check,

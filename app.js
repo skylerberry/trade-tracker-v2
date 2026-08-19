@@ -830,7 +830,7 @@
         $('calcModeContextText').textContent = optionMode
             ? `Long ${short ? 'put' : 'call'} · calculator only`
             : `${short ? 'Short' : 'Long'} shares`;
-        $('optionGuidanceText').textContent = `Long ${short ? 'puts' : 'calls'} only. Delta estimates the premium response at your underlying stop; it is not a live quote.`;
+        $('optionGuidanceKind').textContent = `Long ${short ? 'puts' : 'calls'} only`;
         $('positionUnitLabel').textContent = optionMode ? 'contracts' : 'shares';
         $('sharesCopyBtn').title = optionMode ? 'Copy contract count' : 'Copy share count';
         $('rStopDistLabel').textContent = optionMode ? 'Estimated loss / contract' : 'Stop distance';
