@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risk scenarios toggle · mockups</title>
+<!--
+  Throwaway prototype. Question: the collapsed Risk Scenarios control reads
+  as a text label, not a button — too tucked away. But the old full-width
+  band bumped the layout down. What's between?
+
+  T Today — tiny uppercase text + chevron, borderless (the problem)
+  A Ghost chip — same content, but wearing a pill border: unmistakably a
+    button, still one line, left-aligned
+  B Data teaser — the collapsed row IS the data: three tiny scenario chips
+    (½× · 1× · 2×). Numbers invite the click; no "label pretending"
+  C Seam handle — a centered mini-pill sitting on a hairline rule, drawer-
+    handle style. Uses the seam between sections, adds no real height
+  D Card tab — a small "Scenarios" tab docked to the results card's top
+    edge, anchored to the thing it varies
+
+  All rows hover like real controls. Judge in context: inputs above,
+  results card below.
+-->
+<style>
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --radius-lg: 12px;
+    --radius-card: 16px;
+    --radius-full: 9999px;
+    --bg: #fbfbfc;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --surface-3: #ececee;
+    --border: #e4e4e7;
+    --border-2: #d4d4d8;
+    --text: #18181b;
+    --text-2: #3f3f46;
+    --text-3: #71717a;
+    --primary: #1a365d;
+    --accent: #1a365d;
+    --accent-soft: rgba(26, 54, 93, 0.08);
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--text);
+    padding: 32px 20px 80px;
+}
+.page-head { max-width: 1180px; margin: 0 auto 24px; }
+.page-head h1 { font-size: 19px; letter-spacing: -0.02em; }
+.page-head p { color: var(--text-3); max-width: 76ch; margin-top: 4px; }
+.grid {
+    max-width: 1180px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;
+}
+.variant { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); overflow: hidden; }
+.v-head { padding: 14px 16px 11px; border-bottom: 1px solid var(--border); }
+.v-tag { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); }
+.v-head h2 { font-size: 14.5px; letter-spacing: -0.01em; margin-top: 2px; }
+.v-head p { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
+.stage { padding: 16px; background: var(--bg); }
+
+/* --- shared calculator context (graybox) --- */
+.ctx { display: flex; flex-direction: column; gap: 12px; }
+.ctx-inputs { display: flex; gap: 8px; }
+.ctx-field { flex: 1; }
+.ctx-label { font-size: 9.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); margin-bottom: 3px; }
+.ctx-input {
+    height: 34px; border: 1px solid var(--border-2); border-radius: 10px;
+    background: var(--surface); display: flex; align-items: center; padding: 0 10px;
+    font-size: 13px; color: var(--text-2);
+}
+.ctx-results {
+    border: 1px solid var(--border); border-radius: var(--radius-card);
+    background: var(--surface); padding: 14px 16px;
+    display: flex; align-items: baseline; gap: 12px;
+    position: relative;
+}
+.ctx-shares { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+.ctx-shares small { font-size: 12px; font-weight: 500; color: var(--text-3); letter-spacing: 0; }
+.ctx-meta { font-size: 12px; color: var(--text-3); margin-left: auto; }
+
+/* --- T · today --- */
+.tog-today {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--text-2); background: none; border: 0; padding: 2px 0; cursor: pointer;
+}
+.tog-today .cv { color: var(--text-3); font-size: 12px; }
+
+/* --- A · ghost chip --- */
+.tog-chip {
+    align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--text-2);
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: background 150ms, border-color 150ms, color 150ms;
+}
+.tog-chip:hover { background: var(--surface-2); border-color: var(--text-3); color: var(--text); }
+.tog-chip .cv { font-size: 12px; color: var(--text-3); }
+
+/* --- B · data teaser --- */
+.tog-teaser {
+    align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
+    padding: 4px 6px 4px 12px;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--text-3); cursor: pointer;
+    transition: border-color 150ms, background 150ms;
+}
+.tog-teaser:hover { border-color: var(--text-3); background: var(--surface-2); }
+.tt-chip {
+    font: 600 11px/1 -apple-system, sans-serif; letter-spacing: 0; text-transform: none;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-full); padding: 4px 9px; color: var(--text-2);
+}
+.tt-chip b { color: var(--text); }
+.tt-chip.is-current { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.tog-teaser .cv { font-size: 12px; padding-right: 4px; }
+
+/* --- C · seam handle --- */
+.tog-seam { position: relative; height: 18px; display: flex; align-items: center; justify-content: center; }
+.tog-seam::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--border); }
+.tog-seam button {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-3);
+    background: var(--bg);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
+    padding: 3px 11px; cursor: pointer;
+    transition: color 150ms, border-color 150ms, background 150ms;
+}
+.tog-seam button:hover { color: var(--text); border-color: var(--text-3); background: var(--surface); }
+
+/* --- D · card tab --- */
+.tog-tab {
+    position: absolute; top: -11px; right: 14px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 9.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--text-2);
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
+    padding: 3px 10px; cursor: pointer;
+    transition: background 150ms, color 150ms, border-color 150ms;
+}
+.tog-tab:hover { background: var(--surface-3); color: var(--text); border-color: var(--text-3); }
+.cv { display: inline-block; }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+    <h1>Risk scenarios — collapsed-state candidates</h1>
+    <p>The problem: today's control reads as a label, not a button. The constraint: no full-width band
+       that bumps the layout. Each frame shows the control in context — inputs above, results below.</p>
+</div>
+
+<div class="grid">
+
+    <section class="variant">
+        <div class="v-head">
+            <span class="v-tag">T · today</span>
+            <h2>Bare text (the problem)</h2>
+            <p>Uppercase text + chevron, no container. Nothing says "press me."</p>
+        </div>
+        <div class="stage"><div class="ctx">
+            <div class="ctx-inputs">
+                <div class="ctx-field"><div class="ctx-label">Entry</div><div class="ctx-input">184.20</div></div>
+                <div class="ctx-field"><div class="ctx-label">Stop</div><div class="ctx-input">180.50</div></div>
+            </div>
+            <button class="tog-today">⌁ Risk scenarios <span class="cv">›</span></button>
+            <div class="ctx-results"><span class="ctx-shares">33 <small>shares</small></span><span class="ctx-meta">risk $125 · 24% of account</span></div>
+        </div></div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head">
+            <span class="v-tag">A · ghost chip</span>
+            <h2>Same words, wearing a pill</h2>
+            <p>One border makes it a button. Smallest possible change, zero new height.</p>
+        </div>
+        <div class="stage"><div class="ctx">
+            <div class="ctx-inputs">
+                <div class="ctx-field"><div class="ctx-label">Entry</div><div class="ctx-input">184.20</div></div>
+                <div class="ctx-field"><div class="ctx-label">Stop</div><div class="ctx-input">180.50</div></div>
+            </div>
+            <button class="tog-chip">⌁ Risk scenarios <span class="cv">⌄</span></button>
+            <div class="ctx-results"><span class="ctx-shares">33 <small>shares</small></span><span class="ctx-meta">risk $125 · 24% of account</span></div>
+        </div></div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head">
+            <span class="v-tag">B · data teaser</span>
+            <h2>The row is the data</h2>
+            <p>Collapsed state previews the three share counts. Numbers earn the click — and half the time the preview already answers the question.</p>
+        </div>
+        <div class="stage"><div class="ctx">
+            <div class="ctx-inputs">
+                <div class="ctx-field"><div class="ctx-label">Entry</div><div class="ctx-input">184.20</div></div>
+                <div class="ctx-field"><div class="ctx-label">Stop</div><div class="ctx-input">180.50</div></div>
+            </div>
+            <button class="tog-teaser">Scenarios
+                <span class="tt-chip">¼% <b>16</b></span>
+                <span class="tt-chip is-current">½% <b>33</b></span>
+                <span class="tt-chip">1% <b>67</b></span>
+                <span class="cv">⌄</span>
+            </button>
+            <div class="ctx-results"><span class="ctx-shares">33 <small>shares</small></span><span class="ctx-meta">risk $125 · 24% of account</span></div>
+        </div></div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head">
+            <span class="v-tag">C · seam handle</span>
+            <h2>Pill on the hairline</h2>
+            <p>A drawer handle sitting on the seam between inputs and results. Costs ~0px — the rule occupies the gap that already exists.</p>
+        </div>
+        <div class="stage"><div class="ctx">
+            <div class="ctx-inputs">
+                <div class="ctx-field"><div class="ctx-label">Entry</div><div class="ctx-input">184.20</div></div>
+                <div class="ctx-field"><div class="ctx-label">Stop</div><div class="ctx-input">180.50</div></div>
+            </div>
+            <div class="tog-seam"><button>⌄ risk scenarios</button></div>
+            <div class="ctx-results"><span class="ctx-shares">33 <small>shares</small></span><span class="ctx-meta">risk $125 · 24% of account</span></div>
+        </div></div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head">
+            <span class="v-tag">D · card tab</span>
+            <h2>Docked to the results card</h2>
+            <p>A small tab on the card whose numbers it varies. Strong association, zero rows added — but it crowds the card's top edge.</p>
+        </div>
+        <div class="stage"><div class="ctx">
+            <div class="ctx-inputs">
+                <div class="ctx-field"><div class="ctx-label">Entry</div><div class="ctx-input">184.20</div></div>
+                <div class="ctx-field"><div class="ctx-label">Stop</div><div class="ctx-input">180.50</div></div>
+            </div>
+            <div class="ctx-results" style="margin-top:10px">
+                <button class="tog-tab">⌁ Scenarios ⌄</button>
+                <span class="ctx-shares">33 <small>shares</small></span><span class="ctx-meta">risk $125 · 24% of account</span>
+            </div>
+        </div></div>
+    </section>
+
+</div>
+</body>
+</html>
