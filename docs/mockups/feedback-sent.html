@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feedback sent · mockups</title>
+<!--
+  Throwaway prototype. Question: what should the user see after they hit Send
+  on the feedback modal? Four variants via ?variant=A|B|C|D
+  A Stamp — green inset circle, check springs through
+  B Mailbox — note folds into an envelope and flies into a box
+  C Button — the Send pill itself becomes the check
+  D Today — modal closes, toast (current production)
+-->
+<style>
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-overshoot-in: cubic-bezier(0.175, 0.885, 0.12, 1.175);
+    --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --dur-fast: 150ms;
+    --dur-base: 200ms;
+    --dur-slow: 300ms;
+    --radius-lg: 12px;
+    --radius-xl: 12px;
+    --radius-card: 16px;
+    --radius-full: 9999px;
+    --inset-hi: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.20);
+    --bg: #fbfbfc;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --surface-3: #ececee;
+    --border: #e4e4e7;
+    --border-2: #d4d4d8;
+    --text: #18181b;
+    --text-2: #3f3f46;
+    --text-3: #71717a;
+    --primary: #1a365d;
+    --primary-hover: #162e4f;
+    --primary-border: #10233d;
+    --primary-contrast: #ffffff;
+    --success: #16a34a;
+    --success-hover: #15803d;
+    --success-soft: rgba(34, 197, 94, 0.12);
+    --focus-ring: rgba(26, 54, 93, 0.18);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.2);
+    --backdrop: rgba(24, 24, 27, 0.35);
+}
+html[data-theme="dark"] {
+    --bg: #18181b;
+    --surface: #27272a;
+    --surface-2: #1f1f22;
+    --surface-3: #2d2d30;
+    --border: #3f3f46;
+    --border-2: #52525b;
+    --text: #f4f4f5;
+    --text-2: #e4e4e7;
+    --text-3: #a1a1aa;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --primary-border: #1d4ed8;
+    --success: #22c55e;
+    --success-hover: #16a34a;
+    --success-soft: rgba(34, 197, 94, 0.14);
+    --focus-ring: rgba(96, 165, 250, 0.35);
+    --backdrop: rgba(0, 0, 0, 0.55);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.app {
+    min-height: 100%;
+    background:
+        linear-gradient(180deg, #0f2744 0 56px, transparent 56px),
+        var(--bg);
+}
+html[data-theme="dark"] .app {
+    background: linear-gradient(180deg, #141416 0 56px, transparent 56px), var(--bg);
+}
+.chrome {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    opacity: 0.72;
+}
+.page { padding: 28px 24px 120px; color: var(--text-3); font-size: 13px; }
+.page p { max-width: 420px; line-height: 1.5; }
+
+.backdrop {
+    position: fixed; inset: 0;
+    background: var(--backdrop);
+    z-index: 20;
+}
+.holder {
+    position: fixed; inset: 0;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 10vh 16px 16px;
+    z-index: 21;
+}
+.modal-card {
+    width: 100%; max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 18px 20px 20px;
+    display: flex; flex-direction: column; gap: 13px;
+    position: relative;
+    overflow: hidden;
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.modal-title { font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; }
+.icon-btn {
+    width: 30px; height: 30px; display: grid; place-items: center;
+    border: 1px solid var(--border); border-radius: var(--radius-full);
+    background: transparent; color: var(--text-3);
+}
+.lead { color: var(--text-2); font-size: 0.84rem; line-height: 1.45; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); }
+.label-opt { font-weight: 500; text-transform: none; letter-spacing: 0; opacity: 0.85; }
+textarea, input {
+    font: inherit; font-size: 16px; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border-2);
+    border-radius: var(--radius-lg); padding: 10px 12px; width: 100%;
+}
+textarea { min-height: 120px; resize: none; line-height: 1.45; }
+.note { font-size: 0.74rem; color: var(--text-3); }
+.actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px; }
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 8px 18px; border-radius: var(--radius-full);
+    font-weight: 500; font-size: 0.9rem; border: 1px solid transparent;
+}
+.btn-ghost { border-color: var(--border-2); color: var(--text-2); background: transparent; }
+.btn-primary {
+    background: var(--primary); color: var(--primary-contrast);
+    border-color: var(--primary-border); box-shadow: var(--inset-hi);
+}
+.btn-primary:disabled { opacity: 0.55; }
+.card.is-sent[data-play="C"] .send:disabled { opacity: 1; cursor: default; }
+
+.form-block { display: flex; flex-direction: column; gap: 13px; }
+.card.is-sent .form-block { pointer-events: none; }
+.card.is-sent[data-play="D"] { display: none; }
+
+/* ---------- A Stamp ---------- */
+.stamp-layer {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 24px;
+    background: var(--surface);
+    opacity: 0; pointer-events: none;
+}
+.card.is-sent[data-play="A"] .form-block {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(4px);
+    transition: opacity 180ms ease-out, transform 180ms var(--ease-sheet), filter 180ms ease-out;
+}
+.card.is-sent[data-play="A"] .stamp-layer {
+    opacity: 1; pointer-events: auto;
+    animation: layer-in 200ms ease-out both;
+}
+.stamp {
+    width: 72px; height: 72px;
+    border-radius: var(--radius-full);
+    background: var(--success);
+    border: 1px solid var(--success-hover);
+    box-shadow: var(--inset-hi);
+    display: grid; place-items: center;
+    position: relative;
+    color: #fff;
+}
+.card.is-sent[data-play="A"] .stamp { animation: stamp-in 520ms var(--ease-overshoot-in) both; }
+.stamp-ring {
+    position: absolute; inset: -8px;
+    border: 2px solid var(--success);
+    border-radius: var(--radius-full);
+    opacity: 0;
+}
+.card.is-sent[data-play="A"] .stamp-ring { animation: ring-out 700ms ease-out 180ms both; }
+.stamp svg { width: 34px; height: 34px; }
+.check-path {
+    fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 28; stroke-dashoffset: 28;
+}
+.card.is-sent[data-play="A"] .check-path { animation: check-draw 320ms var(--ease-out-expo) 220ms forwards; }
+.stamp-copy { text-align: center; }
+.stamp-copy strong {
+    display: block; font-size: 1.05rem; letter-spacing: -0.02em; color: var(--text);
+}
+.stamp-copy span { display: block; margin-top: 4px; font-size: 0.84rem; color: var(--text-3); }
+.card.is-sent[data-play="A"] .stamp-copy { animation: copy-up 400ms var(--ease-out-expo) 280ms both; }
+
+@keyframes stamp-in {
+    from { transform: scale(0.38); }
+    to { transform: scale(1); }
+}
+@keyframes ring-out {
+    from { transform: scale(0.72); opacity: 0.55; }
+    to { transform: scale(1.45); opacity: 0; }
+}
+@keyframes check-draw { to { stroke-dashoffset: 0; } }
+@keyframes copy-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes layer-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- B Mailbox ---------- */
+.mail-layer {
+    position: absolute; inset: 0;
+    background: var(--surface);
+    opacity: 0; pointer-events: none;
+}
+.card.is-sent[data-play="B"] .form-block {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    filter: blur(5px);
+    transition: opacity 160ms ease-out, transform 200ms var(--ease-sheet), filter 200ms ease-out;
+}
+.card.is-sent[data-play="B"] .mail-layer { opacity: 1; pointer-events: auto; }
+.mail-stage {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px;
+}
+.mailbox {
+    width: 108px; height: 86px;
+    position: relative;
+    transform: translateY(18px);
+    opacity: 0;
+    perspective: 420px;
+}
+.card.is-sent[data-play="B"] .mailbox { animation: box-up 480ms var(--ease-overshoot-in) 80ms both; }
+.box-lid {
+    position: absolute; left: 10px; right: 4px; top: 10px; height: 16px;
+    background: color-mix(in srgb, var(--primary) 82%, #000);
+    border: 1px solid var(--primary-border);
+    border-radius: 8px 8px 3px 3px;
+}
+.box-body {
+    position: absolute; left: 14px; right: 8px; top: 22px; bottom: 0;
+    background: var(--primary);
+    border: 1px solid var(--primary-border);
+    border-radius: 10px 10px 8px 8px;
+    box-shadow: var(--inset-hi);
+}
+.box-slot {
+    position: absolute; left: 28px; right: 22px; top: 16px; height: 8px;
+    background: color-mix(in srgb, var(--primary-border) 70%, #000);
+    border-radius: 3px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.28);
+}
+.box-door {
+    position: absolute; left: 28px; right: 22px; top: 36px; height: 28px;
+    background: color-mix(in srgb, var(--primary) 70%, #000);
+    border-radius: 5px;
+    transform-origin: 50% 0%;
+}
+.card.is-sent[data-play="B"] .box-door { animation: door-open 420ms var(--ease-back) 520ms both; }
+.flag {
+    position: absolute; right: 0; top: 18px;
+    width: 8px; height: 40px;
+    transform-origin: 50% 100%;
+    transform: rotate(16deg);
+    z-index: 4;
+}
+.flag-pole { width: 3px; height: 34px; margin: 0 auto; background: color-mix(in srgb, var(--primary-contrast) 55%, var(--primary)); border-radius: 2px; }
+.flag-tab {
+    position: absolute; left: -10px; top: 0;
+    width: 16px; height: 10px;
+    background: var(--success);
+    border-radius: 2px 6px 6px 2px;
+    box-shadow: var(--inset-hi);
+}
+.card.is-sent[data-play="B"] .flag { animation: flag-up 520ms var(--ease-back) 780ms both; }
+.envelope {
+    position: absolute;
+    width: 58px; height: 38px;
+    left: 50%; top: 38%;
+    margin-left: -29px;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: 4px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+    opacity: 0;
+    z-index: 3;
+}
+.envelope::before {
+    content: "";
+    position: absolute; left: 0; right: 0; top: 0; height: 18px;
+    background: linear-gradient(to bottom right, transparent 49%, var(--border) 50%, transparent 51%),
+                linear-gradient(to bottom left, transparent 49%, var(--border) 50%, transparent 51%);
+    background-size: 50% 100%, 50% 100%;
+    background-repeat: no-repeat;
+    background-position: left, right;
+}
+.card.is-sent[data-play="B"] .envelope { animation: fly-in 720ms var(--ease-out-expo) 220ms both; }
+.mail-copy { text-align: center; opacity: 0; }
+.mail-copy strong { display: block; font-size: 1.05rem; letter-spacing: -0.02em; color: var(--text); }
+.mail-copy span { display: block; margin-top: 4px; font-size: 0.84rem; color: var(--text-3); }
+.card.is-sent[data-play="B"] .mail-copy { animation: copy-up 400ms var(--ease-out-expo) 900ms both; }
+
+@keyframes box-up {
+    from { opacity: 0; transform: translateY(28px) scale(0.92); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes door-open {
+    from { transform: rotateX(0deg); }
+    to { transform: rotateX(-70deg); }
+}
+@keyframes flag-up {
+    from { transform: rotate(18deg); }
+    to { transform: rotate(-78deg); }
+}
+@keyframes fly-in {
+    0%   { opacity: 0; transform: translate(0, 36px) rotate(-12deg) scale(1.05); }
+    35%  { opacity: 1; transform: translate(8px, -28px) rotate(10deg) scale(1); }
+    70%  { opacity: 1; transform: translate(4px, -6px) rotate(-4deg) scale(0.72); }
+    100% { opacity: 0; transform: translate(2px, 4px) rotate(0deg) scale(0.35); }
+}
+
+/* ---------- C Button ---------- */
+.card[data-play="C"] .send { position: relative; min-width: 92px; transition:
+    background-color 220ms, border-color 220ms, color 220ms, min-width 420ms var(--ease-overshoot-in),
+    padding 420ms var(--ease-overshoot-in), border-radius 420ms var(--ease-overshoot-in);
+}
+.card.is-sent[data-play="C"] .form-block { gap: 0; }
+.card.is-sent[data-play="C"] .form-block > :not(.actions) {
+    opacity: 0;
+    transform: translateY(-6px);
+    filter: blur(4px);
+    max-height: 0;
+    margin: 0;
+    overflow: hidden;
+    transition: opacity 180ms ease-out, transform 180ms ease-out, filter 180ms ease-out, max-height 360ms var(--ease-sheet), margin 360ms var(--ease-sheet);
+}
+.card.is-sent[data-play="C"] .modal-head { opacity: 0; height: 0; overflow: hidden; margin: 0; transition: opacity 160ms ease-out, height 280ms var(--ease-sheet); }
+.card.is-sent[data-play="C"] .actions { justify-content: center; margin: 18px 0 4px; }
+.card.is-sent[data-play="C"] .cancel { opacity: 0; width: 0; padding: 0; border-width: 0; overflow: hidden; pointer-events: none; }
+.card.is-sent[data-play="C"] .send {
+    background: var(--success);
+    border-color: var(--success-hover);
+    color: #fff;
+    min-width: 72px;
+    width: 72px; height: 72px; padding: 0;
+    border-radius: var(--radius-full);
+    box-shadow: var(--inset-hi);
+}
+.card.is-sent[data-play="C"] .send-label { display: none; }
+.card.is-sent[data-play="C"] .send-check { display: block; }
+.send-check { display: none; width: 32px; height: 32px; }
+.card.is-sent[data-play="C"] .send-check .check-path {
+    animation: check-draw 300ms var(--ease-out-expo) 180ms forwards;
+}
+.card.is-sent[data-play="C"] { gap: 0; padding-bottom: 22px; }
+.c-caption {
+    display: none; text-align: center; padding-bottom: 6px;
+}
+.card.is-sent[data-play="C"] .c-caption { display: block; animation: copy-up 400ms var(--ease-out-expo) 260ms both; }
+.c-caption strong { display: block; font-size: 1.05rem; letter-spacing: -0.02em; }
+.c-caption span { display: block; margin-top: 4px; font-size: 0.84rem; color: var(--text-3); }
+
+/* ---------- D Toast ---------- */
+.toast-root {
+    position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%);
+    z-index: 40; pointer-events: none; width: min(360px, calc(100% - 32px));
+}
+.toast {
+    display: none;
+    align-items: center; gap: 10px;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border-2); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-lg); padding: 12px 14px;
+    font-size: 0.84rem; font-weight: 500;
+}
+.toast.in { display: flex; animation: toast-in 380ms var(--ease-overshoot-in) both; }
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+}
+
+.done-btn {
+    margin-top: 4px;
+    display: none;
+    align-self: center;
+}
+.card.is-sent[data-play="A"] .done-btn,
+.card.is-sent[data-play="B"] .done-btn { display: inline-flex; animation: copy-up 300ms ease-out 500ms both; }
+
+.switcher {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    z-index: 50;
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px 7px 10px;
+    background: #18181b; color: #fafafa;
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.28);
+    font-size: 12px; font-weight: 600;
+    white-space: nowrap;
+}
+.switcher button {
+    background: #27272a; color: #fafafa; border: 0;
+    min-width: 32px; height: 32px; border-radius: 999px;
+}
+.switcher .label { padding: 0 8px; min-width: 168px; text-align: center; }
+.switcher .sub { display: block; font-size: 10px; font-weight: 500; color: #a1a1aa; margin-top: 1px; }
+.switcher .ghost { background: transparent; color: #a1a1aa; min-width: auto; padding: 0 8px; font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <div class="chrome">skyler.tools</div>
+    <div class="page">
+        <p>Hit Send on the modal. The switcher at the bottom flips the success moment. Replay resets the form.</p>
+    </div>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+<div class="holder">
+    <div class="modal-card card" id="card" data-play="A">
+        <div class="form-block" id="form">
+            <div class="modal-head">
+                <div class="modal-title">Feedback</div>
+                <button class="icon-btn" type="button" aria-label="Close">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <p class="lead">A bug, a missing piece, or something that just felt off — I’ll actually read it.</p>
+            <div class="field">
+                <textarea id="msg">The summary expand still feels a little jumpy on OLED.</textarea>
+            </div>
+            <div class="field">
+                <label>Email <span class="label-opt">optional, if you want a reply</span></label>
+                <input type="email" placeholder="you@email.com" value="">
+            </div>
+            <p class="note">No trades or account data go with this.</p>
+            <div class="actions">
+                <button type="button" class="btn btn-ghost cancel">Cancel</button>
+                <button type="button" class="btn btn-primary send" id="send">
+                    <span class="send-label">Send</span>
+                    <svg class="send-check" viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="check-path" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="stamp-layer" aria-hidden="true">
+            <div class="stamp">
+                <span class="stamp-ring"></span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path class="check-path" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <div class="stamp-copy">
+                <strong>Sent.</strong>
+                <span>I’ll read it.</span>
+            </div>
+            <button type="button" class="btn btn-ghost done-btn replay">Done</button>
+        </div>
+
+        <div class="mail-layer" aria-hidden="true">
+            <div class="mail-stage">
+                <div class="mailbox">
+                    <div class="flag"><div class="flag-pole"></div><div class="flag-tab"></div></div>
+                    <div class="box-lid"></div>
+                    <div class="box-body"></div>
+                    <div class="box-slot"></div>
+                    <div class="box-door"></div>
+                </div>
+                <div class="envelope"></div>
+                <div class="mail-copy">
+                    <strong>Sent.</strong>
+                    <span>It’s in the box.</span>
+                </div>
+                <button type="button" class="btn btn-ghost done-btn replay">Done</button>
+            </div>
+        </div>
+
+        <p class="c-caption">
+            <strong>Sent.</strong>
+            <span>I’ll read it.</span>
+        </p>
+    </div>
+</div>
+
+<div class="toast-root"><div class="toast" id="toast">Feedback sent — thank you</div></div>
+
+<nav class="switcher" aria-label="Prototype variants">
+    <button type="button" id="prev" aria-label="Previous variant">←</button>
+    <div class="label"><span id="vName">A — Stamp</span><span class="sub" id="vSub">green check, inset fill</span></div>
+    <button type="button" id="next" aria-label="Next variant">→</button>
+    <button type="button" class="ghost" id="replay">Replay</button>
+    <button type="button" class="ghost" id="theme">Dark</button>
+</nav>
+
+<script>
+const VARIANTS = {
+    A: { name: 'A — Stamp', sub: 'green check, inset fill' },
+    B: { name: 'B — Mailbox', sub: 'envelope into a box' },
+    C: { name: 'C — Button', sub: 'Send pill becomes the check' },
+    D: { name: 'D — Today', sub: 'modal closes, toast' },
+};
+const KEYS = Object.keys(VARIANTS);
+const card = document.getElementById('card');
+const toast = document.getElementById('toast');
+const backdrop = document.getElementById('backdrop');
+const holder = document.querySelector('.holder');
+
+function current() {
+    const v = new URLSearchParams(location.search).get('variant') || 'A';
+    return KEYS.includes(v) ? v : 'A';
+}
+function setVariant(v) {
+    const url = new URL(location.href);
+    url.searchParams.set('variant', v);
+    history.replaceState(null, '', url);
+    apply(v);
+}
+function reset() {
+    card.classList.remove('is-sent');
+    toast.classList.remove('in');
+    holder.style.display = '';
+    backdrop.style.display = '';
+    document.getElementById('send').disabled = false;
+}
+function apply(v) {
+    card.dataset.play = v;
+    document.getElementById('vName').textContent = VARIANTS[v].name;
+    document.getElementById('vSub').textContent = VARIANTS[v].sub;
+    reset();
+}
+function send() {
+    const v = current();
+    document.getElementById('send').disabled = true;
+    if (v === 'D') {
+        holder.style.display = 'none';
+        backdrop.style.display = 'none';
+        toast.classList.add('in');
+        return;
+    }
+    card.classList.remove('is-sent');
+    void card.offsetWidth;
+    card.classList.add('is-sent');
+}
+
+apply(current());
+document.getElementById('send').addEventListener('click', send);
+document.getElementById('prev').addEventListener('click', () => {
+    const i = KEYS.indexOf(current());
+    setVariant(KEYS[(i + KEYS.length - 1) % KEYS.length]);
+});
+document.getElementById('next').addEventListener('click', () => {
+    const i = KEYS.indexOf(current());
+    setVariant(KEYS[(i + 1) % KEYS.length]);
+});
+document.getElementById('replay').addEventListener('click', () => { reset(); });
+document.querySelectorAll('.replay').forEach((b) => b.addEventListener('click', reset));
+document.getElementById('theme').addEventListener('click', () => {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+    document.getElementById('theme').textContent = dark ? 'Dark' : 'Light';
+});
+document.addEventListener('keydown', (e) => {
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft') document.getElementById('prev').click();
+    if (e.key === 'ArrowRight') document.getElementById('next').click();
+    if (e.key === 'r') reset();
+});
+</script>
+</body>
+</html>
