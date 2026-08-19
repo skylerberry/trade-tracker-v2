@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>skyler.tools promo</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  html, body {
+    width: 1200px;
+    height: 630px;
+    margin: 0;
+    overflow: hidden;
+    background: #ececee;
+  }
+  .promo {
+    width: 1200px;
+    height: 630px;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+  .promo .app-header { border-top-width: 4px; }
+  .promo .header-inner { max-width: none; padding: 10px 22px 12px; }
+  .promo .brand-row { margin-bottom: 8px; }
+  .promo .app-nav { margin-bottom: 10px; }
+  .promo .daily-clock-seconds { display: none; }
+  .promo .seg-pill { display: none; }
+  .promo .seg [data-seg].is-active {
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    color: var(--text);
+  }
+  .promo-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 14px;
+    padding: 0 22px 16px;
+    min-height: 0;
+  }
+  .promo-calc, .promo-side {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    min-height: 0;
+    overflow: hidden;
+  }
+  .promo-calc { padding: 14px 16px 16px; }
+  .promo-side { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .promo .calc-settings { margin-bottom: 10px; }
+  .promo .calc-inputs { margin-bottom: 0; }
+  .promo .calc-actions-field { display: none; }
+  .promo .calc-results { margin-top: 12px; }
+  .promo .result-card { padding: 14px; }
+  .promo .shares-hero-num { font-size: 2.4rem; }
+  .promo-kicker {
+    font-size: 0.66rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .promo-plan {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+  .promo-plan b { color: var(--text); }
+  .promo-plan .lock { color: var(--success); }
+  .promo-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .promo-table th {
+    text-align: left;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0 0 8px;
+  }
+  .promo-table td { padding: 7px 0; border-top: 1px solid var(--border); }
+  .promo-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .promo-url {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-3);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .promo-url b { color: var(--header-text); letter-spacing: -0.02em; }
+</style>
+</head>
+<body class="promo">
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand-row">
+      <div class="brand">
+        <span class="brand-mark" data-icon="chart-candlestick" aria-hidden="true"></span>
+        <span class="brand-lockup">
+          <span class="brand-name">skyler.tools<sup class="brand-version">2.0</sup></span>
+          <span class="brand-product">Trader Tools Suite</span>
+        </span>
+      </div>
+      <div class="daily-clock" aria-hidden="true">
+        <span class="daily-clock-icon" data-icon="calendar-days"></span>
+        <div class="daily-clock-copy">
+          <span class="daily-clock-date">Tue, Aug 18</span>
+          <time class="daily-clock-time">
+            <span>4:00</span>
+            <span class="daily-clock-period">PM</span>
+            <span class="daily-clock-zone"><span>ET</span></span>
+          </time>
+        </div>
+      </div>
+      <div class="header-chrome">
+        <button class="icon-btn sync-btn" tabindex="-1"><span data-icon="cloud"></span><span class="sync-ind" data-s="ok"></span></button>
+        <div class="seg seg-mini seg-theme">
+          <button data-seg="light" class="is-active"><span data-icon="sun"></span></button>
+          <button data-seg="dark"><span data-icon="moon"></span></button>
+          <button data-seg="oled"><span data-icon="sparkles"></span></button>
+        </div>
+      </div>
+    </div>
+    <nav class="app-nav">
+      <div class="seg seg-nav">
+        <button data-seg="positions" class="is-active">Positions</button>
+        <button data-seg="journal">Journal</button>
+        <button data-seg="compound">Compound</button>
+      </div>
+    </nav>
+    <div class="metrics-row">
+      <div class="metric-card open-risk">
+        <div class="metric-label"><span data-icon="gauge"></span>Open risk</div>
+        <div class="open-risk-main">
+          <span class="open-risk-num">$1,361.80</span>
+          <span class="risk-badge" data-level="MED">MED</span>
+        </div>
+        <div class="open-risk-sub"><span>2.72% of account</span></div>
+      </div>
+      <div class="metric-card scoreboard">
+        <div class="scoreboard-top">
+          <div class="metric-label"><span data-icon="trending-up"></span>Scoreboard</div>
+          <div class="seg seg-mini">
+            <button data-seg="month" class="is-active">month</button>
+            <button data-seg="all">all</button>
+          </div>
+        </div>
+        <div class="scoreboard-line">August <span class="dim">·</span> 10 trades <span class="dim">·</span> 70% win <span class="dim">·</span> +10.4R <span class="dim">·</span> exp +1.04R</div>
+        <div class="scoreboard-sub"><span class="muted-note">$50,000 account · 7 wins / 3 losses</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="promo-main">
+  <section class="promo-calc">
+    <div class="calc-settings">
+      <div class="setting">
+        <label><span class="field-help-label">Account size</span></label>
+        <div class="input-money input-money--wide">
+          <span class="currency-prefix">$</span>
+          <input type="text" value="50,000" readonly>
+        </div>
+      </div>
+      <div class="setting">
+        <label><span class="field-help-label">Risk</span></label>
+        <div class="seg">
+          <button data-seg="0.1">.1%</button>
+          <button data-seg="0.25">.25%</button>
+          <button data-seg="0.5" class="is-active">.5%</button>
+          <button data-seg="1">1%</button>
+        </div>
+      </div>
+      <div class="setting">
+        <label><span class="field-help-label">Max % of account</span></label>
+        <div class="seg">
+          <button data-seg="5">5</button>
+          <button data-seg="10">10</button>
+          <button data-seg="20" class="is-active">20</button>
+          <button data-seg="50">50</button>
+          <button data-seg="100">100</button>
+        </div>
+      </div>
+    </div>
+    <div class="calc-inputs">
+      <div class="field">
+        <label>Entry price</label>
+        <div class="stepper-wrap currency-input">
+          <span class="currency-prefix">$</span>
+          <input type="text" value="310.03" readonly>
+        </div>
+      </div>
+      <div class="field">
+        <label>Stop loss</label>
+        <div class="stepper-wrap currency-input">
+          <span class="currency-prefix">$</span>
+          <input type="text" value="300.73" readonly>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ticker</label>
+        <input type="text" value="AAPL" readonly style="text-transform:uppercase">
+      </div>
+      <div class="field">
+        <label>Target</label>
+        <div class="stepper-wrap currency-input">
+          <span class="currency-prefix">$</span>
+          <input type="text" value="328.63" readonly>
+        </div>
+      </div>
+    </div>
+    <div class="calc-results">
+      <div class="result-card position-card">
+        <div class="shares-hero">
+          <div class="shares-hero-num">26</div>
+          <div class="shares-label-row"><span class="shares-label">shares</span></div>
+        </div>
+        <div class="account-exposure">
+          <span class="account-exposure-icon" data-icon="gauge"></span>
+          <span class="account-exposure-label">% of account</span>
+          <b class="account-exposure-value">16.12%</b>
+        </div>
+        <div class="result-rows">
+          <div class="rrow"><span>Stop distance</span><b>$9.30 · 3.00%</b></div>
+          <div class="rrow"><span>Position size</span><b>$8,060.78</b></div>
+          <div class="rrow"><span>Total risk</span><b>$241.80</b></div>
+        </div>
+      </div>
+      <div class="result-card target-card" data-state="gain">
+        <div class="target-topline">
+          <div class="target-head">At 2R</div>
+          <span class="target-r-badge">2.0R</span>
+        </div>
+        <div class="target-profit-label">Projected P&amp;L</div>
+        <div class="target-profit">+$483.60</div>
+        <div class="target-metrics">
+          <div class="target-metric"><span>Target price</span><b>$328.63</b></div>
+          <div class="target-metric"><span>Per share</span><b>+$18.60</b></div>
+          <div class="target-metric"><span>ROI</span><b>6.00%</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="promo-side">
+    <div class="promo-kicker">Freeroll plan · ½ @ 1R</div>
+    <div class="promo-plan">
+      Sell <b>13 shares</b> at <b>$319.33</b> → lock <span class="lock">+$120.90</span>, then risk → $0 on the runner.
+    </div>
+    <table class="promo-table">
+      <thead>
+        <tr><th>Book</th><th class="num">R</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>AAPL</b> · 26 @ $310.03</td>
+          <td class="num">—</td>
+          <td><span class="status-badge" data-s="open">Open</span></td>
+        </tr>
+        <tr>
+          <td><b>HOOD</b> · half off @ 1R</td>
+          <td class="num pnl-gain">+0.5R</td>
+          <td><span class="status-badge" data-s="partial">Partial</span></td>
+        </tr>
+        <tr>
+          <td><b>IONQ</b> · 700 @ $42.80</td>
+          <td class="num">—</td>
+          <td><span class="status-badge" data-s="open">Open</span></td>
+        </tr>
+        <tr>
+          <td><b>ANET</b> · closed into strength</td>
+          <td class="num pnl-gain">+3.5R</td>
+          <td><span class="status-badge" data-s="closed">Closed</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="promo-url"><b>skyler.tools</b><span>Size. Freeroll. Keep the book honest.</span></div>
+  </aside>
+</div>
+<script src="../../icons.js"></script>
+<script>hydrateIcons();</script>
+</body>
+</html>

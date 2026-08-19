@@ -109,6 +109,7 @@ html[data-theme="dark"] .app {
     padding: 10vh 16px 16px;
     z-index: 21;
 }
+
 .modal-card {
     width: 100%; max-width: 420px;
     background: var(--surface);
@@ -174,8 +175,9 @@ textarea { min-height: 120px; resize: none; line-height: 1.45; }
     opacity: 1; pointer-events: auto;
     animation: layer-in 200ms ease-out both;
 }
+
 .stamp {
-    width: 72px; height: 72px;
+    width: 60px; height: 60px;
     border-radius: var(--radius-full);
     background: var(--success);
     border: 1px solid var(--success-hover);
@@ -186,13 +188,13 @@ textarea { min-height: 120px; resize: none; line-height: 1.45; }
 }
 .card.is-sent[data-play="A"] .stamp { animation: stamp-in 520ms var(--ease-overshoot-in) both; }
 .stamp-ring {
-    position: absolute; inset: -8px;
+    position: absolute; inset: -7px;
     border: 2px solid var(--success);
     border-radius: var(--radius-full);
     opacity: 0;
 }
 .card.is-sent[data-play="A"] .stamp-ring { animation: ring-out 700ms ease-out 180ms both; }
-.stamp svg { width: 34px; height: 34px; }
+.stamp svg { width: 26px; height: 26px; }
 .check-path {
     fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
     stroke-dasharray: 28; stroke-dashoffset: 28;
