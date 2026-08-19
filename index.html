@@ -443,7 +443,7 @@
             <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
             <span class="panel-ic" data-icon="square-pen" aria-hidden="true"></span>
             <span class="panel-title" id="formTitle">Add trade manually</span>
-            <span class="panel-hint">backfill &amp; edits — the calculator is the fast path</span>
+            <span class="panel-hint">For edits and old trades. Size new ones in the calculator.</span>
         </button>
         <div class="panel-body-wrap" id="formBodyWrap">
             <div class="panel-body" id="formBody">
@@ -470,11 +470,11 @@
                             </button>
                             <input type="hidden" id="fDate" value="">
                         </div>
-                        <div class="field"><label for="fShares">Shares</label><input type="text" inputmode="numeric" id="fShares" placeholder="unknown ok"></div>
+                        <div class="field"><label for="fShares">Shares <span class="label-opt">blank if unknown</span></label><input type="text" inputmode="numeric" id="fShares"></div>
                         <div class="field"><label for="fInitialSL">Initial stop</label><input type="text" inputmode="decimal" id="fInitialSL" required></div>
                         <div class="field"><label for="fCurrentSL">Current stop <button type="button" id="fCopyInitial" class="tiny-link" tabindex="-1">= initial</button></label><input type="text" inputmode="decimal" id="fCurrentSL"></div>
                     </div>
-                    <div class="form-status-note" id="formStatusNote">Status is derived from exits — log them from the table.</div>
+                    <div class="form-status-note" id="formStatusNote">Status updates when you trim or exit from the row.</div>
                     <div class="form-actions">
                         <button type="button" id="formCancel" class="btn btn-ghost">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="formSubmit">Save trade</button>
