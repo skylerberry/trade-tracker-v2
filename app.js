@@ -69,6 +69,11 @@
         lesson: { label: 'Lesson', icon: 'lightbulb', prompt: 'What should you repeat or change next time?' },
         note: { label: 'Imported note', icon: 'notebook-pen', prompt: '' },
     };
+    const journalKindTagMarkup = (kind) => {
+        const meta = JOURNAL_KINDS[kind] || JOURNAL_KINDS.update;
+        if (kind === 'note') return E.escapeHtml(meta.label);
+        return `<span class="journal-hash" aria-hidden="true">#</span>${E.escapeHtml(meta.label)}`;
+    };
 
     function normalizeTrade(t) {
         if (!Array.isArray(t.exits)) t.exits = [];
@@ -165,9 +170,16 @@
         $('dailyZone').textContent = zone;
         $('marketOffset').textContent = offsetLabel;
         $('localTime').dateTime = now.toISOString();
+        const session = E.marketSession(now);
+        const sessEl = $('marketSess');
+        if (sessEl) {
+            sessEl.dataset.state = session.state;
+            $('marketSessLabel').textContent = session.label;
+            sessEl.title = session.detail;
+        }
         $('dailyZoneTag').title = `${zone} · ${offsetPhrase}`;
-        $('dailyClock').title = `Local time · ${zone} · ${offsetPhrase}`;
-        $('dailyClock').setAttribute('aria-label', `${dateText}, ${hour}:${minute}${prefs.showSeconds ? ':' + String(now.getSeconds()).padStart(2, '0') : ''} ${period} ${zone}, ${offsetPhrase}`.trim());
+        $('dailyClock').title = `${session.detail} · Local time · ${zone} · ${offsetPhrase}`;
+        $('dailyClock').setAttribute('aria-label', `${session.label}. ${dateText}, ${hour}:${minute}${prefs.showSeconds ? ':' + String(now.getSeconds()).padStart(2, '0') : ''} ${period} ${zone}, ${offsetPhrase}`.trim());
     }
 
     function setClockSeconds(show, persist = true) {
@@ -810,7 +822,7 @@
         const optionMode = prefs.vehicle === 'option';
         const short = prefs.direction === 'short';
         $('optionInputs').hidden = !optionMode;
-        $('maxPctLabelText').textContent = optionMode ? 'Max premium % of account' : 'Max % of account';
+        $('maxPctLabelText').textContent = optionMode ? 'Max prem %' : 'Max %';
         $('maxPctHelp').textContent = optionMode
             ? 'Caps how much of your account can be committed to option premium. If this limit reduces your risk-based contract count, the original count is shown struck through.'
             : 'Caps how much of your account can go into one position. If this limit reduces your risk-based share count, the original count is shown struck through.';
@@ -1186,11 +1198,13 @@
                 : `<b>${fmtShareCount(units)}</b> copied`);
         }
     });
-    $('clearCalc').addEventListener('click', () => {
+    function clearCalculator() {
         ['entryPrice', 'stopLoss', 'tickerInput', 'targetPrice', 'optionDelta', 'optionPremium'].forEach(id => $(id).value = '');
         recalc();
         $('entryPrice').focus();
-    });
+    }
+    $('clearCalc').addEventListener('click', clearCalculator);
+    $('clearCalcMobile')?.addEventListener('click', clearCalculator);
 
     /* ---------- paste alert ---------- */
     const isCompleteAlert = parsed => !!parsed
@@ -1396,11 +1410,21 @@
     /* ---------- floating header visibility ----------
        Sentinel pattern: the pill appears exactly when the real header's
        metrics scroll out of view — no scroll-position guessing. */
-    new IntersectionObserver(([entry]) => {
-        const show = !entry.isIntersecting;
+    let headerOffscreen = false;
+    let calcInView = true;
+    function syncFloatBar() {
+        const show = headerOffscreen && !calcInView;
         $('floatBar').classList.toggle('in', show);
         $('floatBar').setAttribute('aria-hidden', String(!show));
+    }
+    new IntersectionObserver(([entry]) => {
+        headerOffscreen = !entry.isIntersecting;
+        syncFloatBar();
     }, { rootMargin: '-30px 0px 0px 0px' }).observe(document.querySelector('.app-header'));
+    new IntersectionObserver(([entry]) => {
+        calcInView = entry.isIntersecting;
+        syncFloatBar();
+    }).observe(document.querySelector('.calc-settings'));
     $('fbCalc').addEventListener('click', () => {
         if (view !== 'positions') { setView('positions'); return; }
         window.scrollTo({ top: 0, behavior: M.reduceMotion ? 'auto' : 'smooth' });
@@ -2010,7 +2034,7 @@
         const entries = [...journal].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         const kindButtons = Object.entries(JOURNAL_KINDS).filter(([kind]) => kind !== 'note').map(([kind, meta]) => `
             <button type="button" class="journal-kind-btn${kind === defaultKind ? ' is-active' : ''}" data-journal-kind="${kind}"
-                role="radio" aria-checked="${kind === defaultKind}">${ICONS[meta.icon]}<span>${meta.label}</span></button>`).join('');
+                role="radio" aria-checked="${kind === defaultKind}" aria-label="${meta.label} tag">${ICONS[meta.icon]}<span>${journalKindTagMarkup(kind)}</span></button>`).join('');
         const entryList = entries.length ? entries.map(entry => {
             const meta = JOURNAL_KINDS[entry.kind] || JOURNAL_KINDS.update;
             const text = E.escapeHtml(entry.text).replace(/\n/g, '<br>');
@@ -2020,7 +2044,7 @@
                 <span class="journal-entry-icon" aria-hidden="true">${ICONS[meta.icon]}</span>
                 <div class="journal-entry-main">
                     <div class="journal-entry-head">
-                        <span class="journal-entry-type">${meta.label}</span>
+                        <span class="journal-entry-type">${journalKindTagMarkup(entry.kind)}</span>
                         <time datetime="${E.escapeHtml(entry.createdAt)}" title="${E.escapeHtml(formatJournalTimestamp(entry.createdAt, { full: true }))}">${formatJournalTimestamp(entry.createdAt)}</time>
                         ${edited}
                         <span class="journal-entry-actions">
@@ -2049,7 +2073,7 @@
                 <span class="journal-count">${journal.length} ${journal.length === 1 ? 'entry' : 'entries'}</span>
             </div>
             <div class="journal-composer">
-                <div class="journal-kind-picker" role="radiogroup" aria-label="Journal entry type">${kindButtons}</div>
+                <div class="journal-kind-picker" role="radiogroup" aria-label="Journal entry tag">${kindButtons}</div>
                 <textarea class="journal-compose-input" maxlength="2000" placeholder="${JOURNAL_KINDS[defaultKind].prompt}" aria-label="New journal entry"></textarea>
                 <div class="journal-compose-footer">
                     <span class="journal-timestamp-hint">${ICONS.clock}<span>Timestamped when added</span></span>
@@ -2281,17 +2305,28 @@
         const idx = trades.findIndex(t => t.id === id);
         if (idx < 0) return;
         const t = trades[idx];
-        const row = document.querySelector(`tr[data-id="${id}"]`);
-        const before = deepClone(t);
-        const doRemove = () => {
-            trades.splice(trades.findIndex(x => x.id === id), 1);
-            if (expandedId === id) expandedId = null;
-            saveTrades(); renderAll();
-            toast(`<b>${E.escapeHtml(t.ticker)}</b> deleted`, {
-                undo: () => { trades.splice(Math.min(idx, trades.length), 0, before); saveTrades(); renderAll(); },
-            });
-        };
-        if (row) M.collapseAway(row, doRemove); else doRemove();
+        const journalCount = E.normalizeJournal(t).length;
+        const journalNote = journalCount
+            ? ` and ${journalCount === 1 ? 'its journal entry' : `its ${journalCount} journal entries`}`
+            : '';
+        confirmModal(
+            `Delete ${t.ticker}?`,
+            `This removes the trade${journalNote}. You can undo it from the confirmation toast.`,
+            'Delete trade',
+            () => {
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                const before = deepClone(t);
+                const doRemove = () => {
+                    trades.splice(trades.findIndex(x => x.id === id), 1);
+                    if (expandedId === id) expandedId = null;
+                    saveTrades(); renderAll();
+                    toast(`<b>${E.escapeHtml(t.ticker)}</b> deleted`, {
+                        undo: () => { trades.splice(Math.min(idx, trades.length), 0, before); saveTrades(); renderAll(); },
+                    });
+                };
+                if (row) M.collapseAway(row, doRemove); else doRemove();
+            },
+        );
     }
 
     /* ============================================================
@@ -2634,9 +2669,21 @@
     /* ============================================================
        MANUAL ADD / EDIT FORM
        ============================================================ */
+    let formShellExit = null;
+    function finishJournalFormExit(el) {
+        if (formShellExit) {
+            el.removeEventListener('transitionend', formShellExit);
+            formShellExit = null;
+        }
+        el.classList.remove('is-exiting');
+        el.style.height = '';
+        el.style.opacity = '';
+        el.style.marginBottom = '';
+    }
     function openEditForm(id) {
         const t = trades.find(x => x.id === id);
         prefs.formOpen = true;
+        finishJournalFormExit($('formSection'));
         panels.formSection.set(true);
         $('formToggle').setAttribute('aria-expanded', 'true');
         if (t) {
@@ -2679,7 +2726,27 @@
         if (!section?.classList.contains('is-open') && !prefs.formOpen) return false;
         const editId = $('editTradeId').value;
         clearTimeout(editFormFocusTimer);
-        panels.formSection.set(false);
+        const onJournal = document.body.dataset.view === 'journal';
+        if (onJournal && !M.reduceMotion) {
+            finishJournalFormExit(section);
+            const h = section.getBoundingClientRect().height;
+            section.classList.add('is-exiting');
+            section.style.height = h + 'px';
+            section.style.opacity = '1';
+            section.style.marginBottom = '0px';
+            void section.offsetHeight;
+            formShellExit = (event) => {
+                if (event.target !== section || event.propertyName !== 'height') return;
+                panels.formSection.set(false, true);
+                finishJournalFormExit(section);
+            };
+            section.addEventListener('transitionend', formShellExit);
+            section.style.height = '0px';
+            section.style.opacity = '0';
+            section.style.marginBottom = '-14px';
+        } else {
+            panels.formSection.set(false);
+        }
         prefs.formOpen = false;
         $('formToggle').setAttribute('aria-expanded', 'false');
         savePrefs();

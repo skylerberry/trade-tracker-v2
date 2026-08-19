@@ -310,27 +310,22 @@ const MOTION = (() => {
 
     /* ---------- collapsible (height + blur) ---------- */
     function collapsible(section, contentEl, expanded) {
+        contentEl.addEventListener('transitionend', (e) => {
+            if (e.target !== contentEl || e.propertyName !== 'height') return;
+            if (section.classList.contains('is-open')) contentEl.style.height = 'auto';
+        });
         const set = (open, instant = false) => {
             section.classList.toggle('is-open', open);
             if (instant || reduceMotion) {
                 contentEl.style.height = open ? 'auto' : '0px';
                 return;
             }
-            const full = contentEl.scrollHeight;
-            if (open) {
-                contentEl.style.height = '0px';
-                requestAnimationFrame(() => {
-                    contentEl.style.height = full + 'px';
-                    contentEl.addEventListener('transitionend', function fin(e) {
-                        if (e.propertyName !== 'height') return;
-                        contentEl.style.height = 'auto';
-                        contentEl.removeEventListener('transitionend', fin);
-                    });
-                });
-            } else {
-                contentEl.style.height = full + 'px';
-                requestAnimationFrame(() => requestAnimationFrame(() => { contentEl.style.height = '0px'; }));
-            }
+            // Pin the current rendered height, commit it with a sync reflow, then
+            // retarget — the height transition starts this frame, in lockstep with
+            // the opacity/border fades (a rAF-deferred start lags behind them).
+            contentEl.style.height = contentEl.getBoundingClientRect().height + 'px';
+            void contentEl.offsetHeight;
+            contentEl.style.height = open ? contentEl.scrollHeight + 'px' : '0px';
         };
         set(expanded, true);
         return set;

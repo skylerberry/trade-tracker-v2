@@ -36,7 +36,13 @@
             <div class="daily-clock" id="dailyClock" aria-label="Local date and time">
                 <span class="daily-clock-icon" data-icon="calendar-days" aria-hidden="true"></span>
                 <div class="daily-clock-copy">
-                    <span class="daily-clock-date" id="dailyDate"></span>
+                    <span class="daily-clock-date">
+                        <span class="market-sess" id="marketSess" data-state="closed">
+                            <span class="market-sess-dot" aria-hidden="true"></span>
+                            <span id="marketSessLabel">Closed</span>
+                        </span>
+                        <span id="dailyDate"></span>
+                    </span>
                     <time class="daily-clock-time" id="localTime">
                         <span id="dailyTime" data-roll-blur></span><span id="dailySeconds" data-roll-blur hidden></span>
                         <span class="daily-clock-period" id="dailyPeriod"></span>
@@ -219,7 +225,7 @@
                     </div>
                     <div class="setting">
                         <label class="has-field-tooltip" id="maxPctLabel" aria-describedby="maxPctHelp">
-                            <span class="field-help-label" id="maxPctLabelText">Max % of account</span>
+                            <span class="field-help-label"><span id="maxPctLabelText">Max %</span><span class="label-rest"> of account</span></span>
                             <span class="field-tooltip" id="maxPctHelp" role="tooltip">Caps how much of your account can go into one position. If this limit reduces your risk-based share count, the original count is shown struck through.</span>
                         </label>
                         <div class="seg" id="maxSeg">
@@ -232,6 +238,10 @@
                             <span class="seg-custom" data-seg="custom"><input type="text" inputmode="decimal" id="maxCustom" placeholder="…" aria-label="Custom max percent" tabindex="-1"><b>%</b></span>
                         </div>
                     </div>
+                </div>
+
+                <div class="calc-clear-mobile">
+                    <button type="button" id="clearCalcMobile" class="btn btn-ghost danger" title="Reset calculator inputs"><span data-icon="x"></span>Clear</button>
                 </div>
 
                 <div class="calc-inputs">
@@ -267,7 +277,7 @@
                         <label class="ghost-label" aria-hidden="true">&nbsp;</label>
                         <div class="calc-actions">
                             <button id="pasteAlertBtn" class="btn btn-ghost" title="Paste a Discord-style alert"><span data-icon="clipboard"></span>Paste alert</button>
-                            <button id="clearCalc" class="btn btn-ghost" title="Reset calculator inputs"><span data-icon="x"></span>Clear</button>
+                            <button id="clearCalc" class="btn btn-ghost danger" title="Reset calculator inputs"><span data-icon="x"></span>Clear</button>
                         </div>
                     </div>
                 </div>
@@ -475,12 +485,12 @@
     </section>
 
     <div class="journal-summary" id="journalSummary" hidden>
-        <div class="js-stat"><span class="js-label">P&amp;L</span><span id="jsPnl">—</span></div>
+        <div class="js-stat"><span class="js-label"><span class="js-full">Profit &amp; loss</span><span class="js-abbr">P&amp;L</span></span><span id="jsPnl">—</span></div>
         <div class="js-stat"><span class="js-label">Win rate</span><span id="jsWinRate">—</span></div>
         <div class="js-stat"><span class="js-label">Record</span><span id="jsRecord">—</span></div>
-        <div class="js-stat"><span class="js-label">Avg win</span><span id="jsAvgWin">—</span></div>
-        <div class="js-stat"><span class="js-label">Avg loss</span><span id="jsAvgLoss">—</span></div>
-        <div class="js-stat"><span class="js-label">Total R</span><span id="jsR">—</span></div>
+        <div class="js-stat"><span class="js-label"><span class="js-full">Average win</span><span class="js-abbr">Avg win</span></span><span id="jsAvgWin">—</span></div>
+        <div class="js-stat"><span class="js-label"><span class="js-full">Average loss</span><span class="js-abbr">Avg loss</span></span><span id="jsAvgLoss">—</span></div>
+        <div class="js-stat"><span class="js-label" title="Sum of realized R on closed and stopped trades">Total R</span><span id="jsR">—</span></div>
     </div>
 
     <!-- ============ FILTERS ============ -->

@@ -55,10 +55,19 @@ Requires Node.js 18 or newer.
 npm start
 ```
 
-Open [http://localhost:4173](http://localhost:4173).
+Safe to run if a server is already up — it reuses it, or restarts a
+laptop-only listener so a phone on the same Wi-Fi can connect.
 
-The app has no runtime dependencies. Any static file server can also serve
-the repository root.
+- Laptop: [http://localhost:4173](http://localhost:4173)
+- Phone (same Wi-Fi): the `http://192.168.…:4173` URL `npm start` prints
+
+This is **not** a Netlify Preview URL. Localhost is your machine.
+A Preview URL is a free temporary copy on Netlify’s servers. Production
+(`skyler.tools`) is the live site.
+
+The app has no runtime dependencies. Files are read from disk on every
+request, so a browser refresh picks up CSS/JS edits (hard-refresh if a
+tab was left open).
 
 ## Production
 

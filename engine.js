@@ -700,6 +700,60 @@ const ENGINE = (() => {
         return entries.map(migrateLiveSiteTrade).filter(Boolean);
     }
 
+    /* ---------- NYSE session (America/New_York wall clock) ----------
+       Regular 09:30–16:00 · pre 04:00–09:30 · post 16:00–20:00.
+       Weekends and listed holidays are closed. Early-close dates go post
+       at 13:00. Holiday table is 2025–2027 — extend when a new year starts. */
+    const NYSE_HOLIDAYS = new Set([
+        '2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18', '2025-05-26',
+        '2025-06-19', '2025-07-04', '2025-09-01', '2025-11-27', '2025-12-25',
+        '2026-01-01', '2026-01-19', '2026-02-16', '2026-04-03', '2026-05-25',
+        '2026-06-19', '2026-07-03', '2026-09-07', '2026-11-26', '2026-12-25',
+        '2027-01-01', '2027-01-18', '2027-02-15', '2027-03-26', '2027-05-31',
+        '2027-06-18', '2027-07-05', '2027-09-06', '2027-11-25', '2027-12-24',
+    ]);
+    const NYSE_EARLY_CLOSE = new Set([
+        '2025-07-03', '2025-11-28', '2025-12-24',
+        '2026-11-27', '2026-12-24',
+        '2027-11-26',
+    ]);
+    const SESSION_META = {
+        open: { label: 'Open', detail: 'Regular hours · 9:30–16:00 ET' },
+        pre: { label: 'Pre-market', detail: 'Pre-market · 4:00–9:30 ET' },
+        post: { label: 'Post-market', detail: 'After hours · 16:00–20:00 ET' },
+        closed: { label: 'Closed', detail: 'US cash session is closed' },
+    };
+
+    function nyWall(date) {
+        const values = {};
+        new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/New_York',
+            weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+        }).formatToParts(date).forEach((part) => {
+            if (part.type !== 'literal') values[part.type] = part.value;
+        });
+        const ymd = `${values.year}-${values.month}-${values.day}`;
+        const minutes = Number(values.hour) * 60 + Number(values.minute);
+        const weekend = values.weekday === 'Sat' || values.weekday === 'Sun';
+        return { ymd, minutes, weekend };
+    }
+
+    function marketSession(when = new Date()) {
+        const date = when instanceof Date ? when : new Date(when);
+        if (!Number.isFinite(date.getTime())) {
+            return { state: 'closed', ...SESSION_META.closed };
+        }
+        const { ymd, minutes, weekend } = nyWall(date);
+        if (weekend || NYSE_HOLIDAYS.has(ymd)) return { state: 'closed', ...SESSION_META.closed };
+        const close = NYSE_EARLY_CLOSE.has(ymd) ? 13 * 60 : 16 * 60;
+        let state = 'closed';
+        if (minutes >= 4 * 60 && minutes < 9 * 60 + 30) state = 'pre';
+        else if (minutes >= 9 * 60 + 30 && minutes < close) state = 'open';
+        else if (minutes >= close && minutes < 20 * 60) state = 'post';
+        return { state, ...SESSION_META[state] };
+    }
+
     /* ---------- CSV export ---------- */
     function toCSV(trades, sep = ',') {
         const esc = (v) => {
@@ -727,6 +781,7 @@ const ENGINE = (() => {
         calcPosition, calcOptionPosition, buildSellPlan, pendingTargets, breakevenStop, freerollSharesAtPrice,
         computeStats, accountRisk, staleTrades, lastExitDate,
         parseAlert, parseWatchlistTickers, toCSV,
+        marketSession,
         COMPOUND_RATES, compoundAnnualContribution, compoundValue, compoundGlow,
         compoundPath, periodicRate, yearsToTarget, compoundWithYearShock, compoundPerspective,
         migrateLiveSiteTrade, migrateLiveSiteJournal,

@@ -177,6 +177,16 @@ eq(Math.round(E.compoundPerspective(10000, 50, 10).backload * 100), 72, '72% of 
 eq(E.compoundPerspective(10000, 50, 10).yearsTo1m, 12, 'perspective $1M year');
 eq(E.compoundWithYearShock(10000, 50, 10, 0, 3, -30) < E.compoundValue(10000, 50, 10), true, 'a −30% year 3 finishes below the clean path');
 
+/* ---- NYSE session: pre / open / post / closed from an instant ---- */
+eq(E.marketSession(new Date('2026-08-19T13:45:00.000Z')).state, 'open', 'Wed 9:45 ET is regular hours');
+eq(E.marketSession(new Date('2026-08-19T13:45:00.000Z')).label, 'Open', 'open label');
+eq(E.marketSession(new Date('2026-08-19T12:00:00.000Z')).state, 'pre', 'Wed 8:00 ET is pre-market');
+eq(E.marketSession(new Date('2026-08-19T21:00:00.000Z')).state, 'post', 'Wed 17:00 ET is post-market');
+eq(E.marketSession(new Date('2026-08-19T03:00:00.000Z')).state, 'closed', 'Tue 23:00 ET is closed');
+eq(E.marketSession(new Date('2026-08-22T15:00:00.000Z')).state, 'closed', 'Saturday is closed');
+eq(E.marketSession(new Date('2026-12-25T15:00:00.000Z')).state, 'closed', 'Christmas 2026 is closed');
+eq(E.marketSession(new Date('2026-11-27T18:30:00.000Z')).state, 'post', 'day after Thanksgiving 13:30 ET is post (early close)');
+
 /* ---- live-site journal → v2 trades ---- */
 const liveOpen = E.migrateLiveSiteTrade({
     id: 1001, timestamp: '2026-06-01T15:00:00.000Z', ticker: 'nvda',
