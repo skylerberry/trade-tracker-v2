@@ -36,6 +36,7 @@
         plan: 'half-1r', showSeconds: false,
         direction: 'long', vehicle: 'shares',
     };
+    const RISK_PRESETS = ['0.1', '0.125', '0.25', '0.5', '1'];
     let account = 25000;
     let watchlist = [];
     let filters = { status: 'active', from: '', to: '', page: 1, q: '', sortKey: '', sortDir: 'desc' };
@@ -90,7 +91,7 @@
         try { trades = JSON.parse(localStorage.getItem(K.trades)) || []; } catch { trades = []; }
         trades.forEach(normalizeTrade);
         account = parseNum(localStorage.getItem(K.account)) ?? 25000;
-        const r = localStorage.getItem(K.risk); if (r) { prefs.riskPreset = r; if (!['0.1', '0.25', '0.5', '1'].includes(r)) { prefs.riskPreset = 'custom'; prefs.riskCustom = parseNum(r) ?? 0.5; } }
+        const r = localStorage.getItem(K.risk); if (r) { prefs.riskPreset = r; if (!RISK_PRESETS.includes(r)) { prefs.riskPreset = 'custom'; prefs.riskCustom = parseNum(r) ?? 0.5; } }
         const mx = localStorage.getItem(K.max); if (mx) { prefs.maxPreset = mx; if (!['5', '10', '20', '50', '100'].includes(mx)) { prefs.maxPreset = 'custom'; prefs.maxCustom = parseNum(mx) ?? 20; } }
         const pl = localStorage.getItem(K.plan); if (pl) prefs.plan = pl;
         try { watchlist = JSON.parse(localStorage.getItem(K.watch)) || []; } catch { watchlist = []; }
@@ -789,7 +790,7 @@
 
     function setRiskPercent(value) {
         const normalized = Math.max(0.01, Math.min(100, Math.round(value * 10000) / 10000));
-        const preset = ['0.1', '0.25', '0.5', '1'].find(v => Math.abs(parseFloat(v) - normalized) < 0.000001);
+        const preset = RISK_PRESETS.find(v => Math.abs(parseFloat(v) - normalized) < 0.000001);
         if (preset) {
             prefs.riskPreset = preset;
         } else {
@@ -1217,7 +1218,7 @@
         if (parsed.entry !== null) $('entryPrice').value = String(parsed.entry);
         if (parsed.stop !== null) $('stopLoss').value = String(parsed.stop);
         if (parsed.riskPct !== null) {
-            const preset = ['0.1', '0.25', '0.5', '1'].find(p => parseFloat(p) === parsed.riskPct);
+            const preset = RISK_PRESETS.find(p => parseFloat(p) === parsed.riskPct);
             if (preset) { prefs.riskPreset = preset; segs.risk.set(preset); }
             else { prefs.riskPreset = 'custom'; prefs.riskCustom = parsed.riskPct; $('riskCustom').value = String(parsed.riskPct); segs.risk.set('custom'); }
             savePrefs();
@@ -3541,7 +3542,7 @@
             if (s?.startingAccountSize) account = Number(s.startingAccountSize) || account;
             if (s?.defaultRiskPercent != null) {
                 const r = String(s.defaultRiskPercent);
-                if (['0.1', '0.25', '0.5', '1'].includes(r)) prefs.riskPreset = r;
+                if (RISK_PRESETS.includes(r)) prefs.riskPreset = r;
                 else { prefs.riskPreset = 'custom'; prefs.riskCustom = Number(s.defaultRiskPercent) || 0.5; }
             }
             if (s?.theme === 'light' || s?.theme === 'dark' || s?.theme === 'oled') setTheme(s.theme);
