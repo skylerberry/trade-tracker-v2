@@ -1458,7 +1458,7 @@
         if (!el) return;
         el.hidden = view !== 'journal';
         if (view !== 'journal') return;
-        let pnl = 0, wins = 0, losses = 0, winSum = 0, lossSum = 0, r = 0;
+        let pnl = 0, wins = 0, losses = 0, winSum = 0, lossSum = 0, r = 0, rCount = 0;
         for (const t of trades) {
             if (t.archived) continue;
             const s = E.deriveStatus(t);
@@ -1467,7 +1467,7 @@
             const rr = E.getRealizedR(t);
             if (p === null) continue;
             pnl += p;
-            if (rr !== null) r += rr;
+            if (rr !== null) { r += rr; rCount++; }
             if (p > 0) { wins++; winSum += p; }
             else if (p < 0) { losses++; lossSum += p; }
         }
@@ -1480,7 +1480,10 @@
         $('jsAvgWin').dataset.sign = wins ? 'up' : '';
         $('jsAvgLoss').textContent = losses ? E.fmtMoney(round2(lossSum / losses), true) : '—';
         $('jsAvgLoss').dataset.sign = losses ? 'down' : '';
-        $('jsR').textContent = E.fmtR(round2(r));
+        $('jsR').textContent = rCount ? E.fmtR(round2(r)) : '—';
+        $('jsR').dataset.sign = r > 0 ? 'up' : r < 0 ? 'down' : '';
+        $('jsAvgR').textContent = rCount ? E.fmtR(round2(r / rCount)) : '—';
+        $('jsAvgR').dataset.sign = rCount ? ((r / rCount) > 0 ? 'up' : (r / rCount) < 0 ? 'down' : '') : '';
     }
 
     function setView(name, { syncHash = true, instant = false, fromSegment = false } = {}) {

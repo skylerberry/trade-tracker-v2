@@ -1905,7 +1905,7 @@ body[data-view="compound"] .float-bar .fb-sep { display: none; }
 
 .journal-summary {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 10px;
     margin: 4px 0 14px;
 }
@@ -1923,15 +1923,16 @@ body[data-view="compound"] .float-bar .fb-sep { display: none; }
     line-height: 1.25;
 }
 .js-abbr { display: none; }
+.js-keep { white-space: nowrap; }
 @media (max-width: 860px) {
     .js-full { display: none; }
     .js-abbr { display: inline; }
 }
-#jsPnl, #jsWinRate, #jsRecord, #jsAvgWin, #jsAvgLoss, #jsR {
+#jsPnl, #jsWinRate, #jsRecord, #jsAvgWin, #jsAvgLoss, #jsR, #jsAvgR {
     font-size: 1.02rem; font-weight: 600; color: var(--header-text); letter-spacing: -0.02em;
 }
-#jsPnl[data-sign="up"], #jsAvgWin[data-sign="up"] { color: var(--success); }
-#jsPnl[data-sign="down"], #jsAvgLoss[data-sign="down"] { color: var(--danger); }
+#jsPnl[data-sign="up"], #jsAvgWin[data-sign="up"], #jsR[data-sign="up"], #jsAvgR[data-sign="up"] { color: var(--success); }
+#jsPnl[data-sign="down"], #jsAvgLoss[data-sign="down"], #jsR[data-sign="down"], #jsAvgR[data-sign="down"] { color: var(--danger); }
 
 .panel-static-head {
     padding: 12px 16px 0;
