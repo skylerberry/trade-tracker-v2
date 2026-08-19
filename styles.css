@@ -3538,7 +3538,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     will-change: transform;
     position: relative; overflow: hidden;
 }
-.toast-msg { flex: 1; min-width: 0; }
+.toast-msg { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .toast-msg b { font-weight: 600; }
 .toast .toast-undo {
     flex: none;

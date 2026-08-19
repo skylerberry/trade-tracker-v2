@@ -223,7 +223,6 @@
             applyAccent(accentName);
         }).then(() => {
             requestAnimationFrame(refreshSegs);
-            if (mode === 'oled') toast('OLED · pure black');
         });
     }
 
@@ -2789,21 +2788,31 @@
             return;
         }
         if (!E.isNum(vals.currentSL)) vals.currentSL = vals.initialSL;
+        const savedBits = [];
+        if (E.isNum(vals.shares)) savedBits.push(fmtShareCount(vals.shares));
+        if (E.isNum(vals.entryPrice)) savedBits.push(`@ ${E.fmtPrice(vals.entryPrice)}`);
+        const savedLine = `<b>${E.escapeHtml(vals.ticker)}</b> saved` + (savedBits.length ? ` · ${savedBits.join(' ')}` : '');
         if (id) {
             mutateTrade(id, (tr) => {
                 Object.assign(tr, vals);
                 // entry/stop edits rebuild frozen exit R so derived numbers can't desync
                 for (const x of tr.exits) x.rMultiple = E.computeExitR(tr, x.price);
-            }, `<b>${E.escapeHtml(vals.ticker)}</b> updated`);
+            }, savedLine);
         } else {
-            trades.unshift({
+            const added = {
                 id: uid(), ...vals, exits: [],
                 sellPlan: { enabled: false, preset: 'off', targets: [] },
                 archived: false, journal: [], notes: '',
                 createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-            });
+            };
+            trades.unshift(added);
             saveTrades(); renderAll();
-            toast(`<b>${E.escapeHtml(vals.ticker)}</b> added`);
+            toast(`<b>${E.escapeHtml(vals.ticker)}</b> added`, {
+                undo: () => {
+                    trades = trades.filter(t => t.id !== added.id);
+                    saveTrades(); renderAll();
+                },
+            });
         }
         closeEditForm({ restoreFocus: false });
     });
@@ -2867,6 +2876,7 @@
         savePrefs();
         renderWatchlist();
         if (fresh.length > room) toast('Watchlist full (max 20)');
+        else if (added.length === 1) toast(`Added <b>${E.escapeHtml(added[0])}</b>`);
         else if (added.length > 1) toast(`Added <b>${added.length}</b> tickers`);
         return true;
     }
