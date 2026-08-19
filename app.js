@@ -1816,10 +1816,9 @@
             if (t.id === expandedId) tbody.appendChild(buildRail(t, false));
         }
 
-        // footer
-        const foot = $('tableFooter');
+        const count = $('footerTotals');
         const isClosedView = ['closed', 'stopped', 'winners', 'losers', 'all'].includes(filters.status);
-        foot.hidden = !vis.length;
+        count.hidden = !vis.length;
         if (vis.length) {
             if (isClosedView) {
                 let w = 0, l = 0, r = 0, pnl = 0;
@@ -1829,16 +1828,21 @@
                     if (rr !== null) r += rr;
                 }
                 const sep = '<span class="f-sep">·</span>';
-                $('footerTotals').innerHTML = [
+                count.innerHTML = [
                     `<span class="f-val">${vis.length}</span> closed`,
                     `<span class="f-val">${w}W/${l}L</span>`,
                     `<span class="f-val">${E.fmtR(r)}</span>`,
                     `<span class="f-val">${E.fmtMoney(round2(pnl), true)}</span>`,
                 ].join(sep);
             } else {
-                $('footerTotals').innerHTML = `<span class="f-val">${vis.length}</span> position${vis.length === 1 ? '' : 's'}`;
+                count.innerHTML = `<span class="f-val">${vis.length}</span> position${vis.length === 1 ? '' : 's'}`;
             }
-            $('pager').hidden = pages <= 1;
+        } else {
+            count.innerHTML = '';
+        }
+        $('pager').hidden = pages <= 1;
+        $('tableFooter').hidden = pages <= 1;
+        if (pages > 1) {
             $('pageInfo').textContent = `${filters.page} / ${pages}`;
             $('pagePrev').disabled = filters.page <= 1;
             $('pageNext').disabled = filters.page >= pages;

@@ -516,6 +516,7 @@
             <button data-seg="archived" role="tab">Archived</button>
         </div>
         <div class="filters-right">
+            <span id="footerTotals" class="filter-count" hidden></span>
             <label class="search-field" id="searchField">
                 <span class="search-ic" data-icon="search" aria-hidden="true"></span>
                 <input type="search" id="tradeSearch" placeholder="Search trades…" aria-label="Search trades" autocomplete="off" spellcheck="false">
@@ -586,7 +587,6 @@
             </div>
         </div>
         <div class="table-footer" id="tableFooter" hidden>
-            <span id="footerTotals" class="footer-totals"></span>
             <div class="pager" id="pager" hidden>
                 <button id="pagePrev" class="btn btn-ghost btn-sm" aria-label="Previous page"><span data-icon="chevron-left" aria-hidden="true"></span></button>
                 <span id="pageInfo"></span>
