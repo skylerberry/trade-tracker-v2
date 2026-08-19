@@ -320,12 +320,15 @@ const MOTION = (() => {
                 contentEl.style.height = open ? 'auto' : '0px';
                 return;
             }
-            // Pin the current rendered height, commit it with a sync reflow, then
-            // retarget — the height transition starts this frame, in lockstep with
-            // the opacity/border fades (a rAF-deferred start lags behind them).
-            contentEl.style.height = contentEl.getBoundingClientRect().height + 'px';
+            // Measure the inner row, not wrap.scrollHeight — blur/overflow on a
+            // height:0 wrap inflates scrollHeight and the header divider snaps
+            // when height later goes to auto.
+            const inner = contentEl.firstElementChild;
+            const from = contentEl.getBoundingClientRect().height;
+            const to = open ? (inner ? inner.getBoundingClientRect().height : contentEl.scrollHeight) : 0;
+            contentEl.style.height = from + 'px';
             void contentEl.offsetHeight;
-            contentEl.style.height = open ? contentEl.scrollHeight + 'px' : '0px';
+            contentEl.style.height = to + 'px';
         };
         set(expanded, true);
         return set;
