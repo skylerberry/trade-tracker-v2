@@ -732,7 +732,7 @@
 </main>
 
 <footer class="app-footer">
-    <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerBackup" class="tiny-link">backup</button> · <button id="footerFeedback" class="tiny-link">feedback</button></span>
+    <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerBackup" class="tiny-link">backup</button> · <button id="footerFaq" class="tiny-link">faq</button> · <button id="footerFeedback" class="tiny-link">feedback</button></span>
     <a class="footer-made" href="https://x.com/skylerber" target="_blank" rel="noopener">made with <span class="footer-marks"><span class="footer-heart" data-icon="heart" aria-hidden="true"></span><span class="footer-plus" aria-hidden="true">+</span><span class="footer-coffee" data-icon="coffee" aria-hidden="true"></span></span> by skyler</a>
 </footer>
 
@@ -957,6 +957,73 @@
                 <button class="btn btn-ghost btn-sm sy-backup">Download backup</button>
                 <button class="btn btn-ghost btn-sm sy-restore">Restore from file…</button>
             </span>
+        </div>
+    </div>
+</template>
+
+<!-- FAQ -->
+<template id="tpl-faq">
+    <div class="modal-card faq-card">
+        <div class="modal-head">
+            <div class="modal-title faq-title"><span class="faq-title-ic" data-icon="circle-help" aria-hidden="true"></span>FAQ</div>
+            <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        </div>
+        <p class="faq-lead">The short answers. Feedback if something still feels off.</p>
+        <div class="faq-list">
+            <article class="faq-item collapsible">
+                <button type="button" class="faq-q" aria-expanded="false">
+                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                    <span>Where does my data live?</span>
+                </button>
+                <div class="faq-a-wrap">
+                    <p class="faq-a">In this browser. Nothing sits on a skyler.tools server. Link a private GitHub gist to sync devices, or download a JSON backup from the footer.</p>
+                </div>
+            </article>
+            <article class="faq-item collapsible">
+                <button type="button" class="faq-q" aria-expanded="false">
+                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                    <span>Why isn’t there a status to pick?</span>
+                </button>
+                <div class="faq-a-wrap">
+                    <p class="faq-a">Status follows your sells. Trim or exit from the row when you take something off.</p>
+                </div>
+            </article>
+            <article class="faq-item collapsible">
+                <button type="button" class="faq-q" aria-expanded="false">
+                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                    <span>What is R?</span>
+                </button>
+                <div class="faq-a-wrap">
+                    <p class="faq-a">How many times your initial risk you made or lost. Risk $200 at the stop and make $200 = 1R.</p>
+                </div>
+            </article>
+            <article class="faq-item collapsible">
+                <button type="button" class="faq-q" aria-expanded="false">
+                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                    <span>Can I log option trades?</span>
+                </button>
+                <div class="faq-a-wrap">
+                    <p class="faq-a">Not yet. Options size in the calculator. The book is share trades.</p>
+                </div>
+            </article>
+            <article class="faq-item collapsible">
+                <button type="button" class="faq-q" aria-expanded="false">
+                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                    <span>What does Freerolled mean?</span>
+                </button>
+                <div class="faq-a-wrap">
+                    <p class="faq-a">The stop is at or beyond entry, so what’s left is house money. Open risk is gone.</p>
+                </div>
+            </article>
+            <article class="faq-item collapsible">
+                <button type="button" class="faq-q" aria-expanded="false">
+                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                    <span>Does feedback include my trades?</span>
+                </button>
+                <div class="faq-a-wrap">
+                    <p class="faq-a">No. Just the note, and an email if you add one.</p>
+                </div>
+            </article>
         </div>
     </div>
 </template>

@@ -3257,6 +3257,25 @@
             });
         });
     }
+    function openFaqModal() {
+        openModal('tpl-faq', (card) => {
+            const items = [...card.querySelectorAll('.faq-item')];
+            const sets = items.map((item) => {
+                const wrap = item.querySelector('.faq-a-wrap');
+                const btn = item.querySelector('.faq-q');
+                const set = M.collapsible(item, wrap, false);
+                btn.addEventListener('click', () => {
+                    const next = !item.classList.contains('is-open');
+                    items.forEach((other, i) => {
+                        sets[i](other === item && next);
+                        other.querySelector('.faq-q').setAttribute('aria-expanded', String(other === item && next));
+                    });
+                });
+                return set;
+            });
+        });
+    }
+    $('footerFaq').addEventListener('click', openFaqModal);
     $('footerFeedback').addEventListener('click', openFeedbackModal);
     $('restoreFile').addEventListener('change', async (e) => {
         const file = e.target.files[0];

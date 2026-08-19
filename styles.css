@@ -967,9 +967,11 @@ body.is-splash > .app-footer {
                 filter var(--dur-slow) ease-out, opacity var(--dur-slow) ease-out;
 }
 .collapsible:not(.is-open) .panel-body-wrap,
-.collapsible:not(.is-open) .metrics-row-wrap { filter: blur(5px); opacity: 0; }
+.collapsible:not(.is-open) .metrics-row-wrap,
+.collapsible:not(.is-open) .faq-a-wrap { filter: blur(5px); opacity: 0; }
 .collapsible.is-open .panel-body-wrap,
-.collapsible.is-open .metrics-row-wrap { filter: blur(0); opacity: 1; }
+.collapsible.is-open .metrics-row-wrap,
+.collapsible.is-open .faq-a-wrap { filter: blur(0); opacity: 1; }
 .panel-body { padding: 16px; border-top: 1px solid var(--border); }
 
 /* ---------- calculator ---------- */
@@ -3322,6 +3324,50 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 .footer-coffee .lucide { width: 11px; height: 11px; }
 .app-footer a.footer-made:hover .footer-heart { color: var(--made-heart); }
 .app-footer a.footer-made:hover .footer-coffee { color: var(--made-coffee); }
+.faq-card { max-height: min(80vh, 640px); overflow: hidden; }
+.faq-title { display: flex; align-items: center; gap: 8px; }
+.faq-title-ic { color: var(--text-3); }
+.faq-title-ic .lucide { width: 16px; height: 16px; }
+.faq-lead {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    margin: 2px -20px -20px;
+    border-top: 1px solid var(--border);
+    overflow-y: auto;
+}
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-item:last-child { border-bottom: none; }
+.faq-q {
+    display: flex; align-items: center; gap: 9px;
+    width: 100%; text-align: left;
+    padding: 12px 20px;
+    border: 0; background: transparent;
+    font-weight: 600; font-size: 0.88rem; color: var(--text);
+    transition: background-color var(--dur-base);
+}
+.faq-q:hover { background: var(--surface-2); }
+.faq-q .chev { flex: none; }
+.faq-a-wrap {
+    height: 0;
+    overflow: hidden;
+    transition: height var(--dur-slow) var(--ease-out-expo),
+                filter 250ms ease-out, opacity 250ms ease-out;
+}
+.faq-a {
+    margin: 0;
+    padding: 0 20px 14px 45px;
+    color: var(--text-2);
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
 .feedback-lead {
     margin: 0;
     color: var(--text-2);
