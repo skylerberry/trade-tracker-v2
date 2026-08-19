@@ -210,10 +210,13 @@
                         </div>
                     </div>
                     <div class="setting">
-                        <label class="has-field-tooltip" aria-describedby="riskHelp">
-                            <span class="field-help-label">Risk</span>
-                            <span class="field-tooltip" id="riskHelp" role="tooltip">The maximum percentage of your account you are willing to lose if the stop is hit. This controls risk, not position size.</span>
-                        </label>
+                        <span class="setting-label-row">
+                            <label class="has-field-tooltip" aria-describedby="riskHelp">
+                                <span class="field-help-label">Risk</span>
+                                <span class="field-tooltip" id="riskHelp" role="tooltip">The maximum percentage of your account you are willing to lose if the stop is hit. This controls risk, not position size.</span>
+                            </label>
+                            <button type="button" id="riskViewToggle" class="risk-view-toggle" aria-pressed="false" title="Show presets as fractions of 1%">½</button>
+                        </span>
                         <div class="seg" id="riskSeg">
                             <span class="seg-pill" aria-hidden="true"></span>
                             <button data-seg="0.1" tabindex="-1">.1%</button>
@@ -605,7 +608,7 @@
     <section class="compound-view" id="compoundView" hidden aria-labelledby="compoundTitle">
         <header class="view-head">
             <h1 class="view-title" id="compoundTitle">Compound calculator</h1>
-            <p class="view-sub">What a steady yearly return does to your capital over 10 years. Pick a starting amount and a rate — the path, the milestones and the full table all follow it.</p>
+            <p class="view-sub">What a steady yearly return does to your capital over 10 years. Pick a starting amount and a rate — the path, the milestones, and the full table all follow it.</p>
         </header>
         <div class="compound-layout">
             <aside class="compound-side">
@@ -733,7 +736,7 @@
 
 <footer class="app-footer">
     <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerBackup" class="tiny-link">backup</button> · <button id="footerFaq" class="tiny-link">faq</button> · <button id="footerFeedback" class="tiny-link">feedback</button></span>
-    <a class="footer-made" href="https://x.com/skylerber" target="_blank" rel="noopener">made with <span class="footer-marks"><span class="footer-heart" data-icon="heart" aria-hidden="true"></span><span class="footer-plus" aria-hidden="true">+</span><span class="footer-coffee" data-icon="coffee" aria-hidden="true"></span></span> by skyler</a>
+    <span class="footer-byline">made with <span class="footer-marks"><span class="footer-heart" data-icon="heart" aria-hidden="true"></span><span class="footer-plus" aria-hidden="true">+</span><span class="footer-coffee" data-icon="coffee" aria-hidden="true"></span></span> by <a class="footer-handle" href="https://x.com/skylerber" target="_blank" rel="noopener">@skylerber</a> on <a class="footer-x" href="https://x.com/skylerber" target="_blank" rel="noopener" aria-label="@skylerber on X"><span data-icon="x-logo" aria-hidden="true"></span></a></span>
 </footer>
 
 <!-- Netlify parses this static form at deploy. The modal POSTs the same fields. -->
@@ -872,7 +875,7 @@
             <span class="brand-name">skyler.tools<sup class="brand-version">2.0</sup></span>
             <h2 class="wc-title">Trades from the previous site</h2>
         </div>
-        <p class="wc-sub import-copy">This browser still has trades from the last skyler.tools. Import them into the suite — nothing on the old site is deleted.</p>
+        <p class="wc-sub import-copy">This browser still has trades from the previous skyler.tools. Import them into the suite — nothing on the old site is deleted.</p>
         <div class="wc-actions">
             <button class="btn btn-primary wc-import">Import trades</button>
             <button class="btn btn-ghost modal-cancel">Start fresh</button>
@@ -907,47 +910,86 @@
     </div>
 </template>
 
-<!-- Sync setup -->
+<!-- Sync setup — guided wizard: choice → (signup) → token → linked -->
 <template id="tpl-sync">
     <div class="modal-card sync-card">
         <div class="modal-head">
             <div class="modal-title">Cloud sync</div>
             <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
         </div>
-        <p class="sync-lead">Optional. Keeps this book on your phone and laptop through a <b>private GitHub Gist you own</b>. The token stays in this browser — it never goes to skyler.tools.</p>
-        <div class="sync-status">
-            <span class="sync-status-dot" data-s="off"></span>
-            <span class="sync-status-kicker">Status</span>
-            <span class="sync-status-text">Not linked</span>
-            <button class="btn btn-ghost btn-sm sync-now" hidden>Sync now</button>
-        </div>
-        <ol class="sync-steps">
-            <li>
-                Create a GitHub personal access token and check the <b>gist</b> box.
-                <a class="sync-token-link" href="https://github.com/settings/tokens/new?description=skyler.tools%20sync&amp;scopes=gist" target="_blank" rel="noopener">Create a token <span data-icon="external-link" aria-hidden="true"></span></a>
-            </li>
-            <li>Paste it below. Leave Gist ID blank to make a new private gist, or paste one from another device to join it.</li>
-            <li>Tap <b>Link &amp; sync</b>. Same token + gist ID on the next device is all it takes.</li>
-        </ol>
-        <div class="sync-fields">
-            <div class="field">
-                <label>GitHub token <span class="label-opt">gist scope only</span></label>
-                <input type="password" class="sy-token" placeholder="ghp_…" autocomplete="off">
+
+        <div class="sync-screen" data-screen="choice" hidden>
+            <p class="sync-lead">Optional. Your trades on every device, through a <b>private GitHub gist you own</b>. The token stays in this browser — it never goes to skyler.tools.</p>
+            <div class="sync-choice">
+                <button class="btn btn-gh sy-have" data-autofocus><span data-icon="github" aria-hidden="true"></span>I have a GitHub account</button>
+                <button class="btn btn-ghost sy-new">I’m new — set me up</button>
             </div>
-            <div class="field">
-                <label>Gist ID <span class="label-opt">blank = create a new private gist</span></label>
-                <input type="text" class="sy-gist" placeholder="only if you already have one" autocomplete="off">
+            <div class="muted-note sync-gist-what" role="group" aria-label="Ask an AI what a gist is">
+                <span>New to gists? Ask with</span>
+                <span class="sync-ask-chips">
+                    <a href="https://chatgpt.com/?q=What%20is%20a%20GitHub%20gist%3F%20Explain%20it%20simply%3A%20what%20a%20private%20gist%20is%2C%20who%20can%20see%20it%2C%20and%20why%20an%20app%20like%20skyler.tools%20would%20use%20one%20to%20sync%20my%20trade%20data%20between%20my%20own%20devices." target="_blank" rel="noopener">ChatGPT</a>
+                    <a href="https://claude.ai/new?q=What%20is%20a%20GitHub%20gist%3F%20Explain%20it%20simply%3A%20what%20a%20private%20gist%20is%2C%20who%20can%20see%20it%2C%20and%20why%20an%20app%20like%20skyler.tools%20would%20use%20one%20to%20sync%20my%20trade%20data%20between%20my%20own%20devices." target="_blank" rel="noopener">Claude</a>
+                    <a href="https://www.perplexity.ai/search?q=What%20is%20a%20GitHub%20gist%3F%20Explain%20it%20simply%3A%20what%20a%20private%20gist%20is%2C%20who%20can%20see%20it%2C%20and%20why%20an%20app%20like%20skyler.tools%20would%20use%20one%20to%20sync%20my%20trade%20data%20between%20my%20own%20devices." target="_blank" rel="noopener">Perplexity</a>
+                    <a href="https://grok.com/?q=What%20is%20a%20GitHub%20gist%3F%20Explain%20it%20simply%3A%20what%20a%20private%20gist%20is%2C%20who%20can%20see%20it%2C%20and%20why%20an%20app%20like%20skyler.tools%20would%20use%20one%20to%20sync%20my%20trade%20data%20between%20my%20own%20devices." target="_blank" rel="noopener">Grok</a>
+                </span>
             </div>
         </div>
-        <div class="sync-error muted-note" role="alert" hidden></div>
-        <div class="modal-actions sync-linked-actions" hidden>
-            <button class="btn btn-danger sy-unlink">Unlink</button>
+
+        <div class="sync-screen" data-screen="signup" hidden>
+            <p class="sync-lead">One honest step first: sync rides on a <b>free GitHub account</b> — it holds the private gist your trades live in. About two minutes: email, password, verify.</p>
+            <div class="sync-choice">
+                <a class="btn btn-gh" href="https://github.com/signup" target="_blank" rel="noopener"><span data-icon="github" aria-hidden="true"></span>Create a GitHub account <span data-icon="external-link" aria-hidden="true"></span></a>
+                <button class="btn btn-primary sy-signed">Done — I have an account</button>
+            </div>
+            <button class="tiny-link sy-back">← Back</button>
         </div>
-        <div class="modal-actions sync-unlinked-actions">
-            <button class="btn btn-ghost modal-cancel">Cancel</button>
-            <button class="btn btn-primary sy-link">Link &amp; sync</button>
+
+        <div class="sync-screen" data-screen="token" hidden>
+            <p class="sync-lead">One button — the token name and the single <b>gist</b> permission are pre-filled. Copy what GitHub shows you, then paste it here.</p>
+            <div class="sync-choice">
+                <a class="btn btn-gh sy-token-cta" href="https://github.com/settings/tokens/new?description=skyler.tools%20sync&amp;scopes=gist" target="_blank" rel="noopener"><span data-icon="github" aria-hidden="true"></span>Create my token <span data-icon="external-link" aria-hidden="true"></span></a>
+            </div>
+            <div class="sync-fields">
+                <div class="field">
+                    <label>Paste the token</label>
+                    <input type="password" class="sy-token" placeholder="ghp_…" autocomplete="off">
+                </div>
+                <div class="field sync-adv-field" hidden>
+                    <label>Gist ID <span class="label-opt">from the other device</span></label>
+                    <input type="text" class="sy-gist" placeholder="leave blank to create a new private gist" autocomplete="off">
+                </div>
+            </div>
+            <div class="sync-token-note muted-note">Linking creates a new private gist for your trades automatically. <button class="tiny-link sync-adv-toggle">Joining an existing gist?</button></div>
+            <div class="sync-error muted-note" role="alert" hidden></div>
+            <div class="modal-actions sync-unlinked-actions">
+                <button class="tiny-link sy-back sync-actions-back">← Back</button>
+                <button class="btn btn-ghost modal-cancel">Cancel</button>
+                <button class="btn btn-primary sy-link">Link &amp; sync</button>
+            </div>
         </div>
-        <hr class="sync-divider">
+
+        <div class="sync-screen" data-screen="linked" hidden>
+            <div class="sync-status">
+                <span class="sync-status-dot" data-s="off"></span>
+                <span class="sync-status-kicker">Status</span>
+                <span class="sync-status-text">Not linked</span>
+                <button class="btn btn-ghost btn-sm sync-now">Sync now</button>
+            </div>
+            <div class="sync-pair">
+                <div class="sync-pair-qr" aria-hidden="false"></div>
+                <div class="sync-pair-copy">
+                    <strong>Add your phone</strong>
+                    <span class="muted-note">Scan with the phone camera — it opens skyler.tools and pairs in one tap. Nothing to type.</span>
+                    <span class="muted-note sync-pair-warn">The code carries your token. Treat it like a password.</span>
+                    <button class="btn btn-ghost btn-sm sync-pair-link">Copy pairing link</button>
+                </div>
+            </div>
+            <div class="modal-actions sync-linked-actions">
+                <button class="btn btn-danger sy-unlink">Unlink</button>
+            </div>
+        </div>
+
+        <div class="sync-divider" aria-hidden="true"><span>or</span></div>
         <div class="sync-backup-row">
             <span class="sync-backup-copy">
                 <strong>Skip GitHub</strong>
@@ -965,65 +1007,107 @@
 <template id="tpl-faq">
     <div class="modal-card faq-card">
         <div class="modal-head">
-            <div class="modal-title faq-title"><span class="faq-title-ic" data-icon="circle-help" aria-hidden="true"></span>FAQ</div>
+            <div class="modal-title">FAQ</div>
             <button class="icon-btn modal-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
         </div>
-        <p class="faq-lead">The short answers. Feedback if something still feels off.</p>
+        <p class="faq-lead">Short answers. If something still feels off, <button type="button" class="tiny-link faq-feedback">send feedback</button>.</p>
         <div class="faq-list">
-            <article class="faq-item collapsible">
-                <button type="button" class="faq-q" aria-expanded="false">
-                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
-                    <span>Where does my data live?</span>
-                </button>
-                <div class="faq-a-wrap">
-                    <p class="faq-a">In this browser. Nothing sits on a skyler.tools server. Link a private GitHub gist to sync devices, or download a JSON backup from the footer.</p>
-                </div>
-            </article>
-            <article class="faq-item collapsible">
-                <button type="button" class="faq-q" aria-expanded="false">
-                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
-                    <span>Why isn’t there a status to pick?</span>
-                </button>
-                <div class="faq-a-wrap">
-                    <p class="faq-a">Status follows your sells. Trim or exit from the row when you take something off.</p>
-                </div>
-            </article>
-            <article class="faq-item collapsible">
-                <button type="button" class="faq-q" aria-expanded="false">
-                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
-                    <span>What is R?</span>
-                </button>
-                <div class="faq-a-wrap">
-                    <p class="faq-a">How many times your initial risk you made or lost. Risk $200 at the stop and make $200 = 1R.</p>
-                </div>
-            </article>
-            <article class="faq-item collapsible">
-                <button type="button" class="faq-q" aria-expanded="false">
-                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
-                    <span>Can I log option trades?</span>
-                </button>
-                <div class="faq-a-wrap">
-                    <p class="faq-a">Not yet. Options size in the calculator. The book is share trades.</p>
-                </div>
-            </article>
-            <article class="faq-item collapsible">
-                <button type="button" class="faq-q" aria-expanded="false">
-                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
-                    <span>What does Freerolled mean?</span>
-                </button>
-                <div class="faq-a-wrap">
-                    <p class="faq-a">The stop is at or beyond entry, so what’s left is house money. Open risk is gone.</p>
-                </div>
-            </article>
-            <article class="faq-item collapsible">
-                <button type="button" class="faq-q" aria-expanded="false">
-                    <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
-                    <span>Does feedback include my trades?</span>
-                </button>
-                <div class="faq-a-wrap">
-                    <p class="faq-a">No. Just the note, and an email if you add one.</p>
-                </div>
-            </article>
+            <div class="faq-group">
+                <div class="faq-kicker">Why it exists</div>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="heart" aria-hidden="true"></span>
+                        <span>Why did you make this?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">It started in 2025 as a bare position-size calculator and grew into a spreadsheet replacement — tracker, journal, the works. I built it for myself; it’s still how I size every trade.</p>
+                    </div>
+                </article>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="target" aria-hidden="true"></span>
+                        <span>What problem does it solve?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">Sizing discipline. Deciding what you’ll lose before you enter, and knowing what’s still at risk after every trim. The calculator handles the first part; the tracker handles the second.</p>
+                    </div>
+                </article>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="sparkles" aria-hidden="true"></span>
+                        <span>Why should I use it?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">It’s free and <a href="https://github.com/skylerberry/trade-tracker-v2" target="_blank" rel="noopener">open source</a>, built around one workflow: enter, trim, freeroll, let the runner work. No ads, no account, no subscription, no server holding your trades — everything stays in your browser.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="faq-group">
+                <div class="faq-kicker">How it works</div>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="cloud" aria-hidden="true"></span>
+                        <span>Where does my data live?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">In this browser. Nothing sits on a skyler.tools server. Link a private GitHub gist to sync devices, or download a JSON backup from the footer.</p>
+                    </div>
+                </article>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="activity" aria-hidden="true"></span>
+                        <span>Why can’t I pick a status?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">Status follows your sells. Trim or exit from the row when you take something off.</p>
+                    </div>
+                </article>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="gauge" aria-hidden="true"></span>
+                        <span>What is R?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">Profit or loss measured against what you risked. Risk $200 at the stop and make $200 = 1R.</p>
+                    </div>
+                </article>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="calculator" aria-hidden="true"></span>
+                        <span>Can I log option trades?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">Not yet. The calculator sizes options, but only share trades can be logged.</p>
+                    </div>
+                </article>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="shield-check" aria-hidden="true"></span>
+                        <span>What does Freerolled mean?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">The stop is at or beyond entry, so the trade can’t give anything back — worst case is break-even.</p>
+                    </div>
+                </article>
+                <article class="faq-item collapsible">
+                    <button type="button" class="faq-q" aria-expanded="false">
+                        <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
+                        <span class="faq-q-ic" data-icon="message-square" aria-hidden="true"></span>
+                        <span>Does feedback include my trades?</span>
+                    </button>
+                    <div class="faq-a-wrap">
+                        <p class="faq-a">No. Just the note, and an email if you add one.</p>
+                    </div>
+                </article>
+            </div>
         </div>
     </div>
 </template>
@@ -1086,6 +1170,7 @@
 <div class="toast-root" id="toastRoot" aria-live="polite"></div>
 
 <script src="motion.js"></script>
+<script src="qr.js"></script>
 <script src="engine.js"></script>
 <script src="compound.js"></script>
 <script src="app.js"></script>

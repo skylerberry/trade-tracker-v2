@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sync onboarding · mockups</title>
+<!--
+  Throwaway prototype. Question: how does a user with no GitHub account get
+  cloud sync running with the least friction? Three candidate flows, each an
+  interactive click-through of the modal screens.
+
+  A Guided token — today's gist sync, repackaged as a wizard + QR device
+    pairing. Fully static, ships now.
+  B One-click GitHub — OAuth device flow ("enter this code on github.com").
+    No token page, no scopes. Needs a ~40-line relay function because
+    GitHub's device endpoints don't allow browser CORS calls.
+  C Sync phrase — no accounts at all. Generated passphrase is the identity
+    AND the encryption key; ciphertext lives in Netlify Blobs. Biggest UX
+    win, biggest departure from "no backend".
+
+  Notes that shaped these:
+  - GitHub has no Google/Apple sign-in. A new user signs up with email +
+    a verification puzzle (~2 min). Can't be wished away in flow A/B.
+  - In every flow the second device matters as much as the first — today
+    you must re-enter token + gist ID on the phone. A and B fix that with
+    a QR "pairing kit"; C fixes it with the phrase itself.
+-->
+<style>
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --radius-lg: 12px;
+    --radius-card: 16px;
+    --radius-full: 9999px;
+    --inset-hi: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.20);
+    --bg: #fbfbfc;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --surface-3: #ececee;
+    --border: #e4e4e7;
+    --border-2: #d4d4d8;
+    --text: #18181b;
+    --text-2: #3f3f46;
+    --text-3: #71717a;
+    --primary: #1a365d;
+    --primary-hover: #162e4f;
+    --gain: #16a34a;
+    --gain-soft: rgba(22, 163, 74, 0.10);
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--text);
+    padding: 32px 20px 80px;
+}
+.page-head { max-width: 1240px; margin: 0 auto 26px; }
+.page-head h1 { font-size: 19px; letter-spacing: -0.02em; }
+.page-head p { color: var(--text-3); max-width: 72ch; margin-top: 4px; }
+.grid {
+    max-width: 1240px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;
+}
+.variant {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-card); overflow: hidden;
+    display: flex; flex-direction: column;
+}
+.v-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); }
+.v-tag {
+    display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--text-3); margin-bottom: 4px;
+}
+.v-head h2 { font-size: 15.5px; letter-spacing: -0.01em; }
+.v-head p { color: var(--text-2); font-size: 13px; margin-top: 3px; }
+.v-facts {
+    display: flex; gap: 14px; padding: 10px 18px;
+    background: var(--surface-2); border-bottom: 1px solid var(--border);
+    font-size: 12px; color: var(--text-2);
+}
+.v-facts b { display: block; font-size: 12.5px; color: var(--text); }
+.stage { padding: 22px 18px 14px; flex: 1; display: flex; flex-direction: column; align-items: center; }
+.screen {
+    width: 100%; max-width: 300px; min-height: 320px;
+    background: var(--surface); border: 1px solid var(--border-2);
+    border-radius: var(--radius-lg); box-shadow: 0 10px 24px rgba(24, 24, 27, 0.07);
+    padding: 20px 18px; display: none; flex-direction: column; gap: 12px;
+    animation: pop 260ms var(--ease-out-expo);
+}
+.screen.on { display: flex; }
+@keyframes pop { from { opacity: 0; transform: translateY(8px) scale(0.985); } }
+.s-title { font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; }
+.s-sub { font-size: 12.5px; color: var(--text-2); }
+.s-note { font-size: 11.5px; color: var(--text-3); margin-top: auto; }
+.btn {
+    appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 600;
+    border-radius: var(--radius-full); padding: 9px 14px; font-size: 13px;
+    background: var(--primary); color: #fff; box-shadow: var(--inset-hi);
+    transition: background 150ms;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn:hover { background: var(--primary-hover); }
+.btn.ghost { background: var(--surface-2); color: var(--text); box-shadow: none; border: 1px solid var(--border-2); }
+/* GitHub-branded button — the "Sign in with GitHub" pattern (GitHub's own dark) */
+.btn.gh { background: #24292f; }
+.btn.gh:hover { background: #1b1f24; }
+.btn svg.gh-mark { width: 16px; height: 16px; flex: none; fill: currentColor; }
+.fake-input {
+    border: 1px solid var(--border-2); border-radius: 8px; padding: 8px 10px;
+    font-size: 13px; color: var(--text-3); background: var(--surface);
+}
+.bigcode {
+    font: 600 22px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.12em; text-align: center; padding: 14px 10px;
+    background: var(--surface-2); border: 1px dashed var(--border-2); border-radius: 10px;
+}
+.phrase {
+    font: 600 16px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+    text-align: center; padding: 12px 10px; background: var(--surface-2);
+    border: 1px dashed var(--border-2); border-radius: 10px;
+}
+.qr {
+    width: 120px; height: 120px; margin: 4px auto;
+    border-radius: 8px; border: 1px solid var(--border-2);
+    background:
+        repeating-linear-gradient(0deg, var(--text) 0 6px, transparent 6px 12px),
+        repeating-linear-gradient(90deg, var(--text) 0 6px, var(--surface) 6px 12px);
+    opacity: 0.85;
+}
+.done {
+    display: flex; align-items: center; gap: 8px; color: var(--gain);
+    background: var(--gain-soft); border-radius: 10px; padding: 10px 12px;
+    font-weight: 600; font-size: 13px;
+}
+.done::before { content: "✓"; font-size: 15px; }
+.steps { display: flex; gap: 6px; padding: 14px 0 4px; }
+.dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--border-2);
+    border: 0; padding: 0; cursor: pointer;
+}
+.dot.on { background: var(--primary); }
+.v-foot { padding: 12px 18px 16px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-2); }
+.v-foot b { color: var(--text); }
+.pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+    font-size: 11.5px; padding: 3px 9px; border-radius: var(--radius-full);
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-2);
+}
+.chip.good { background: var(--gain-soft); border-color: transparent; color: var(--gain); }
+</style>
+</head>
+<body>
+
+<!-- GitHub mark, defined once — buttons reference it with <use> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="gh" viewBox="0 0 16 16">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+    </symbol>
+</svg>
+
+<div class="page-head">
+    <h1>Cloud sync onboarding — three candidates</h1>
+    <p>Click through each flow the way a brand-new user (no GitHub account) would experience it.
+       The dots under each phone advance the steps. Facts row = what it costs to build and run.</p>
+</div>
+
+<div class="grid">
+
+    <!-- ============ A · GUIDED TOKEN ============ -->
+    <section class="variant" data-variant="A">
+        <div class="v-head">
+            <span class="v-tag">A · ships today</span>
+            <h2>Guided token + QR pairing</h2>
+            <p>Same gist sync, repackaged: a wizard that admits when you need GitHub, and a QR kit so the phone never sees a token field.</p>
+        </div>
+        <div class="v-facts">
+            <span><b>Static</b>no new infra</span>
+            <span><b>~3 min</b>first device</span>
+            <span><b>~10 sec</b>each device after</span>
+        </div>
+        <div class="stage">
+            <div class="screen on">
+                <div class="s-title">Cloud sync</div>
+                <div class="s-sub">Trades on every device through a private GitHub gist you own. skyler.tools never sees them.</div>
+                <button class="btn gh" data-next><svg class="gh-mark" aria-hidden="true"><use href="#gh"/></svg>I have a GitHub account</button>
+                <button class="btn ghost" data-next><svg class="gh-mark" aria-hidden="true"><use href="#gh"/></svg>I’m new — set me up</button>
+                <div class="s-note">New path adds one honest step: a free GitHub account, about 2 minutes. No Google/Apple sign-in exists there — it’s email + verify.</div>
+            </div>
+            <div class="screen">
+                <div class="s-title">Step 1 · Create your token</div>
+                <div class="s-sub">One button, everything pre-filled — name and the single <b>gist</b> permission. Copy the token it shows you.</div>
+                <button class="btn gh" data-next><svg class="gh-mark" aria-hidden="true"><use href="#gh"/></svg>Open GitHub · Create token ↗</button>
+                <div class="s-note">Deep link already exists in production; the wizard just makes it the only thing on screen.</div>
+            </div>
+            <div class="screen">
+                <div class="s-title">Step 2 · Paste it here</div>
+                <div class="fake-input">ghp_ ················</div>
+                <div class="s-sub">Paste detected → links automatically. No “Gist ID” field on the happy path; a new private gist is created for you.</div>
+                <button class="btn" data-next>Link &amp; sync</button>
+            </div>
+            <div class="screen">
+                <div class="done">Synced — this device is linked</div>
+                <div class="s-title">Add your phone</div>
+                <div class="qr" aria-hidden="true"></div>
+                <div class="s-sub">Scan with the phone camera. The QR carries the token + gist ID, so the phone links in one tap — nothing to type.</div>
+                <div class="s-note">QR is generated locally, shown once, never leaves the screen.</div>
+            </div>
+        </div>
+        <div class="v-foot">
+            <div class="pill-row">
+                <span class="chip good">zero backend</span>
+                <span class="chip good">ethos intact</span>
+                <span class="chip">GitHub signup still exists for new users</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ B · DEVICE FLOW ============ -->
+    <section class="variant" data-variant="B">
+        <div class="v-head">
+            <span class="v-tag">B · one-click GitHub</span>
+            <h2>Connect with a code</h2>
+            <p>OAuth device flow — the “enter this code” pattern from TVs and CLIs. No token page, no scope checkboxes, ever.</p>
+        </div>
+        <div class="v-facts">
+            <span><b>Tiny relay</b>~40-line function</span>
+            <span><b>~60 sec</b>first device</span>
+            <span><b>~30 sec</b>each device after</span>
+        </div>
+        <div class="stage">
+            <div class="screen on">
+                <div class="s-title">Cloud sync</div>
+                <div class="s-sub">Trades on every device through a private gist you own — connect GitHub once and you’re done.</div>
+                <button class="btn gh" data-next><svg class="gh-mark" aria-hidden="true"><use href="#gh"/></svg>Connect with GitHub</button>
+                <div class="s-note">New users still create a GitHub account first — but never touch tokens or settings pages.</div>
+            </div>
+            <div class="screen">
+                <div class="s-title">Enter this code on GitHub</div>
+                <div class="bigcode">WDJB-MJHT</div>
+                <button class="btn gh" data-next><svg class="gh-mark" aria-hidden="true"><use href="#gh"/></svg>Open github.com/login/device ↗</button>
+                <div class="s-sub">Code auto-copies. Approve on GitHub, come back — we’re already listening.</div>
+            </div>
+            <div class="screen">
+                <div class="s-title">Waiting for GitHub…</div>
+                <div class="fake-input">Checking every 5 s ·····</div>
+                <button class="btn ghost" data-next>(user approves on github.com)</button>
+            </div>
+            <div class="screen">
+                <div class="done">Connected — private gist created</div>
+                <div class="s-sub">On the phone: same two taps. Connect GitHub → approve → synced. Nothing to copy between devices.</div>
+                <div class="s-note">GitHub blocks these OAuth calls from browser JavaScript, so a ~40-line Netlify function relays the handshake. It sees the login handshake only — trade data still flows browser ↔ gist, never through skyler.tools.</div>
+            </div>
+        </div>
+        <div class="v-foot">
+            <div class="pill-row">
+                <span class="chip good">no tokens, no scopes</span>
+                <span class="chip good">trade data never proxied</span>
+                <span class="chip">breaks the “fully static” rule (barely)</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ C · SYNC PHRASE ============ -->
+    <section class="variant" data-variant="C">
+        <div class="v-head">
+            <span class="v-tag">C · no accounts</span>
+            <h2>Sync phrase</h2>
+            <p>No GitHub, no signup, no email. A generated phrase is your identity and your encryption key — enter it anywhere to sync.</p>
+        </div>
+        <div class="v-facts">
+            <span><b>Small backend</b>function + blob store</span>
+            <span><b>~10 sec</b>first device</span>
+            <span><b>~15 sec</b>each device after</span>
+        </div>
+        <div class="stage">
+            <div class="screen on">
+                <div class="s-title">Cloud sync</div>
+                <div class="s-sub">One tap. No account. Your trades are encrypted in this browser before anything is stored.</div>
+                <button class="btn" data-next>Turn on sync</button>
+            </div>
+            <div class="screen">
+                <div class="done">Sync is on</div>
+                <div class="s-title">Your sync phrase</div>
+                <div class="phrase">maple-orbit-glass-42</div>
+                <div class="s-sub">This is the only key to your data — save it somewhere safe. Lose it and nobody can recover the trades, including me.</div>
+                <button class="btn" data-next>I saved it</button>
+            </div>
+            <div class="screen">
+                <div class="s-title">On your phone</div>
+                <div class="fake-input">maple-orbit-glass-42</div>
+                <button class="btn" data-next>Sync this device</button>
+                <div class="s-sub">Or scan a QR of the phrase from the first device.</div>
+            </div>
+            <div class="screen">
+                <div class="done">Both devices synced</div>
+                <div class="s-note">Data is encrypted client-side with a key derived from the phrase; the server stores ciphertext it cannot read. Storage: Netlify Blobs (free tier covers this easily). Furthest from “no backend”, closest to zero friction.</div>
+            </div>
+        </div>
+        <div class="v-foot">
+            <div class="pill-row">
+                <span class="chip good">no account, ever</span>
+                <span class="chip good">end-to-end encrypted</span>
+                <span class="chip">you now run (tiny) infrastructure</span>
+                <span class="chip">lost phrase = lost cloud copy</span>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+document.querySelectorAll('.variant').forEach((variant) => {
+    const screens = [...variant.querySelectorAll('.screen')];
+    const stage = variant.querySelector('.stage');
+    const dots = document.createElement('div');
+    dots.className = 'steps';
+    screens.forEach((_, i) => {
+        const d = document.createElement('button');
+        d.className = 'dot' + (i === 0 ? ' on' : '');
+        d.setAttribute('aria-label', 'Step ' + (i + 1));
+        d.addEventListener('click', () => show(i));
+        dots.appendChild(d);
+    });
+    stage.appendChild(dots);
+    function show(i) {
+        screens.forEach((s, j) => s.classList.toggle('on', j === i));
+        dots.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('on', j === i));
+    }
+    variant.querySelectorAll('[data-next]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const cur = screens.findIndex(s => s.classList.contains('on'));
+            show(Math.min(cur + 1, screens.length - 1));
+        });
+    });
+});
+</script>
+</body>
+</html>

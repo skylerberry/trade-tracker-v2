@@ -540,12 +540,13 @@
         if (menuOpen) return;
         if (closeEditForm()) e.preventDefault();
     });
-    function confirmModal(title, body, yesLabel, onYes) {
+    function confirmModal(title, body, yesLabel, onYes, { danger = true } = {}) {
         openModal('tpl-confirm', (card, close) => {
             card.querySelector('.cf-title').textContent = title;
             card.querySelector('.cf-body').textContent = body;
             const yes = card.querySelector('.cf-yes');
             yes.textContent = yesLabel;
+            if (!danger) { yes.classList.remove('btn-danger'); yes.classList.add('btn-primary'); }
             yes.addEventListener('click', () => { close(); onYes(); });
         });
     }
@@ -780,6 +781,28 @@
         });
     }
     bindMoneyNotation($('accountSize'));
+
+    /* Risk presets as fractions of 1% — a view, not a different value. */
+    const RISK_FRACTIONS = { '0.1': '⅒', '0.125': '⅛', '0.25': '¼', '0.5': '½', '1': '1' };
+    function syncRiskLabels() {
+        const frac = prefs.riskView === 'frac';
+        document.querySelectorAll('#riskSeg button[data-seg]').forEach(b => {
+            const v = b.dataset.seg;
+            if (!(v in RISK_FRACTIONS)) return;
+            b.textContent = frac ? RISK_FRACTIONS[v] : (v === '1' ? '1%' : `${v.replace('0.', '.')}%`);
+        });
+        const t = $('riskViewToggle');
+        t.textContent = frac ? '%' : '½';
+        t.setAttribute('aria-pressed', String(frac));
+        t.title = frac ? 'Show presets as percentages' : 'Show presets as fractions of 1%';
+        requestAnimationFrame(() => segs.risk?.refresh()); // label widths change the pill
+    }
+    $('riskViewToggle').addEventListener('click', (e) => {
+        e.preventDefault();
+        prefs.riskView = prefs.riskView === 'frac' ? 'pct' : 'frac';
+        savePrefs();
+        syncRiskLabels();
+    });
 
     function riskPct() { return prefs.riskPreset === 'custom' ? (prefs.riskCustom || 0) : parseFloat(prefs.riskPreset); }
     function maxPct() { return prefs.maxPreset === 'custom' ? (prefs.maxCustom || 100) : parseFloat(prefs.maxPreset); }
@@ -1212,7 +1235,7 @@
         && E.isNum(parsed.stop) && parsed.stop > 0;
 
     function applyAlert(parsed) {
-        if (!parsed) { toast('Could not parse that alert', { error: true }); return; }
+        if (!parsed) { toast('Couldn’t read that alert', { error: true }); return; }
         if (view !== 'positions') setView('positions');
         if (parsed.ticker) $('tickerInput').value = parsed.ticker;
         if (parsed.entry !== null) $('entryPrice').value = String(parsed.entry);
@@ -1736,7 +1759,7 @@
             return;
         }
         if (filters.q) {
-            title.textContent = `No trades match “${q}”.`;
+            title.textContent = `No trades match “${q}”`;
             sub.textContent = 'Try a different ticker, or clear the search.';
             setCta('clear-search', 'Clear search');
             setAlt();
@@ -2076,7 +2099,7 @@
 
         return `<div class="rail-journal" data-default-kind="${defaultKind}">
             <div class="journal-title-row">
-                <div><div class="rail-title">Trade journal</div><span>Timestamped decisions, not a mutable scratchpad.</span></div>
+                <div><div class="rail-title">Trade journal</div><span>Timestamped decisions, not a scratchpad.</span></div>
                 <span class="journal-count">${journal.length} ${journal.length === 1 ? 'entry' : 'entries'}</span>
             </div>
             <div class="journal-composer">
@@ -2429,14 +2452,14 @@
                 } else if (n === 0) {
                     sharesIn.value = '';
                     syncFractionIndicator(null);
-                    riskNote.textContent = 'This position is already freer rolled. Turn Risk Manager off for a discretionary trim.';
+                    riskNote.textContent = 'This position is already freerolled. Turn Risk Manager off for a discretionary trim.';
                 } else {
                     sharesIn.value = '';
                     syncFractionIndicator(null);
                     riskNote.classList.remove('is-managed');
                     riskNote.textContent = effRemaining() === null
                         ? 'Enter the position size to calculate a freeroll trim.'
-                        : 'No runner-preserving freeroll is available at this price. Turn Risk Manager off for a manual exit.';
+                        : 'No trim at this price zeroes the risk and still leaves a runner. Turn Risk Manager off for a manual exit.';
                 }
                 return n;
             }
@@ -2450,7 +2473,7 @@
                     const frac = n > 0 ? fractionFor(n, r) : '';
                     const helper = !riskManagerOn ? 'Sets price only'
                         : n > 0 ? `${frac ? frac + ' · ' : ''}${fmtShareCount(n)} to $0 risk`
-                            : n === 0 ? 'Already freer rolled' : (r === null ? 'Enter position size' : 'Manual exit only');
+                            : n === 0 ? 'Already freerolled' : (r === null ? 'Enter position size' : 'Manual exit only');
                     return `<button type="button" class="tm-r-preset${selectedR === level ? ' is-selected' : ''}" data-r="${level}" data-price="${p}">
                         <span class="tm-r-preset-main"><b>${level}R</b><span>${E.fmtPrice(p)}</span></span>
                         <span class="tm-r-preset-sub">${helper}</span>
@@ -3258,12 +3281,14 @@
         });
     }
     function openFaqModal() {
-        openModal('tpl-faq', (card) => {
+        openModal('tpl-faq', (card, close) => {
             const items = [...card.querySelectorAll('.faq-item')];
-            const sets = items.map((item) => {
+            /* The first answer lands open — a FAQ shouldn't open as a table of contents. */
+            const sets = items.map((item, index) => {
                 const wrap = item.querySelector('.faq-a-wrap');
                 const btn = item.querySelector('.faq-q');
-                const set = M.collapsible(item, wrap, false);
+                const set = M.collapsible(item, wrap, index === 0);
+                btn.setAttribute('aria-expanded', String(index === 0));
                 btn.addEventListener('click', () => {
                     const next = !item.classList.contains('is-open');
                     items.forEach((other, i) => {
@@ -3272,6 +3297,10 @@
                     });
                 });
                 return set;
+            });
+            card.querySelector('.faq-feedback')?.addEventListener('click', () => {
+                close();
+                openFeedbackModal();
             });
         });
     }
@@ -3474,7 +3503,7 @@
                         files: { 'trades.json': { content: JSON.stringify(trades, null, 2) }, 'settings.json': { content: settingsPayload() } },
                     }),
                 });
-                if (!res.ok) throw new Error(`Could not create gist (GitHub ${res.status} — token needs the gist scope)`);
+                if (!res.ok) throw new Error(`Couldn’t create a gist (GitHub ${res.status} — token needs the gist scope)`);
                 const json = await res.json();
                 sync.gistId = json.id;
                 sync.baseline = json.updated_at;
@@ -3497,41 +3526,103 @@
         syncSet('off', 'Not linked');
         toast('Sync unlinked — local data kept');
     }
+    /* One link/QR pairs the next device: token + gist id in the URL fragment
+       (fragments never reach a server). Shown only inside the sync modal,
+       generated locally, consumed and stripped from the URL on open. */
+    function pairingLink() {
+        if (!syncLinked()) return null;
+        const payload = btoa(JSON.stringify({ t: sync.token, g: sync.gistId }))
+            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        return `${location.origin}${location.pathname}#pair=${payload}`;
+    }
+    function readPairLink() {
+        const m = /^#pair=([A-Za-z0-9_-]+)$/.exec(location.hash || '');
+        if (!m) return null;
+        history.replaceState(null, '', location.pathname + location.search + '#positions');
+        try {
+            const p = JSON.parse(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')));
+            if (p && typeof p.t === 'string' && p.t && typeof p.g === 'string' && p.g) return p;
+        } catch { /* invalid payload — handled below */ }
+        return { invalid: true };
+    }
+    function applyPairing(p) {
+        if (p.invalid) { toast('That pairing link didn’t work — copy a fresh one from the other device', { error: true }); return; }
+        if (sync.token === p.t && sync.gistId === p.g) { syncPull(); return; }
+        confirmModal('Pair this device',
+            'Link this device to your synced trades? The token stays in this browser and you can unlink anytime.',
+            'Pair & sync', () => {
+                sync.token = p.t; sync.gistId = p.g; sync.baseline = null; sync.loadFailed = false;
+                localStorage.setItem(K.gistToken, sync.token);
+                localStorage.setItem(K.gistId, sync.gistId);
+                localStorage.removeItem(K.gistUpdatedAt);
+                syncPull();
+                toast(`Cloud sync linked <span class="shield">${ICONS['shield-check']}</span>`);
+            }, { danger: false });
+    }
+
     function openSyncModal() {
         openModal('tpl-sync', (card, close, entry) => {
             sync.modalCard = card;
             entry.onClose = () => { sync.modalCard = null; };
             const qs = (sel) => card.querySelector(sel);
-            const refresh = () => {
-                const linked = syncLinked();
+            function renderLinked() {
                 qs('.sync-status-dot').dataset.s = sync.state;
-                qs('.sync-status-text').textContent = linked && sync.state === 'ok'
+                qs('.sync-status-text').textContent = sync.state === 'ok'
                     ? `Synced · ${fmtRelTime(localStorage.getItem(K.lastSync))}` : sync.text;
-                qs('.sync-now').hidden = !linked;
-                qs('.sync-linked-actions').hidden = !linked;
-                qs('.sync-unlinked-actions').hidden = linked;
-                qs('.sy-token').value = sync.token;
-                qs('.sy-gist').value = sync.gistId;
-                qs('.sy-token').disabled = qs('.sy-gist').disabled = linked;
-                card.classList.toggle('is-linked', linked);
+                const link = pairingLink();
+                const svg = link ? QR.svg(link) : null;
+                const box = qs('.sync-pair-qr');
+                box.hidden = !svg;
+                if (svg) box.innerHTML = svg;
+            }
+            const setScreen = (name) => {
+                const screen = syncLinked() ? 'linked' : name;
+                card.querySelectorAll('.sync-screen').forEach(el => { el.hidden = el.dataset.screen !== screen; });
+                card.classList.toggle('is-linked', syncLinked());
+                if (screen === 'linked') renderLinked();
+                if (screen === 'token') setTimeout(() => qs('.sy-token').focus(), 60);
             };
-            refresh();
-            qs('.sync-now').addEventListener('click', () => { syncPull(); });
-            qs('.sy-link').addEventListener('click', async () => {
+            const tokenIn = qs('.sy-token');
+            const looksLikeToken = (v) => /^(ghp_|github_pat_)[A-Za-z0-9_]{16,}$/.test(v.trim());
+            async function doLink() {
                 const errEl = qs('.sync-error');
                 errEl.hidden = true;
-                const token = qs('.sy-token').value.trim();
-                if (!token) { errEl.hidden = false; errEl.textContent = 'A GitHub token (gist scope) is required.'; return; }
-                qs('.sy-link').disabled = true;
+                const token = tokenIn.value.trim();
+                if (!token) { errEl.hidden = false; errEl.textContent = 'Paste the token GitHub showed you.'; return; }
+                const linkBtn = qs('.sy-link');
+                if (linkBtn.disabled) return;
+                linkBtn.disabled = true;
                 const ok = await linkGist(token, qs('.sy-gist').value.trim(), errEl);
-                qs('.sy-link').disabled = false;
-                if (ok) refresh();
+                linkBtn.disabled = false;
+                if (ok) setScreen('linked');
+            }
+            qs('.sy-have').addEventListener('click', () => setScreen('token'));
+            qs('.sy-new').addEventListener('click', () => setScreen('signup'));
+            qs('.sy-signed').addEventListener('click', () => setScreen('token'));
+            card.querySelectorAll('.sy-back').forEach(b => b.addEventListener('click', () => setScreen('choice')));
+            qs('.sync-adv-toggle').addEventListener('click', () => {
+                qs('.sync-adv-field').hidden = false;
+                qs('.sync-adv-toggle').hidden = true;
+                qs('.sy-gist').focus();
             });
-            qs('.sy-unlink').addEventListener('click', () => { unlinkGist(); refresh(); });
+            /* A pasted token that looks complete links on its own — no extra click. */
+            tokenIn.addEventListener('paste', () => {
+                setTimeout(() => { if (looksLikeToken(tokenIn.value)) doLink(); }, 50);
+            });
+            qs('.sy-link').addEventListener('click', doLink);
+            qs('.sync-now').addEventListener('click', () => { syncPull(); });
+            qs('.sy-unlink').addEventListener('click', () => { unlinkGist(); setScreen('choice'); });
+            qs('.sync-pair-link').addEventListener('click', () => {
+                const link = pairingLink();
+                if (!link) return;
+                navigator.clipboard.writeText(link);
+                toast('Pairing link copied — treat it like a password');
+            });
             qs('.sy-backup').addEventListener('click', () => {
                 downloadBackup();
             });
             qs('.sy-restore').addEventListener('click', () => { close(); $('restoreFile').click(); });
+            setScreen('choice');
         });
     }
     $('syncBtn').addEventListener('click', openSyncModal);
@@ -3587,7 +3678,7 @@
             openModal('tpl-import', (card, close) => {
                 const copy = card.querySelector('.import-copy');
                 if (copy) {
-                    copy.textContent = `This browser still has ${live.length} trade${live.length === 1 ? '' : 's'} from the last skyler.tools. Import them into the suite — nothing on the old site is deleted.`;
+                    copy.textContent = `This browser still has ${live.length} trade${live.length === 1 ? '' : 's'} from the previous skyler.tools. Import them into the suite — nothing on the old site is deleted.`;
                 }
                 card.querySelector('.wc-import').addEventListener('click', () => { close(); importLiveSite(); });
             });
@@ -3650,6 +3741,7 @@
     }
 
     function init() {
+        const pairPayload = readPairLink(); // strips #pair= before the hash view resolves
         loadAll();
         hydrateIcons();
         startDailyClock();
@@ -3668,6 +3760,7 @@
         $('fDate').value = E.todayLocalISO();
         fDateField.sync();
         syncCalculatorMode();
+        syncRiskLabels();
         COMPOUND.init({ account, parseNum, bindMoneyNotation });
         setView(viewFromHash(), { instant: true });
         window.addEventListener('hashchange', () => setView(viewFromHash(), { syncHash: false }));
@@ -3692,7 +3785,13 @@
         document.fonts?.ready?.then(() => refreshSegs());
         if (syncLinked()) syncPull();
         else syncSet('off', 'Not linked');
-        maybeOnboard();
+        if (pairPayload) {
+            prefs.onboarded = true;
+            savePrefs();
+            applyPairing(pairPayload);
+        } else {
+            maybeOnboard();
+        }
     }
     init();
 })();

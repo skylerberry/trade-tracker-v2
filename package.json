@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node serve.mjs",
     "mockup:oled": "node -e \"console.log('OLED journal mockup → http://localhost:4173/docs/mockups/oled-journal-separation.html')\" && node serve.mjs",
-    "test": "node tests/engine.test.mjs"
+    "test": "node tests/engine.test.mjs && node tests/qr.test.mjs"
   },
   "license": "ISC",
   "type": "commonjs"
