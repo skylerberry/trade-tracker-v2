@@ -390,15 +390,8 @@
         closeDatePop();
         toggleMenu($('accentMenu'));
     });
-    /* System-follow (v1): while the user has never chosen a theme explicitly,
-       live OS theme changes re-apply automatically. */
-    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-        if (localStorage.getItem(K.theme)) return;
-        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-        applyAccent(accentName);
-        segs.theme && segs.theme.set(e.matches ? 'dark' : 'light', true);
-        requestAnimationFrame(refreshSegs);
-    });
+    /* First visit is light mode by design (the splash is built for it) —
+       so no OS-theme follow; the header toggle is one tap away. */
     document.addEventListener('visibilitychange', () => {
         if (accentName !== 'rainbow' || M.reduceMotion) return;
         if (document.hidden) { cancelAnimationFrame(rainbowRAF); rainbowRAF = null; }
@@ -493,7 +486,7 @@
         const isSplash = card.classList.contains('welcome-card');
         if (isSplash) document.body.classList.add('is-splash');
         requestAnimationFrame(() => backdrop.classList.add('in'));
-        M.modalEnter(card);
+        if (isSplash) M.splashEnter(card); else M.modalEnter(card);
 
         const entry = { backdrop, holder, card, opener, closing: false };
         modalStack.push(entry);
@@ -685,6 +678,16 @@
         window.addEventListener('scroll', hide, true);
     }
 
+    /* Empty-state icon rebuilds itself on hover, like the brand mark. */
+    (() => {
+        const ic = document.querySelector('#emptyState .empty-ic');
+        ic?.addEventListener('pointerenter', () => {
+            ic.classList.remove('ic-draw');
+            void ic.offsetWidth;
+            ic.classList.add('ic-draw');
+        });
+    })();
+
     /* ---------- segmented controls ---------- */
     const segs = {};
     function refreshSegs() { Object.values(segs).forEach(s => s.refresh()); }
@@ -875,7 +878,8 @@
             : `${short ? 'Short' : 'Long'} shares`;
         $('optionGuidanceKind').textContent = `Long ${short ? 'puts' : 'calls'} only`;
         $('positionUnitLabel').textContent = optionMode ? 'contracts' : 'shares';
-        $('sharesCopyBtn').title = optionMode ? 'Copy contract count' : 'Copy share count';
+        $('sharesCopyBtn').title = optionMode ? 'Copy contract count' : 'Type your own share count — risk solves backwards';
+        $('sharesCopyMini').hidden = optionMode;
         $('rStopDistLabel').textContent = optionMode ? 'Estimated loss / contract' : 'Stop distance';
         $('rPosSizeLabel').textContent = optionMode ? 'Premium outlay' : 'Position size';
         $('rTotalRiskLabel').textContent = optionMode ? 'Max loss (premium paid)' : 'Total risk';
@@ -1049,9 +1053,24 @@
             link.href = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(c.ticker)}`;
         } else link.hidden = true;
 
-        // log button + collapsed hint
+        // log button + collapsed hint — aria-disabled, not disabled, so a
+        // click on the grayed button can walk the user to the missing field,
+        // and the hover tip names what's blocking the log
         const ready = !optionMode && res.valid && !!c.ticker;
-        $('logTradeBtn').disabled = !ready;
+        const logBtn = $('logTradeBtn');
+        logBtn.setAttribute('aria-disabled', String(!ready));
+        if (ready || optionMode) {
+            delete logBtn.dataset.tip;
+        } else {
+            const missing = [];
+            if (!E.isNum(c.entry) || c.entry <= 0) missing.push('entry');
+            if (!E.isNum(c.stop) || c.stop <= 0) missing.push('stop');
+            if (!c.ticker) missing.push('ticker');
+            logBtn.dataset.tip = !(c.account > 0) ? 'Set your account size first · click to jump there'
+                : missing.length ? `Missing ${missing.join(' + ')} · click to jump there`
+                    : !res.valid ? `Stop is on the wrong side for ${c.direction === 'short' ? 'Short' : 'Long'} · click to fix`
+                        : 'Complete the setup to log';
+        }
         $('logTradeBtn').textContent = optionMode ? 'Calculator only · option logging later'
             : ready ? `Log ${prefs.direction === 'short' ? 'short ' : ''}${c.ticker} — ${fmtShareCount(res.shares)}` : 'Log trade';
         $('calcHint').textContent = res.valid && c.ticker
@@ -1231,16 +1250,55 @@
             M.flash($('calcModeContext'), 'flash');
         });
     });
-    $('sharesCopyBtn').addEventListener('click', () => {
-        if (lastCalc?.res?.valid) {
-            const optionMode = prefs.vehicle === 'option';
-            const units = optionMode ? lastCalc.res.contracts : lastCalc.res.shares;
-            navigator.clipboard.writeText(String(units));
-            toast(optionMode
-                ? `<b>${E.fmtShares(units)}</b> ${units === 1 ? 'contract' : 'contracts'} copied`
-                : `<b>${fmtShareCount(units)}</b> copied`);
-        }
+    function copyShareCount() {
+        if (!lastCalc?.res?.valid) return;
+        const optionMode = prefs.vehicle === 'option';
+        const units = optionMode ? lastCalc.res.contracts : lastCalc.res.shares;
+        navigator.clipboard.writeText(String(units));
+        toast(optionMode
+            ? `<b>${E.fmtShares(units)}</b> ${units === 1 ? 'contract' : 'contracts'} copied`
+            : `<b>${fmtShareCount(units)}</b> copied`);
+    }
+    /* Cuesta's ask: enter the shares you actually bought and let the site do
+       the math backwards. The hero opens an inline editor; committing derives
+       the implied risk % (the risk seg jumps to that custom value) and the
+       normal forward solve reproduces the typed count. */
+    const sharesEditEl = $('sharesEdit');
+    sanitizeNumericInput(sharesEditEl, decimalOnly, '[0-9]*');
+    const sizeSharesEdit = () => { sharesEditEl.style.width = `${Math.max(2, sharesEditEl.value.length + 0.5)}ch`; };
+    sharesEditEl.addEventListener('input', sizeSharesEdit);
+    function closeSharesEdit() {
+        sharesEditEl.hidden = true;
+        $('sharesCopyBtn').hidden = false;
+    }
+    function commitSharesEdit() {
+        const n = Math.floor(parseNum(sharesEditEl.value) ?? 0);
+        closeSharesEdit();
+        const c = lastCalc?.inputs;
+        const rps = c ? E.riskPerShare(c.entry, c.stop, c.direction) : null;
+        if (!n || n <= 0 || rps === null || !(c.account > 0)) return;
+        if (n === lastCalc.res?.shares) return;
+        /* ceil at 4dp so the forward floor lands on the typed count */
+        const implied = Math.ceil((n * rps / c.account) * 100 * 10000) / 10000;
+        setRiskPercent(implied);
+        toast(`<b>${fmtShareCount(n)}</b> → risk ${formatRiskValue(riskPct())}%`);
+    }
+    sharesEditEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); commitSharesEdit(); }
+        else if (e.key === 'Escape') { e.stopPropagation(); closeSharesEdit(); }
     });
+    sharesEditEl.addEventListener('blur', () => { if (!sharesEditEl.hidden) commitSharesEdit(); });
+    $('sharesCopyBtn').addEventListener('click', () => {
+        if (prefs.vehicle === 'option') { copyShareCount(); return; } // contracts stay copy-only
+        if (!lastCalc?.res?.valid) return;
+        sharesEditEl.value = String(lastCalc.res.shares || '');
+        sizeSharesEdit();
+        $('sharesCopyBtn').hidden = true;
+        sharesEditEl.hidden = false;
+        sharesEditEl.focus();
+        sharesEditEl.select();
+    });
+    $('sharesCopyMini').addEventListener('click', copyShareCount);
     function clearCalculator() {
         ['entryPrice', 'stopLoss', 'tickerInput', 'targetPrice', 'optionDelta', 'optionPremium'].forEach(id => $(id).value = '');
         recalc();
@@ -1314,9 +1372,23 @@
     });
 
     /* ---------- log trade (one click, binding) ---------- */
+    /* Not ready → walk the user to the first field that's blocking the log. */
+    function focusFirstMissingCalcField(c = {}, res) {
+        const target = !(c.account > 0) ? 'accountSize'
+            : !E.isNum(c.entry) || c.entry <= 0 ? 'entryPrice'
+                : !E.isNum(c.stop) || c.stop <= 0 ? 'stopLoss'
+                    : res && !res.valid ? 'stopLoss' // wrong-side stop — the inline notice explains
+                        : !c.ticker ? 'tickerInput' : null;
+        if (!target) return;
+        const el = $(target);
+        el.scrollIntoView({ behavior: M.reduceMotion ? 'auto' : 'smooth', block: 'center' });
+        setTimeout(() => el.focus(), M.reduceMotion ? 0 : 250);
+        M.flash(el.closest('.field') || el.closest('.setting') || el, 'flash');
+    }
     $('logTradeBtn').addEventListener('click', () => {
         const { inputs: c, res } = lastCalc || {};
-        if (prefs.vehicle === 'option' || !res?.valid || !c.ticker) return;
+        if (prefs.vehicle === 'option') return;
+        if (!res?.valid || !c?.ticker) { focusFirstMissingCalcField(c, res); return; }
         const today = E.todayLocalISO();
         const dupe = trades.find(t => t.ticker === c.ticker && t.entryPrice === c.entry && t.entryDate === today && E.directionOf(t) === c.direction);
         if (dupe) {
@@ -3772,7 +3844,7 @@
         loadAll();
         hydrateIcons();
         startDailyClock();
-        accentName = localStorage.getItem(K.accent) || 'navy';
+        accentName = localStorage.getItem(K.accent) || 'cyan';
         applyAccent(accentName);
         $('accountSize').value = account ? account.toLocaleString('en-US') : '';
         wireSegs();

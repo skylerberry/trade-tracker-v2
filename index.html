@@ -10,9 +10,7 @@
 // Pre-paint theme: data-theme is ALWAYS set (design-system single-selector rule)
 (function () {
     var t = localStorage.getItem('tradeTracker_theme');
-    if (t !== 'light' && t !== 'dark' && t !== 'oled') {
-        t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
+    if (t !== 'light' && t !== 'dark' && t !== 'oled') t = 'light'; // first visit: light, by design
     document.documentElement.setAttribute('data-theme', t);
 })();
 </script>
@@ -320,11 +318,11 @@
                 <section class="risk-scenarios collapsible is-open" id="riskScenarios" data-state="empty" aria-labelledby="riskScenariosTitle">
                     <button type="button" class="risk-scenarios-toggle" id="riskScenariosToggle" aria-expanded="true" aria-controls="riskScenariosBody">
                         <span class="risk-scenarios-title">
+                            <span class="risk-scenarios-chev" data-icon="chevron-down" aria-hidden="true"></span>
                             <span data-icon="activity" aria-hidden="true"></span>
                             <span id="riskScenariosTitle">Risk scenarios</span>
                         </span>
                         <span class="risk-scenarios-context" id="riskScenariosContext">Fill entry and stop to compare</span>
-                        <span class="risk-scenarios-chev" data-icon="chevron-down" aria-hidden="true"></span>
                     </button>
                     <div class="risk-scenarios-body" id="riskScenariosBody">
                         <div class="risk-scenarios-empty" id="riskScenariosEmpty">See how the same setup changes at half and double your selected risk.</div>
@@ -351,12 +349,14 @@
                 <div class="calc-results" id="calcResults">
                     <div class="result-card position-card" id="positionCard">
                         <div class="shares-hero">
-                            <button class="shares-num-btn" id="sharesCopyBtn" title="Copy share count">
+                            <button class="shares-num-btn" id="sharesCopyBtn" title="Type your own share count — risk solves backwards">
                                 <span id="sharesHero" class="roller shares-hero-num">0</span>
                             </button>
+                            <input id="sharesEdit" class="shares-hero-edit" inputmode="numeric" autocomplete="off" aria-label="Share count — risk recalculates backwards from what you type" hidden>
                             <div class="shares-cap" id="sharesCap" hidden></div>
                             <div class="shares-label-row">
                                 <span class="shares-label" id="positionUnitLabel">shares</span>
+                                <button type="button" id="sharesCopyMini" class="tiny-link shares-copy-mini" tabindex="-1" title="Copy count to clipboard">copy</button>
                             </div>
                         </div>
                         <div class="account-exposure">
@@ -405,7 +405,7 @@
                 </div>
 
                 <div class="log-row">
-                    <button id="logTradeBtn" class="btn btn-primary btn-log" disabled>Log trade</button>
+                    <button id="logTradeBtn" class="btn btn-primary btn-log" aria-disabled="true">Log trade</button>
                     <div id="logConfirm" class="log-confirm" hidden>
                         <span class="log-confirm-check ic-draw" data-icon="circle-check"></span>
                         <span id="logConfirmText"></span>
@@ -525,42 +525,44 @@
         </div>
         <div class="filters-right">
             <span id="footerTotals" class="filter-count" hidden></span>
-            <label class="search-field" id="searchField">
-                <span class="search-ic" data-icon="search" aria-hidden="true"></span>
-                <input type="search" id="tradeSearch" placeholder="Search trades…" aria-label="Search trades" autocomplete="off" spellcheck="false">
-                <button type="button" class="search-clear" id="searchClear" aria-label="Clear search" hidden><span data-icon="x" aria-hidden="true"></span></button>
-            </label>
-            <div class="date-range" id="dateRange">
-                <input type="hidden" id="dateFrom" value="">
-                <input type="hidden" id="dateTo" value="">
-                <div class="date-fields">
-                <button type="button" class="date-field is-empty" id="dateFromBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop" aria-label="From date">
-                    <span class="date-field-value">From</span>
-                    <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
-                </button>
-                <span class="date-sep">–</span>
-                <button type="button" class="date-field is-empty" id="dateToBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop" aria-label="To date">
-                    <span class="date-field-value">To</span>
-                    <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
-                </button>
-                </div>
-                <span class="date-clear-slot">
-                    <button type="button" id="dateClear" class="icon-btn date-clear danger" data-tip="Clear dates" aria-label="Clear dates">
-                        <span data-icon="x" aria-hidden="true"></span>
+            <div class="filters-tools">
+                <label class="search-field" id="searchField">
+                    <span class="search-ic" data-icon="search" aria-hidden="true"></span>
+                    <input type="search" id="tradeSearch" placeholder="Search trades…" aria-label="Search trades" autocomplete="off" spellcheck="false">
+                    <button type="button" class="search-clear" id="searchClear" aria-label="Clear search" hidden><span data-icon="x" aria-hidden="true"></span></button>
+                </label>
+                <div class="date-range" id="dateRange">
+                    <input type="hidden" id="dateFrom" value="">
+                    <input type="hidden" id="dateTo" value="">
+                    <div class="date-fields">
+                    <button type="button" class="date-field is-empty" id="dateFromBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop" aria-label="From date">
+                        <span class="date-field-value">From</span>
+                        <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
                     </button>
-                </span>
-            </div>
-            <div class="menu-wrap">
-                <button id="exportBtn" class="btn btn-ghost btn-sm" aria-haspopup="menu" aria-expanded="false"><span data-icon="download"></span>Export</button>
-                <div class="menu" id="exportMenu" role="menu" hidden>
-                    <button role="menuitem" data-export="csv">Download CSV</button>
-                    <button role="menuitem" data-export="tsv">Download TSV</button>
-                    <button role="menuitem" data-export="excel">Copy for Excel</button>
-                    <hr>
-                    <button role="menuitem" data-export="backup">Download backup</button>
-                    <button role="menuitem" data-export="restore">Restore from file…</button>
+                    <span class="date-sep">–</span>
+                    <button type="button" class="date-field is-empty" id="dateToBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop" aria-label="To date">
+                        <span class="date-field-value">To</span>
+                        <span class="date-field-ic" data-icon="calendar-days" aria-hidden="true"></span>
+                    </button>
+                    </div>
+                    <span class="date-clear-slot">
+                        <button type="button" id="dateClear" class="icon-btn date-clear danger" data-tip="Clear dates" aria-label="Clear dates">
+                            <span data-icon="x" aria-hidden="true"></span>
+                        </button>
+                    </span>
                 </div>
-                <input type="file" id="restoreFile" accept=".json" hidden>
+                <div class="menu-wrap">
+                    <button id="exportBtn" class="btn btn-ghost btn-sm" aria-haspopup="menu" aria-expanded="false"><span data-icon="download"></span>Export</button>
+                    <div class="menu" id="exportMenu" role="menu" hidden>
+                        <button role="menuitem" data-export="csv">Download CSV</button>
+                        <button role="menuitem" data-export="tsv">Download TSV</button>
+                        <button role="menuitem" data-export="excel">Copy for Excel</button>
+                        <hr>
+                        <button role="menuitem" data-export="backup">Download backup</button>
+                        <button role="menuitem" data-export="restore">Restore from file…</button>
+                    </div>
+                    <input type="file" id="restoreFile" accept=".json" hidden>
+                </div>
             </div>
         </div>
     </div>

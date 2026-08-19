@@ -197,6 +197,19 @@ const MOTION = (() => {
         return frames;
     }
 
+    /* Splash enter: no slide — grows from the middle toward the viewer,
+       blur settling as it lands. Gentler and longer than modalEnter. */
+    function splashEnter(el) {
+        if (reduceMotion) return;
+        const frames = springKeyframes('modal', { s: 0.9, b: 6, o: 0 }, { s: 1, b: 0, o: 1 }, 520)
+            .map(f => ({
+                transform: `scale(${f.s})`,
+                filter: `blur(${Math.max(0, f.b)}px)`,
+                opacity: Math.min(1, Math.max(0, f.o * 1.8)),
+            }));
+        el.animate(frames, { duration: 520, easing: 'linear' });
+    }
+
     /* Modal enter: scale 0.95, y 10 → identity on the `modal` spring. */
     function modalEnter(el) {
         if (reduceMotion) return;
@@ -322,8 +335,9 @@ const MOTION = (() => {
             }
             // Measure the inner row, not wrap.scrollHeight — blur/overflow on a
             // height:0 wrap inflates scrollHeight and the header divider snaps
-            // when height later goes to auto.
-            const inner = contentEl.firstElementChild;
+            // when height later goes to auto. The first child can be a [hidden]
+            // empty-state (risk scenarios), so measure the first visible one.
+            const inner = [...contentEl.children].find((c) => !c.hidden) || contentEl.firstElementChild;
             const from = contentEl.getBoundingClientRect().height;
             const to = open ? (inner ? inner.getBoundingClientRect().height : contentEl.scrollHeight) : 0;
             contentEl.style.height = from + 'px';
@@ -433,7 +447,7 @@ const MOTION = (() => {
     return {
         reduceMotion, Spring, SPRINGS, makeSpring, addDriver,
         flipPill, segmented, springKeyframes,
-        modalEnter, modalExit, roller, rollerUpdate, wobble, letterReveal,
+        modalEnter, modalExit, splashEnter, roller, rollerUpdate, wobble, letterReveal,
         collapsible, toastEnter, rowEnter, collapseAway, flash,
         freezeColors, thawColors, themeSwap,
     };

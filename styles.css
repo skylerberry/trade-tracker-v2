@@ -236,6 +236,14 @@ input::placeholder { color: var(--text-3); opacity: 0.7; }
 }
 .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
 .btn-primary:disabled { background: var(--surface-3); color: var(--text-3); border-color: var(--border); box-shadow: none; }
+/* Log button, not ready: keeps its gradient identity but dimmed, label
+   stays white — and it's still clickable, routing to the missing field. */
+.btn-log[aria-disabled="true"],
+.btn-log[aria-disabled="true"]:hover {
+    color: var(--primary-contrast);
+    opacity: 0.55;
+    filter: saturate(0.7);
+}
 .btn-ghost { border-color: var(--border-2); color: var(--text-2); background: transparent; }
 .btn-ghost:hover { background: var(--surface-2); border-color: var(--text-3); }
 #clearCalc.btn-ghost.danger:hover,
@@ -624,7 +632,9 @@ input::placeholder { color: var(--text-3); opacity: 0.7; }
     background: transparent;
 }
 .wc-fresh:hover {
-    background: var(--fresh);
+    /* same lit-from-above recipe as the hero CTA, in green */
+    background: radial-gradient(90% 100% at 15% 12%, color-mix(in srgb, var(--fresh) 72%, #fff) 0%, var(--fresh) 100%);
+    border-color: color-mix(in srgb, var(--fresh) 78%, #000); /* beat .btn-ghost:hover's gray ring */
     color: #fff;
     box-shadow: var(--inset-hi);
 }
@@ -1446,6 +1456,8 @@ body.is-splash > .app-footer {
     transition: transform var(--dur-base) var(--ease-standard);
 }
 .risk-scenarios-chev .lucide { width: 13px; height: 13px; }
+/* collapsed → a drawer handle on the seam: hairline through the row with a
+   centered mini-pill sitting on it. Costs the gap the layout already had. */
 .risk-scenarios:not(.is-open) {
     margin-top: 8px;
     padding: 0;
@@ -1453,20 +1465,38 @@ body.is-splash > .app-footer {
     background: transparent;
 }
 .risk-scenarios:not(.is-open) .risk-scenarios-toggle {
-    gap: 5px;
-    padding: 2px 0;
+    justify-content: center;
+    gap: 0;
+    padding: 3px 0;
     border-bottom-color: transparent;
     margin-bottom: 0;
 }
+.risk-scenarios:not(.is-open) .risk-scenarios-toggle::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    border-top: 1px solid var(--border);
+}
 .risk-scenarios:not(.is-open) .risk-scenarios-title {
+    position: relative;
+    padding: 3px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
     color: var(--text-3);
     font-weight: 600;
+    font-size: 0.64rem;
+    transition: color var(--dur-base), border-color var(--dur-base), background-color var(--dur-base);
 }
 .risk-scenarios:not(.is-open) .risk-scenarios-title .lucide,
 .risk-scenarios:not(.is-open) .risk-scenarios-chev { color: var(--text-3); }
 .risk-scenarios:not(.is-open) .risk-scenarios-title .lucide,
-.risk-scenarios:not(.is-open) .risk-scenarios-chev .lucide { width: 12px; height: 12px; }
-.risk-scenarios:not(.is-open) .risk-scenarios-toggle:hover .risk-scenarios-title { color: var(--text-2); }
+.risk-scenarios:not(.is-open) .risk-scenarios-chev .lucide { width: 11px; height: 11px; }
+.risk-scenarios:not(.is-open) .risk-scenarios-toggle:hover .risk-scenarios-title {
+    color: var(--text);
+    border-color: var(--text-3);
+    background: var(--surface-2);
+}
 .risk-scenarios:not(.is-open) .risk-scenarios-context {
     position: absolute;
     width: 1px; height: 1px;
@@ -1677,6 +1707,29 @@ button.chip:active { transform: scale(0.95); }
 .shares-num-btn:hover { background: rgba(255, 255, 255, 0.1); }
 .shares-num-btn:active { transform: scale(0.96); }
 .shares-hero-num { font-size: 2.6rem; font-weight: 600; letter-spacing: -0.03em; color: #fff; }
+/* inline editor for the hero — type a count, risk solves backwards.
+   Width hugs the digits (JS keeps it in sync), no chrome beyond a soft
+   dashed baseline; selection and caret stay in the accent family. */
+.shares-hero-edit {
+    width: 2ch;
+    min-width: 2ch;
+    font-size: 2.6rem; font-weight: 600; letter-spacing: -0.03em;
+    text-align: center;
+    color: #fff;
+    background: transparent;
+    border: none;
+    border-bottom: 2px dashed rgba(255, 255, 255, 0.4);
+    border-radius: 0;
+    padding: 0;
+    caret-color: currentColor;
+}
+.shares-hero-edit:focus { outline: none; box-shadow: none; border-color: transparent; border-bottom-color: rgba(255, 255, 255, 0.4); background: transparent; }
+.shares-hero-edit::selection { background: var(--accent-soft); }
+.position-card .shares-hero-edit,
+.position-card .shares-hero-edit:focus { color: var(--primary); border-bottom-color: color-mix(in srgb, var(--primary) 40%, transparent); }
+:is([data-theme="dark"], [data-theme="oled"]) .position-card .shares-hero-edit,
+:is([data-theme="dark"], [data-theme="oled"]) .position-card .shares-hero-edit:focus { color: inherit; border-bottom-color: color-mix(in srgb, currentColor 40%, transparent); }
+.shares-copy-mini { margin-left: 8px; opacity: 0.8; }
 .shares-cap { font-size: 0.76rem; color: rgba(255, 255, 255, 0.85); margin-top: -2px; }
 .shares-cap.is-capped {
     display: flex;
@@ -1901,22 +1954,22 @@ button.chip:active { transform: scale(0.95); }
     background: color-mix(in srgb, var(--success) 13%, var(--surface));
 }
 .r-rung.is-plan .r-rung-price,
-.r-rung.is-plan .r-rung-hint { color: var(--success); }
+.r-rung.is-plan .r-rung-hint { color: var(--text-2); }
 .r-rung-mark {
     position: absolute;
-    top: -7px;
-    right: 6px;
+    top: -9px;
+    right: 5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 17px;
-    height: 17px;
+    width: 21px;
+    height: 21px;
     border: 2px solid var(--surface);
     border-radius: var(--radius-full);
     color: #fff;
     background: var(--success);
 }
-.r-rung-mark .lucide { width: 10px; height: 10px; stroke-width: 2.5; }
+.r-rung-mark .lucide { width: 12px; height: 12px; stroke-width: 2.5; }
 .r-ladder-note {
     display: flex;
     align-items: center;
@@ -1982,7 +2035,8 @@ button.chip:active { transform: scale(0.95); }
     background: var(--accent-soft);
     border: 1px solid color-mix(in srgb, var(--primary) 16%, var(--border));
 }
-.watch-empty-ic .lucide { width: 20px; height: 20px; }
+.watch-empty-ic .lucide { width: 20px; height: 20px; transform-origin: center; }
+.watch-empty-ic:hover .lucide { animation: ttBlink 650ms ease-in-out; }
 .watch-empty strong { font-size: 0.95rem; color: var(--text); }
 .watch-empty p { margin-top: 4px; font-size: 0.8rem; color: var(--text-3); }
 .watch-empty-cta { margin-top: 14px; }
@@ -2563,8 +2617,15 @@ body[data-view="compound"] .float-bar .fb-sep { display: none; }
     flex: 1 1 100%;
     margin-left: 0;
 }
+/* Count stays left; search + dates + Export stay a single right-hand cluster
+   whether the count is showing or the row is empty. */
+.filters-tools {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 12px; flex-wrap: wrap;
+    flex: 1 1 auto;
+    min-width: min(100%, 36rem);
+}
 .filter-count {
-    margin-right: auto;
     font-size: 0.8rem;
     color: var(--text-3);
     font-variant-numeric: tabular-nums;
@@ -2709,7 +2770,7 @@ body[data-view="compound"] .float-bar .fb-sep { display: none; }
     font-variant-numeric: tabular-nums;
     transition: background-color var(--dur-fast), color var(--dur-fast);
 }
-.date-pop-day:hover { background: var(--surface-2); }
+.date-pop-day:hover { background: var(--accent-soft); color: var(--accent); }
 .date-pop-day:active { transform: scale(0.92); }
 .date-pop-day.is-outside { color: var(--text-3); }
 .date-pop-day.is-today:not(.is-selected) {
@@ -3412,7 +3473,8 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
     }
     .search-field { width: 100%; }
     .filters-right { width: 100%; }
-    .filter-count { white-space: normal; }
+    .filter-count { flex: 1 1 100%; white-space: normal; }
+    .filters-tools { flex: 1 1 100%; width: 100%; }
 }
 .pager { display: flex; align-items: center; gap: 8px; }
 .pager .btn { width: 30px; padding-inline: 0; }
@@ -3945,6 +4007,8 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 
 /* stroke draw-in (toast check, log confirm, empty state) */
 @keyframes ttDraw { to { stroke-dashoffset: 0; } }
+/* empty-state watchlist eye blinks on hover of the chip, not the header row */
+@keyframes ttBlink { 0%, 100% { transform: scaleY(1); } 18%, 38% { transform: scaleY(0.12); } 60% { transform: scaleY(1); } }
 @keyframes tipIn { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: blur(0); } }
 .instant-tip.is-out {
     opacity: 0;
@@ -3984,6 +4048,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
         stroke-dasharray: none;
         stroke-dashoffset: 0;
     }
+    .watch-empty-ic:hover .lucide { animation: none; }
 }
 .toast-ic { flex: none; color: var(--success); }
 .toast-ic .lucide { width: 17px; height: 17px; }

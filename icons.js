@@ -83,7 +83,7 @@ const ACCENT_SEEDS = {
 };
 
 function accentSeedFor(name, mode) {
-    const a = ACCENT_SEEDS[name] || ACCENT_SEEDS.navy;
+    const a = ACCENT_SEEDS[name] || ACCENT_SEEDS.cyan;
     if (mode === 'oled') return a.oled || a.dark;
     if (mode === 'dark') return a.dark;
     return a.light;
