@@ -2164,7 +2164,8 @@
                 }, `<b>${E.escapeHtml(trade?.ticker || 'Trade')}</b> journal entry updated`, { flashRow: false });
             } else if (action === 'delete') {
                 const trade = trades.find(item => item.id === tradeId);
-                confirmModal('Delete journal entry?', 'This removes the timestamped entry from the trade. You can undo it from the confirmation toast.', 'Delete entry', () => {
+                const from = trade?.ticker ? ` from ${trade.ticker}` : '';
+                confirmModal('Delete journal entry', `This removes the timestamped entry${from}.`, 'Delete entry', () => {
                     mutateTrade(tradeId, (target) => {
                         target.journal = target.journal.filter(item => item.id !== entryId);
                     }, `<b>${E.escapeHtml(trade?.ticker || 'Trade')}</b> journal entry deleted`, { flashRow: false });
@@ -2312,8 +2313,8 @@
             ? ` and ${journalCount === 1 ? 'its journal entry' : `its ${journalCount} journal entries`}`
             : '';
         confirmModal(
-            `Delete ${t.ticker}?`,
-            `This removes the trade${journalNote}. You can undo it from the confirmation toast.`,
+            `Delete ${t.ticker}`,
+            `This removes the ${t.ticker} trade${journalNote}.`,
             'Delete trade',
             () => {
                 const row = document.querySelector(`tr[data-id="${id}"]`);
@@ -3252,7 +3253,7 @@
         try { data = JSON.parse(await file.text()); } catch { toast('Not a valid backup file', { error: true }); return; }
         const incoming = Array.isArray(data) ? data : data.trades;
         if (!Array.isArray(incoming)) { toast('No trades found in that file', { error: true }); return; }
-        confirmModal('Restore from backup?', `Replaces your ${trades.length} current trades with ${incoming.length} from the file. A safety copy of the current data downloads first.`, 'Restore', () => {
+        confirmModal('Restore from backup', `Replaces your ${trades.length} current trades with ${incoming.length} from the file. A safety copy of the current data downloads first.`, 'Restore', () => {
             download(`pre-restore-${Date.now()}.json`, JSON.stringify({ trades }, null, 2), 'application/json');
             trades = incoming;
             trades.forEach(normalizeTrade);

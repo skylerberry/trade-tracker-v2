@@ -54,6 +54,7 @@
     --tier-2: color-mix(in srgb, var(--primary) 34%, var(--surface));
     --tier-3: color-mix(in srgb, var(--primary) 52%, var(--surface));
     --danger: #dc2626;
+    --danger-hover: #b91c1c;
     --danger-soft: rgba(239, 68, 68, 0.10);
     --made-heart: #e07a7a;
     --made-coffee: #b08968;
@@ -97,6 +98,7 @@
     --tier-2: color-mix(in srgb, var(--primary) 40%, var(--surface));
     --tier-3: color-mix(in srgb, var(--primary) 58%, var(--surface));
     --danger: #ef4444;
+    --danger-hover: #dc2626;
     --danger-soft: rgba(239, 68, 68, 0.14);
     --made-heart: #f07178;
     --made-coffee: #d4a574;
@@ -142,6 +144,7 @@
     --tier-2: color-mix(in srgb, var(--primary) 46%, var(--surface));
     --tier-3: color-mix(in srgb, var(--primary) 66%, var(--surface));
     --danger: #ff4d6d;
+    --danger-hover: #e03d5c;
     --made-heart: #ff3d5a;
     --made-coffee: #e8b86d;
     --danger-soft: rgba(255, 77, 109, 0.12);
@@ -224,7 +227,7 @@ input::placeholder { color: var(--text-3); opacity: 0.7; }
 }
 .btn:active { transform: scale(0.97); }
 .btn:disabled { cursor: default; transform: none; }
-.btn-ghost:disabled, .btn-danger:disabled { opacity: 0.45; }
+.btn-ghost:disabled { opacity: 0.45; }
 .btn-primary {
     background: var(--primary);
     color: var(--primary-contrast);
@@ -241,8 +244,14 @@ input::placeholder { color: var(--text-3); opacity: 0.7; }
     border-color: var(--danger);
     background: var(--danger-soft);
 }
-.btn-danger { border-color: var(--danger); color: var(--danger); background: transparent; }
-.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-danger {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+    box-shadow: var(--inset-hi);
+}
+.btn-danger:hover:not(:disabled) { background: var(--danger-hover); border-color: var(--danger-hover); }
+.btn-danger:disabled { background: var(--surface-3); color: var(--text-3); border-color: var(--border); box-shadow: none; }
 .btn-sm { padding: 4px 12px; font-size: 0.8rem; }
 
 .icon-btn {
@@ -3344,6 +3353,16 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
     padding: 18px 20px 20px;
     display: flex; flex-direction: column; gap: 13px;
     will-change: transform;
+}
+.confirm-card {
+    max-width: 360px;
+    padding: 16px 18px 16px;
+    gap: 10px;
+}
+.confirm-card .cf-body {
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--text-2);
 }
 .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .modal-title { font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; }
