@@ -3335,19 +3335,29 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
 .journal-entry-editor textarea { min-height: 76px; }
 .journal-edit-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; }
 .journal-entry.is-editing .journal-entry-icon { border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
+/* same tile pattern as the watchlist / trades empty states */
 .journal-empty {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 18px 10px 10px;
+}
+.journal-empty-ic {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 18px 10px 8px;
-    color: var(--text-3);
+    width: 42px;
+    height: 42px;
+    margin-bottom: 10px;
+    border-radius: var(--radius-lg);
+    color: var(--primary);
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--primary) 16%, var(--border));
 }
-.journal-empty-icon { display: inline-flex; }
-.journal-empty-icon .lucide { width: 20px; height: 20px; }
-.journal-empty > span:last-child { display: flex; flex-direction: column; }
-.journal-empty b { color: var(--text-2); font-size: 0.75rem; font-weight: 650; }
-.journal-empty small { margin-top: 2px; font-size: 0.66rem; }
+.journal-empty-ic .lucide { width: 20px; height: 20px; }
+.journal-empty strong { font-size: 0.85rem; color: var(--text); }
+.journal-empty p { margin-top: 3px; font-size: 0.74rem; color: var(--text-3); }
 .rail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
 
 /* ---------- empty state / footer ----------

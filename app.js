@@ -2203,8 +2203,9 @@
                 </div>
             </article>`;
         }).join('') : `<div class="journal-empty">
-            <span class="journal-empty-icon" aria-hidden="true">${ICONS['notebook-pen']}</span>
-            <span><b>No journal entries yet</b><small>Write the setup and what would invalidate it.</small></span>
+            <span class="journal-empty-ic ic-draw" aria-hidden="true">${ICONS['notebook-pen']}</span>
+            <strong>No journal entries yet</strong>
+            <p>Write the setup and what would invalidate it.</p>
         </div>`;
 
         return `<div class="rail-journal" data-default-kind="${defaultKind}">
