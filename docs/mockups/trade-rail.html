@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade rail · mockups</title>
+<!--
+  Throwaway prototype. Question: the expanded trade rail (position timeline
+  + stats + journal) leaves the left column half-empty on young trades, and
+  the number that matters most — open risk — is buried mid-list.
+
+  T Today — two columns: timeline left, flat stat list + journal right
+  A Stat strip — numbers first: a card strip across the top (open risk
+    carries a tint), then timeline and journal side by side below
+  B Cockpit — three lanes: timeline · a risk card with the open-risk hero
+    and a stop-distance meter · journal
+  C Ledger — timeline and stats merge into one ledger column; the journal
+    collapses to a single compose bar until it has entries
+
+  Sample data = the IONQ trade: 700 @ 42.80, stop 41.20, one pending plan
+  target, no exits, no journal entries yet.
+-->
+<style>
+:root {
+    --radius-card: 16px; --radius-lg: 12px; --radius-full: 9999px;
+    --bg: #fbfbfc; --surface: #ffffff; --surface-2: #f4f4f5; --surface-3: #ececee;
+    --border: #e4e4e7; --border-2: #d4d4d8;
+    --text: #18181b; --text-2: #3f3f46; --text-3: #71717a;
+    --accent: #0891b2; --accent-soft: rgba(8, 145, 178, 0.08);
+    --danger: #dc2626; --danger-soft: rgba(220, 38, 38, 0.08);
+    --success: #16a34a;
+}
+* { box-sizing: border-box; margin: 0; }
+body { font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); padding: 32px 20px 80px; }
+.page-head { max-width: 1080px; margin: 0 auto 24px; }
+.page-head h1 { font-size: 19px; letter-spacing: -0.02em; }
+.page-head p { color: var(--text-3); max-width: 76ch; margin-top: 4px; }
+.stack { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+.variant { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); overflow: hidden; }
+.v-head { padding: 13px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: baseline; }
+.v-tag { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); }
+.v-head h2 { font-size: 14px; }
+.v-head p { margin-left: auto; font-size: 12px; color: var(--text-2); }
+.rail { padding: 16px; background: var(--surface-2); }
+
+.kicker { font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+.tl { display: flex; flex-direction: column; gap: 8px; }
+.tl-ev { display: flex; gap: 8px; align-items: baseline; }
+.tl-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--accent); margin-top: 3px; align-self: flex-start; }
+.tl-dot.pend { border-style: dashed; border-color: var(--text-3); }
+.tl-ev b { font-weight: 600; }
+.tl-ev small { color: var(--text-3); }
+.actions { display: flex; gap: 6px; margin-top: 12px; }
+.btn { border: 1px solid transparent; border-radius: var(--radius-full); padding: 6px 14px; font: 600 12px/1 -apple-system, sans-serif; cursor: pointer; }
+.btn.pri { background: var(--accent); color: #fff; }
+.btn.gho { background: var(--surface); border-color: var(--border-2); color: var(--text-2); }
+
+.stat-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 9px 12px; }
+.stat-card .k { font-size: 9.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); }
+.stat-card .v { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; margin-top: 2px; }
+.stat-card .s { font-size: 10.5px; color: var(--text-3); }
+.stat-card.risk { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 25%, transparent); }
+.stat-card.risk .v { color: var(--danger); }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cols3 { display: grid; grid-template-columns: 1.1fr 0.9fr 1.1fr; gap: 14px; }
+.panelet { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; }
+
+.jr-compose { border: 1px dashed var(--border-2); border-radius: var(--radius-lg); background: var(--surface); padding: 10px 12px; color: var(--text-3); display: flex; align-items: center; gap: 10px; }
+.jr-tags { display: flex; gap: 4px; }
+.jr-tag { font-size: 10px; font-weight: 600; border: 1px solid var(--border); border-radius: var(--radius-full); padding: 2px 8px; color: var(--text-3); }
+.jr-tag.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.jr-count { margin-left: auto; font-size: 10.5px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 2px 8px; }
+
+.meter { height: 6px; border-radius: 4px; background: var(--surface-3); overflow: hidden; margin-top: 6px; }
+.meter i { display: block; height: 100%; width: 37%; background: var(--accent); border-radius: 4px; }
+.risk-hero { text-align: center; padding: 6px 0 10px; }
+.risk-hero .v { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; color: var(--danger); }
+.risk-hero .k { font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-3); }
+.kv { display: flex; justify-content: space-between; padding: 5px 0; border-top: 1px solid var(--border); font-size: 12.5px; }
+.kv:first-of-type { border-top: 0; }
+.kv b { font-weight: 600; }
+
+.ledger .kv { padding: 7px 0; }
+.ledger-flags { display: flex; gap: 6px; margin: 10px 0 2px; flex-wrap: wrap; }
+.flag { font-size: 10.5px; font-weight: 600; border-radius: var(--radius-full); padding: 3px 10px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-2); }
+.flag.hot { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+    <h1>Trade rail — three overview candidates</h1>
+    <p>Same IONQ trade in each: 700 @ 42.80, stop 41.20, one pending plan target, empty journal.
+       The problems being solved: dead space on young trades, and open risk buried mid-list.</p>
+</div>
+
+<div class="stack">
+
+    <section class="variant">
+        <div class="v-head"><span class="v-tag">A · stat strip</span><h2>Numbers first</h2><p>a card strip leads; open risk wears the danger tint; lanes fill beneath</p></div>
+        <div class="rail">
+            <div class="stat-strip">
+                <div class="stat-card risk"><div class="k">Open risk</div><div class="v">$1,120</div><div class="s">4.5% of account</div></div>
+                <div class="stat-card"><div class="k">Remaining</div><div class="v">700</div><div class="s">of 700 shares</div></div>
+                <div class="stat-card"><div class="k">Realized</div><div class="v">$0.00</div><div class="s">no exits yet</div></div>
+                <div class="stat-card"><div class="k">Risk / share</div><div class="v">$1.60</div><div class="s">entry − stop</div></div>
+                <div class="stat-card"><div class="k">Stop distance</div><div class="v">3.7%</div><div class="s">41.20 stop</div></div>
+            </div>
+            <div class="cols">
+                <div class="panelet">
+                    <div class="kicker">Position</div>
+                    <div class="tl">
+                        <div class="tl-ev"><span class="tl-dot"></span><span><b>Long entry</b> — 700 @ 42.80 <small>Aug 18 · stop 41.20</small></span></div>
+                        <div class="tl-ev"><span class="tl-dot pend"></span><span>Pending — stop → 42.80 at 44.40 <small>plan target</small></span></div>
+                    </div>
+                    <div class="actions"><button class="btn pri">Trim / Exit</button><button class="btn gho">Add to position</button><button class="btn gho">Edit</button></div>
+                </div>
+                <div class="panelet">
+                    <div class="kicker">Trade journal · 0 entries</div>
+                    <div class="jr-compose"><span class="jr-tags"><span class="jr-tag on">#Thesis</span><span class="jr-tag">#Update</span><span class="jr-tag">#Review</span><span class="jr-tag">#Lesson</span></span> What is the setup, catalyst, and invalidation?</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head"><span class="v-tag">B · cockpit</span><h2>Three lanes, risk in the middle</h2><p>the risk card gets the calculator's hero treatment; stop distance becomes a meter</p></div>
+        <div class="rail">
+            <div class="cols3">
+                <div class="panelet">
+                    <div class="kicker">Position</div>
+                    <div class="tl">
+                        <div class="tl-ev"><span class="tl-dot"></span><span><b>Long entry</b> — 700 @ 42.80 <small>Aug 18 · stop 41.20</small></span></div>
+                        <div class="tl-ev"><span class="tl-dot pend"></span><span>Pending — stop → 42.80 at 44.40 <small>plan target</small></span></div>
+                    </div>
+                    <div class="actions"><button class="btn pri">Trim / Exit</button><button class="btn gho">Add</button><button class="btn gho">Edit</button></div>
+                </div>
+                <div class="panelet">
+                    <div class="risk-hero"><div class="v">$1,120</div><div class="k">Open risk · 4.5% acct</div></div>
+                    <div class="kv"><span>Stop distance</span><b>3.7%</b></div>
+                    <div class="meter" title="distance to stop"><i></i></div>
+                    <div class="kv" style="margin-top:8px"><span>Risk / share</span><b>$1.60</b></div>
+                    <div class="kv"><span>Remaining</span><b>700 shares</b></div>
+                    <div class="kv"><span>Realized</span><b>$0.00</b></div>
+                </div>
+                <div class="panelet">
+                    <div class="kicker">Trade journal · 0 entries</div>
+                    <div class="jr-compose"><span class="jr-tags"><span class="jr-tag on">#Thesis</span><span class="jr-tag">#Update</span></span> Setup, catalyst, invalidation?</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head"><span class="v-tag">C · ledger</span><h2>One story column, journal as a bar</h2><p>timeline + stats merge; flags summarize state; empty journal costs one row</p></div>
+        <div class="rail">
+            <div class="cols" style="grid-template-columns: 1.4fr 1fr">
+                <div class="panelet ledger">
+                    <div class="kicker">Position</div>
+                    <div class="tl">
+                        <div class="tl-ev"><span class="tl-dot"></span><span><b>Long entry</b> — 700 @ 42.80 <small>Aug 18 · stop 41.20 · risk / share $1.60</small></span></div>
+                        <div class="tl-ev"><span class="tl-dot pend"></span><span>Pending — stop → 42.80 at 44.40 <small>plan target</small></span></div>
+                    </div>
+                    <div class="ledger-flags">
+                        <span class="flag hot">$1,120 open risk</span>
+                        <span class="flag">700 remaining</span>
+                        <span class="flag">stop 3.7% away</span>
+                        <span class="flag">$0.00 realized</span>
+                    </div>
+                    <div class="actions"><button class="btn pri">Trim / Exit</button><button class="btn gho">Add to position</button><button class="btn gho">Edit</button></div>
+                </div>
+                <div class="panelet">
+                    <div class="kicker">Trade journal</div>
+                    <div class="jr-compose">Write the thesis… <span class="jr-count">0 entries</span></div>
+                    <p style="font-size:11px;color:var(--text-3);margin-top:8px">Composer expands on focus — tag picker and the full editor appear only when writing. Entries stack here once they exist.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>
