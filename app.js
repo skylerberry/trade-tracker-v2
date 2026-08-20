@@ -180,9 +180,12 @@
                clock's native tooltip from doubling up on the badge */
             sessEl.title = '';
             const left = session.minutesLeft;
-            const leftText = left === null ? ''
-                : ` · ${left >= 60 ? `${Math.floor(left / 60)}h ${left % 60}m` : `${left}m`} left`;
-            sessEl.dataset.tip = session.detail + leftText;
+            const span = left === null ? '' : left >= 60 ? `${Math.floor(left / 60)}h ${left % 60}m` : `${left}m`;
+            const countdown = left === null ? ''
+                : session.state === 'open' ? ` · Closing bell in ${span}`
+                    : session.state === 'pre' ? ` · Opening bell in ${span}`
+                        : ` · After hours ends in ${span}`;
+            sessEl.dataset.tip = session.detail + countdown;
             const tip = $('instantTip');
             if (tip && !tip.hidden && tip.__anchor === sessEl) tip.textContent = sessEl.dataset.tip;
         }
