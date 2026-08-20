@@ -2339,32 +2339,68 @@
             events.push({ kind: 'pending', l1: p.isStopRaise ? `Pending — stop → ${E.fmtPrice(p.newStop)} at ${E.fmtPrice(p.price)}` : `Pending — ${exitVerb} ${fmtShareCount(p.shares)} @ ${E.fmtPrice(p.price)}`, l2: 'plan target' });
         }
 
-        const stats = [
-            ['Remaining', rem === null ? '—' : fmtShareCount(rem)],
-            ['Realized', E.fmtMoney(pnl, pnl !== null && pnl !== 0)],
-            ['Open risk', risk === null ? '—' : E.fmtMoney(risk)],
+        /* stat strip (mockup A): numbers lead the rail; open risk carries a
+           tone — hot while money is exposed, safe once freerolled */
+        const status = E.deriveStatus(t);
+        const doneish = status === 'closed' || status === 'stopped' || status === 'archived';
+        const orig = E.getOriginalShares(t);
+        const freerolled = risk === 0 && rem !== null && rem > 0;
+        const riskPctAcct = risk !== null && account > 0 ? (risk / account) * 100 : null;
+        const hasExits = Array.isArray(t.exits) && t.exits.length > 0;
+        const rr = E.getRealizedR(t);
+        const cards = [
+            {
+                k: 'Open risk',
+                v: risk === null ? '—' : E.fmtMoney(risk),
+                sub: freerolled ? 'freerolled' : doneish ? 'position closed'
+                    : riskPctAcct !== null && risk > 0 ? `${riskPctAcct.toFixed(riskPctAcct < 1 ? 2 : 1)}% of account` : '',
+                tone: freerolled ? 'safe' : risk > 0 ? 'hot' : '',
+            },
+            {
+                k: 'Remaining',
+                v: rem === null ? '—' : E.fmtShares(rem),
+                sub: orig !== null ? `of ${E.fmtShares(orig)} shares` : 'size unknown',
+            },
+            {
+                k: 'Realized',
+                v: pnl === null ? '—' : E.fmtMoney(pnl, pnl !== 0),
+                sub: hasExits ? (rr !== null ? E.fmtR(rr) : '') : 'no exits yet',
+                tone: pnl > 0 ? 'up' : pnl < 0 ? 'down' : '',
+            },
         ];
-        if (rps !== null) stats.push(['Risk / share', '$' + rps.toFixed(2)]);
+        if (rps !== null) cards.push({ k: 'Risk / share', v: '$' + rps.toFixed(2), sub: 'entry − stop' });
         if (E.isNum(stop) && E.isNum(t.entryPrice) && t.entryPrice > 0) {
-            stats.push(['Stop distance', ((Math.abs(t.entryPrice - stop) / t.entryPrice) * 100).toFixed(1) + '%']);
+            cards.push({
+                k: 'Stop distance',
+                v: ((Math.abs(t.entryPrice - stop) / t.entryPrice) * 100).toFixed(1) + '%',
+                sub: `stop ${E.fmtPrice(stop)}`,
+            });
         }
+        const stripHtml = cards.map(cd => `
+            <div class="rail-stat-card"${cd.tone ? ` data-tone="${cd.tone}"` : ''}>
+                <span class="rsc-k">${cd.k}</span>
+                <span class="rsc-v">${cd.v}</span>
+                <span class="rsc-s">${cd.sub || ''}</span>
+            </div>`).join('');
 
         td.innerHTML = `<div class="rail-wrap"><div class="rail">
-            <div>
-                <div class="rail-title">Position</div>
-                <div class="rail-events">${events.map(ev => `
-                    <div class="rail-event kind-${ev.kind}"><span class="rail-marker">${ev.kind === 'pending' ? ICONS['circle-dashed'] : ''}</span>
-                    <span><span class="rail-line1">${ev.l1}</span><span class="rail-line2"> ${ev.l2}</span></span></div>`).join('')}
+            <div class="rail-statstrip">${stripHtml}</div>
+            <div class="rail-lanes">
+                <div>
+                    <div class="rail-title">Position</div>
+                    <div class="rail-events">${events.map(ev => `
+                        <div class="rail-event kind-${ev.kind}"><span class="rail-marker">${ev.kind === 'pending' ? ICONS['circle-dashed'] : ''}</span>
+                        <span><span class="rail-line1">${ev.l1}</span><span class="rail-line2"> ${ev.l2}</span></span></div>`).join('')}
+                    </div>
+                    <div class="rail-actions">
+                        <button class="btn btn-primary btn-sm" data-act="trim">Trim / Exit</button>
+                        <button class="btn btn-ghost btn-sm" data-act="add-to-position">Add to position</button>
+                        <button class="btn btn-ghost btn-sm" data-act="edit">Edit</button>
+                    </div>
                 </div>
-                <div class="rail-actions">
-                    <button class="btn btn-primary btn-sm" data-act="trim">Trim / Exit</button>
-                    <button class="btn btn-ghost btn-sm" data-act="add-to-position">Add to position</button>
-                    <button class="btn btn-ghost btn-sm" data-act="edit">Edit</button>
+                <div class="rail-side">
+                    ${journalMarkup(t)}
                 </div>
-            </div>
-            <div class="rail-side">
-                <div class="rail-stats">${stats.map(([k, v]) => `<span class="rail-stat"><span>${k}</span><b>${v}</b></span>`).join('')}</div>
-                ${journalMarkup(t)}
             </div>
         </div></div>`;
 
