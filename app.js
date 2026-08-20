@@ -2393,9 +2393,9 @@
                         <div class="rail-event kind-${ev.kind}"><span class="rail-marker">${ev.kind === 'pending' ? ICONS['circle-dashed'] : ''}</span>
                         <span><span class="rail-line1">${ev.l1}</span><span class="rail-line2"> ${ev.l2}</span></span></div>`).join('')}
                     </div>
-                    <div class="rail-actions">
+                    <div class="rail-actions">${doneish ? '' : `
                         <button class="btn btn-primary btn-sm" data-act="trim">Trim / Exit</button>
-                        <button class="btn btn-ghost btn-sm" data-act="add-to-position">Add to position</button>
+                        <button class="btn btn-ghost btn-sm" data-act="add-to-position">Add to position</button>`}
                         <button class="btn btn-ghost btn-sm" data-act="edit">Edit</button>
                     </div>
                 </div>
@@ -2788,6 +2788,8 @@
     function openAddToModal(id) {
         const t = trades.find(x => x.id === id);
         if (!t) return;
+        const s = E.deriveStatus(t);
+        if (s === 'closed' || s === 'stopped' || s === 'archived') { toast('Position already closed', { error: true }); return; }
         openModal('tpl-addto', (card, close) => {
             const qs = (sel) => card.querySelector(sel);
             qs('.ap-ticker').textContent = t.ticker;
