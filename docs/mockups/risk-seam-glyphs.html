@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seam handle glyphs · mockups</title>
+<!--
+  Throwaway prototype. Question: the seam pill currently leads with a
+  chevron AND the activity glyph — two symbols before the label reads
+  cluttered. Five cleaner pills, all still tucked on the hairline.
+  Hover each one; A–D also click to show their open state.
+
+  A Text only — the pill is just the words; hover sharpens the border
+  B Chevron only — one down-chevron, rotates -90 when closed (app grammar)
+  C Plus — quarter-turns toward × on hover, the classic disclosure
+  D Trailing ⋯ — the table's own "more here" glyph, borrowed
+  E Dot on the seam — a 22px glyph-dot; the label slides out on hover.
+    Maximum tuck: collapsed state is almost nothing.
+-->
+<style>
+:root {
+    --radius-full: 9999px;
+    --bg: #fbfbfc; --surface: #ffffff; --surface-2: #f4f4f5; --surface-3: #ececee;
+    --border: #e4e4e7; --border-2: #d4d4d8;
+    --text: #18181b; --text-2: #3f3f46; --text-3: #71717a;
+    --accent: #0891b2; --accent-soft: rgba(8, 145, 178, 0.08);
+    --dur: 200ms; --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+* { box-sizing: border-box; margin: 0; }
+body { font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); padding: 32px 20px 80px; }
+.page-head { max-width: 860px; margin: 0 auto 24px; }
+.page-head h1 { font-size: 19px; letter-spacing: -0.02em; }
+.page-head p { color: var(--text-3); max-width: 72ch; margin-top: 4px; }
+.stack { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.variant { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 18px 18px; }
+.v-head { display: flex; gap: 10px; align-items: baseline; margin-bottom: 14px; }
+.v-tag { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); }
+.v-head h2 { font-size: 13.5px; }
+.v-head p { margin-left: auto; font-size: 12px; color: var(--text-2); }
+
+.ctx-above, .ctx-below { height: 34px; border: 1px solid var(--border-2); border-radius: 10px; background: var(--surface); opacity: 0.55; }
+.ctx-below { height: 46px; margin-top: 14px; border-radius: 14px; background: linear-gradient(180deg, var(--accent-soft), transparent); border-color: var(--border); }
+
+.seam { position: relative; height: 26px; margin-top: 14px; display: flex; align-items: center; justify-content: center; }
+.seam::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--border); }
+.pill {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: color var(--dur), border-color var(--dur), background-color var(--dur);
+}
+.pill:hover { color: var(--text); border-color: var(--text-3); background: var(--surface-2); }
+
+.chev { display: inline-block; font-size: 11px; transition: transform var(--dur) var(--ease); transform: rotate(-90deg); }
+.pill.open .chev { transform: rotate(0deg); }
+.plus { display: inline-block; font-size: 13px; line-height: 1; transition: transform var(--dur) var(--ease); }
+.pill:hover .plus { transform: rotate(90deg); }
+.pill.open .plus { transform: rotate(45deg); }
+.dots { letter-spacing: 0.18em; font-weight: 700; }
+
+/* E: dot that grows a label on hover */
+.dot-pill {
+    position: relative;
+    display: inline-flex; align-items: center;
+    height: 22px;
+    padding: 0 5px;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
+    color: var(--text-3);
+    cursor: pointer;
+    transition: color var(--dur), border-color var(--dur), background-color var(--dur);
+}
+.dot-pill .glyph { font-size: 12px; padding: 0 3px; }
+.dot-pill .lbl {
+    max-width: 0; overflow: hidden; white-space: nowrap;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    transition: max-width 260ms var(--ease), padding 260ms var(--ease), opacity 200ms;
+    opacity: 0; padding: 0;
+}
+.dot-pill:hover { color: var(--text); border-color: var(--text-3); background: var(--surface-2); }
+.dot-pill:hover .lbl { max-width: 140px; opacity: 1; padding-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+    <h1>Seam handle — five cleaner pills</h1>
+    <p>The seam stays; only the pill changes. One symbol max. Hover everything; A–D click to preview their open state.</p>
+</div>
+
+<div class="stack">
+
+    <section class="variant">
+        <div class="v-head"><span class="v-tag">A · text only</span><h2>Just the words</h2><p>zero glyphs — hover does the affordance work</p></div>
+        <div class="ctx-above"></div>
+        <div class="seam"><button class="pill" data-toggle>Risk scenarios</button></div>
+        <div class="ctx-below"></div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head"><span class="v-tag">B · chevron only</span><h2>One chevron, app grammar</h2><p>points right when closed, rotates down when open — same as every panel</p></div>
+        <div class="ctx-above"></div>
+        <div class="seam"><button class="pill" data-toggle><span class="chev">⌄</span>Risk scenarios</button></div>
+        <div class="ctx-below"></div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head"><span class="v-tag">C · plus</span><h2>The classic disclosure</h2><p>quarter-turn on hover, lands as × when open</p></div>
+        <div class="ctx-above"></div>
+        <div class="seam"><button class="pill" data-toggle><span class="plus">+</span>Risk scenarios</button></div>
+        <div class="ctx-below"></div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head"><span class="v-tag">D · trailing ⋯</span><h2>The table's "more" glyph</h2><p>borrowed from the row actions — house vocabulary for "there's more here"</p></div>
+        <div class="ctx-above"></div>
+        <div class="seam"><button class="pill" data-toggle>Risk scenarios<span class="dots">⋯</span></button></div>
+        <div class="ctx-below"></div>
+    </section>
+
+    <section class="variant">
+        <div class="v-head"><span class="v-tag">E · dot on the seam</span><h2>Almost nothing until you look</h2><p>a 22px glyph-dot; the label slides out on hover — maximum tuck</p></div>
+        <div class="ctx-above"></div>
+        <div class="seam"><button class="dot-pill"><span class="glyph">⌁</span><span class="lbl">Risk scenarios</span></button></div>
+        <div class="ctx-below"></div>
+    </section>
+
+</div>
+
+<script>
+document.querySelectorAll('[data-toggle]').forEach(p => p.addEventListener('click', () => p.classList.toggle('open')));
+</script>
+</body>
+</html>
