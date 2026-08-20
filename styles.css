@@ -2108,6 +2108,38 @@ body[data-view="compound"] .float-bar .fb-metric,
 body[data-view="compound"] .float-bar .fb-score,
 body[data-view="compound"] .float-bar .fb-sep { display: none; }
 
+/* equity curve card (journal) — number + drawdown left, curve right */
+.equity-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 14px 16px;
+}
+.equity-split { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 20px; }
+.equity-kicker { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-3); }
+.equity-num { font-size: 1.7rem; font-weight: 600; letter-spacing: -0.03em; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.equity-num[data-sign="up"] { color: var(--success); }
+.equity-num[data-sign="down"] { color: var(--danger); }
+.equity-dd {
+    margin-top: 10px;
+    padding: 7px 10px 8px;
+    border-radius: 10px;
+    background: var(--danger-soft);
+    display: flex; flex-direction: column; gap: 1px;
+}
+.equity-dd[data-state="ok"] { background: var(--success-soft); }
+.equity-dd-k { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); }
+.equity-dd-v { font-size: 0.9rem; font-weight: 600; color: var(--danger); font-variant-numeric: tabular-nums; }
+.equity-dd[data-state="ok"] .equity-dd-v { color: var(--success); }
+.equity-kv { display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--text-3); margin-top: 7px; }
+.equity-kv b { color: var(--text-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+.equity-chart-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.equity-chart { min-height: 150px; }
+.equity-chart svg { display: block; width: 100%; }
+@media (max-width: 700px) {
+    .equity-split { grid-template-columns: 1fr; gap: 12px; }
+}
+
 .journal-summary {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));

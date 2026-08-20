@@ -191,6 +191,29 @@ eq(E.marketSession(new Date('2026-08-19T12:00:00.000Z')).minutesLeft, 90, 'Wed 8
 eq(E.marketSession(new Date('2026-08-19T23:30:00.000Z')).minutesLeft, 30, 'Wed 19:30 ET → 30m of after hours left');
 eq(E.marketSession(new Date('2026-08-22T15:00:00.000Z')).minutesLeft, null, 'closed session has no countdown');
 
+/* ---- equity curve: cumulative realized P&L + drawdown ---- */
+const eqTrades = [
+    { ticker: 'AAA', entryPrice: 10, initialSL: 9, exits: [
+        { shares: 100, price: 12, date: '2026-01-02', rMultiple: 2 },
+        { shares: 100, price: 9, date: '2026-01-05', rMultiple: -1 },
+    ] },
+    { ticker: 'BBB', entryPrice: 20, direction: 'short', initialSL: 21, exits: [
+        { shares: 50, price: 18, date: '2026-01-03', rMultiple: 2 },
+    ] },
+    { ticker: 'ZZZ', entryPrice: 5, initialSL: 4, archived: true, exits: [
+        { shares: 999, price: 50, date: '2026-01-01', rMultiple: 45 },
+    ] },
+];
+const eqc = E.equityCurve(eqTrades);
+eq(eqc.points.map(p => p.value), [200, 300, 200], 'cumulative P&L sorted by date, archived excluded');
+eq(eqc.peak, 300, 'peak equity');
+eq(eqc.peakIndex, 1, 'peak index');
+eq(eqc.current, 200, 'current equity');
+eq(eqc.drawdown, 100, 'drawdown $ from peak');
+eq(eqc.drawdownR, 1, 'drawdown in R');
+eq(E.equityCurve([]).points.length, 0, 'no trades → empty curve');
+eq(E.equityCurve([]).drawdown, 0, 'no trades → zero drawdown');
+
 /* ---- live-site journal → v2 trades ---- */
 const liveOpen = E.migrateLiveSiteTrade({
     id: 1001, timestamp: '2026-06-01T15:00:00.000Z', ticker: 'nvda',

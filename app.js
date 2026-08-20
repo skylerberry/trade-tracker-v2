@@ -1583,9 +1583,74 @@
         return VIEWS.includes(h) ? h : 'positions';
     }
 
+    /* ---------- equity curve (journal) ----------
+       Hand-rolled SVG like compound.js: tokens for color, area + line,
+       dashed peak line and a red wash over the peak→now give-back. */
+    function renderEquity() {
+        const card = $('equityCard');
+        if (!card) return;
+        if (view !== 'journal') { card.hidden = true; return; }
+        const eq = E.equityCurve(trades);
+        card.hidden = eq.points.length === 0;
+        if (card.hidden) return;
+        const rMode = (prefs.equityMode || 'usd') === 'r';
+        const cur = rMode ? eq.currentR : eq.current;
+        const num = $('eqNum');
+        num.textContent = rMode ? E.fmtR(eq.currentR) : E.fmtMoney(eq.current, true);
+        num.dataset.sign = cur > 0 ? 'up' : cur < 0 ? 'down' : '';
+        const dd = rMode ? eq.drawdownR : eq.drawdown;
+        const atPeak = dd <= 0.0001;
+        $('eqDd').dataset.state = atPeak ? 'ok' : 'down';
+        const ddPct = !rMode && account > 0 ? (eq.drawdown / account) * 100 : null;
+        $('eqDdVal').textContent = atPeak ? 'At equity highs'
+            : rMode ? `−${eq.drawdownR.toFixed(1)}R from peak`
+                : `−${E.fmtMoney(eq.drawdown)}${ddPct !== null ? ` · ${ddPct.toFixed(ddPct < 1 ? 2 : 1)}% of account` : ''}`;
+        $('eqPeak').textContent = rMode ? E.fmtR(eq.peakR) : E.fmtMoney(eq.peak, true);
+        $('eqCount').textContent = String(eq.points.length);
+        $('eqMeta').textContent = `${eq.points.length} exit${eq.points.length === 1 ? '' : 's'} · all time`;
+
+        const tok = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        const up = tok('--success') || '#16a34a';
+        const down = tok('--danger') || '#dc2626';
+        const upSoft = tok('--success-soft') || 'rgba(22,163,74,0.10)';
+        const downSoft = tok('--danger-soft') || 'rgba(220,38,38,0.08)';
+        const grid = tok('--border') || '#e4e4e7';
+        const surface = tok('--surface') || '#fff';
+
+        const host = $('equityChart');
+        const W = Math.max(host.clientWidth || 560, 280);
+        const H = 170;
+        const pad = { l: 8, r: 10, t: 14, b: 10 };
+        const raw = [{ value: 0, r: 0 }, ...eq.points]; // curve starts at zero
+        const vals = raw.map(p => (rMode ? p.r : p.value));
+        const peakI = eq.peakIndex + 1;
+        const max = Math.max(...vals, 0), min = Math.min(...vals, 0);
+        const span = (max - min) || 1;
+        const X = (i) => pad.l + (i / (vals.length - 1)) * (W - pad.l - pad.r);
+        const Y = (v) => pad.t + (1 - (v - min) / span) * (H - pad.t - pad.b);
+        const pts = vals.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`);
+        const line = 'M' + pts.join(' L');
+        const area = `${line} L${X(vals.length - 1).toFixed(1)},${Y(Math.max(min, 0)).toFixed(1)} L${X(0).toFixed(1)},${Y(Math.max(min, 0)).toFixed(1)} Z`;
+        const color = cur >= 0 ? up : down;
+        const soft = cur >= 0 ? upSoft : downSoft;
+        host.innerHTML = `
+            <svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Cumulative realized P&L, ${eq.points.length} exits">
+                <line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="${grid}" stroke-width="1"/>
+                ${!atPeak ? `<rect x="${X(peakI).toFixed(1)}" y="${pad.t}" width="${(X(vals.length - 1) - X(peakI)).toFixed(1)}" height="${H - pad.t - pad.b}" fill="${downSoft}"/>` : ''}
+                <path d="${area}" fill="${soft}"/>
+                <path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                ${!atPeak ? `
+                    <line x1="${X(peakI).toFixed(1)}" x2="${W - pad.r}" y1="${Y(vals[peakI]).toFixed(1)}" y2="${Y(vals[peakI]).toFixed(1)}" stroke="${down}" stroke-width="1" stroke-dasharray="3 4" stroke-opacity="0.6"/>
+                    <circle cx="${X(peakI).toFixed(1)}" cy="${Y(vals[peakI]).toFixed(1)}" r="3.5" fill="${surface}" stroke="${down}" stroke-width="1.6"/>
+                ` : ''}
+                <circle cx="${X(vals.length - 1).toFixed(1)}" cy="${Y(vals[vals.length - 1]).toFixed(1)}" r="4" fill="${color}"/>
+            </svg>`;
+    }
+
     function renderJournalSummary() {
         const el = $('journalSummary');
         if (!el) return;
+        renderEquity();
         el.hidden = view !== 'journal';
         if (view !== 'journal') return;
         let pnl = 0, wins = 0, losses = 0, winSum = 0, lossSum = 0, r = 0, rCount = 0;
@@ -3915,6 +3980,10 @@
         $('accountSize').value = account ? account.toLocaleString('en-US') : '';
         wireSegs();
         segs.theme = M.segmented($('themeSeg'), (v) => { setTheme(v); schedulePush('settings'); });
+        segs.eqMode = M.segmented($('eqModeSeg'), (v) => { prefs.equityMode = v; savePrefs(); renderEquity(); });
+        new ResizeObserver(() => { if (view === 'journal') renderEquity(); }).observe($('equityChart'));
+        new MutationObserver(() => { if (view === 'journal') renderEquity(); })
+            .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
         wirePanel('calcSection', 'calcBodyWrap', 'calcToggle', 'calcOpen');
         wirePanel('watchSection', 'watchBodyWrap', 'watchToggle', 'watchOpen');
         wirePanel('formSection', 'formBodyWrap', 'formToggle', 'formOpen');
@@ -3942,6 +4011,7 @@
             segs.plan.set(prefs.plan, true);
             segs.status.set(filters.status, true);
             segs.formDirection.set('long', true);
+            segs.eqMode.set(prefs.equityMode || 'usd', true);
             segs.view.set(view, true);
             segs.journal.set(viewFilters.journal, true);
             syncCalculatorMode();

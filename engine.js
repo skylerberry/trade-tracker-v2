@@ -773,6 +773,41 @@ const ENGINE = (() => {
         return { state, minutesLeft, ...SESSION_META[state] };
     }
 
+    /* ---------- equity curve ----------
+       Cumulative realized P&L (and R), one point per exit event across all
+       non-archived trades — trims on open positions are realized money too.
+       Drawdown is measured from the running peak of the cumulative curve. */
+    function equityCurve(trades) {
+        const events = [];
+        for (const t of trades || []) {
+            if (t.archived) continue;
+            for (const x of (t.exits || [])) {
+                if (!x.date || !isNum(x.price) || !isNum(x.shares)) continue;
+                events.push({
+                    date: x.date,
+                    ticker: t.ticker,
+                    pnl: round2(x.shares * directionalMove(t.entryPrice, x.price, t)),
+                    r: isNum(x.rMultiple) ? x.rMultiple : null,
+                });
+            }
+        }
+        events.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+        const points = [];
+        let cum = 0, cumR = 0, peak = 0, peakR = 0, peakIndex = -1;
+        events.forEach((e, i) => {
+            cum = round2(cum + e.pnl);
+            if (e.r !== null) cumR = round4(cumR + e.r);
+            points.push({ date: e.date, ticker: e.ticker, value: cum, r: cumR });
+            if (cum >= peak) { peak = cum; peakR = cumR; peakIndex = i; }
+        });
+        return {
+            points, peak, peakR, peakIndex,
+            current: cum, currentR: cumR,
+            drawdown: round2(Math.max(0, peak - cum)),
+            drawdownR: round4(Math.max(0, peakR - cumR)),
+        };
+    }
+
     /* ---------- CSV export ---------- */
     function toCSV(trades, sep = ',') {
         const esc = (v) => {
@@ -798,7 +833,7 @@ const ENGINE = (() => {
         getRealizedPnL, getRealizedR, currentStop, getOpenRiskDollars, isFreeRolled,
         deriveStatus, statusLabel,
         calcPosition, calcOptionPosition, buildSellPlan, pendingTargets, breakevenStop, freerollSharesAtPrice,
-        computeStats, accountRisk, staleTrades, lastExitDate,
+        computeStats, accountRisk, staleTrades, lastExitDate, equityCurve,
         parseAlert, parseWatchlistTickers, toCSV,
         marketSession,
         COMPOUND_RATES, compoundAnnualContribution, compoundValue, compoundGlow,

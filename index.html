@@ -634,6 +634,33 @@
         <div class="js-stat"><span class="js-label" title="Mean realized R on closed and stopped trades"><span class="js-full">Average <span class="js-keep">R-multiple</span></span><span class="js-abbr">Avg R</span></span><span id="jsAvgR">—</span></div>
     </div>
 
+    <!-- Equity curve — the number leads, the curve supports -->
+    <div class="equity-card" id="equityCard" hidden>
+        <div class="equity-split">
+            <div class="equity-side">
+                <div class="equity-kicker">Realized equity</div>
+                <div class="equity-num roller" id="eqNum">—</div>
+                <div class="equity-dd" id="eqDd" data-state="ok">
+                    <span class="equity-dd-k">Current drawdown</span>
+                    <span class="equity-dd-v" id="eqDdVal">—</span>
+                </div>
+                <div class="equity-kv"><span>Peak</span><b id="eqPeak">—</b></div>
+                <div class="equity-kv"><span>Exits</span><b id="eqCount">—</b></div>
+            </div>
+            <div class="equity-main">
+                <div class="equity-chart-head">
+                    <span class="equity-kicker" id="eqMeta">all time</span>
+                    <div class="seg seg-mini" id="eqModeSeg" role="tablist" aria-label="Equity units">
+                        <span class="seg-pill" aria-hidden="true"></span>
+                        <button data-seg="usd" role="tab" aria-label="Dollars">$</button>
+                        <button data-seg="r" role="tab" aria-label="R multiples">R</button>
+                    </div>
+                </div>
+                <div class="equity-chart" id="equityChart" aria-label="Cumulative realized profit and loss by exit"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ============ FILTERS ============ -->
     <div class="filters-bar">
         <div class="seg seg-filters" id="statusSeg" role="tablist" aria-label="Status filter">
