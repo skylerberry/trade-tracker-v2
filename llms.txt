@@ -1,0 +1,50 @@
+# skyler.tools
+
+> Free, local-first trading tools: a position size calculator, a trade
+> tracker and journal, and a compound calculator. Open source, no ads,
+> no account — trades stay in the user's browser.
+
+skyler.tools is a single-page web app for stock traders, built and used
+daily by its author, Skyler Berry (@skylerber on X). It started in 2025
+as a bare position-size calculator and grew into a spreadsheet
+replacement across four iterations.
+
+## What it does
+
+- **Position sizing**: shares from account size, risk %, entry, and stop.
+  Long and short. Purchased options size from delta and premium. Risk
+  presets from 0.1% to 1% (viewable as fractions: ⅒ ⅛ ¼ ½ 1), a max-%
+  account cap, and risk scenarios at half and double the chosen risk.
+  Reverse solve: type the share count you actually bought and the
+  implied risk % is derived backwards.
+- **Trade tracking**: one-click logging from the calculator, trims and
+  exits with R-multiple math, freeroll detection (stop at or beyond
+  entry = worst case break-even), a next-action chip per position, and
+  a timestamped journal with typed entries (thesis, update, review,
+  lesson).
+- **Compounding**: a 10-year table across yearly return rates, with
+  contributions or withdrawals, milestone reads, and honest caveats
+  (every figure is one constant hypothetical return).
+
+## Data and philosophy
+
+Everything is stored in the browser (localStorage). There is no
+skyler.tools backend or database. Optional cross-device sync writes to
+a private GitHub gist the user owns; the token never touches a server.
+JSON backup and CSV/TSV export are built in. Free, open source
+(https://github.com/skylerberry/trade-tracker-v2), no ads, no account,
+no subscription, no pay-to-win tier.
+
+## Key terms
+
+- **R (R-multiple)**: profit or loss measured against the amount risked
+  at the stop. Risk $200 and make $200 = 1R.
+- **Freeroll**: the stop has moved to or beyond entry, so the position
+  can no longer lose money; the remainder runs risk-free.
+- **Trim**: a partial sell that reduces open risk.
+
+## Contact
+
+- Site: https://skyler.tools
+- Author: https://x.com/skylerber
+- Source: https://github.com/skylerberry/trade-tracker-v2

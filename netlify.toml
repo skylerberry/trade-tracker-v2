@@ -1,6 +1,6 @@
 # Static site. Copy only the runtime files so docs/tests stay off the CDN.
 [build]
-  command = "mkdir -p dist && cp index.html styles.css app.js engine.js compound.js motion.js icons.js qr.js favicon.svg dist/"
+  command = "mkdir -p dist && cp index.html styles.css app.js engine.js compound.js motion.js icons.js qr.js favicon.svg robots.txt sitemap.xml llms.txt dist/ && cp docs/promo/og-1200x630.png dist/og.png"
   publish = "dist"
 
 # Hash views (#positions / #journal / #compound). No SPA rewrite needed.

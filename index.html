@@ -3,9 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trader Tools Suite</title>
-<meta name="description" content="A local-first trader tools suite from skyler.tools — position sizing, journal, and compound.">
+<title>skyler.tools — Position Size Calculator &amp; Trade Journal</title>
+<meta name="description" content="Free position size calculator and trade journal for stock traders. Size by risk %, track trims and freerolls, project compounding. Local-first and open source — no ads, no account, your trades stay in your browser.">
+<link rel="canonical" href="https://skyler.tools/">
+<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141518" media="(prefers-color-scheme: dark)">
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="skyler.tools">
+<meta property="og:title" content="skyler.tools — Position Size Calculator &amp; Trade Journal">
+<meta property="og:description" content="Size the risk. Log the trade. Compound the years. Free, local-first trading tools — no ads, no account, your data stays in your browser.">
+<meta property="og:url" content="https://skyler.tools/">
+<meta property="og:image" content="https://skyler.tools/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@skylerber">
+<meta name="twitter:creator" content="@skylerber">
+<meta name="twitter:title" content="skyler.tools — Position Size Calculator &amp; Trade Journal">
+<meta name="twitter:description" content="Size the risk. Log the trade. Compound the years. Free, local-first trading tools.">
+<meta name="twitter:image" content="https://skyler.tools/og.png">
+
 <link rel="icon" id="favicon" href="favicon.svg" type="image/svg+xml" sizes="any">
+
+<!-- Structured data: the app, its author, and the FAQ (mirrors the in-app FAQ verbatim) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://skyler.tools/#website",
+      "name": "skyler.tools",
+      "url": "https://skyler.tools/"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://skyler.tools/#skyler",
+      "name": "Skyler Berry",
+      "url": "https://skyler.tools/",
+      "sameAs": [
+        "https://x.com/skylerber",
+        "https://github.com/skylerberry"
+      ]
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://skyler.tools/#app",
+      "name": "skyler.tools — Trader Tools Suite",
+      "url": "https://skyler.tools/",
+      "description": "A free, local-first suite of trading tools: a position size calculator (long, short, and options, sized from account, risk %, entry, and stop), a trade tracker and journal built around the enter–trim–freeroll workflow, and a 10-year compound calculator. Open source, no ads, no account — data stays in the browser, with optional sync through a private GitHub gist the user owns.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "image": "https://skyler.tools/og.png",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "description": "Free — no account, no subscription, no ads"
+      },
+      "featureList": [
+        "Position size calculator from account size, risk %, entry, and stop",
+        "Long and short sizing, plus purchased-option sizing from delta and premium",
+        "Risk scenarios at half and double the selected risk",
+        "Reverse solve: type a share count and the implied risk % is derived",
+        "Trade tracker with trims, freeroll detection, and R-multiple math",
+        "Timestamped trade journal with typed entries",
+        "10-year compound calculator with contributions and drawdown reads",
+        "Local-first storage with optional sync via a private GitHub gist",
+        "CSV, TSV, and JSON backup export"
+      ],
+      "keywords": "position size calculator, position sizing, trade journal, trade tracker, risk per trade, R multiple, stop loss calculator, swing trading tools, freeroll, risk management, compound calculator, stock trading calculator",
+      "author": { "@id": "https://skyler.tools/#skyler" },
+      "sameAs": [
+        "https://github.com/skylerberry/trade-tracker-v2"
+      ],
+      "inLanguage": "en"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://skyler.tools/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why did you make this?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It started in 2025 as a bare position-size calculator and grew into a spreadsheet replacement — tracker, journal, the works. I built it for myself; it's still how I size every trade." }
+        },
+        {
+          "@type": "Question",
+          "name": "What problem does it solve?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Sizing discipline. Deciding what you'll lose before you enter, and knowing what's still at risk after every trim. The calculator handles the first part; the tracker handles the second." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why should I use it?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It's free and open source, built around one workflow: enter, trim, freeroll, let the runner work. No ads, no account, no subscription, no server holding your trades — everything stays in your browser." }
+        },
+        {
+          "@type": "Question",
+          "name": "Where does my data live?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In this browser. Nothing sits on a skyler.tools server. Link a private GitHub gist to sync devices, or download a JSON backup from the footer." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why can't I pick a status?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Status follows your sells. Trim or exit from the row when you take something off." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is R?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Profit or loss measured against what you risked. Risk $200 at the stop and make $200 = 1R." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I log option trades?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not yet. The calculator sizes options, but only share trades can be logged." }
+        },
+        {
+          "@type": "Question",
+          "name": "What does Freerolled mean?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The stop is at or beyond entry, so the trade can't give anything back — worst case is break-even." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does feedback include my trades?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Just the note, and an email if you add one." }
+        }
+      ]
+    }
+  ]
+}
+</script>
 <script>
 // Pre-paint theme: data-theme is ALWAYS set (design-system single-selector rule)
 (function () {
