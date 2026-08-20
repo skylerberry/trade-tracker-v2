@@ -817,7 +817,7 @@
         const t = $('riskViewToggle');
         t.textContent = frac ? '%' : '½';
         t.setAttribute('aria-pressed', String(frac));
-        t.title = frac ? 'Show presets as percentages' : 'Show presets as fractions of 1%';
+        t.dataset.tip = frac ? 'Show presets as percentages' : 'Show presets as fractions of 1%';
         requestAnimationFrame(() => segs.risk?.refresh()); // label widths change the pill
     }
     $('riskViewToggle').addEventListener('click', (e) => {

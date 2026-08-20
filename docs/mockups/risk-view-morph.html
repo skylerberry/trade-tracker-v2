@@ -97,6 +97,7 @@ const VARIANTS = [
     { tag: 'B · blur morph', name: 'Glide + blur arrival', note: 'the collapse vocabulary, horizontal', fx: 'blur' },
     { tag: 'C · roller', name: 'Labels roll like digits', note: '% → fractions rolls up, back rolls down', fx: 'roll' },
     { tag: 'D · wave', name: 'Blur morph, staggered', note: '45ms left→right ripple', fx: 'wave' },
+    { tag: 'E · micro-stagger', name: 'B and D\'s middle child', note: '15ms — organic, not a wave', fx: 'wave15' },
 ];
 
 function makeRow(v) {
@@ -132,7 +133,7 @@ function morph(seg, labels, fx, goingToFrac) {
         const lbl = b.querySelector('.lbl');
         const cell = b.querySelector('.cell');
         const w0 = b.getBoundingClientRect().width;
-        const delay = fx === 'wave' ? i * 45 : 0;
+        const delay = fx === 'wave' ? i * 45 : fx === 'wave15' ? i * 15 : 0;
 
         if (fx === 'roll') {
             // outgoing clone rolls away, incoming rolls in — direction-aware
@@ -150,7 +151,7 @@ function morph(seg, labels, fx, goingToFrac) {
                 { duration: 260, easing: EXPO });
         } else {
             lbl.textContent = labels[i];
-            if (fx === 'blur' || fx === 'wave') {
+            if (fx === 'blur' || fx === 'wave' || fx === 'wave15') {
                 lbl.animate(
                     [{ opacity: 0, filter: 'blur(4px)' }, { opacity: 1, filter: 'blur(0)' }],
                     { duration: 240, delay, easing: 'ease-out', fill: 'backwards' });
