@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node serve.mjs",
-    "build": "mkdir -p dist && cp index.html styles.css app.js engine.js compound.js motion.js icons.js qr.js favicon.svg robots.txt sitemap.xml llms.txt dist/ && cp docs/promo/og-1200x630.png dist/og.png",
+    "build": "mkdir -p dist && cp index.html styles.css app.js engine.js compound.js motion.js icons.js qr.js favicon.svg robots.txt llms.txt dist/ && cp docs/promo/og-1200x630.png dist/og.png && sed \"s/__LASTMOD__/$(date -u +%Y-%m-%d)/\" sitemap.xml > dist/sitemap.xml",
     "mockup:oled": "node -e \"console.log('OLED journal mockup → http://localhost:4173/docs/mockups/oled-journal-separation.html')\" && node serve.mjs",
     "test": "node tests/engine.test.mjs && node tests/qr.test.mjs"
   },
