@@ -809,16 +809,31 @@
     const RISK_FRACTIONS = { '0.1': '⅒', '0.125': '⅛', '0.25': '¼', '0.5': '½', '1': '1' };
     function syncRiskLabels() {
         const frac = prefs.riskView === 'frac';
-        document.querySelectorAll('#riskSeg button[data-seg]').forEach(b => {
+        document.querySelectorAll('#riskSeg button[data-seg]').forEach((b, i) => {
             const v = b.dataset.seg;
             if (!(v in RISK_FRACTIONS)) return;
-            b.textContent = frac ? RISK_FRACTIONS[v] : (v === '1' ? '1%' : `${v.replace('0.', '.')}%`);
+            const next = frac ? RISK_FRACTIONS[v] : (v === '1' ? '1%' : `${v.replace('0.', '.')}%`);
+            if (b.textContent === next) return; // first paint: no morph
+            if (M.reduceMotion) { b.textContent = next; return; }
+            /* the wave (mockup D): per-button width FLIP + blur arrival,
+               rippling left→right at 45ms per pill */
+            const w0 = b.getBoundingClientRect().width;
+            b.textContent = next;
+            const w1 = b.getBoundingClientRect().width;
+            const delay = i * 45;
+            if (Math.abs(w1 - w0) > 0.5) {
+                b.animate([{ width: `${w0}px` }, { width: `${w1}px` }],
+                    { duration: 320, delay, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'backwards' });
+            }
+            b.animate([{ opacity: 0, filter: 'blur(4px)' }, { opacity: 1, filter: 'blur(0)' }],
+                { duration: 240, delay, easing: 'ease-out', fill: 'backwards' });
         });
         const t = $('riskViewToggle');
         t.textContent = frac ? '%' : '½';
         t.setAttribute('aria-pressed', String(frac));
         t.dataset.tip = frac ? 'Show presets as percentages' : 'Show presets as fractions of 1%';
         requestAnimationFrame(() => segs.risk?.refresh()); // label widths change the pill
+        setTimeout(() => segs.risk?.refresh(), 560);       // settle after the wave lands
     }
     $('riskViewToggle').addEventListener('click', (e) => {
         e.preventDefault();

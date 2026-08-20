@@ -295,6 +295,8 @@ input::placeholder { color: var(--text-3); opacity: 0.7; }
     transition: color var(--dur-base), border-color var(--dur-base), background-color var(--dur-base);
 }
 .risk-view-toggle:hover { color: var(--text-2); border-color: var(--text-3); }
+/* during the %⇄fraction wave, a mid-tween button clips its incoming label */
+#riskSeg button[data-seg] { overflow: hidden; white-space: nowrap; }
 .risk-view-toggle[aria-pressed="true"] {
     color: var(--accent);
     border-color: var(--accent);
