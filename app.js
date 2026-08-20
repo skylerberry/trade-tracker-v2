@@ -307,7 +307,7 @@
                 d.setAttribute('role', 'menuitem');
                 d.title = n[0].toUpperCase() + n.slice(1);
                 d.setAttribute('aria-label', n + ' accent');
-                d.addEventListener('click', () => { applyAccent(n); closeMenu(menu); });
+                d.addEventListener('click', () => { applyAccent(n); schedulePush('settings'); closeMenu(menu); });
                 menu.appendChild(d);
             });
         }
@@ -3484,6 +3484,7 @@
             accountSize: account, defaultRiskPercent: riskPct(), defaultMaxPercent: maxPct(),
             calcExpanded: prefs.calcOpen, watchlist,
             direction: prefs.direction, vehicle: prefs.vehicle,
+            theme: themeMode(), accent: accentName,
         }, null, 2);
     }
     async function gistFileContent(json, name) {
@@ -3531,6 +3532,12 @@
                     if (Array.isArray(s.watchlist)) { watchlist = s.watchlist; renderWatchlist(); }
                     if (s.direction === 'long' || s.direction === 'short') prefs.direction = s.direction;
                     if (s.vehicle === 'shares' || s.vehicle === 'option') prefs.vehicle = s.vehicle;
+                    /* appearance follows the gist too, so a paired phone matches */
+                    if (s.theme === 'light' || s.theme === 'dark' || s.theme === 'oled') {
+                        setTheme(s.theme);
+                        segs.theme?.set(s.theme, true);
+                    }
+                    if (typeof s.accent === 'string' && (ACCENTS[s.accent] || s.accent === 'rainbow')) applyAccent(s.accent);
                     localStorage.setItem(K.prefs, JSON.stringify(prefs));
                     segs.direction.set(prefs.direction, true);
                     segs.vehicle.set(prefs.vehicle, true);
@@ -3868,7 +3875,7 @@
         applyAccent(accentName);
         $('accountSize').value = account ? account.toLocaleString('en-US') : '';
         wireSegs();
-        segs.theme = M.segmented($('themeSeg'), (v) => setTheme(v));
+        segs.theme = M.segmented($('themeSeg'), (v) => { setTheme(v); schedulePush('settings'); });
         wirePanel('calcSection', 'calcBodyWrap', 'calcToggle', 'calcOpen');
         wirePanel('watchSection', 'watchBodyWrap', 'watchToggle', 'watchOpen');
         wirePanel('formSection', 'formBodyWrap', 'formToggle', 'formOpen');
