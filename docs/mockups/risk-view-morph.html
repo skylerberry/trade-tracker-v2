@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risk view morph · mockups</title>
+<!--
+  Throwaway prototype. Question: toggling the risk presets between % and
+  fractions (.1% ⇄ ⅒) changes every label's width, so the whole seg snaps
+  to a new size. The resize is unavoidable — can it feel intentional?
+
+  T Today — instant snap (baseline)
+  A Width glide — every button FLIP-tweens from its old width to its new
+    width on the expo curve; labels swap at the start
+  B Blur morph — width glide + labels arrive through the app's signature
+    blur+fade (the collapse vocabulary, horizontal)
+  C Roller — labels roll vertically like the app's digits while widths
+    glide; % → fractions rolls up, back down
+  D Wave — the blur morph with a 45ms left→right stagger
+
+  All variants use the same per-button FLIP: measure old width, swap the
+  label, measure new width, animate between. In production the seg's FLIP
+  pill re-measures via segs.risk.refresh(), so it rides along free.
+  Click the ½ / % chip on each row to toggle.
+-->
+<style>
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --radius-full: 9999px;
+    --bg: #fbfbfc; --surface: #ffffff; --surface-2: #f4f4f5; --surface-3: #ececee;
+    --border: #e4e4e7; --border-2: #d4d4d8;
+    --text: #18181b; --text-2: #3f3f46; --text-3: #71717a;
+    --accent: #0891b2; --accent-contrast: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--text);
+    padding: 32px 20px 80px;
+}
+.page-head { max-width: 760px; margin: 0 auto 26px; }
+.page-head h1 { font-size: 19px; letter-spacing: -0.02em; }
+.page-head p { color: var(--text-3); max-width: 70ch; margin-top: 4px; }
+.rows { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.variant {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px 18px;
+}
+.v-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.v-tag { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); }
+.v-head h2 { font-size: 14px; letter-spacing: -0.01em; }
+.v-head p { font-size: 12.5px; color: var(--text-2); margin-left: auto; text-align: right; }
+.demo { display: flex; align-items: center; gap: 10px; }
+.vtoggle {
+    flex: none;
+    padding: 1px 8px;
+    border: 1px solid var(--border-2); border-radius: var(--radius-full);
+    background: transparent; color: var(--text-3);
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    transition: color 150ms, border-color 150ms, background 150ms;
+}
+.vtoggle:hover { color: var(--text-2); border-color: var(--text-3); }
+.vtoggle.on { color: var(--accent); border-color: var(--accent); background: rgba(8, 145, 178, 0.08); }
+.seg {
+    display: inline-flex; align-items: center; gap: 2px;
+    padding: 3px; border: 1px solid var(--border); border-radius: var(--radius-full);
+    background: var(--surface-2);
+}
+.seg button {
+    border: 0; background: transparent; cursor: pointer;
+    padding: 5px 11px; border-radius: var(--radius-full);
+    font: 600 12.5px/1.2 -apple-system, sans-serif; color: var(--text-2);
+    white-space: nowrap; overflow: hidden;
+    display: inline-flex; justify-content: center;
+}
+.seg button.is-active { background: var(--accent); color: var(--accent-contrast); }
+.seg .cell { display: inline-flex; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+    <h1>Risk presets — % ⇄ fraction morph</h1>
+    <p>The label widths must change; the question is how the seg travels between its two sizes.
+       Click each row's chip to toggle. T is today's snap, for contrast.</p>
+</div>
+
+<div class="rows" id="rows"></div>
+
+<script>
+const PCT = ['.1%', '.125%', '.25%', '.5%', '1%'];
+const FRAC = ['⅒', '⅛', '¼', '½', '1'];
+const EXPO = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const VARIANTS = [
+    { tag: 'T · today', name: 'Snap', note: 'no animation — the control just jumps', fx: 'none' },
+    { tag: 'A · width glide', name: 'FLIP the widths', note: 'labels swap instantly, widths travel', fx: 'glide' },
+    { tag: 'B · blur morph', name: 'Glide + blur arrival', note: 'the collapse vocabulary, horizontal', fx: 'blur' },
+    { tag: 'C · roller', name: 'Labels roll like digits', note: '% → fractions rolls up, back rolls down', fx: 'roll' },
+    { tag: 'D · wave', name: 'Blur morph, staggered', note: '45ms left→right ripple', fx: 'wave' },
+];
+
+function makeRow(v) {
+    const row = document.createElement('section');
+    row.className = 'variant';
+    row.innerHTML = `
+        <div class="v-head"><span class="v-tag">${v.tag}</span><h2>${v.name}</h2><p>${v.note}</p></div>
+        <div class="demo">
+            <button class="vtoggle">½</button>
+            <div class="seg"></div>
+        </div>`;
+    const seg = row.querySelector('.seg');
+    PCT.forEach((label, i) => {
+        const b = document.createElement('button');
+        if (i === 3) b.className = 'is-active';
+        b.innerHTML = `<span class="cell"><span class="lbl">${label}</span></span>`;
+        seg.appendChild(b);
+    });
+    let frac = false;
+    const toggle = row.querySelector('.vtoggle');
+    toggle.addEventListener('click', () => {
+        frac = !frac;
+        toggle.textContent = frac ? '%' : '½';
+        toggle.classList.toggle('on', frac);
+        morph(seg, frac ? FRAC : PCT, v.fx, frac);
+    });
+    return row;
+}
+
+function morph(seg, labels, fx, goingToFrac) {
+    const buttons = [...seg.querySelectorAll('button')];
+    buttons.forEach((b, i) => {
+        const lbl = b.querySelector('.lbl');
+        const cell = b.querySelector('.cell');
+        const w0 = b.getBoundingClientRect().width;
+        const delay = fx === 'wave' ? i * 45 : 0;
+
+        if (fx === 'roll') {
+            // outgoing clone rolls away, incoming rolls in — direction-aware
+            const out = lbl.cloneNode(true);
+            out.style.position = 'absolute';
+            cell.style.position = 'relative';
+            cell.appendChild(out);
+            const dir = goingToFrac ? -1 : 1;
+            out.animate(
+                [{ transform: 'translateY(0)', opacity: 1 }, { transform: `translateY(${dir * -100}%)`, opacity: 0 }],
+                { duration: 260, easing: EXPO }).finished.then(() => out.remove());
+            lbl.textContent = labels[i];
+            lbl.animate(
+                [{ transform: `translateY(${dir * 100}%)`, opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }],
+                { duration: 260, easing: EXPO });
+        } else {
+            lbl.textContent = labels[i];
+            if (fx === 'blur' || fx === 'wave') {
+                lbl.animate(
+                    [{ opacity: 0, filter: 'blur(4px)' }, { opacity: 1, filter: 'blur(0)' }],
+                    { duration: 240, delay, easing: 'ease-out', fill: 'backwards' });
+            }
+        }
+        if (fx !== 'none') {
+            const w1 = b.getBoundingClientRect().width;
+            if (Math.abs(w1 - w0) > 0.5) {
+                b.animate([{ width: `${w0}px` }, { width: `${w1}px` }],
+                    { duration: 320, delay, easing: EXPO, fill: 'backwards' });
+            }
+        }
+    });
+}
+
+VARIANTS.forEach(v => document.getElementById('rows').appendChild(makeRow(v)));
+</script>
+</body>
+</html>
