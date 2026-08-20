@@ -3683,8 +3683,9 @@
                 qs('.sync-status-dot').dataset.s = sync.state;
                 qs('.sync-status-text').textContent = sync.state === 'ok'
                     ? `Synced · ${fmtRelTime(localStorage.getItem(K.lastSync))}` : sync.text;
+                /* degrade to the copy-link button if qr.js ever fails to load */
                 const link = pairingLink();
-                const svg = link ? QR.svg(link) : null;
+                const svg = link && typeof QR !== 'undefined' ? QR.svg(link) : null;
                 const box = qs('.sync-pair-qr');
                 box.hidden = !svg;
                 if (svg) box.innerHTML = svg;

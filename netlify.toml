@@ -1,6 +1,8 @@
-# Static site. Copy only the runtime files so docs/tests stay off the CDN.
+# Static site. The file list lives ONCE, in package.json's build script —
+# the GitHub Actions deploy runs the same command (a divergent copy list
+# here once shipped an index.html referencing a qr.js that never deployed).
 [build]
-  command = "mkdir -p dist && cp index.html styles.css app.js engine.js compound.js motion.js icons.js qr.js favicon.svg robots.txt sitemap.xml llms.txt dist/ && cp docs/promo/og-1200x630.png dist/og.png"
+  command = "npm run build"
   publish = "dist"
 
 # Hash views (#positions / #journal / #compound). No SPA rewrite needed.
