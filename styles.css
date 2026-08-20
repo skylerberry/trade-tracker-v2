@@ -1488,6 +1488,9 @@ body.is-splash > .app-footer {
     font-size: 0.64rem;
     transition: color var(--dur-base), border-color var(--dur-base), background-color var(--dur-base);
 }
+/* collapsed pill carries ONE symbol: the chevron (mockup B) — the activity
+   glyph returns in the expanded header where panel grammar expects it */
+.risk-scenarios:not(.is-open) .risk-scenarios-title > [data-icon="activity"] { display: none; }
 .risk-scenarios:not(.is-open) .risk-scenarios-title .lucide,
 .risk-scenarios:not(.is-open) .risk-scenarios-chev { color: var(--text-3); }
 .risk-scenarios:not(.is-open) .risk-scenarios-title .lucide,
