@@ -825,8 +825,6 @@ body.is-splash > .app-footer {
     letter-spacing: 0.08em; text-transform: uppercase;
 }
 .sync-divider::before, .sync-divider::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
-.sync-card.is-linked .sync-divider { gap: 0; }
-.sync-card.is-linked .sync-divider span { display: none; }
 .sync-backup-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .sync-backup-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .sync-backup-copy strong { font-size: 0.78rem; font-weight: 600; color: var(--text); }
