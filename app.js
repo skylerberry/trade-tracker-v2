@@ -3789,7 +3789,11 @@
             M.letterReveal(card.querySelector('.wc-title'));
             M.wobble(card.querySelector('.wc-mark'));
             const rec = card.querySelector('.wc-rec');
-            if (rec) setTimeout(() => M.wobble(rec), 740);
+            if (rec) {
+                setTimeout(() => M.wobble(rec), 740);
+                /* the same nudge replays when the pointer lands on the CTA */
+                card.querySelector('.wc-cta')?.addEventListener('pointerenter', () => M.wobble(rec));
+            }
             card.querySelector('.wc-sync').addEventListener('click', () => { close(); openSyncModal(); });
             card.querySelector('.wc-sample').addEventListener('click', () => { close(); $('seedDemo').click(); });
         });
