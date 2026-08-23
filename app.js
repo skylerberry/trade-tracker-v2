@@ -3555,7 +3555,8 @@
     /* ============================================================
        CLOUD SYNC — GitHub Gist (v1 mechanics, 2.0 surface)
        Local-first · 2s debounced pushes on a single write chain ·
-       updated_at conflict guard · poison-pill pause · keepalive flush.
+       updated_at conflict merge · poison-pill pause · hide/unload flush.
+       GitHub GETs are max-age=60 — every gist fetch uses cache: no-store.
        ============================================================ */
     const GIST_API = 'https://api.github.com/gists';
     const sync = {
@@ -3564,10 +3565,10 @@
         baseline: localStorage.getItem(K.gistUpdatedAt) || null,
         state: 'off', text: 'Not linked',
         timers: {}, chain: Promise.resolve(),
-        loadFailed: false, modalCard: null,
+        inflight: 0, loadFailed: false, modalCard: null,
     };
     const syncLinked = () => !!(sync.token && sync.gistId);
-    const gistHeaders = () => ({ Authorization: `Bearer ${sync.token}`, Accept: 'application/vnd.github+json' });
+    const gistFetch = (url, opts = {}) => fetch(url, GIST_SYNC.fetchInit(sync.token, opts));
     function fmtRelTime(iso) {
         if (!iso) return '';
         const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -3598,7 +3599,7 @@
         const f = json.files?.[name];
         if (!f) return null;
         if (f.truncated && f.raw_url) {
-            const r = await fetch(f.raw_url);
+            const r = await fetch(f.raw_url, { cache: 'no-store' });
             return r.ok ? r.text() : null;
         }
         return f.content ?? null;
@@ -3608,9 +3609,10 @@
        overwriting it (v1 poison-pill guard). */
     async function syncPull() {
         if (!syncLinked()) return;
+        sync.inflight++;
         syncSet('syncing', 'Syncing…');
         try {
-            const res = await fetch(`${GIST_API}/${sync.gistId}`, { headers: gistHeaders() });
+            const res = await gistFetch(`${GIST_API}/${sync.gistId}`);
             if (!res.ok) throw new Error(`GitHub ${res.status}`);
             const json = await res.json();
             const tradesRaw = await gistFileContent(json, 'trades.json');
@@ -3658,39 +3660,62 @@
             syncSet('ok', `Synced · ${fmtRelTime(localStorage.getItem(K.lastSync))}`);
         } catch (err) {
             syncSet('error', `Sync error — ${err.message || 'network'}`);
+        } finally {
+            sync.inflight = Math.max(0, sync.inflight - 1);
         }
     }
     function schedulePush(kind) {
         if (!syncLinked() || sync.loadFailed) return;
         clearTimeout(sync.timers[kind]);
-        sync.timers[kind] = setTimeout(() => pushFile(kind), 2000);
+        /* Trades are discrete actions — wait just long enough to batch a
+           double-save, then push while the tab is still in front. Settings
+           can stay slower. */
+        const delay = kind === 'trades' ? 300 : 2000;
+        sync.timers[kind] = setTimeout(() => {
+            sync.timers[kind] = null;
+            pushFile(kind);
+        }, delay);
     }
     function filePayload(kind) {
         return kind === 'trades'
             ? { 'trades.json': { content: JSON.stringify(trades, null, 2) } }
             : { 'settings.json': { content: settingsPayload() } };
     }
-    function pushFile(kind, { flush = false } = {}) {
-        if (!syncLinked() || sync.loadFailed || sync.state === 'conflict') return;
+    function pushFile(kind, { flush = false, keepalive = false } = {}) {
+        if (!syncLinked() || sync.loadFailed) return;
+        sync.inflight++;
         sync.chain = sync.chain.then(async () => {
             try {
+                if (!syncLinked() || sync.loadFailed) return;
                 syncSet('syncing', 'Syncing…');
                 if (!flush && sync.baseline) {
-                    // conflict guard: another device wrote since our baseline
-                    const head = await fetch(`${GIST_API}/${sync.gistId}`, { headers: gistHeaders() });
+                    const head = await gistFetch(`${GIST_API}/${sync.gistId}`);
                     if (head.ok) {
                         const meta = await head.json();
-                        if (meta.updated_at !== sync.baseline) {
-                            syncSet('conflict', 'Cloud changed elsewhere — open sync and pull first');
-                            toast('Cloud data changed elsewhere — open Cloud sync and pull before pushing', { error: true });
-                            return;
+                        if (GIST_SYNC.isConflict(sync.baseline, meta.updated_at)) {
+                            if (kind === 'trades') {
+                                const tradesRaw = await gistFileContent(meta, 'trades.json');
+                                let cloud;
+                                try { cloud = JSON.parse(tradesRaw); } catch { cloud = undefined; }
+                                if (!Array.isArray(cloud)) {
+                                    sync.loadFailed = true;
+                                    syncSet('paused', 'Sync paused — cloud data unreadable');
+                                    toast('Cloud trades unreadable — sync paused, local data kept safe', { error: true });
+                                    return;
+                                }
+                                trades = GIST_SYNC.mergeTrades(trades, cloud);
+                                trades.forEach(normalizeTrade);
+                                localStorage.setItem(K.trades, JSON.stringify(trades));
+                                renderAll();
+                            }
+                            sync.baseline = meta.updated_at;
                         }
                     }
                 }
-                const res = await fetch(`${GIST_API}/${sync.gistId}`, {
-                    method: 'PATCH', headers: gistHeaders(),
+                const res = await gistFetch(`${GIST_API}/${sync.gistId}`, {
+                    method: 'PATCH',
                     body: JSON.stringify({ files: filePayload(kind) }),
-                    keepalive: flush,
+                    keepalive,
                 });
                 if (!res.ok) throw new Error(`GitHub ${res.status}`);
                 const json = await res.json();
@@ -3700,32 +3725,49 @@
                 syncSet('ok', `Synced · ${fmtRelTime(localStorage.getItem(K.lastSync))}`);
             } catch (err) {
                 syncSet('error', `Sync error — ${err.message || 'network'}`);
+            } finally {
+                sync.inflight = Math.max(0, sync.inflight - 1);
             }
         });
     }
-    /* pending writes flushed on tab close (skips the conflict GET) */
-    function flushPending() {
+    function pendingPush() {
+        return Object.values(sync.timers).some(Boolean);
+    }
+    /* Hidden tabs are still alive — use a normal fetch. keepalive only on unload
+       (iOS Safari drops keepalive PATCH when the tab is merely backgrounded). */
+    function flushPending(reason) {
+        const keepalive = GIST_SYNC.keepaliveFor(reason);
         for (const kind of Object.keys(sync.timers)) {
             if (sync.timers[kind]) {
                 clearTimeout(sync.timers[kind]);
                 sync.timers[kind] = null;
-                pushFile(kind, { flush: true });
+                pushFile(kind, { flush: true, keepalive });
             }
         }
     }
-    document.addEventListener('visibilitychange', () => { if (document.hidden) flushPending(); });
-    window.addEventListener('beforeunload', flushPending);
+    function pullIfIdle() {
+        if (!syncLinked() || sync.loadFailed || pendingPush() || sync.inflight) return;
+        if (sync.state === 'error' || sync.state === 'paused') return;
+        syncPull();
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) flushPending('hidden');
+        else pullIfIdle();
+    });
+    window.addEventListener('pagehide', () => flushPending('unload'));
+    window.addEventListener('beforeunload', () => flushPending('unload'));
+    window.addEventListener('pageshow', (e) => { if (e.persisted) pullIfIdle(); });
 
     async function linkGist(token, gistId, errEl) {
         sync.token = token;
         try {
             if (gistId) {
-                const res = await fetch(`${GIST_API}/${gistId}`, { headers: gistHeaders() });
+                const res = await gistFetch(`${GIST_API}/${gistId}`);
                 if (!res.ok) throw new Error(res.status === 404 ? 'Gist not found (check the ID)' : `GitHub said ${res.status} (check the token)`);
                 sync.gistId = gistId;
             } else {
-                const res = await fetch(GIST_API, {
-                    method: 'POST', headers: gistHeaders(),
+                const res = await gistFetch(GIST_API, {
+                    method: 'POST',
                     body: JSON.stringify({
                         description: 'skyler.tools Trader Tools Suite data', public: false,
                         files: { 'trades.json': { content: JSON.stringify(trades, null, 2) }, 'settings.json': { content: settingsPayload() } },
