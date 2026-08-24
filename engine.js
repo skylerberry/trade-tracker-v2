@@ -268,6 +268,19 @@ const ENGINE = (() => {
         }
         return { enabled: t.length > 0, preset, initialShares: calc.shares, targets: t };
     }
+    /* ½ / ⅓ presets follow the actual position, not the calc snapshot at log.
+       Size edits (fill was 1600, not 1607) must move the pending trim with them.
+       Custom / legacy targets keep the stored count. */
+    function plannedShares(trade, target) {
+        const stored = isNum(target?.shares) ? target.shares
+            : (isNum(target?.sharesToSell) ? target.sharesToSell : null);
+        if (stored === 0) return 0;
+        const orig = getOriginalShares(trade);
+        const preset = trade.sellPlan?.preset;
+        if (orig && orig > 0 && preset === 'half-1r') return Math.ceil(orig / 2);
+        if (orig && orig > 0 && preset === 'third-2r') return Math.ceil(orig / 3);
+        return stored;
+    }
     /* Normalize any plan target (incl. v1 legacy) into a uniform pending-action view. */
     function pendingTargets(trade) {
         if (!trade.sellPlan?.enabled || !Array.isArray(trade.sellPlan.targets)) return [];
@@ -280,7 +293,7 @@ const ENGINE = (() => {
                 const isStopRaise = t.action === 'raise-stop' || (isNum(t.shares) && t.shares === 0) || t.backfill === true;
                 return {
                     ref: t, price,
-                    shares: isNum(t.shares) ? t.shares : (isNum(t.sharesToSell) ? t.sharesToSell : null),
+                    shares: plannedShares(trade, t),
                     isStopRaise,
                     newStop: isNum(t.newStop) ? t.newStop : trade.entryPrice,
                 };
@@ -832,7 +845,7 @@ const ENGINE = (() => {
         getOriginalShares, getRemainingShares, soldShares,
         getRealizedPnL, getRealizedR, currentStop, getOpenRiskDollars, isFreeRolled,
         deriveStatus, statusLabel,
-        calcPosition, calcOptionPosition, buildSellPlan, pendingTargets, breakevenStop, freerollSharesAtPrice,
+        calcPosition, calcOptionPosition, buildSellPlan, plannedShares, pendingTargets, breakevenStop, freerollSharesAtPrice,
         computeStats, accountRisk, staleTrades, lastExitDate, equityCurve,
         parseAlert, parseWatchlistTickers, toCSV,
         marketSession,

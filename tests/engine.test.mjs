@@ -252,5 +252,29 @@ const liveStop = E.migrateLiveSiteTrade({
 eq(liveStop.exits[0].kind, 'stop', 'full exit at/under stop is a stop');
 eq(E.deriveStatus(liveStop), 'stopped', 'imported stop-out derives stopped');
 
+/* ---- pendingTargets: half/third follow the actual size, not the calc snapshot ---- */
+const bflyPlan = E.buildSellPlan('half-1r', { valid: true, shares: 1607, rps: 0.07 }, 8.87);
+eq(bflyPlan.targets[0].shares, 804, '½ @ 1R snapshots ceil(1607 / 2) at log');
+const bflyLogged = {
+    ticker: 'BFLY', entryPrice: 8.87, initialSL: 8.80, shares: 1600, exits: [],
+    sellPlan: bflyPlan,
+};
+eq(E.pendingTargets(bflyLogged)[0].shares, 800, 'editing size 1607 → 1600 updates pending half from 804 to 800');
+eq(E.pendingTargets({
+    shares: 1600, exits: [],
+    sellPlan: E.buildSellPlan('third-2r', { valid: true, shares: 1607, rps: 0.07 }, 8.87),
+})[0].shares, 534, '⅓ @ 2R pending shares follow the edited size');
+eq(E.pendingTargets({
+    shares: 1600, exits: [],
+    sellPlan: E.buildSellPlan('backfill', { valid: true, shares: 1607, rps: 0.07 }, 8.87),
+})[0].shares, 0, 'back-fill stays a stop raise after a size edit');
+eq(E.pendingTargets({
+    shares: 1600, exits: [],
+    sellPlan: {
+        enabled: true, preset: 'custom', initialShares: 1607,
+        targets: [{ id: 'sp1', rLevel: 1, price: 8.94, shares: 500, action: 'sell', status: 'pending' }],
+    },
+})[0].shares, 500, 'legacy/custom targets keep their stored share count');
+
 console.log(fail ? `\n${pass} passed, ${fail} FAILED` : `${pass}/${pass} passed`);
 process.exit(fail ? 1 : 0);

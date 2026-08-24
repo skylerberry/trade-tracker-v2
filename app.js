@@ -2840,7 +2840,7 @@
                     if (tr.sellPlan?.enabled) {
                         const match = (tr.sellPlan.targets || []).find(x => {
                             if (x.status === 'executed' || x.action === 'raise-stop' || !E.isNum(x.price) || Math.abs(x.price - price) / x.price > 0.005) return false;
-                            const planned = E.isNum(x.shares) ? x.shares : x.sharesToSell;
+                            const planned = E.plannedShares(tr, x);
                             return !E.isNum(planned) || n >= Math.min(planned, remNow ?? planned);
                         });
                         if (match) { match.status = 'executed'; match.exitId = exitId; }
