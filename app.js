@@ -1508,12 +1508,17 @@
 
     /* ---------- log trade (one click, binding) ---------- */
     /* Not ready → walk the user to the first field that's blocking the log. */
+    function findMissingCalcField(c, res) {
+        if (!(c.account > 0)) return 'accountSize';
+        if (!E.isNum(c.entry) || c.entry <= 0) return 'entryPrice';
+        if (!E.isNum(c.stop) || c.stop <= 0) return 'stopLoss';
+        if (res && !res.valid) return 'stopLoss';
+        if (!c.ticker) return 'tickerInput';
+        return null;
+    }
+
     function focusFirstMissingCalcField(c = {}, res) {
-        const target = !(c.account > 0) ? 'accountSize'
-            : !E.isNum(c.entry) || c.entry <= 0 ? 'entryPrice'
-                : !E.isNum(c.stop) || c.stop <= 0 ? 'stopLoss'
-                    : res && !res.valid ? 'stopLoss' // wrong-side stop — the inline notice explains
-                        : !c.ticker ? 'tickerInput' : null;
+        const target = findMissingCalcField(c, res);
         if (!target) return;
         const el = $(target);
         el.scrollIntoView({ behavior: M.reduceMotion ? 'auto' : 'smooth', block: 'center' });
@@ -2138,6 +2143,55 @@
             if (n && (!best || n > best.n)) best = { key, n };
         }
         return best;
+    }
+
+    function setEmptyCtaAction(cta, action, label) {
+        cta.hidden = false;
+        cta.dataset.action = action;
+        cta.textContent = label;
+    }
+
+    function setEmptyAltAction(alt, action, label) {
+        if (!action) { alt.hidden = true; alt.dataset.action = ''; alt.textContent = ''; return; }
+        alt.hidden = false;
+        alt.dataset.action = action;
+        alt.textContent = label;
+    }
+
+    function fillEmptyForBookEmptyState(bookEmpty, title, sub, cta, alt, q) {
+        if (bookEmpty && view === 'journal') {
+            title.textContent = 'No journal yet';
+            sub.textContent = 'Closed trades land here. Size and log from Positions.';
+            setEmptyCtaAction(cta, 'goto-positions', 'Go to Positions');
+            setEmptyAltAction(alt);
+            return true;
+        }
+        if (bookEmpty) {
+            title.textContent = 'No trades yet';
+            sub.textContent = 'Size a position in the calculator, then log it — one click.';
+            setEmptyCtaAction(cta, 'log', 'Log a trade');
+            setEmptyAltAction(alt);
+            return true;
+        }
+        return false;
+    }
+
+    function fillEmptyForFiltersState(title, sub, cta, alt, q) {
+        if (filters.q) {
+            title.textContent = `No trades match "${q}"`;
+            sub.textContent = 'Try a different ticker, or clear the search.';
+            setEmptyCtaAction(cta, 'clear-search', 'Clear search');
+            setEmptyAltAction(alt);
+            return true;
+        }
+        if (filters.from || filters.to) {
+            title.textContent = 'No trades in this range';
+            sub.textContent = 'Nothing logged between From and To.';
+            setEmptyCtaAction(cta, 'clear-dates', 'Clear dates');
+            setEmptyAltAction(alt);
+            return true;
+        }
+        return false;
     }
 
     function fillEmptyState() {
