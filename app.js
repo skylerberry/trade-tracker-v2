@@ -3265,6 +3265,20 @@
                 const sizeVal = sizeUnknown ? parseNum(sizeIn.value) : null;
                 close();
                 const exitId = uid();
+                function determineExitKind(tr, closing, price) {
+                    if (!closing) return 'trim';
+                    if (E.isNum(tr.initialSL) && (price - tr.initialSL) * E.directionSign(tr) <= 0) return 'stop';
+                    return 'close';
+                }
+
+                function matchSellPlanTarget(tr, n, price, remNow) {
+                    return (tr.sellPlan.targets || []).find(x => {
+                        if (x.status === 'executed' || x.action === 'raise-stop' || !E.isNum(x.price) || Math.abs(x.price - price) / x.price > 0.005) return false;
+                        const planned = E.plannedShares(tr, x);
+                        return !E.isNum(planned) || n >= Math.min(planned, remNow ?? planned);
+                    });
+                }
+
                 mutateTrade(id, (tr) => {
                     if (sizeVal && sizeVal > 0) tr.shares = sizeVal;
                     const remNow = E.getRemainingShares(tr);
@@ -3272,17 +3286,11 @@
                     tr.exits.push({
                         id: exitId, shares: n, price, date,
                         rMultiple: E.computeExitR(tr, price),
-                        kind: closing ? (E.isNum(tr.initialSL) && (price - tr.initialSL) * E.directionSign(tr) <= 0 ? 'stop' : 'close') : 'trim',
+                        kind: determineExitKind(tr, closing, price),
                     });
                     if (E.isNum(newStop) && newStop > 0) tr.currentSL = newStop;
-                    // Link only when both price and planned quantity are met;
-                    // a smaller manual trim must not falsely complete a freeroll target.
                     if (tr.sellPlan?.enabled) {
-                        const match = (tr.sellPlan.targets || []).find(x => {
-                            if (x.status === 'executed' || x.action === 'raise-stop' || !E.isNum(x.price) || Math.abs(x.price - price) / x.price > 0.005) return false;
-                            const planned = E.plannedShares(tr, x);
-                            return !E.isNum(planned) || n >= Math.min(planned, remNow ?? planned);
-                        });
+                        const match = matchSellPlanTarget(tr, n, price, remNow);
                         if (match) { match.status = 'executed'; match.exitId = exitId; }
                     }
                 }, `${exitPast} ${fmtShareCount(n)} of <b>${E.escapeHtml(t.ticker)}</b> @ ${E.fmtPrice(price)} · ${E.fmtMoney(round2(n * E.directionalMove(t.entryPrice, price, t)), true)}`);
