@@ -3404,32 +3404,26 @@
             requestAnimationFrame(() => e.target.select());
         }
     });
-    function closeEditForm({ restoreFocus = true } = {}) {
-        const section = panels.formSection?.section;
-        if (!section?.classList.contains('is-open') && !prefs.formOpen) return false;
-        const editId = $('editTradeId').value;
-        clearTimeout(editFormFocusTimer);
-        const onJournal = document.body.dataset.view === 'journal';
-        if (onJournal && !M.reduceMotion) {
+    function animateJournalFormExit(section) {
+        finishJournalFormExit(section);
+        const h = section.getBoundingClientRect().height;
+        section.classList.add('is-exiting');
+        section.style.height = h + 'px';
+        section.style.opacity = '1';
+        section.style.marginBottom = '0px';
+        void section.offsetHeight;
+        formShellExit = (event) => {
+            if (event.target !== section || event.propertyName !== 'height') return;
+            panels.formSection.set(false, true);
             finishJournalFormExit(section);
-            const h = section.getBoundingClientRect().height;
-            section.classList.add('is-exiting');
-            section.style.height = h + 'px';
-            section.style.opacity = '1';
-            section.style.marginBottom = '0px';
-            void section.offsetHeight;
-            formShellExit = (event) => {
-                if (event.target !== section || event.propertyName !== 'height') return;
-                panels.formSection.set(false, true);
-                finishJournalFormExit(section);
-            };
-            section.addEventListener('transitionend', formShellExit);
-            section.style.height = '0px';
-            section.style.opacity = '0';
-            section.style.marginBottom = '-14px';
-        } else {
-            panels.formSection.set(false);
-        }
+        };
+        section.addEventListener('transitionend', formShellExit);
+        section.style.height = '0px';
+        section.style.opacity = '0';
+        section.style.marginBottom = '-14px';
+    }
+
+    function resetEditForm() {
         prefs.formOpen = false;
         $('formToggle').setAttribute('aria-expanded', 'false');
         savePrefs();
@@ -3440,10 +3434,28 @@
         $('formTitle').textContent = 'Add trade manually';
         $('formSubmit').textContent = 'Save trade';
         fDateField?.sync();
+    }
+
+    function restoreEditFocus(editId, section) {
+        const pencil = editId && document.querySelector(`tr[data-id="${editId}"] [data-act="edit"]`);
+        if (pencil) pencil.focus();
+        else if (section.contains(document.activeElement)) document.activeElement.blur();
+    }
+
+    function closeEditForm({ restoreFocus = true } = {}) {
+        const section = panels.formSection?.section;
+        if (!section?.classList.contains('is-open') && !prefs.formOpen) return false;
+        const editId = $('editTradeId').value;
+        clearTimeout(editFormFocusTimer);
+        const onJournal = document.body.dataset.view === 'journal';
+        if (onJournal && !M.reduceMotion) {
+            animateJournalFormExit(section);
+        } else {
+            panels.formSection.set(false);
+        }
+        resetEditForm();
         if (restoreFocus) {
-            const pencil = editId && document.querySelector(`tr[data-id="${editId}"] [data-act="edit"]`);
-            if (pencil) pencil.focus();
-            else if (section.contains(document.activeElement)) document.activeElement.blur();
+            restoreEditFocus(editId, section);
         }
         return true;
     }
