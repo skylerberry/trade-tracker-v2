@@ -1822,24 +1822,36 @@
         }
     }
 
-    function setView(name, { syncHash = true, instant = false, fromSegment = false } = {}) {
-        if (!VIEWS.includes(name)) name = 'positions';
-        if (name === view && viewReady) return;
-        const animate = viewReady && !instant && !M.reduceMotion;
+    function saveCurrentViewFilter() {
         if (view === 'positions' || view === 'journal') {
             viewFilters[view] = filters.status;
         }
+    }
+
+    function updateViewState(name, syncHash, fromSegment, instant) {
         view = name;
         document.body.dataset.view = view;
         updateViewHash(view, syncHash);
         if (!fromSegment) segs.view?.set(view, instant || !viewReady);
-        toggleViewElements(view);
-        applyViewFilters(view);
+    }
+
+    function renderViewContent(view) {
         if ($('fbCalc')) $('fbCalc').textContent = view === 'positions' ? 'Calculator' : 'Positions';
         renderJournalSummary();
         renderTable();
         document.body.offsetHeight;
         refreshFilterSegs();
+    }
+
+    function setView(name, { syncHash = true, instant = false, fromSegment = false } = {}) {
+        if (!VIEWS.includes(name)) name = 'positions';
+        if (name === view && viewReady) return;
+        const animate = viewReady && !instant && !M.reduceMotion;
+        saveCurrentViewFilter();
+        updateViewState(name, syncHash, fromSegment, instant);
+        toggleViewElements(view);
+        applyViewFilters(view);
+        renderViewContent(view);
         updateMetricsForView(view);
         animateViewTransition(view, animate);
         viewReady = true;
@@ -2532,6 +2544,32 @@
         return '';
     }
 
+    function makeOpenRiskCard(t, risk, freerolled, doneish, riskPctAcct) {
+        return {
+            k: 'Open risk',
+            v: risk === null ? '—' : E.fmtMoney(risk),
+            sub: getRiskCardSubtext(freerolled, doneish, riskPctAcct, risk),
+            tone: freerolled ? 'safe' : risk > 0 ? 'hot' : '',
+        };
+    }
+
+    function makeRemainingCard(rem, orig) {
+        return {
+            k: 'Remaining',
+            v: rem === null ? '—' : E.fmtShares(rem),
+            sub: orig !== null ? `of ${E.fmtShares(orig)} shares` : 'size unknown',
+        };
+    }
+
+    function makeRealizedCard(pnl, hasExits, rr) {
+        return {
+            k: 'Realized',
+            v: pnl === null ? '—' : E.fmtMoney(pnl, pnl !== 0),
+            sub: hasExits ? (rr !== null ? E.fmtR(rr) : '') : 'no exits yet',
+            tone: pnl > 0 ? 'up' : pnl < 0 ? 'down' : '',
+        };
+    }
+
     function buildBaseRailCards(t, risk, rem, pnl) {
         const status = E.deriveStatus(t);
         const doneish = status === 'closed' || status === 'stopped' || status === 'archived';
@@ -2541,23 +2579,9 @@
         const hasExits = Array.isArray(t.exits) && t.exits.length > 0;
         const rr = E.getRealizedR(t);
         return [
-            {
-                k: 'Open risk',
-                v: risk === null ? '—' : E.fmtMoney(risk),
-                sub: getRiskCardSubtext(freerolled, doneish, riskPctAcct, risk),
-                tone: freerolled ? 'safe' : risk > 0 ? 'hot' : '',
-            },
-            {
-                k: 'Remaining',
-                v: rem === null ? '—' : E.fmtShares(rem),
-                sub: orig !== null ? `of ${E.fmtShares(orig)} shares` : 'size unknown',
-            },
-            {
-                k: 'Realized',
-                v: pnl === null ? '—' : E.fmtMoney(pnl, pnl !== 0),
-                sub: hasExits ? (rr !== null ? E.fmtR(rr) : '') : 'no exits yet',
-                tone: pnl > 0 ? 'up' : pnl < 0 ? 'down' : '',
-            },
+            makeOpenRiskCard(t, risk, freerolled, doneish, riskPctAcct),
+            makeRemainingCard(rem, orig),
+            makeRealizedCard(pnl, hasExits, rr),
         ];
     }
 
