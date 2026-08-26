@@ -217,21 +217,29 @@ const ENGINE = (() => {
     }
 
     /* ---------- calculator ---------- */
-    function calcPosition({ account, riskPct, maxPct, entry, stop, target, direction = 'long' }) {
-        const out = { valid: false };
-        if (!isNum(account) || account <= 0 || !isNum(entry) || entry <= 0 || !isNum(stop) || stop <= 0) return out;
-        direction = directionOf(direction);
-        const sign = directionSign(direction);
-        const rps = riskPerShare(entry, stop, direction);
-        if (rps === null) return { valid: false, invalidStop: true, direction };
+    function calcTargetMetrics(entry, target, direction, shares, rps, posSize) {
+        const targetMove = directionalMove(entry, target, direction);
+        return {
+            price: target,
+            perShare: targetMove,
+            profit: round2(shares * targetMove),
+            roi: posSize ? (shares * targetMove / posSize) * 100 : null,
+            rr: round2(targetMove / rps),
+        };
+    }
+
+    function calcSharesAndRisk(account, riskPct, maxPct, entry, rps) {
         const riskDollars = account * (riskPct / 100);
         const rawShares = Math.floor(riskDollars / rps);
         const maxShares = isNum(maxPct) ? Math.floor((account * maxPct / 100) / entry) : Infinity;
         const shares = Math.max(0, Math.min(rawShares, maxShares));
-        const capped = rawShares > shares;
+        return { rawShares, shares, capped: rawShares > shares };
+    }
+
+    function buildPositionResult(account, direction, rps, rawShares, shares, capped, entry, sign) {
         const posSize = shares * entry;
         const totalRisk = shares * rps;
-        const res = {
+        return {
             valid: shares > 0, direction, rps, rawShares, shares, capped,
             posSize, totalRisk,
             totalRiskPct: account ? (totalRisk / account) * 100 : null,
@@ -239,15 +247,22 @@ const ENGINE = (() => {
             stopDistPct: (rps / entry) * 100,
             rPrices: [1, 2, 3, 4, 5].map(r => round2(entry + sign * rps * r)),
         };
+    }
+
+    function validatePositionInputs(account, entry, stop) {
+        return isNum(account) && account > 0 && isNum(entry) && entry > 0 && isNum(stop) && stop > 0;
+    }
+
+    function calcPosition({ account, riskPct, maxPct, entry, stop, target, direction = 'long' }) {
+        if (!validatePositionInputs(account, entry, stop)) return { valid: false };
+        direction = directionOf(direction);
+        const sign = directionSign(direction);
+        const rps = riskPerShare(entry, stop, direction);
+        if (rps === null) return { valid: false, invalidStop: true, direction };
+        const { rawShares, shares, capped } = calcSharesAndRisk(account, riskPct, maxPct, entry, rps);
+        const res = buildPositionResult(account, direction, rps, rawShares, shares, capped, entry, sign);
         if (isNum(target) && target > 0) {
-            const targetMove = directionalMove(entry, target, direction);
-            res.target = {
-                price: target,
-                perShare: targetMove,
-                profit: round2(shares * targetMove),
-                roi: posSize ? (shares * targetMove / posSize) * 100 : null,
-                rr: round2(targetMove / rps),
-            };
+            res.target = calcTargetMetrics(entry, target, direction, shares, rps, res.posSize);
         }
         return res;
     }
