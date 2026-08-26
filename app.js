@@ -3046,6 +3046,21 @@
         const t = trades.find(x => x.id === id);
         if (!t) return;
         const s = E.deriveStatus(t);
+    function getTrimSharesLabel(direction) {
+        return direction === 'short' ? 'Shares to cover' : 'Shares to sell';
+    }
+
+    function getTrimConfirmText(direction) {
+        return direction === 'short' ? 'Confirm cover' : 'Confirm exit';
+    }
+
+    function getTrimContextText(direction, entryPrice, rem) {
+        const dirLabel = direction === 'short' ? 'Short' : 'Long';
+        const remText = rem !== null ? ` · ${fmtShareCount(rem)} remaining` : '';
+        return `${dirLabel} entry ${E.fmtMoney(entryPrice)}${remText}`;
+    }
+
+
         if (s === 'closed' || s === 'stopped' || s === 'archived') { toast('Position already closed', { error: true }); return; }
         const direction = E.directionOf(t);
         const exitVerb = direction === 'short' ? 'Covering' : 'Selling';
@@ -3054,12 +3069,12 @@
         openModal('tpl-trim', (card, close) => {
             const qs = (sel) => card.querySelector(sel);
             qs('.tm-ticker').textContent = t.ticker;
-            qs('.tm-shares-label').textContent = direction === 'short' ? 'Shares to cover' : 'Shares to sell';
-            qs('.tm-confirm').textContent = direction === 'short' ? 'Confirm cover' : 'Confirm exit';
+            qs('.tm-shares-label').textContent = getTrimSharesLabel(direction);
+            qs('.tm-confirm').textContent = getTrimConfirmText(direction);
             const rps = E.tradeRiskPerShare(t);
             let rem = E.getRemainingShares(t);
             const sizeUnknown = rem === null;
-            qs('.tm-context').textContent = `${direction === 'short' ? 'Short' : 'Long'} entry ${E.fmtMoney(t.entryPrice)}${rem !== null ? ` · ${fmtShareCount(rem)} remaining` : ''}`;
+            qs('.tm-context').textContent = getTrimContextText(direction, t.entryPrice, rem);
             qs('.tm-size-ask').hidden = !sizeUnknown;
 
             const priceIn = qs('.tm-price'), sharesIn = qs('.tm-shares'), dateIn = qs('.tm-date'),
