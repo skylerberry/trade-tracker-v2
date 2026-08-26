@@ -1448,30 +1448,21 @@
         && E.isNum(parsed.entry) && parsed.entry > 0
         && E.isNum(parsed.stop) && parsed.stop > 0;
 
-    function applyAlert(parsed) {
-        if (!parsed) { toast('Couldn’t read that alert', { error: true }); return; }
-        if (view !== 'positions') setView('positions');
-        if (parsed.ticker) $('tickerInput').value = parsed.ticker;
-        if (parsed.entry !== null) $('entryPrice').value = String(parsed.entry);
-        if (parsed.stop !== null) $('stopLoss').value = String(parsed.stop);
-        if (parsed.riskPct !== null) {
-            const preset = RISK_PRESETS.find(p => parseFloat(p) === parsed.riskPct);
-            if (preset) {
-                prefs.riskPreset = preset;
-                segs.risk.set(preset);
-            } else {
-                prefs.riskPreset = 'custom';
-                prefs.riskCustom = parsed.riskPct;
-                $('riskCustom').value = String(parsed.riskPct);
-                segs.risk.set('custom');
-            }
-            savePrefs();
+    function setAlertRiskPreset(riskPct) {
+        const preset = RISK_PRESETS.find(p => parseFloat(p) === riskPct);
+        if (preset) {
+            prefs.riskPreset = preset;
+            segs.risk.set(preset);
+        } else {
+            prefs.riskPreset = 'custom';
+            prefs.riskCustom = riskPct;
+            $('riskCustom').value = String(riskPct);
+            segs.risk.set('custom');
         }
-        const wasClosed = !panels.calcSection.section.classList.contains('is-open');
-        if (wasClosed) { prefs.calcOpen = true; panels.calcSection.set(true); }
-        recalc();
-        M.flash($('positionCard'), 'flash');
-        toast(`Imported <b>${E.escapeHtml(parsed.ticker || 'alert')}</b> — check the numbers, then Log`);
+        savePrefs();
+    }
+
+    function scrollToResults(wasClosed) {
         const delay = wasClosed && !M.reduceMotion ? 280 : 80;
         setTimeout(() => {
             $('calcResults').scrollIntoView({
@@ -1479,6 +1470,23 @@
                 block: 'center',
             });
         }, delay);
+    }
+
+    function applyAlert(parsed) {
+        if (!parsed) { toast('Couldn\'t read that alert', { error: true }); return; }
+        if (view !== 'positions') setView('positions');
+        if (parsed.ticker) $('tickerInput').value = parsed.ticker;
+        if (parsed.entry !== null) $('entryPrice').value = String(parsed.entry);
+        if (parsed.stop !== null) $('stopLoss').value = String(parsed.stop);
+        if (parsed.riskPct !== null) {
+            setAlertRiskPreset(parsed.riskPct);
+        }
+        const wasClosed = !panels.calcSection.section.classList.contains('is-open');
+        if (wasClosed) { prefs.calcOpen = true; panels.calcSection.set(true); }
+        recalc();
+        M.flash($('positionCard'), 'flash');
+        toast(`Imported <b>${E.escapeHtml(parsed.ticker || 'alert')}</b> — check the numbers, then Log`);
+        scrollToResults(wasClosed);
     }
 
     function openPasteAlertModal(prefill = '') {
