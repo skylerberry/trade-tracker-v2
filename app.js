@@ -3177,24 +3177,19 @@
                     </div>`;
             }
 
-            function update() {
-                const r = effRemaining();
-                remLbl.textContent = r !== null ? `of ${fmtShareCount(r)} remaining` : '';
-                const price = parseNum(priceIn.value);
-                const n = parseNum(sharesIn.value);
-                errEl.hidden = true;
-                preview.classList.remove('freeroll');
+            function validateExitInputs(price, n, r) {
                 const hasRequiredValues = E.isNum(price) && !!n && n > 0;
                 const exceedsRemaining = hasRequiredValues && r !== null && n > r;
-                confirmBtn.disabled = !hasRequiredValues || exceedsRemaining;
-                preview.hidden = !hasRequiredValues || exceedsRemaining;
-                if (!hasRequiredValues) { preview.replaceChildren(); return; }
-                if (r !== null && n > r) {
-                    errEl.hidden = false;
-                    errEl.textContent = `Only ${fmtShareCount(r)} remaining`;
-                    preview.replaceChildren();
-                    return;
-                }
+                return { hasRequiredValues, exceedsRemaining };
+            }
+
+            function showExitError(r, errEl, preview) {
+                errEl.hidden = false;
+                errEl.textContent = `Only ${fmtShareCount(r)} remaining`;
+                preview.replaceChildren();
+            }
+
+            function buildExitPreview(t, price, n, r, stopIn, exitVerb, preview) {
                 const pnl = round2(n * E.directionalMove(t.entryPrice, price, t));
                 const rr = E.computeExitR(t, price);
                 const after = r !== null ? r - n : null;
@@ -3203,6 +3198,24 @@
                 preview.innerHTML = buildExitPreviewHtml(n, pnl, rr, after, risk, frFlip, exitVerb);
                 preview.classList.toggle('loss', pnl < 0);
                 if (frFlip) preview.classList.add('freeroll');
+            }
+
+            function update() {
+                const r = effRemaining();
+                remLbl.textContent = r !== null ? `of ${fmtShareCount(r)} remaining` : '';
+                const price = parseNum(priceIn.value);
+                const n = parseNum(sharesIn.value);
+                errEl.hidden = true;
+                preview.classList.remove('freeroll');
+                const { hasRequiredValues, exceedsRemaining } = validateExitInputs(price, n, r);
+                confirmBtn.disabled = !hasRequiredValues || exceedsRemaining;
+                preview.hidden = !hasRequiredValues || exceedsRemaining;
+                if (!hasRequiredValues) { preview.replaceChildren(); return; }
+                if (r !== null && n > r) {
+                    showExitError(r, errEl, preview);
+                    return;
+                }
+                buildExitPreview(t, price, n, r, stopIn, exitVerb, preview);
             }
             priceIn.addEventListener('input', () => {
                 selectedR = null;
