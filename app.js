@@ -3870,6 +3870,57 @@
         }
         return f.content ?? null;
     }
+    async function syncPullTrades(json) {
+        const tradesRaw = await gistFileContent(json, 'trades.json');
+        if (tradesRaw === null) return true;
+        let cloud;
+        try { cloud = JSON.parse(tradesRaw); } catch { cloud = undefined; }
+        if (!Array.isArray(cloud)) {
+            sync.loadFailed = true;
+            syncSet('paused', 'Sync paused — cloud data unreadable');
+            toast('Cloud trades unreadable — sync paused, local data kept safe', { error: true });
+            return false;
+        }
+        sync.loadFailed = false;
+        if (JSON.stringify(cloud) !== JSON.stringify(trades)) {
+            trades = cloud;
+            trades.forEach(normalizeTrade);
+            localStorage.setItem(K.trades, JSON.stringify(trades));
+            renderAll();
+        }
+        return true;
+    }
+
+    function applySyncedThemeAndAccent(s) {
+        if (s.theme === 'light' || s.theme === 'dark' || s.theme === 'oled') {
+            setTheme(s.theme);
+            segs.theme?.set(s.theme, true);
+        }
+        if (typeof s.accent === 'string' && (ACCENTS[s.accent] || s.accent === 'rainbow')) applyAccent(s.accent);
+    }
+
+    function applySyncedSettings(s) {
+        if (E.isNum(s.accountSize)) { account = s.accountSize; $('accountSize').value = account.toLocaleString('en-US'); }
+        if (Array.isArray(s.watchlist)) { watchlist = s.watchlist; renderWatchlist(); }
+        if (s.direction === 'long' || s.direction === 'short') prefs.direction = s.direction;
+        if (s.vehicle === 'shares' || s.vehicle === 'option') prefs.vehicle = s.vehicle;
+        applySyncedThemeAndAccent(s);
+    }
+
+    async function syncPullSettings(json) {
+        const settingsRaw = await gistFileContent(json, 'settings.json');
+        if (settingsRaw === null) return;
+        try {
+            const s = JSON.parse(settingsRaw);
+            applySyncedSettings(s);
+            localStorage.setItem(K.prefs, JSON.stringify(prefs));
+            segs.direction.set(prefs.direction, true);
+            segs.vehicle.set(prefs.vehicle, true);
+            syncCalculatorMode();
+            renderHeader(); recalc();
+        } catch { /* settings are non-critical */ }
+    }
+
     /* Pull cloud state; adopt it when it parses (cloud is source of truth
        across devices). Garbage cloud data pauses pushes instead of ever
        overwriting it (v1 poison-pill guard). */
@@ -3881,45 +3932,8 @@
             const res = await gistFetch(`${GIST_API}/${sync.gistId}`);
             if (!res.ok) throw new Error(`GitHub ${res.status}`);
             const json = await res.json();
-            const tradesRaw = await gistFileContent(json, 'trades.json');
-            if (tradesRaw !== null) {
-                let cloud;
-                try { cloud = JSON.parse(tradesRaw); } catch { cloud = undefined; }
-                if (!Array.isArray(cloud)) {
-                    sync.loadFailed = true;
-                    syncSet('paused', 'Sync paused — cloud data unreadable');
-                    toast('Cloud trades unreadable — sync paused, local data kept safe', { error: true });
-                    return;
-                }
-                sync.loadFailed = false;
-                if (JSON.stringify(cloud) !== JSON.stringify(trades)) {
-                    trades = cloud;
-                    trades.forEach(normalizeTrade);
-                    localStorage.setItem(K.trades, JSON.stringify(trades));
-                    renderAll();
-                }
-            }
-            const settingsRaw = await gistFileContent(json, 'settings.json');
-            if (settingsRaw !== null) {
-                try {
-                    const s = JSON.parse(settingsRaw);
-                    if (E.isNum(s.accountSize)) { account = s.accountSize; $('accountSize').value = account.toLocaleString('en-US'); }
-                    if (Array.isArray(s.watchlist)) { watchlist = s.watchlist; renderWatchlist(); }
-                    if (s.direction === 'long' || s.direction === 'short') prefs.direction = s.direction;
-                    if (s.vehicle === 'shares' || s.vehicle === 'option') prefs.vehicle = s.vehicle;
-                    /* appearance follows the gist too, so a paired phone matches */
-                    if (s.theme === 'light' || s.theme === 'dark' || s.theme === 'oled') {
-                        setTheme(s.theme);
-                        segs.theme?.set(s.theme, true);
-                    }
-                    if (typeof s.accent === 'string' && (ACCENTS[s.accent] || s.accent === 'rainbow')) applyAccent(s.accent);
-                    localStorage.setItem(K.prefs, JSON.stringify(prefs));
-                    segs.direction.set(prefs.direction, true);
-                    segs.vehicle.set(prefs.vehicle, true);
-                    syncCalculatorMode();
-                    renderHeader(); recalc();
-                } catch { /* settings are non-critical */ }
-            }
+            if (!await syncPullTrades(json)) return;
+            await syncPullSettings(json);
             sync.baseline = json.updated_at;
             localStorage.setItem(K.gistUpdatedAt, sync.baseline);
             localStorage.setItem(K.lastSync, new Date().toISOString());
