@@ -2278,6 +2278,19 @@
         setTimeout(() => field.focus(), M.reduceMotion ? 0 : 350);
     }
 
+    function applyStatusChange(status) {
+        filters.status = status;
+        filters.page = 1;
+        if (view === 'journal') {
+            viewFilters.journal = status;
+            segs.journal?.set(status);
+        } else {
+            viewFilters.positions = status;
+            segs.status?.set(status);
+        }
+        renderTable();
+    }
+
     function applyEmptyAction(action) {
         if (!action) return;
         if (action === 'log') return focusCalculator();
@@ -2291,17 +2304,7 @@
             return;
         }
         if (action.startsWith('set-status:')) {
-            const status = action.slice('set-status:'.length);
-            filters.status = status;
-            filters.page = 1;
-            if (view === 'journal') {
-                viewFilters.journal = status;
-                segs.journal?.set(status);
-            } else {
-                viewFilters.positions = status;
-                segs.status?.set(status);
-            }
-            renderTable();
+            applyStatusChange(action.slice('set-status:'.length));
         }
     }
 
