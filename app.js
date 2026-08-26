@@ -4271,19 +4271,26 @@
         } catch { return []; }
     }
 
-    function importLiveSite() {
-        const mapped = E.migrateLiveSiteJournal(liveJournal()).map(normalizeTrade);
-        trades = mapped;
+    function loadLiveSiteRiskPreset(s) {
+        if (s?.defaultRiskPercent == null) return;
+        const r = String(s.defaultRiskPercent);
+        if (RISK_PRESETS.includes(r)) prefs.riskPreset = r;
+        else { prefs.riskPreset = 'custom'; prefs.riskCustom = Number(s.defaultRiskPercent) || 0.5; }
+    }
+
+    function loadLiveSiteSettings() {
         try {
             const s = JSON.parse(localStorage.getItem('riskCalcSettings') || 'null');
             if (s?.startingAccountSize) account = Number(s.startingAccountSize) || account;
-            if (s?.defaultRiskPercent != null) {
-                const r = String(s.defaultRiskPercent);
-                if (RISK_PRESETS.includes(r)) prefs.riskPreset = r;
-                else { prefs.riskPreset = 'custom'; prefs.riskCustom = Number(s.defaultRiskPercent) || 0.5; }
-            }
-            if (s?.theme === 'light' || s?.theme === 'dark' || s?.theme === 'oled') setTheme(s.theme);
+            loadLiveSiteRiskPreset(s);
+            if (s?.theme && ['light', 'dark', 'oled'].includes(s.theme)) setTheme(s.theme);
         } catch { /* keep current settings */ }
+    }
+
+    function importLiveSite() {
+        const mapped = E.migrateLiveSiteJournal(liveJournal()).map(normalizeTrade);
+        trades = mapped;
+        loadLiveSiteSettings();
         prefs.importedLiveSite = true;
         prefs.onboarded = true;
         saveTrades();
