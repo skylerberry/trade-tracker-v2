@@ -227,20 +227,22 @@ const COMPOUND = (() => {
         if (more) more.hidden = maxScroll <= 2;
     }
 
-    function scrollSelectedIntoView() {
-        const wrap = $('compoundTableScroll');
-        const th = wrap?.querySelector('.compound-th.is-selected');
-        /* clientWidth is 0 while the view is still hidden — measuring then
-           would scroll the table off its natural start on first paint. */
-        if (!wrap || !th || !wrap.clientWidth) return;
-        const stickyW = wrap.querySelector('.compound-th--year')?.offsetWidth || 0;
+    function calculateScrollTarget(wrap, th, stickyW) {
         const pad = 12;
         const near = th.offsetLeft - stickyW - pad;
         const far = th.offsetLeft + th.offsetWidth + pad - wrap.clientWidth;
         let target = wrap.scrollLeft;
         if (near < wrap.scrollLeft) target = near;
         else if (far > wrap.scrollLeft) target = far;
-        target = Math.max(0, Math.min(target, wrap.scrollWidth - wrap.clientWidth));
+        return Math.max(0, Math.min(target, wrap.scrollWidth - wrap.clientWidth));
+    }
+
+    function scrollSelectedIntoView() {
+        const wrap = $('compoundTableScroll');
+        const th = wrap?.querySelector('.compound-th.is-selected');
+        if (!wrap || !th || !wrap.clientWidth) return;
+        const stickyW = wrap.querySelector('.compound-th--year')?.offsetWidth || 0;
+        const target = calculateScrollTarget(wrap, th, stickyW);
         if (Math.abs(target - wrap.scrollLeft) < 1) return updateTableEdges();
         wrap.scrollTo({ left: target, behavior: reduceMotion() ? 'auto' : 'smooth' });
     }

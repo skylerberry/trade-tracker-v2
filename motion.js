@@ -234,6 +234,47 @@ const MOTION = (() => {
        interruptible: any span that is not __cur is a stale out-going digit
        and is purged before a new roll starts — rapid retargeting can never
        accumulate spans (the "conjoined digits" failure mode). */
+    function animateRollTransition(cell, cur, inc, dirUp, blur) {
+        const out = dirUp ? '-100%' : '100%';
+        const from = dirUp ? '100%' : '-100%';
+        cur.animate(
+            [
+                { transform: 'translateY(0)', opacity: 1, filter: 'blur(0)' },
+                { transform: `translateY(${out})`, opacity: 0, filter: blur ? 'blur(4px)' : 'blur(0)' },
+            ],
+            { ...ROLL, fill: 'forwards' }).finished
+            .then(() => cur.remove()).catch(() => cur.remove());
+        inc.animate(
+            [
+                { transform: `translateY(${from})`, opacity: 0, filter: blur ? 'blur(4px)' : 'blur(0)' },
+                { transform: 'translateY(0)', opacity: 1, filter: 'blur(0)' },
+            ],
+            ROLL).finished.then(() => {
+                if (cell.__cur === inc) { inc.style.position = 'static'; inc.style.width = ''; }
+            }).catch(() => {});
+    }
+
+    function updateRollerCell(cell, ch, dirUp, blur) {
+        const cur = cell.__cur;
+        for (const c of [...cell.children]) if (c !== cur) c.remove();
+        if (!cur || !cur.isConnected) {
+            cell.textContent = '';
+            const s = document.createElement('span');
+            s.textContent = ch;
+            cell.appendChild(s);
+            cell.__cur = s;
+            return;
+        }
+        if (cur.textContent === ch) return;
+        if (reduceMotion) { cur.textContent = ch; return; }
+        const inc = document.createElement('span');
+        inc.textContent = ch;
+        inc.style.cssText = 'position:absolute;left:0;top:0;width:100%';
+        cell.appendChild(inc);
+        cell.__cur = inc;
+        animateRollTransition(cell, cur, inc, dirUp, blur);
+    }
+
     function rollerUpdate(container, text, dirUp = true) {
         const chars = [...String(text)];
         const blur = container.hasAttribute('data-roll-blur');
@@ -259,43 +300,7 @@ const MOTION = (() => {
             }
             return;
         }
-        chars.forEach((ch, i) => {
-            const cell = cells[i];
-            const cur = cell.__cur;
-            for (const c of [...cell.children]) if (c !== cur) c.remove();
-            if (!cur || !cur.isConnected) {
-                cell.textContent = '';
-                const s = document.createElement('span');
-                s.textContent = ch;
-                cell.appendChild(s);
-                cell.__cur = s;
-                return;
-            }
-            if (cur.textContent === ch) return;
-            if (reduceMotion) { cur.textContent = ch; return; }
-            const inc = document.createElement('span');
-            inc.textContent = ch;
-            inc.style.cssText = 'position:absolute;left:0;top:0;width:100%';
-            cell.appendChild(inc);
-            cell.__cur = inc;
-            const out = dirUp ? '-100%' : '100%';
-            const from = dirUp ? '100%' : '-100%';
-            cur.animate(
-                [
-                    { transform: 'translateY(0)', opacity: 1, filter: 'blur(0)' },
-                    { transform: `translateY(${out})`, opacity: 0, filter: blur ? 'blur(4px)' : 'blur(0)' },
-                ],
-                { ...ROLL, fill: 'forwards' }).finished
-                .then(() => cur.remove()).catch(() => cur.remove());
-            inc.animate(
-                [
-                    { transform: `translateY(${from})`, opacity: 0, filter: blur ? 'blur(4px)' : 'blur(0)' },
-                    { transform: 'translateY(0)', opacity: 1, filter: 'blur(0)' },
-                ],
-                ROLL).finished.then(() => {
-                    if (cell.__cur === inc) { inc.style.position = 'static'; inc.style.width = ''; }
-                }).catch(() => {});
-        });
+        chars.forEach((ch, i) => updateRollerCell(cells[i], ch, dirUp, blur));
     }
     /* Bind a roller to an element; returns update(text) that infers direction
        from the numeric value when possible. */
