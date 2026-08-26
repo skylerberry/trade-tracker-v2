@@ -612,14 +612,20 @@ const ENGINE = (() => {
     const COMPOUND_RATES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300];
     const FREQ_MULT = { monthly: 12, quarterly: 4, yearly: 1 };
 
+    function calcContribAmount(contrib) {
+        const amount = Number(contrib?.amount) || 0;
+        const frequency = FREQ_MULT[contrib?.frequency] || 12;
+        return amount * frequency;
+    }
+
     function compoundAnnualContribution(mode, deposits, withdrawals) {
         if (!mode) return 0;
         let annual = 0;
         if (mode === 'deposits' || mode === 'both') {
-            annual += (Number(deposits?.amount) || 0) * (FREQ_MULT[deposits?.frequency] || 12);
+            annual += calcContribAmount(deposits);
         }
         if (mode === 'withdrawals' || mode === 'both') {
-            annual -= (Number(withdrawals?.amount) || 0) * (FREQ_MULT[withdrawals?.frequency] || 12);
+            annual -= calcContribAmount(withdrawals);
         }
         return annual;
     }
