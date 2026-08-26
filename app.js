@@ -2623,19 +2623,50 @@
         });
     }
 
+    function makeEntryEvent(t, direction, rps) {
+        const shareText = E.getOriginalShares(t) !== null ? fmtShareCount(E.getOriginalShares(t)) + ' @ ' : '';
+        const l1 = `<b>${direction === 'short' ? 'Short entry' : 'Long entry'}</b> — ${shareText}${E.fmtPrice(t.entryPrice)}`;
+        const rpsText = rps !== null ? ' · risk / share $' + rps.toFixed(2) : '';
+        const l2 = `${E.fmtDateShort(t.entryDate)} · stop ${E.fmtPrice(t.initialSL)}${rpsText}`;
+        return { kind: 'entry', l1, l2 };
+    }
+
+    function makeExitEvent(x, exitPast) {
+        const kind = x.kind === 'stop' ? 'stop' : 'trim';
+        const action = x.kind === 'stop' ? 'Stopped' : exitPast;
+        const rText = E.isNum(x.rMultiple) ? ' · ' + E.fmtR(x.rMultiple) : '';
+        const estText = x.estimated ? ' · est.' : '';
+        return {
+            kind,
+            l1: `<b>${action}</b> ${fmtShareCount(x.shares)} @ ${E.fmtPrice(x.price)}`,
+            l2: `${E.fmtDateShort(x.date)}${rText}${estText}`
+        };
+    }
+
+    function makeStopMoveEvent(t, stop) {
+        const l2 = E.directionalMove(t.entryPrice, stop, t) >= 0 ? 'at/beyond entry — freeroll' : `from ${E.fmtPrice(t.initialSL)}`;
+        return { kind: 'stopmove', l1: `<b>Stop moved</b> to ${E.fmtPrice(stop)}`, l2 };
+    }
+
+    function makePendingEvent(p, exitVerb) {
+        const l1 = p.isStopRaise
+            ? `Pending — stop → ${E.fmtPrice(p.newStop)} at ${E.fmtPrice(p.price)}`
+            : `Pending — ${exitVerb} ${fmtShareCount(p.shares)} @ ${E.fmtPrice(p.price)}`;
+        return { kind: 'pending', l1, l2: 'plan target' };
+    }
+
     function buildRailEvents(t, direction, exitPast, exitVerb, rps, rem) {
         const events = [];
-        events.push({ kind: 'entry', l1: `<b>${direction === 'short' ? 'Short entry' : 'Long entry'}</b> — ${E.getOriginalShares(t) !== null ? fmtShareCount(E.getOriginalShares(t)) + ' @ ' : ''}${E.fmtPrice(t.entryPrice)}`, l2: `${E.fmtDateShort(t.entryDate)} · stop ${E.fmtPrice(t.initialSL)}${rps !== null ? ' · risk / share $' + rps.toFixed(2) : ''}` });
+        events.push(makeEntryEvent(t, direction, rps));
         for (const x of (t.exits || [])) {
-            const kind = x.kind === 'stop' ? 'stop' : 'trim';
-            events.push({ kind, l1: `<b>${x.kind === 'stop' ? 'Stopped' : exitPast}</b> ${fmtShareCount(x.shares)} @ ${E.fmtPrice(x.price)}`, l2: `${E.fmtDateShort(x.date)}${E.isNum(x.rMultiple) ? ' · ' + E.fmtR(x.rMultiple) : ''}${x.estimated ? ' · est.' : ''}` });
+            events.push(makeExitEvent(x, exitPast));
         }
         const stop = E.currentStop(t);
         if (E.isNum(stop) && E.isNum(t.initialSL) && stop !== t.initialSL && rem !== 0) {
-            events.push({ kind: 'stopmove', l1: `<b>Stop moved</b> to ${E.fmtPrice(stop)}`, l2: E.directionalMove(t.entryPrice, stop, t) >= 0 ? 'at/beyond entry — freeroll' : `from ${E.fmtPrice(t.initialSL)}` });
+            events.push(makeStopMoveEvent(t, stop));
         }
         for (const p of E.pendingTargets(t)) {
-            events.push({ kind: 'pending', l1: p.isStopRaise ? `Pending — stop → ${E.fmtPrice(p.newStop)} at ${E.fmtPrice(p.price)}` : `Pending — ${exitVerb} ${fmtShareCount(p.shares)} @ ${E.fmtPrice(p.price)}`, l2: 'plan target' });
+            events.push(makePendingEvent(p, exitVerb));
         }
         return events;
     }
