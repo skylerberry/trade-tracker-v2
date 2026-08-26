@@ -789,17 +789,32 @@
         return clean;
     }
 
-    function accountNotationOnly(value) {
-        let clean = '', hasDecimal = false, hasSuffix = false;
-        for (const char of String(value ?? '')) {
-            if (char >= '0' && char <= '9' && !hasSuffix) clean += char;
-            else if (char === '.' && !hasDecimal && !hasSuffix) { clean += char; hasDecimal = true; }
-            else if ((char === 'k' || char === 'K' || char === 'm' || char === 'M') && clean && clean !== '.' && !hasSuffix) {
-                clean += char.toLowerCase();
-                hasSuffix = true;
-            }
+    function isDigit(char) {
+        return char >= '0' && char <= '9';
+    }
+
+    function isSuffixChar(char) {
+        return char === 'k' || char === 'K' || char === 'm' || char === 'M';
+    }
+
+    function processAccountChar(char, state) {
+        if (isDigit(char) && !state.hasSuffix) {
+            state.clean += char;
+        } else if (char === '.' && !state.hasDecimal && !state.hasSuffix) {
+            state.clean += char;
+            state.hasDecimal = true;
+        } else if (isSuffixChar(char) && state.clean && state.clean !== '.' && !state.hasSuffix) {
+            state.clean += char.toLowerCase();
+            state.hasSuffix = true;
         }
-        return clean;
+    }
+
+    function accountNotationOnly(value) {
+        const state = { clean: '', hasDecimal: false, hasSuffix: false };
+        for (const char of String(value ?? '')) {
+            processAccountChar(char, state);
+        }
+        return state.clean;
     }
 
     function commaFormatAccount(value) {
