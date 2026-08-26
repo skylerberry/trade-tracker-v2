@@ -729,17 +729,20 @@ const ENGINE = (() => {
         return journal;
     }
 
-    function migrateLiveSiteTrade(entry) {
-        if (!entry || typeof entry !== 'object') return null;
-        const entryPrice = toFinite(entry.entry);
-        const initialSL = toFinite(entry.originalStop ?? entry.stop);
-        const currentSL = toFinite(entry.currentStop ?? entry.stop) ?? initialSL;
-        const shares = toFinite(entry.originalShares ?? entry.shares);
-        const createdAt = validIso(entry.timestamp) || new Date().toISOString();
-        const entryDate = dateFromUnknown(entry.timestamp) || createdAt.slice(0, 10);
-        const exits = migrateExitsFromHistory(entry, entryDate);
-        addClosingExitIfNeeded(entry, exits, shares, entryPrice, initialSL, entryDate);
-        const journal = migrateJournalEntries(entry, createdAt);
+    function makeMigrationSnapshot(entry, shares) {
+        return {
+            account: null,
+            riskPct: toFinite(entry.riskPercent),
+            maxPct: null,
+            target: toFinite(entry.target),
+            shares,
+            direction: 'long',
+            posSize: toFinite(entry.positionSize),
+            totalRisk: toFinite(entry.riskDollars),
+        };
+    }
+
+    function buildMigratedTrade(entry, entryPrice, initialSL, currentSL, shares, entryDate, exits, journal, createdAt) {
         return {
             id: String(entry.id || `t-import-${createdAt}`),
             ticker: String(entry.ticker || '').toUpperCase() || 'UNKNOWN',
@@ -751,16 +754,7 @@ const ENGINE = (() => {
             shares,
             exits,
             sellPlan: { enabled: false, preset: 'off', initialShares: shares, targets: [] },
-            snapshot: {
-                account: null,
-                riskPct: toFinite(entry.riskPercent),
-                maxPct: null,
-                target: toFinite(entry.target),
-                shares,
-                direction: 'long',
-                posSize: toFinite(entry.positionSize),
-                totalRisk: toFinite(entry.riskDollars),
-            },
+            snapshot: makeMigrationSnapshot(entry, shares),
             journal,
             notes: '',
             archived: false,
@@ -768,6 +762,20 @@ const ENGINE = (() => {
             updatedAt: createdAt,
             importedFrom: 'skyler-tools',
         };
+    }
+
+    function migrateLiveSiteTrade(entry) {
+        if (!entry || typeof entry !== 'object') return null;
+        const entryPrice = toFinite(entry.entry);
+        const initialSL = toFinite(entry.originalStop ?? entry.stop);
+        const currentSL = toFinite(entry.currentStop ?? entry.stop) ?? initialSL;
+        const shares = toFinite(entry.originalShares ?? entry.shares);
+        const createdAt = validIso(entry.timestamp) || new Date().toISOString();
+        const entryDate = dateFromUnknown(entry.timestamp) || createdAt.slice(0, 10);
+        const exits = migrateExitsFromHistory(entry, entryDate);
+        addClosingExitIfNeeded(entry, exits, shares, entryPrice, initialSL, entryDate);
+        const journal = migrateJournalEntries(entry, createdAt);
+        return buildMigratedTrade(entry, entryPrice, initialSL, currentSL, shares, entryDate, exits, journal, createdAt);
     }
 
     function migrateLiveSiteJournal(entries) {
