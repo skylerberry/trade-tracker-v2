@@ -1079,9 +1079,16 @@
         }
     }
 
-    function updateHeroAndPositionCard(res, optionMode) {
+    function heroShareText(res, optionMode) {
         const units = optionMode ? res.contracts : res.shares;
-        rollTo($('sharesHero'), res.valid ? E.fmtShares(units) : '0');
+        if (res.valid) return E.fmtShares(units);
+        if (typeof units === 'number' || res.invalidStop) return '0';
+        return null;
+    }
+
+    function updateHeroAndPositionCard(res, optionMode) {
+        const text = heroShareText(res, optionMode);
+        if (text !== null) rollTo($('sharesHero'), text);
         const sharesCap = $('sharesCap');
         const allocationCapped = res.valid && !optionMode && res.capped;
         sharesCap.hidden = !(res.valid && (optionMode || allocationCapped));

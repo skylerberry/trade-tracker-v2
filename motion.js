@@ -237,35 +237,65 @@ const MOTION = (() => {
     function animateRollTransition(cell, cur, inc, dirUp, blur) {
         const out = dirUp ? '-100%' : '100%';
         const from = dirUp ? '100%' : '-100%';
+        const fade = blur ? 'blur(4px)' : 'blur(0)';
         cur.animate(
             [
                 { transform: 'translateY(0)', opacity: 1, filter: 'blur(0)' },
-                { transform: `translateY(${out})`, opacity: 0, filter: blur ? 'blur(4px)' : 'blur(0)' },
+                { transform: `translateY(${out})`, opacity: 0, filter: fade },
             ],
             { ...ROLL, fill: 'forwards' }).finished
             .then(() => cur.remove()).catch(() => cur.remove());
         inc.animate(
             [
-                { transform: `translateY(${from})`, opacity: 0, filter: blur ? 'blur(4px)' : 'blur(0)' },
+                { transform: `translateY(${from})`, opacity: 0, filter: fade },
                 { transform: 'translateY(0)', opacity: 1, filter: 'blur(0)' },
             ],
-            ROLL).finished.then(() => {
+            { ...ROLL, fill: 'both' }).finished.then(() => {
                 if (cell.__cur === inc) { inc.style.position = 'static'; inc.style.width = ''; }
             }).catch(() => {});
     }
 
+    function mountRollCell(ch) {
+        const cell = document.createElement('span');
+        cell.className = 'roll-cell';
+        const inner = document.createElement('span');
+        inner.textContent = ch;
+        cell.appendChild(inner);
+        cell.__cur = inner;
+        return cell;
+    }
+
+    /* Grow/shrink from the left so the ones place stays put. 25→100 adds a
+       leading cell and rolls 2→0, 5→0 instead of tearing the whole number
+       down (the fade that read as a flash). */
+    function syncRollerCells(container, chars) {
+        let cells = Array.isArray(container.__cells)
+            ? container.__cells.filter(c => c.isConnected)
+            : [];
+        if (!cells.length) container.textContent = '';
+        while (cells.length > chars.length) cells.shift().remove();
+        while (cells.length < chars.length) {
+            const cell = mountRollCell(chars[chars.length - cells.length - 1]);
+            container.insertBefore(cell, container.firstChild);
+            cells.unshift(cell);
+        }
+        container.__cells = cells;
+        return cells;
+    }
+
+    function snapRollerCell(cell, ch) {
+        cell.textContent = '';
+        const s = document.createElement('span');
+        s.textContent = ch;
+        cell.appendChild(s);
+        cell.__cur = s;
+    }
+
     function updateRollerCell(cell, ch, dirUp, blur) {
         const cur = cell.__cur;
-        for (const c of [...cell.children]) if (c !== cur) c.remove();
-        if (!cur || !cur.isConnected) {
-            cell.textContent = '';
-            const s = document.createElement('span');
-            s.textContent = ch;
-            cell.appendChild(s);
-            cell.__cur = s;
-            return;
-        }
-        if (cur.textContent === ch) return;
+        if (cur?.isConnected && cur.textContent === ch) return;
+        for (const child of [...cell.children]) if (child !== cur) child.remove();
+        if (!cur || !cur.isConnected) { snapRollerCell(cell, ch); return; }
         if (reduceMotion) { cur.textContent = ch; return; }
         const inc = document.createElement('span');
         inc.textContent = ch;
@@ -278,28 +308,7 @@ const MOTION = (() => {
     function rollerUpdate(container, text, dirUp = true) {
         const chars = [...String(text)];
         const blur = container.hasAttribute('data-roll-blur');
-        let cells = container.__cells;
-        if (!cells || cells.length !== chars.length) {
-            // structure change: rebuild cells (no per-char roll, quick fade)
-            container.textContent = '';
-            cells = chars.map(ch => {
-                const cell = document.createElement('span');
-                cell.className = 'roll-cell';
-                const inner = document.createElement('span');
-                inner.textContent = ch;
-                cell.appendChild(inner);
-                cell.__cur = inner;
-                container.appendChild(cell);
-                return cell;
-            });
-            container.__cells = cells;
-            if (!reduceMotion && container.isConnected) {
-                container.animate(
-                    [{ opacity: 0.25, transform: 'translateY(3px)' }, { opacity: 1, transform: 'none' }],
-                    { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
-            }
-            return;
-        }
+        const cells = syncRollerCells(container, chars);
         chars.forEach((ch, i) => updateRollerCell(cells[i], ch, dirUp, blur));
     }
     /* Bind a roller to an element; returns update(text) that infers direction
