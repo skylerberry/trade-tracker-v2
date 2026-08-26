@@ -33,16 +33,25 @@ const ENGINE = (() => {
             || new Date().toISOString();
     }
 
+    function getJournalEntryText(entry) {
+        return String(entry?.text ?? entry?.body ?? '').trim();
+    }
+
+    function getJournalEntryId(entry, index, trade) {
+        return String(entry?.id || `jn-${trade?.id || 'trade'}-${index}`);
+    }
+
     function normalizeJournalEntry(entry, index, trade, fallback) {
-        const text = String(entry?.text ?? entry?.body ?? '').trim();
+        const text = getJournalEntryText(entry);
         if (!text) return null;
+        const migrated = entry?.migrated ? { migrated: true } : {};
         return {
-            id: String(entry?.id || `jn-${trade?.id || 'trade'}-${index}`),
+            id: getJournalEntryId(entry, index, trade),
             kind: journalKinds.has(entry?.kind) ? entry.kind : 'update',
             text,
             createdAt: validIso(entry?.createdAt) || fallback,
             updatedAt: validIso(entry?.updatedAt),
-            ...(entry?.migrated ? { migrated: true } : {}),
+            ...migrated,
         };
     }
 
