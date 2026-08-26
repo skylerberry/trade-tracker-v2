@@ -544,26 +544,47 @@ const ENGINE = (() => {
         return out;
     }
 
+    function extractAlertTicker(text) {
+        return (text.match(/\$([A-Za-z][A-Za-z0-9.-]{0,9})\b/) || [])[1];
+    }
+
+    function extractAlertStop(text) {
+        return /\b(?:sl|stop(?:\s*loss)?)\b[^\d]{0,24}([0-9][0-9,]*(?:\.[0-9]+)?)/i.exec(text);
+    }
+
+    function extractAlertEntry(text, stopLabelIndex) {
+        return [...text.matchAll(/@\s*\$?([0-9][0-9,]*(?:\.[0-9]+)?)/g)]
+            .find(match => stopLabelIndex < 0 || match.index < stopLabelIndex);
+    }
+
+    function extractAlertRisk(text) {
+        return (text.match(/\brisk(?:ing)?\b[^\d]{0,24}([0-9]*\.?[0-9]+)\s*%/i) || [])[1];
+    }
+
+    function alertToNumber(value) {
+        return value ? parseFloat(value.replace(/,/g, '')) : null;
+    }
+
+    function buildAlertResult(ticker, entry, stop, risk) {
+        if (!ticker && !entry && !stop) return null;
+        return {
+            ticker: ticker ? ticker.toUpperCase() : null,
+            entry: alertToNumber(entry),
+            stop: alertToNumber(stop),
+            riskPct: risk ? parseFloat(risk) : null,
+        };
+    }
+
     /* ---------- alert parser ($TICKER @ entry sl stop [risk X%]) ---------- */
     function parseAlert(text) {
         if (!text) return null;
         const t = text.replace(/\s+/g, ' ').trim();
-        const ticker = (t.match(/\$([A-Za-z][A-Za-z0-9.-]{0,9})\b/) || [])[1];
-        const stopMatch = /\b(?:sl|stop(?:\s*loss)?)\b[^\d]{0,24}([0-9][0-9,]*(?:\.[0-9]+)?)/i.exec(t);
+        const ticker = extractAlertTicker(t);
+        const stopMatch = extractAlertStop(t);
         const stopLabelIndex = stopMatch?.index ?? -1;
-        const entryMatch = [...t.matchAll(/@\s*\$?([0-9][0-9,]*(?:\.[0-9]+)?)/g)]
-            .find(match => stopLabelIndex < 0 || match.index < stopLabelIndex);
-        const risk = (t.match(/\brisk(?:ing)?\b[^\d]{0,24}([0-9]*\.?[0-9]+)\s*%/i) || [])[1];
-        const toNumber = value => value ? parseFloat(value.replace(/,/g, '')) : null;
-        const entry = entryMatch?.[1] ?? null;
-        const stop = stopMatch?.[1] ?? null;
-        if (!ticker && !entry && !stop) return null;
-        return {
-            ticker: ticker ? ticker.toUpperCase() : null,
-            entry: toNumber(entry),
-            stop: toNumber(stop),
-            riskPct: risk ? parseFloat(risk) : null,
-        };
+        const entryMatch = extractAlertEntry(t, stopLabelIndex);
+        const risk = extractAlertRisk(t);
+        return buildAlertResult(ticker, entryMatch?.[1] ?? null, stopMatch?.[1] ?? null, risk);
     }
 
     /* ---------- formatting ---------- */
