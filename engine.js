@@ -581,6 +581,23 @@ const ENGINE = (() => {
         return Math.max(0, value);
     }
 
+    function calcCompoundComparisons(principal, rate, years, contrib, yEnd) {
+        const baseline = rate === 10 ? null : compoundValue(principal, 10, years, contrib);
+        const rateIndex = COMPOUND_RATES.indexOf(rate);
+        const prevRate = rateIndex > 0 ? COMPOUND_RATES[rateIndex - 1] : null;
+        const vsPrev = prevRate === null ? null
+            : yEnd - compoundValue(principal, prevRate, years, contrib);
+        const shocked = compoundWithYearShock(principal, rate, years, contrib, 3, -30);
+        return {
+            baseline,
+            vsBaseline: baseline === null ? null : yEnd - baseline,
+            prevRate,
+            vsPrev,
+            shocked,
+            shockGap: yEnd - shocked,
+        };
+    }
+
     function compoundPerspective(principal, rate, years = 10, annualContribution = 0) {
         const contrib = Number(annualContribution) || 0;
         const path = compoundPath(principal, rate, years, contrib);
@@ -596,12 +613,7 @@ const ENGINE = (() => {
         const added = contrib * years;
         const contributed = start + added;
         const growth = yEnd - contributed;
-        const baseline = rate === 10 ? null : compoundValue(principal, 10, years, contrib);
-        const rateIndex = COMPOUND_RATES.indexOf(rate);
-        const prevRate = rateIndex > 0 ? COMPOUND_RATES[rateIndex - 1] : null;
-        const vsPrev = prevRate === null ? null
-            : yEnd - compoundValue(principal, prevRate, years, contrib);
-        const shocked = compoundWithYearShock(principal, rate, years, contrib, 3, -30);
+        const comparisons = calcCompoundComparisons(principal, rate, years, contrib, yEnd);
         return {
             path, start, y5, yEnd, yearEndGain, stayCourse, backload,
             monthlyPct: periodicRate(rate, 12),
@@ -611,9 +623,7 @@ const ENGINE = (() => {
             yearsTo100k: yearsToTarget(principal, rate, 1e5, contrib),
             yearsTo1m: yearsToTarget(principal, rate, 1e6, contrib),
             contributed, added, growth,
-            baseline, vsBaseline: baseline === null ? null : yEnd - baseline,
-            prevRate, vsPrev,
-            shocked, shockGap: yEnd - shocked,
+            ...comparisons,
         };
     }
 
