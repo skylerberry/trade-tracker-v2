@@ -289,17 +289,29 @@ const ENGINE = (() => {
         const t = makeTargetsForPreset(preset, calc, entry, sign, exitAction);
         return { enabled: t.length > 0, preset, initialShares: calc.shares, targets: t };
     }
+    function getStoredTargetShares(target) {
+        if (isNum(target?.shares)) return target.shares;
+        if (isNum(target?.sharesToSell)) return target.sharesToSell;
+        return null;
+    }
+
+    function getPresetShares(orig, preset) {
+        if (!orig || orig <= 0) return null;
+        if (preset === 'half-1r') return Math.ceil(orig / 2);
+        if (preset === 'third-2r') return Math.ceil(orig / 3);
+        return null;
+    }
+
     /* ½ / ⅓ presets follow the actual position, not the calc snapshot at log.
        Size edits (fill was 1600, not 1607) must move the pending trim with them.
        Custom / legacy targets keep the stored count. */
     function plannedShares(trade, target) {
-        const stored = isNum(target?.shares) ? target.shares
-            : (isNum(target?.sharesToSell) ? target.sharesToSell : null);
+        const stored = getStoredTargetShares(target);
         if (stored === 0) return 0;
         const orig = getOriginalShares(trade);
         const preset = trade.sellPlan?.preset;
-        if (orig && orig > 0 && preset === 'half-1r') return Math.ceil(orig / 2);
-        if (orig && orig > 0 && preset === 'third-2r') return Math.ceil(orig / 3);
+        const presetShares = getPresetShares(orig, preset);
+        if (presetShares !== null) return presetShares;
         return stored;
     }
     /* Normalize any plan target (incl. v1 legacy) into a uniform pending-action view. */
@@ -337,6 +349,20 @@ const ENGINE = (() => {
         return round2(trade.entryPrice - directionSign(trade) * pnl / rem);
     }
 
+    function calcFreerollTrimShares(trade, remaining, price, stop, realized) {
+        const gainPerShare = directionalMove(trade.entryPrice, price, trade);
+        if (gainPerShare <= 0) return null;
+        const stopRiskPerShare = Math.max(0, -directionalMove(trade.entryPrice, stop, trade));
+        const openRisk = remaining * stopRiskPerShare - realized;
+        if (openRisk <= 0) return 0;
+        const riskRemovedPerShare = gainPerShare + stopRiskPerShare;
+        if (riskRemovedPerShare <= 0) return null;
+        let shares = Math.ceil((openRisk - 1e-9) / riskRemovedPerShare);
+        shares = Math.max(1, shares);
+        if (shares >= remaining) return null;
+        return shares;
+    }
+
     /* Minimum whole-share trim that leaves a runner with zero net open risk
        at the current stop. Returns 0 when the position is already freer rolled,
        and null when sizing is unknown or the price cannot preserve a runner. */
@@ -346,21 +372,7 @@ const ENGINE = (() => {
         const realized = getRealizedPnL(trade);
         if (remaining === null || remaining <= 1 || stop === null || realized === null ||
             !isNum(trade?.entryPrice) || !isNum(price)) return null;
-
-        const gainPerShare = directionalMove(trade.entryPrice, price, trade);
-        if (gainPerShare <= 0) return null;
-        const stopRiskPerShare = Math.max(0, -directionalMove(trade.entryPrice, stop, trade));
-        const openRisk = remaining * stopRiskPerShare - realized;
-        if (openRisk <= 0) return 0;
-
-        const riskRemovedPerShare = gainPerShare + stopRiskPerShare;
-        if (riskRemovedPerShare <= 0) return null;
-        let shares = Math.ceil((openRisk - 1e-9) / riskRemovedPerShare);
-        shares = Math.max(1, shares);
-
-        // A freeroll trim must leave at least one share as the runner.
-        if (shares >= remaining) return null;
-        return shares;
+        return calcFreerollTrimShares(trade, remaining, price, stop, realized);
     }
 
     /* ---------- stats (scoreboard, footer) ---------- */
