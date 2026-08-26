@@ -4294,6 +4294,37 @@
             ? { 'trades.json': { content: JSON.stringify(trades, null, 2) } }
             : { 'settings.json': { content: settingsPayload() } };
     }
+    async function handleSyncConflict(kind, meta) {
+        if (kind !== 'trades') return;
+        const tradesRaw = await gistFileContent(meta, 'trades.json');
+        let cloud;
+        try { cloud = JSON.parse(tradesRaw); } catch { cloud = undefined; }
+        if (!Array.isArray(cloud)) {
+            sync.loadFailed = true;
+            syncSet('paused', 'Sync paused — cloud data unreadable');
+            toast('Cloud trades unreadable — sync paused, local data kept safe', { error: true });
+            return false;
+        }
+        trades = GIST_SYNC.mergeTrades(trades, cloud);
+        trades.forEach(normalizeTrade);
+        localStorage.setItem(K.trades, JSON.stringify(trades));
+        renderAll();
+        return true;
+    }
+
+    async function checkAndMergeConflict(kind, flush) {
+        if (flush || !sync.baseline) return true;
+        const head = await gistFetch(`${GIST_API}/${sync.gistId}`);
+        if (!head.ok) return true;
+        const meta = await head.json();
+        if (!GIST_SYNC.isConflict(sync.baseline, meta.updated_at)) return true;
+        const merged = await handleSyncConflict(kind, meta);
+        if (merged === false) return false;
+        sync.baseline = meta.updated_at;
+        return true;
+    }
+
+
     function pushFile(kind, { flush = false, keepalive = false } = {}) {
         if (!syncLinked() || sync.loadFailed) return;
         sync.inflight++;
@@ -4301,30 +4332,8 @@
             try {
                 if (!syncLinked() || sync.loadFailed) return;
                 syncSet('syncing', 'Syncing…');
-                if (!flush && sync.baseline) {
-                    const head = await gistFetch(`${GIST_API}/${sync.gistId}`);
-                    if (head.ok) {
-                        const meta = await head.json();
-                        if (GIST_SYNC.isConflict(sync.baseline, meta.updated_at)) {
-                            if (kind === 'trades') {
-                                const tradesRaw = await gistFileContent(meta, 'trades.json');
-                                let cloud;
-                                try { cloud = JSON.parse(tradesRaw); } catch { cloud = undefined; }
-                                if (!Array.isArray(cloud)) {
-                                    sync.loadFailed = true;
-                                    syncSet('paused', 'Sync paused — cloud data unreadable');
-                                    toast('Cloud trades unreadable — sync paused, local data kept safe', { error: true });
-                                    return;
-                                }
-                                trades = GIST_SYNC.mergeTrades(trades, cloud);
-                                trades.forEach(normalizeTrade);
-                                localStorage.setItem(K.trades, JSON.stringify(trades));
-                                renderAll();
-                            }
-                            sync.baseline = meta.updated_at;
-                        }
-                    }
-                }
+                const canContinue = await checkAndMergeConflict(kind, flush);
+                if (!canContinue) return;
                 const res = await gistFetch(`${GIST_API}/${sync.gistId}`, {
                     method: 'PATCH',
                     body: JSON.stringify({ files: filePayload(kind) }),
