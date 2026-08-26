@@ -87,6 +87,14 @@ const MASKS = [
     (x, y) => (((x + y) % 2) + (x * y % 3)) % 2 === 0,
 ];
 
+function verifyFormatCopy(m, size, bits) {
+    let bits2 = 0;
+    for (let i = 0; i < 8; i++) { if (m[8][size - 1 - i]) bits2 |= 1 << i; }
+    for (let i = 8; i < 15; i++) { if (m[size - 15 + i][8]) bits2 |= 1 << i; }
+    if ((bits2 ^ 0x5412) !== bits) throw new Error('format copies disagree');
+    if (m[size - 8][8] !== true) throw new Error('dark module missing');
+}
+
 function decodeFormatBits(m, size) {
     let bits = 0;
     const put = (i, dark) => { if (dark) bits |= 1 << i; };
@@ -101,11 +109,7 @@ function decodeFormatBits(m, size) {
     const ecl = data5 >>> 3;
     if (ecl !== 0b01) throw new Error('expected EC level L');
     const mask = data5 & 7;
-    let bits2 = 0;
-    for (let i = 0; i < 8; i++) { if (m[8][size - 1 - i]) bits2 |= 1 << i; }
-    for (let i = 8; i < 15; i++) { if (m[size - 15 + i][8]) bits2 |= 1 << i; }
-    if ((bits2 ^ 0x5412) !== bits) throw new Error('format copies disagree');
-    if (m[size - 8][8] !== true) throw new Error('dark module missing');
+    verifyFormatCopy(m, size, bits);
     return mask;
 }
 
