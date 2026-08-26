@@ -3462,16 +3462,14 @@
             pop.style.visibility = '';
         }
     }
-    function renderDatePop() {
-        const today = E.todayLocalISO();
-        if (!dateView) {
-            const seed = datePick?.get() || today;
-            const parsed = E.parseLocalDate(seed) || new Date();
-            dateView = { y: parsed.getFullYear(), m: parsed.getMonth() };
-        }
-        const title = new Date(dateView.y, dateView.m, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        $('datePopTitle').textContent = title;
-        $('datePopClear').hidden = !datePick?.allowEmpty;
+    function initDateView(today) {
+        if (dateView) return;
+        const seed = datePick?.get() || today;
+        const parsed = E.parseLocalDate(seed) || new Date();
+        dateView = { y: parsed.getFullYear(), m: parsed.getMonth() };
+    }
+
+    function getSelectedDates() {
         const range = datePick?.range?.() || null;
         const selected = new Set();
         if (range) {
@@ -3481,6 +3479,29 @@
             const value = datePick?.get();
             if (value) selected.add(value);
         }
+        return { selected, range };
+    }
+
+    function makeDateButton(day, iso, today, selected, range, currentMonth) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'date-pop-day';
+        btn.textContent = String(day.getDate());
+        btn.dataset.iso = iso;
+        if (day.getMonth() !== currentMonth) btn.classList.add('is-outside');
+        if (iso === today) btn.classList.add('is-today');
+        if (selected.has(iso)) btn.classList.add('is-selected');
+        if (range?.from && range?.to && iso > range.from && iso < range.to) btn.classList.add('is-in-range');
+        return btn;
+    }
+
+    function renderDatePop() {
+        const today = E.todayLocalISO();
+        initDateView(today);
+        const title = new Date(dateView.y, dateView.m, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        $('datePopTitle').textContent = title;
+        $('datePopClear').hidden = !datePick?.allowEmpty;
+        const { selected, range } = getSelectedDates();
         const first = new Date(dateView.y, dateView.m, 1);
         const start = new Date(first);
         start.setDate(1 - first.getDay());
@@ -3490,16 +3511,7 @@
             const day = new Date(start);
             day.setDate(start.getDate() + i);
             const iso = dateISO(day);
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'date-pop-day';
-            btn.textContent = String(day.getDate());
-            btn.dataset.iso = iso;
-            if (day.getMonth() !== dateView.m) btn.classList.add('is-outside');
-            if (iso === today) btn.classList.add('is-today');
-            if (selected.has(iso)) btn.classList.add('is-selected');
-            if (range?.from && range?.to && iso > range.from && iso < range.to) btn.classList.add('is-in-range');
-            grid.appendChild(btn);
+            grid.appendChild(makeDateButton(day, iso, today, selected, range, dateView.m));
         }
         syncDatePickState();
     }
