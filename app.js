@@ -4416,10 +4416,18 @@
     $('syncBtn').addEventListener('click', openSyncModal);
 
     /* ---------- keyboard: Shift+C clears the calculator ---------- */
+    function isShiftCKeyPress(e) {
+        return (e.key === 'C' || e.key === 'c') && e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey;
+    }
+
+    function isEditableTarget(t) {
+        return t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable;
+    }
+
     document.addEventListener('keydown', (e) => {
-        if ((e.key === 'C' || e.key === 'c') && e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (isShiftCKeyPress(e)) {
             const t = e.target;
-            if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable || modalStack.length) return;
+            if (isEditableTarget(t) || modalStack.length) return;
             e.preventDefault();
             $('clearCalc').click();
         }
