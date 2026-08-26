@@ -936,29 +936,37 @@
         };
     }
 
-    function syncCalculatorMode() {
-        const optionMode = prefs.vehicle === 'option';
-        const short = prefs.direction === 'short';
-        $('optionInputs').hidden = !optionMode;
+    function updateCalcModeLabels(optionMode, short) {
         $('maxPctLabelText').textContent = optionMode ? 'Max prem %' : 'Max %';
         $('maxPctHelp').textContent = optionMode
             ? 'Caps how much of your account can be committed to option premium. If this limit reduces your risk-based contract count, the original count is shown struck through.'
             : 'Caps how much of your account can go into one position. If this limit reduces your risk-based share count, the original count is shown struck through.';
-        $('calcModeContext').dataset.direction = prefs.direction;
         $('calcModeContextText').textContent = optionMode
             ? `Long ${short ? 'put' : 'call'} · calculator only`
             : `${short ? 'Short' : 'Long'} shares`;
         $('optionGuidanceKind').textContent = `Long ${short ? 'puts' : 'calls'} only`;
         $('positionUnitLabel').textContent = optionMode ? 'contracts' : 'shares';
         $('sharesCopyBtn').title = optionMode ? 'Copy contract count' : 'Type your own share count — risk solves backwards';
-        $('sharesCopyMini').hidden = optionMode;
+    }
+
+    function updateCalcRiskLabels(optionMode) {
         $('rStopDistLabel').textContent = optionMode ? 'Estimated loss / contract' : 'Stop distance';
         $('rPosSizeLabel').textContent = optionMode ? 'Premium outlay' : 'Position size';
         $('rTotalRiskLabel').textContent = optionMode ? 'Max loss (premium paid)' : 'Total risk';
         $('rPctAcctLabel').textContent = optionMode ? 'Estimated stop risk' : '% of account';
-        $('freerollPlan').classList.toggle('is-option-mode', optionMode);
         $('planTitle').textContent = optionMode ? 'Underlying R map' : 'Freeroll plan';
+    }
+
+    function syncCalculatorMode() {
+        const optionMode = prefs.vehicle === 'option';
+        const short = prefs.direction === 'short';
+        $('optionInputs').hidden = !optionMode;
+        $('calcModeContext').dataset.direction = prefs.direction;
+        $('sharesCopyMini').hidden = optionMode;
+        $('freerollPlan').classList.toggle('is-option-mode', optionMode);
         $('planSeg').hidden = optionMode;
+        updateCalcModeLabels(optionMode, short);
+        updateCalcRiskLabels(optionMode);
     }
 
     function showStopValidationError(c, nextDirection, stopInput) {
