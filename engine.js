@@ -268,19 +268,25 @@ const ENGINE = (() => {
     }
 
     /* ---------- sell-plan presets ---------- */
+    function makeTargetsForPreset(preset, calc, entry, sign, exitAction) {
+        if (preset === 'half-1r') {
+            return [{ id: 'sp1', rLevel: 1, price: round2(entry + sign * calc.rps), shares: Math.ceil(calc.shares / 2), action: exitAction, status: 'pending' }];
+        }
+        if (preset === 'third-2r') {
+            return [{ id: 'sp1', rLevel: 2, price: round2(entry + sign * calc.rps * 2), shares: Math.ceil(calc.shares / 3), action: exitAction, status: 'pending' }];
+        }
+        if (preset === 'backfill') {
+            return [{ id: 'sp1', rLevel: 1, price: round2(entry + sign * calc.rps), shares: 0, action: 'raise-stop', newStop: entry, status: 'pending' }];
+        }
+        return [];
+    }
+
     function buildSellPlan(preset, calc, entry, direction = calc?.direction || 'long') {
         if (!preset || preset === 'off' || !calc || !calc.valid) return { enabled: false, preset: 'off', targets: [] };
         direction = directionOf(direction);
         const sign = directionSign(direction);
         const exitAction = direction === 'short' ? 'cover' : 'sell';
-        const t = [];
-        if (preset === 'half-1r') {
-            t.push({ id: 'sp1', rLevel: 1, price: round2(entry + sign * calc.rps), shares: Math.ceil(calc.shares / 2), action: exitAction, status: 'pending' });
-        } else if (preset === 'third-2r') {
-            t.push({ id: 'sp1', rLevel: 2, price: round2(entry + sign * calc.rps * 2), shares: Math.ceil(calc.shares / 3), action: exitAction, status: 'pending' });
-        } else if (preset === 'backfill') {
-            t.push({ id: 'sp1', rLevel: 1, price: round2(entry + sign * calc.rps), shares: 0, action: 'raise-stop', newStop: entry, status: 'pending' });
-        }
+        const t = makeTargetsForPreset(preset, calc, entry, sign, exitAction);
         return { enabled: t.length > 0, preset, initialShares: calc.shares, targets: t };
     }
     /* ½ / ⅓ presets follow the actual position, not the calc snapshot at log.
