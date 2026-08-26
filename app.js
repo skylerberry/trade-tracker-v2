@@ -983,7 +983,17 @@
         const unit = optionMode ? 'contract' : 'share';
         context.textContent = `Same setup · ${formatRiskValue(maxPct())}% ${optionMode ? 'premium' : 'account'} cap`;
 
-        scenarios.forEach(({ key, risk }) => {
+        function setScenarioButtonContent(button, key, risk, countText, unitText, allocation, riskDollars, result) {
+            button.querySelector('.risk-scenario-pct').textContent = `${formatRiskValue(risk)}%`;
+            button.querySelector('.risk-scenario-position strong').textContent = countText;
+            button.querySelector('.risk-scenario-position span').textContent = unitText;
+            const meta = button.querySelectorAll('.risk-scenario-meta span');
+            meta[0].textContent = `${allocation} account`;
+            meta[1].textContent = result.valid ? `${riskDollars} risk${result.capped ? ' · capped' : ''}` : riskDollars;
+            button.setAttribute('aria-label', `${key === 'current' ? 'Current' : key === 'safer' ? 'Safer' : 'Higher'} scenario: ${formatRiskValue(risk)} percent risk, ${countText} ${unitText}, ${allocation} of account, ${riskDollars} risk${result.capped ? ', allocation capped' : ''}`);
+        }
+
+        function updateScenarioButton(grid, c, key, risk, optionMode, unit) {
             const button = grid.querySelector(`[data-scenario="${key}"]`);
             const result = optionMode
                 ? E.calcOptionPosition({ ...c, riskPct: risk })
@@ -997,14 +1007,10 @@
 
             button.dataset.risk = String(risk);
             button.classList.toggle('is-capped', !!result.capped);
-            button.querySelector('.risk-scenario-pct').textContent = `${formatRiskValue(risk)}%`;
-            button.querySelector('.risk-scenario-position strong').textContent = countText;
-            button.querySelector('.risk-scenario-position span').textContent = unitText;
-            const meta = button.querySelectorAll('.risk-scenario-meta span');
-            meta[0].textContent = `${allocation} account`;
-            meta[1].textContent = valid ? `${riskDollars} risk${result.capped ? ' · capped' : ''}` : riskDollars;
-            button.setAttribute('aria-label', `${key === 'current' ? 'Current' : key === 'safer' ? 'Safer' : 'Higher'} scenario: ${formatRiskValue(risk)} percent risk, ${countText} ${unitText}, ${allocation} of account, ${riskDollars} risk${result.capped ? ', allocation capped' : ''}`);
-        });
+            setScenarioButtonContent(button, key, risk, countText, unitText, allocation, riskDollars, result);
+        }
+
+        scenarios.forEach(({ key, risk }) => updateScenarioButton(grid, c, key, risk, optionMode, unit));
     }
 
     function setSharesCapContent(sharesCap, res, optionMode, allocationCapped) {
