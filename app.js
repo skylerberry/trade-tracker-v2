@@ -4114,18 +4114,38 @@
         try { data = JSON.parse(await file.text()); } catch { toast('Not a valid backup file', { error: true }); return; }
         const incoming = Array.isArray(data) ? data : data.trades;
         if (!Array.isArray(incoming)) { toast('No trades found in that file', { error: true }); return; }
+    function restoreWatchlist(data) {
+        if (Array.isArray(data.watchlist)) watchlist = data.watchlist;
+    }
+
+    function restoreAccount(data) {
+        const acct = E.isNum(data.account) ? data.account : data.settings?.accountSize;
+        if (E.isNum(acct)) {
+            account = acct;
+            $('accountSize').value = account.toLocaleString('en-US');
+        }
+    }
+
+    function restoreSettings(data) {
+        if (data.settings?.direction === 'long' || data.settings?.direction === 'short') {
+            prefs.direction = data.settings.direction;
+        }
+        if (data.settings?.vehicle === 'shares' || data.settings?.vehicle === 'option') {
+            prefs.vehicle = data.settings.vehicle;
+        }
+        segs.direction.set(prefs.direction, true);
+        segs.vehicle.set(prefs.vehicle, true);
+        syncCalculatorMode();
+    }
+
+
         confirmModal('Restore from backup', `Replaces your ${trades.length} current trades with ${incoming.length} from the file. A safety copy of the current data downloads first.`, 'Restore', () => {
             download(`pre-restore-${Date.now()}.json`, JSON.stringify({ trades }, null, 2), 'application/json');
             trades = incoming;
             trades.forEach(normalizeTrade);
-            if (Array.isArray(data.watchlist)) watchlist = data.watchlist;
-            const acct = E.isNum(data.account) ? data.account : data.settings?.accountSize;
-            if (E.isNum(acct)) { account = acct; $('accountSize').value = account.toLocaleString('en-US'); }
-            if (data.settings?.direction === 'long' || data.settings?.direction === 'short') prefs.direction = data.settings.direction;
-            if (data.settings?.vehicle === 'shares' || data.settings?.vehicle === 'option') prefs.vehicle = data.settings.vehicle;
-            segs.direction.set(prefs.direction, true);
-            segs.vehicle.set(prefs.vehicle, true);
-            syncCalculatorMode();
+            restoreWatchlist(data);
+            restoreAccount(data);
+            restoreSettings(data);
             saveTrades(); savePrefs(); renderAll();
             toast(`Restored ${trades.length} trades`);
         });
