@@ -31,6 +31,22 @@ const GIST_SYNC = (() => {
         return Date.parse(t?.updatedAt || t?.createdAt || 0) || 0;
     }
 
+    function mergeLocalTrades(local, cloudById, seen, out) {
+        for (const t of local) {
+            if (!t || !t.id) continue;
+            seen.add(t.id);
+            const c = cloudById.get(t.id);
+            out.push(!c || stamp(t) >= stamp(c) ? t : c);
+        }
+    }
+
+    function addNewCloudTrades(cloud, seen, out) {
+        for (const t of cloud) {
+            if (!t || !t.id || seen.has(t.id)) continue;
+            out.push(t);
+        }
+    }
+
     function mergeTrades(local, cloud) {
         if (!Array.isArray(local)) return Array.isArray(cloud) ? cloud.slice() : [];
         if (!Array.isArray(cloud)) return local.slice();
@@ -40,16 +56,8 @@ const GIST_SYNC = (() => {
         }
         const seen = new Set();
         const out = [];
-        for (const t of local) {
-            if (!t || !t.id) continue;
-            seen.add(t.id);
-            const c = cloudById.get(t.id);
-            out.push(!c || stamp(t) >= stamp(c) ? t : c);
-        }
-        for (const t of cloud) {
-            if (!t || !t.id || seen.has(t.id)) continue;
-            out.push(t);
-        }
+        mergeLocalTrades(local, cloudById, seen, out);
+        addNewCloudTrades(cloud, seen, out);
         return out;
     }
 
