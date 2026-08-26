@@ -920,6 +920,15 @@
         $('planSeg').hidden = optionMode;
     }
 
+    function showStopValidationError(c, nextDirection, stopInput) {
+        const mode = c.direction === 'short' ? 'Short' : 'Long';
+        const relation = c.direction === 'short' ? 'above' : 'below';
+        $('calcValidationText').textContent = `Stop loss must be ${relation} entry price in ${mode} mode.`;
+        $('calcValidationSwitchText').textContent = `Switch to ${nextDirection === 'short' ? 'Short' : 'Long'}`;
+        stopInput.setAttribute('aria-invalid', 'true');
+        stopInput.setAttribute('aria-describedby', 'calcValidationText');
+    }
+
     function syncStopValidation(c) {
         const hasRelationship = E.isNum(c.entry) && c.entry > 0 && E.isNum(c.stop) && c.stop > 0;
         const invalid = hasRelationship && E.riskPerShare(c.entry, c.stop, c.direction) === null;
@@ -934,12 +943,7 @@
         $('calcValidationSwitch').dataset.direction = nextDirection;
 
         if (invalid) {
-            const mode = c.direction === 'short' ? 'Short' : 'Long';
-            const relation = c.direction === 'short' ? 'above' : 'below';
-            $('calcValidationText').textContent = `Stop loss must be ${relation} entry price in ${mode} mode.`;
-            $('calcValidationSwitchText').textContent = `Switch to ${nextDirection === 'short' ? 'Short' : 'Long'}`;
-            stopInput.setAttribute('aria-invalid', 'true');
-            stopInput.setAttribute('aria-describedby', 'calcValidationText');
+            showStopValidationError(c, nextDirection, stopInput);
         } else {
             stopInput.removeAttribute('aria-invalid');
             stopInput.removeAttribute('aria-describedby');
