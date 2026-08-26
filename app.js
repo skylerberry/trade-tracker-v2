@@ -1003,14 +1003,7 @@
         });
     }
 
-    function updateHeroAndPositionCard(res, optionMode) {
-        const units = optionMode ? res.contracts : res.shares;
-        rollTo($('sharesHero'), res.valid ? E.fmtShares(units) : '0');
-        const sharesCap = $('sharesCap');
-        const allocationCapped = res.valid && !optionMode && res.capped;
-        sharesCap.hidden = !(res.valid && (optionMode || allocationCapped));
-        sharesCap.classList.toggle('is-capped', allocationCapped);
-        sharesCap.removeAttribute('aria-label');
+    function setSharesCapContent(sharesCap, res, optionMode, allocationCapped) {
         if (res.valid && optionMode) {
             sharesCap.textContent = res.limitedBy === 'allocation'
                 ? `Premium allocation constraint · risk sizing suggested ${E.fmtShares(res.rawContracts)}`
@@ -1025,6 +1018,17 @@
                 <strong>${cappedCount}</strong>
                 <span class="shares-cap-reason">${maxPct()}% account cap</span>`;
         }
+    }
+
+    function updateHeroAndPositionCard(res, optionMode) {
+        const units = optionMode ? res.contracts : res.shares;
+        rollTo($('sharesHero'), res.valid ? E.fmtShares(units) : '0');
+        const sharesCap = $('sharesCap');
+        const allocationCapped = res.valid && !optionMode && res.capped;
+        sharesCap.hidden = !(res.valid && (optionMode || allocationCapped));
+        sharesCap.classList.toggle('is-capped', allocationCapped);
+        sharesCap.removeAttribute('aria-label');
+        setSharesCapContent(sharesCap, res, optionMode, allocationCapped);
     }
 
     function updatePositionMetrics(res, optionMode) {
@@ -1644,6 +1648,12 @@
         return ddStr + pctStr;
     }
 
+    function setEquityPeakInfo(eq, rMode) {
+        $('eqPeak').textContent = rMode ? E.fmtR(eq.peakR) : E.fmtMoney(eq.peak, true);
+        $('eqCount').textContent = String(eq.points.length);
+        $('eqMeta').textContent = `${eq.points.length} exit${eq.points.length === 1 ? '' : 's'} · all time`;
+    }
+
     function updateEquityStats(eq, rMode, cur) {
         const num = $('eqNum');
         num.textContent = rMode ? E.fmtR(eq.currentR) : E.fmtMoney(eq.current, true);
@@ -1653,9 +1663,7 @@
         $('eqDd').dataset.state = atPeak ? 'ok' : 'down';
         const ddPct = !rMode && account > 0 ? (eq.drawdown / account) * 100 : null;
         $('eqDdVal').textContent = atPeak ? 'At equity highs' : getDrawdownText(rMode, eq, ddPct);
-        $('eqPeak').textContent = rMode ? E.fmtR(eq.peakR) : E.fmtMoney(eq.peak, true);
-        $('eqCount').textContent = String(eq.points.length);
-        $('eqMeta').textContent = `${eq.points.length} exit${eq.points.length === 1 ? '' : 's'} · all time`;
+        setEquityPeakInfo(eq, rMode);
         return atPeak;
     }
 
@@ -2524,7 +2532,7 @@
         return '';
     }
 
-    function buildRailStatCards(t, risk, rem, pnl, rps) {
+    function buildBaseRailCards(t, risk, rem, pnl) {
         const status = E.deriveStatus(t);
         const doneish = status === 'closed' || status === 'stopped' || status === 'archived';
         const orig = E.getOriginalShares(t);
@@ -2532,7 +2540,7 @@
         const riskPctAcct = risk !== null && account > 0 ? (risk / account) * 100 : null;
         const hasExits = Array.isArray(t.exits) && t.exits.length > 0;
         const rr = E.getRealizedR(t);
-        const cards = [
+        return [
             {
                 k: 'Open risk',
                 v: risk === null ? '—' : E.fmtMoney(risk),
@@ -2551,6 +2559,10 @@
                 tone: pnl > 0 ? 'up' : pnl < 0 ? 'down' : '',
             },
         ];
+    }
+
+    function buildRailStatCards(t, risk, rem, pnl, rps) {
+        const cards = buildBaseRailCards(t, risk, rem, pnl);
         if (rps !== null) {
             cards.push({ k: 'Risk / share', v: '$' + rps.toFixed(2), sub: 'entry − stop' });
         }
