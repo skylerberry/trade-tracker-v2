@@ -1622,6 +1622,15 @@
     /* ---------- equity curve (journal) ----------
        Hand-rolled SVG like compound.js: tokens for color, area + line,
        dashed peak line and a red wash over the peak→now give-back. */
+    function getDrawdownText(rMode, eq, ddPct) {
+        if (rMode) {
+            return `−${eq.drawdownR.toFixed(1)}R from peak`;
+        }
+        const ddStr = `−${E.fmtMoney(eq.drawdown)}`;
+        const pctStr = ddPct !== null ? ` · ${ddPct.toFixed(ddPct < 1 ? 2 : 1)}% of account` : '';
+        return ddStr + pctStr;
+    }
+
     function updateEquityStats(eq, rMode, cur) {
         const num = $('eqNum');
         num.textContent = rMode ? E.fmtR(eq.currentR) : E.fmtMoney(eq.current, true);
@@ -1630,9 +1639,7 @@
         const atPeak = dd <= 0.0001;
         $('eqDd').dataset.state = atPeak ? 'ok' : 'down';
         const ddPct = !rMode && account > 0 ? (eq.drawdown / account) * 100 : null;
-        $('eqDdVal').textContent = atPeak ? 'At equity highs'
-            : rMode ? `−${eq.drawdownR.toFixed(1)}R from peak`
-                : `−${E.fmtMoney(eq.drawdown)}${ddPct !== null ? ` · ${ddPct.toFixed(ddPct < 1 ? 2 : 1)}% of account` : ''}`;
+        $('eqDdVal').textContent = atPeak ? 'At equity highs' : getDrawdownText(rMode, eq, ddPct);
         $('eqPeak').textContent = rMode ? E.fmtR(eq.peakR) : E.fmtMoney(eq.peak, true);
         $('eqCount').textContent = String(eq.points.length);
         $('eqMeta').textContent = `${eq.points.length} exit${eq.points.length === 1 ? '' : 's'} · all time`;
@@ -1733,8 +1740,9 @@
         $('jsAvgLoss').dataset.sign = losses ? 'down' : '';
         $('jsR').textContent = rCount ? E.fmtR(round2(r)) : '—';
         $('jsR').dataset.sign = r > 0 ? 'up' : r < 0 ? 'down' : '';
-        $('jsAvgR').textContent = rCount ? E.fmtR(round2(r / rCount)) : '—';
-        $('jsAvgR').dataset.sign = rCount ? ((r / rCount) > 0 ? 'up' : (r / rCount) < 0 ? 'down' : '') : '';
+        const avgR = rCount ? r / rCount : 0;
+        $('jsAvgR').textContent = rCount ? E.fmtR(round2(avgR)) : '—';
+        $('jsAvgR').dataset.sign = rCount && avgR > 0 ? 'up' : rCount && avgR < 0 ? 'down' : '';
     }
 
     function renderJournalSummary() {
@@ -1785,6 +1793,14 @@
         }
     }
 
+    function updateMetricsForView(view) {
+        if (view !== 'compound' && prefs.metricsOpen !== false) {
+            const wrap = $('metricsRowWrap');
+            if (wrap) wrap.style.height = 'auto';
+            requestAnimationFrame(() => segs.scope?.refresh());
+        }
+    }
+
     function setView(name, { syncHash = true, instant = false, fromSegment = false } = {}) {
         if (!VIEWS.includes(name)) name = 'positions';
         if (name === view && viewReady) return;
@@ -1803,11 +1819,7 @@
         renderTable();
         document.body.offsetHeight;
         refreshFilterSegs();
-        if (view !== 'compound' && prefs.metricsOpen !== false) {
-            const wrap = $('metricsRowWrap');
-            if (wrap) wrap.style.height = 'auto';
-            requestAnimationFrame(() => segs.scope?.refresh());
-        }
+        updateMetricsForView(view);
         animateViewTransition(view, animate);
         viewReady = true;
     }
@@ -2214,6 +2226,16 @@
         return `<button class="next-chip" data-act="chip" data-tip="${tip}" aria-label="${tip}: ${E.escapeHtml(na.label)}">${na.label}</button>`;
     }
 
+    function getStopHtml(stop, t) {
+        const EM = '<span class="cell-empty">—</span>';
+        if (stop === null) return EM;
+        const stopPrice = E.fmtMoney(stop);
+        if (E.isNum(t.initialSL) && stop !== t.initialSL) {
+            return stopPrice + `<span class="cell-stop-initial" title="Initial stop">${E.fmtMoney(t.initialSL)}</span>`;
+        }
+        return stopPrice;
+    }
+
     function buildRowCellData(t, orig, stop, pnl, r) {
         const EM = '<span class="cell-empty">—</span>';
         const direction = E.directionOf(t);
@@ -2224,8 +2246,7 @@
         const sub = subParts.join('<span class="cell-dot" aria-hidden="true">·</span>');
         const entryHtml = E.fmtMoney(t.entryPrice)
             + (orig !== null ? `<span class="cell-entry-qty">${fmtShareCount(orig)}</span>` : '');
-        const stopHtml = stop === null ? EM
-            : E.fmtMoney(stop) + (E.isNum(t.initialSL) && stop !== t.initialSL ? `<span class="cell-stop-initial" title="Initial stop">${E.fmtMoney(t.initialSL)}</span>` : '');
+        const stopHtml = getStopHtml(stop, t);
         const pnlCls = pnl === null ? 'pnl-flat' : pnl > 0 ? 'pnl-gain' : pnl < 0 ? 'pnl-loss' : 'pnl-flat';
         const hasExits = Array.isArray(t.exits) && t.exits.length > 0;
         const pnlHtml = (pnl === null || (pnl === 0 && !hasExits)) ? EM : E.fmtMoney(pnl, true);

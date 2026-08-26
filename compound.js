@@ -539,40 +539,34 @@ const COMPOUND = (() => {
         if (n && n > 0) setCapital(n, false);
     }
 
-    function init(opts = {}) {
-        if (typeof opts.parseNum === 'function') parseNum = opts.parseNum;
-        if (opts.account) startingCapital = opts.account;
-        const input = $('compoundStartingCapital');
+    function initCapitalInput(opts, input) {
         if (input) input.value = startingCapital.toLocaleString('en-US');
-        /* Same live k/m + comma pass as account size — expand while focused. */
         if (typeof opts.bindMoneyNotation === 'function') {
             opts.bindMoneyNotation(input);
             opts.bindMoneyNotation($('depositAmount'));
             opts.bindMoneyNotation($('withdrawalAmount'));
         }
-
         input?.addEventListener('input', () => {
             const n = parseNum(input.value);
-            if (n && n > 0) { startingCapital = n; userEdited = true; render(); }
+            if (n && n > 0) {
+                startingCapital = n;
+                userEdited = true;
+                render();
+            }
         });
         input?.addEventListener('blur', () => {
             const n = parseNum(input.value);
             if (n && n > 0) setCapital(n, true);
         });
+    }
 
-        $('compoundPresets')?.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-capital]');
-            if (!btn) return;
-            setCapital(Number(btn.dataset.capital), true);
-        });
-
+    function initContributionControls() {
         $('contributionModeToggle')?.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-mode]');
             if (!btn) return;
             contributionMode = contributionMode === btn.dataset.mode ? null : btn.dataset.mode;
             render();
         });
-
         $('depositAmount')?.addEventListener('input', () => {
             deposits.amount = parseNum($('depositAmount').value) || 0;
             render();
@@ -595,13 +589,14 @@ const COMPOUND = (() => {
             withdrawals.frequency = $('withdrawalFrequency').value;
             render();
         });
+    }
 
+    function initTableInteractions() {
         $('compoundTable')?.addEventListener('click', (e) => {
             const cell = e.target.closest('[data-rate]');
             if (!cell) return;
             setRate(Number(cell.dataset.rate));
         });
-
         $('compoundTable')?.addEventListener('mouseover', (e) => {
             const cell = e.target.closest('[data-rate]');
             setHotColumn(cell ? cell.dataset.rate : null);
@@ -609,7 +604,9 @@ const COMPOUND = (() => {
         $('compoundTable')?.addEventListener('mouseleave', () => setHotColumn(null));
         $('compoundTableScroll')?.addEventListener('scroll', updateTableEdges, { passive: true });
         new ResizeObserver(updateTableEdges).observe($('compoundTableScroll') || document.body);
+    }
 
+    function initScrubControls() {
         const clearSelect = () => window.getSelection()?.removeAllRanges();
         const card = $('compoundChart')?.closest('.compound-chart-card');
         const setInspecting = (on) => card?.classList.toggle('is-inspecting', on);
@@ -623,7 +620,9 @@ const COMPOUND = (() => {
             setInspectYear(Number(e.target.value));
         });
         window.addEventListener('pointerup', () => setInspecting(false));
+    }
 
+    function initChartInteractions() {
         if (!chartWired && $('compoundChart')) {
             const host = $('compoundChart');
             host.addEventListener('pointerdown', (e) => {
@@ -635,9 +634,6 @@ const COMPOUND = (() => {
                 const year = yearFromPointer(e);
                 if (year !== null) setInspectYear(year);
             });
-            /* Scrub only while the pointer is held. Reacting to a bare mouse
-               move meant the year readout changed as the cursor crossed the
-               card on its way somewhere else. */
             host.addEventListener('pointermove', (e) => {
                 if (!host.hasPointerCapture(e.pointerId)) return;
                 const year = yearFromPointer(e);
@@ -650,13 +646,26 @@ const COMPOUND = (() => {
             });
             chartWired = true;
         }
+    }
 
+    function init(opts = {}) {
+        if (typeof opts.parseNum === 'function') parseNum = opts.parseNum;
+        if (opts.account) startingCapital = opts.account;
+        const input = $('compoundStartingCapital');
+        initCapitalInput(opts, input);
+        $('compoundPresets')?.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-capital]');
+            if (!btn) return;
+            setCapital(Number(btn.dataset.capital), true);
+        });
+        initContributionControls();
+        initTableInteractions();
+        initScrubControls();
+        initChartInteractions();
         new ResizeObserver(() => { if (!$('compoundView')?.hidden) renderChart(perspective()); })
             .observe($('compoundChart') || document.body);
-
         new MutationObserver(() => { if (!$('compoundView')?.hidden) renderChart(perspective()); })
             .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
-
         render();
     }
 
