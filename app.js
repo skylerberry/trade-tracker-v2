@@ -2698,6 +2698,17 @@
         return tr;
     }
 
+    function flashTradeRow(id, flipped) {
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) {
+            M.flash(row, 'flash');
+            if (flipped) {
+                const sh = row.querySelector('.shield');
+                if (sh) M.wobble(sh);
+            }
+        }
+    }
+
     /* ---------- trade mutation with undo ---------- */
     function mutateTrade(id, fn, msg, { flashRow = true } = {}) {
         const idx = trades.findIndex(t => t.id === id);
@@ -2710,13 +2721,7 @@
         renderAll();
         const nowFreerolled = E.isFreeRolled(trades[idx]);
         const flipped = !wasFreerolled && nowFreerolled;
-        if (flashRow) {
-            const row = document.querySelector(`tr[data-id="${id}"]`);
-            if (row) {
-                M.flash(row, 'flash');
-                if (flipped) { const sh = row.querySelector('.shield'); if (sh) M.wobble(sh); }
-            }
-        }
+        if (flashRow) flashTradeRow(id, flipped);
         if (msg) {
             toast(msg + (flipped ? ` · <b>FREEROLLED</b> <span class="shield">${ICONS['shield-check']}</span>` : ''), {
                 undo: () => {
