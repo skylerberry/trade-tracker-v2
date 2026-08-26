@@ -1748,22 +1748,38 @@
         return { pnl, wins, losses, winSum, lossSum, r, rCount };
     }
 
-    function updateJournalStatsDisplay(stats) {
-        const { pnl, wins, losses, winSum, lossSum, r, rCount } = stats;
-        const decided = wins + losses;
+    function updatePnlDisplay(pnl) {
         $('jsPnl').textContent = E.fmtMoney(round2(pnl), true);
         $('jsPnl').dataset.sign = pnl > 0 ? 'up' : pnl < 0 ? 'down' : '';
+    }
+
+    function updateWinRateDisplay(wins, losses) {
+        const decided = wins + losses;
         $('jsWinRate').textContent = decided ? Math.round((wins / decided) * 100) + '%' : '—';
         $('jsRecord').textContent = `${wins}W / ${losses}L`;
+    }
+
+    function updateAvgWinLossDisplay(wins, losses, winSum, lossSum) {
         $('jsAvgWin').textContent = wins ? E.fmtMoney(round2(winSum / wins), true) : '—';
         $('jsAvgWin').dataset.sign = wins ? 'up' : '';
         $('jsAvgLoss').textContent = losses ? E.fmtMoney(round2(lossSum / losses), true) : '—';
         $('jsAvgLoss').dataset.sign = losses ? 'down' : '';
+    }
+
+    function updateRDisplay(r, rCount) {
         $('jsR').textContent = rCount ? E.fmtR(round2(r)) : '—';
         $('jsR').dataset.sign = r > 0 ? 'up' : r < 0 ? 'down' : '';
         const avgR = rCount ? r / rCount : 0;
         $('jsAvgR').textContent = rCount ? E.fmtR(round2(avgR)) : '—';
         $('jsAvgR').dataset.sign = rCount && avgR > 0 ? 'up' : rCount && avgR < 0 ? 'down' : '';
+    }
+
+    function updateJournalStatsDisplay(stats) {
+        const { pnl, wins, losses, winSum, lossSum, r, rCount } = stats;
+        updatePnlDisplay(pnl);
+        updateWinRateDisplay(wins, losses);
+        updateAvgWinLossDisplay(wins, losses, winSum, lossSum);
+        updateRDisplay(r, rCount);
     }
 
     function renderJournalSummary() {
@@ -1865,22 +1881,36 @@
         if ((s === 'open' || s === 'partial') && E.isFreeRolled(t)) return 'freerolled';
         return s;
     }
+    function matchesOpenFilter(s, b) {
+        return (s === 'open' || s === 'freerolled') && b !== 'freerolled' ? s === 'open' : s === 'open' && b === 'open';
+    }
+
+    function matchesSimpleStatusFilter(s, b, status) {
+        if (status === 'active') return s === 'open' || s === 'partial' || s === 'freerolled';
+        if (status === 'freerolled') return b === 'freerolled';
+        if (status === 'partial') return s === 'partial';
+        if (status === 'closed') return s === 'closed';
+        if (status === 'stopped') return s === 'stopped';
+        if (status === 'archived') return s === 'archived';
+        return null;
+    }
+
+    function matchesPnlFilter(t, status) {
+        if (status === 'winners') return E.getRealizedPnL(t) > 0;
+        if (status === 'losers') return E.getRealizedPnL(t) < 0;
+        return null;
+    }
+
     function matchesFilter(t, status = filters.status) {
+        if (status === 'all') return true;
         const s = E.deriveStatus(t);
         const b = badgeState(t);
-        switch (status) {
-            case 'active': return s === 'open' || s === 'partial' || s === 'freerolled';
-            case 'open': return (s === 'open' || s === 'freerolled') && b !== 'freerolled' ? s === 'open' : s === 'open' && b === 'open';
-            case 'freerolled': return b === 'freerolled';
-            case 'partial': return s === 'partial';
-            case 'closed': return s === 'closed';
-            case 'stopped': return s === 'stopped';
-            case 'archived': return s === 'archived';
-            case 'all': return true;
-            case 'winners': return E.getRealizedPnL(t) > 0;
-            case 'losers': return E.getRealizedPnL(t) < 0;
-            default: return true;
-        }
+        if (status === 'open') return matchesOpenFilter(s, b);
+        const simpleMatch = matchesSimpleStatusFilter(s, b, status);
+        if (simpleMatch !== null) return simpleMatch;
+        const pnlMatch = matchesPnlFilter(t, status);
+        if (pnlMatch !== null) return pnlMatch;
+        return true;
     }
     /* Every data point the row can show should be reachable by typing, not just
        the ticker — that's the whole point of a search box on a table like this. */
