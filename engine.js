@@ -841,6 +841,19 @@ const ENGINE = (() => {
         return { ymd, minutes, weekend };
     }
 
+    function getMarketState(minutes, close) {
+        if (minutes >= 4 * 60 && minutes < 9 * 60 + 30) {
+            return { state: 'pre', minutesLeft: 9 * 60 + 30 - minutes };
+        }
+        if (minutes >= 9 * 60 + 30 && minutes < close) {
+            return { state: 'open', minutesLeft: close - minutes };
+        }
+        if (minutes >= close && minutes < 20 * 60) {
+            return { state: 'post', minutesLeft: 20 * 60 - minutes };
+        }
+        return { state: 'closed', minutesLeft: null };
+    }
+
     function marketSession(when = new Date()) {
         const date = when instanceof Date ? when : new Date(when);
         if (!Number.isFinite(date.getTime())) {
@@ -849,10 +862,7 @@ const ENGINE = (() => {
         const { ymd, minutes, weekend } = nyWall(date);
         if (weekend || NYSE_HOLIDAYS.has(ymd)) return { state: 'closed', minutesLeft: null, ...SESSION_META.closed };
         const close = NYSE_EARLY_CLOSE.has(ymd) ? 13 * 60 : 16 * 60;
-        let state = 'closed', minutesLeft = null;
-        if (minutes >= 4 * 60 && minutes < 9 * 60 + 30) { state = 'pre'; minutesLeft = 9 * 60 + 30 - minutes; }
-        else if (minutes >= 9 * 60 + 30 && minutes < close) { state = 'open'; minutesLeft = close - minutes; }
-        else if (minutes >= close && minutes < 20 * 60) { state = 'post'; minutesLeft = 20 * 60 - minutes; }
+        const { state, minutesLeft } = getMarketState(minutes, close);
         return { state, minutesLeft, ...SESSION_META[state] };
     }
 
