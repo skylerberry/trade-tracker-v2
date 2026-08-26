@@ -1558,8 +1558,7 @@
     /* ============================================================
        HEADER — open risk + scoreboard
        ============================================================ */
-    function renderHeader() {
-        const risk = E.accountRisk(trades, account);
+    function renderRiskBadge(risk) {
         rollTo($('openRiskDollars'), E.fmtMoney(risk.dollars));
         $('openRiskPct').textContent = risk.pct === null ? '—'
             : `${risk.pct.toFixed(risk.pct < 1 ? 2 : 1)}% of account`;
@@ -1569,14 +1568,9 @@
             badge.textContent = risk.level;
             if (risk.level === 'FREEROLLED') M.wobble(badge);
         }
-        segs.scope && segs.scope.set(prefs.scope, true);
+    }
 
-        const s = E.computeStats(trades, prefs.scope);
-        const scopeName = prefs.scope === 'month' ? s.monthName : 'All time';
-        const ready = s.n >= 3;
-        const setSign = (el, n) => {
-            el.dataset.sign = E.isNum(n) && n > 0 ? 'up' : E.isNum(n) && n < 0 ? 'down' : '';
-        };
+    function renderScoreboardStats(s, ready, setSign) {
         $('sbTrades').textContent = String(s.n);
         $('sbRecord').textContent = s.n ? `${s.wins}W / ${s.losses}L` : '';
         if (ready) {
@@ -1597,6 +1591,29 @@
             setSign($('sbPnl'), null);
             setSign($('sbExp'), null);
         }
+    }
+
+    function renderFloatingPill(risk, s, scopeName) {
+        rollTo($('fbRisk'), E.fmtMoney(risk.dollars));
+        const fbBadge = $('fbBadge');
+        if (fbBadge.dataset.level !== risk.level) { fbBadge.dataset.level = risk.level; fbBadge.textContent = risk.level; }
+        $('fbScore').textContent = s.n >= 3
+            ? `${scopeName} · ${E.fmtR(s.sumR)} · ${s.winRate === null ? '—' : Math.round(s.winRate * 100) + '%'} win`
+            : `${scopeName} · ${s.n} logged`;
+    }
+
+    function renderHeader() {
+        const risk = E.accountRisk(trades, account);
+        renderRiskBadge(risk);
+        segs.scope && segs.scope.set(prefs.scope, true);
+
+        const s = E.computeStats(trades, prefs.scope);
+        const scopeName = prefs.scope === 'month' ? s.monthName : 'All time';
+        const ready = s.n >= 3;
+        const setSign = (el, n) => {
+            el.dataset.sign = E.isNum(n) && n > 0 ? 'up' : E.isNum(n) && n < 0 ? 'down' : '';
+        };
+        renderScoreboardStats(s, ready, setSign);
         const notes = [];
         if (!ready) notes.push(`${scopeName} · stats unlock after 3 closed trades`);
         if (s.excluded) notes.push(`${s.excluded} trade${s.excluded === 1 ? '' : 's'} excluded (no share counts)`);
@@ -1607,13 +1624,7 @@
         chip.hidden = stale.length === 0;
         if (stale.length) chip.textContent = `${stale.length} stale position${stale.length === 1 ? '' : 's'}`;
 
-        // floating pill header mirrors the two live metrics
-        rollTo($('fbRisk'), E.fmtMoney(risk.dollars));
-        const fbBadge = $('fbBadge');
-        if (fbBadge.dataset.level !== risk.level) { fbBadge.dataset.level = risk.level; fbBadge.textContent = risk.level; }
-        $('fbScore').textContent = s.n >= 3
-            ? `${scopeName} · ${E.fmtR(s.sumR)} · ${s.winRate === null ? '—' : Math.round(s.winRate * 100) + '%'} win`
-            : `${scopeName} · ${s.n} logged`;
+        renderFloatingPill(risk, s, scopeName);
     }
 
     /* ---------- floating header visibility ----------
