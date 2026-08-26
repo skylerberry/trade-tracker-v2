@@ -2960,6 +2960,50 @@
                 update();
             }
 
+            function calcExitRisk(t, after, pnl, newStop) {
+                if (after === null || after <= 0 || !E.isNum(newStop)) return { risk: null, frFlip: false };
+                const realizedAfter = (E.getRealizedPnL(t) ?? 0) + pnl;
+                const risk = Math.max(0, round2(after * -E.directionalMove(t.entryPrice, newStop, t) - realizedAfter));
+                return { risk, frFlip: risk === 0 };
+            }
+
+            function getExitOutcomeHtml(after, risk, frFlip) {
+                if (after === 0) {
+                    return '<span class="tm-preview-state is-closed"><span>Full exit</span></span>';
+                }
+                if (risk !== null && frFlip) {
+                    return `<span class="tm-preview-state is-freeroll"><span class="shield">${ICONS['shield-check']}</span><span><b>Freeroll</b><small>$0 at risk</small></span></span>`;
+                }
+                if (risk !== null) {
+                    return `<span class="tm-preview-state is-risk"><span><b>${E.fmtMoney(risk)}</b><small>open risk</small></span></span>`;
+                }
+                return '';
+            }
+
+            function buildExitPreviewHtml(n, pnl, rr, after, risk, frFlip, exitVerb) {
+                const resultR = rr !== null ? `<span class="tm-preview-r">${E.fmtR(rr)}</span>` : '';
+                const afterLabel = after === 0 ? 'Position closed' : after !== null ? `${fmtShareCount(after)} remain` : 'Position size unknown';
+                const outcome = getExitOutcomeHtml(after, risk, frFlip);
+                return `
+                    <div class="tm-preview-primary">
+                        <span class="tm-preview-metric">
+                            <small>${exitVerb}</small>
+                            <strong>${fmtShareCount(n)}</strong>
+                        </span>
+                        <span class="tm-preview-metric tm-preview-result">
+                            <small>Projected result</small>
+                            <span><strong class="tm-preview-pnl">${E.fmtMoney(pnl, true)}</strong>${resultR}</span>
+                        </span>
+                    </div>
+                    <div class="tm-preview-after">
+                        <span class="tm-preview-metric">
+                            <small>After exit</small>
+                            <strong>${afterLabel}</strong>
+                        </span>
+                        ${outcome}
+                    </div>`;
+            }
+
             function update() {
                 const r = effRemaining();
                 remLbl.textContent = r !== null ? `of ${fmtShareCount(r)} remaining` : '';
@@ -2982,41 +3026,8 @@
                 const rr = E.computeExitR(t, price);
                 const after = r !== null ? r - n : null;
                 const newStop = parseNum(stopIn.value) ?? E.currentStop(t);
-                let risk = null, frFlip = false;
-                if (after !== null && after > 0 && E.isNum(newStop)) {
-                    const realizedAfter = (E.getRealizedPnL(t) ?? 0) + pnl;
-                    risk = Math.max(0, round2(after * -E.directionalMove(t.entryPrice, newStop, t) - realizedAfter));
-                    frFlip = risk === 0;
-                }
-                const resultR = rr !== null ? `<span class="tm-preview-r">${E.fmtR(rr)}</span>` : '';
-                let afterLabel = after === 0 ? 'Position closed' : after !== null ? `${fmtShareCount(after)} remain` : 'Position size unknown';
-                let outcome = '';
-                if (after === 0) {
-                    outcome = '<span class="tm-preview-state is-closed"><span>Full exit</span></span>';
-                } else if (risk !== null && frFlip) {
-                    outcome = `<span class="tm-preview-state is-freeroll"><span class="shield">${ICONS['shield-check']}</span><span><b>Freeroll</b><small>$0 at risk</small></span></span>`;
-                } else if (risk !== null) {
-                    outcome = `<span class="tm-preview-state is-risk"><span><b>${E.fmtMoney(risk)}</b><small>open risk</small></span></span>`;
-                }
-                const html = `
-                    <div class="tm-preview-primary">
-                        <span class="tm-preview-metric">
-                            <small>${exitVerb}</small>
-                            <strong>${fmtShareCount(n)}</strong>
-                        </span>
-                        <span class="tm-preview-metric tm-preview-result">
-                            <small>Projected result</small>
-                            <span><strong class="tm-preview-pnl">${E.fmtMoney(pnl, true)}</strong>${resultR}</span>
-                        </span>
-                    </div>
-                    <div class="tm-preview-after">
-                        <span class="tm-preview-metric">
-                            <small>After exit</small>
-                            <strong>${afterLabel}</strong>
-                        </span>
-                        ${outcome}
-                    </div>`;
-                preview.innerHTML = html;
+                const { risk, frFlip } = calcExitRisk(t, after, pnl, newStop);
+                preview.innerHTML = buildExitPreviewHtml(n, pnl, rr, after, risk, frFlip, exitVerb);
                 preview.classList.toggle('loss', pnl < 0);
                 if (frFlip) preview.classList.add('freeroll');
             }
