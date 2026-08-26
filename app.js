@@ -1679,21 +1679,7 @@
         };
     }
 
-    function renderEquity() {
-        const card = $('equityCard');
-        if (!card) return;
-        if (view !== 'journal') {
-            card.hidden = true;
-            return;
-        }
-        const eq = E.equityCurve(trades);
-        card.hidden = eq.points.length === 0;
-        if (card.hidden) return;
-        const rMode = (prefs.equityMode || 'usd') === 'r';
-        const cur = rMode ? eq.currentR : eq.current;
-        const atPeak = updateEquityStats(eq, rMode, cur);
-        const colors = getEquityColors();
-        const host = $('equityChart');
+    function renderEquityChartSvg(host, eq, rMode, cur, atPeak, colors) {
         const W = Math.max(host.clientWidth || 560, 280);
         const H = 170;
         const pad = { l: 8, r: 10, t: 14, b: 10 };
@@ -1721,6 +1707,24 @@
                 ` : ''}
                 <circle cx="${X(vals.length - 1).toFixed(1)}" cy="${Y(vals[vals.length - 1]).toFixed(1)}" r="4" fill="${color}"/>
             </svg>`;
+    }
+
+    function renderEquity() {
+        const card = $('equityCard');
+        if (!card) return;
+        if (view !== 'journal') {
+            card.hidden = true;
+            return;
+        }
+        const eq = E.equityCurve(trades);
+        card.hidden = eq.points.length === 0;
+        if (card.hidden) return;
+        const rMode = (prefs.equityMode || 'usd') === 'r';
+        const cur = rMode ? eq.currentR : eq.current;
+        const atPeak = updateEquityStats(eq, rMode, cur);
+        const colors = getEquityColors();
+        const host = $('equityChart');
+        renderEquityChartSvg(host, eq, rMode, cur, atPeak, colors);
     }
 
     function computeJournalStats(trades) {
