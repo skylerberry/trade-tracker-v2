@@ -2576,6 +2576,45 @@
             });
         });
 
+        function handleJournalEdit(article, copy, actions, editor, input) {
+            copy.hidden = true;
+            actions.hidden = true;
+            editor.hidden = false;
+            article.classList.add('is-editing');
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+        }
+
+        function handleJournalCancelEdit(entryId, article, copy, actions, editor, input) {
+            const trade = trades.find(item => item.id === tradeId);
+            const entry = trade?.journal?.find(item => item.id === entryId);
+            input.value = entry?.text || '';
+            copy.hidden = false;
+            actions.hidden = false;
+            editor.hidden = true;
+            article.classList.remove('is-editing');
+        }
+
+        function handleJournalSaveEdit(entryId, input) {
+            const text = input.value.trim();
+            if (!text) { input.focus(); return; }
+            const trade = trades.find(item => item.id === tradeId);
+            mutateTrade(tradeId, (target) => {
+                const entry = target.journal.find(item => item.id === entryId);
+                if (entry) { entry.text = text; entry.updatedAt = new Date().toISOString(); }
+            }, `<b>${E.escapeHtml(trade?.ticker || 'Trade')}</b> journal entry updated`, { flashRow: false });
+        }
+
+        function handleJournalDelete(entryId) {
+            const trade = trades.find(item => item.id === tradeId);
+            const from = trade?.ticker ? ` from ${trade.ticker}` : '';
+            confirmModal('Delete journal entry', `This removes the timestamped entry${from}.`, 'Delete entry', () => {
+                mutateTrade(tradeId, (target) => {
+                    target.journal = target.journal.filter(item => item.id !== entryId);
+                }, `<b>${E.escapeHtml(trade?.ticker || 'Trade')}</b> journal entry deleted`, { flashRow: false });
+            });
+        }
+
         journal.addEventListener('click', (event) => {
             const button = event.target.closest('[data-journal-action]');
             if (!button) return;
@@ -2588,38 +2627,10 @@
             const actions = article.querySelector('.journal-entry-actions');
             const input = editor.querySelector('textarea');
 
-            if (action === 'edit') {
-                copy.hidden = true;
-                actions.hidden = true;
-                editor.hidden = false;
-                article.classList.add('is-editing');
-                input.focus();
-                input.setSelectionRange(input.value.length, input.value.length);
-            } else if (action === 'cancel-edit') {
-                const trade = trades.find(item => item.id === tradeId);
-                const entry = trade?.journal?.find(item => item.id === entryId);
-                input.value = entry?.text || '';
-                copy.hidden = false;
-                actions.hidden = false;
-                editor.hidden = true;
-                article.classList.remove('is-editing');
-            } else if (action === 'save-edit') {
-                const text = input.value.trim();
-                if (!text) { input.focus(); return; }
-                const trade = trades.find(item => item.id === tradeId);
-                mutateTrade(tradeId, (target) => {
-                    const entry = target.journal.find(item => item.id === entryId);
-                    if (entry) { entry.text = text; entry.updatedAt = new Date().toISOString(); }
-                }, `<b>${E.escapeHtml(trade?.ticker || 'Trade')}</b> journal entry updated`, { flashRow: false });
-            } else if (action === 'delete') {
-                const trade = trades.find(item => item.id === tradeId);
-                const from = trade?.ticker ? ` from ${trade.ticker}` : '';
-                confirmModal('Delete journal entry', `This removes the timestamped entry${from}.`, 'Delete entry', () => {
-                    mutateTrade(tradeId, (target) => {
-                        target.journal = target.journal.filter(item => item.id !== entryId);
-                    }, `<b>${E.escapeHtml(trade?.ticker || 'Trade')}</b> journal entry deleted`, { flashRow: false });
-                });
-            }
+            if (action === 'edit') handleJournalEdit(article, copy, actions, editor, input);
+            else if (action === 'cancel-edit') handleJournalCancelEdit(entryId, article, copy, actions, editor, input);
+            else if (action === 'save-edit') handleJournalSaveEdit(entryId, input);
+            else if (action === 'delete') handleJournalDelete(entryId);
         });
     }
 
