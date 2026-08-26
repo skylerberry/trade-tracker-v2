@@ -50,29 +50,53 @@ const ECC_PER_BLOCK = [0, 7, 10, 15, 20, 26, 18, 20, 24, 30];
 const NUM_BLOCKS = [0, 1, 1, 1, 1, 1, 2, 2, 2, 2];
 const ALIGN = { 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34], 7: [6, 22, 38], 8: [6, 24, 42], 9: [6, 26, 46] };
 
-function functionMap(version) {
-    const size = version * 4 + 17;
-    const fn = Array.from({ length: size }, () => new Array(size).fill(false));
-    const mark = (x, y) => { if (x >= 0 && x < size && y >= 0 && y < size) fn[y][x] = true; };
+function markTimingPatterns(mark, size) {
     for (let i = 0; i < size; i++) { mark(6, i); mark(i, 6); }
+}
+
+function markFinders(mark, size) {
     for (const [cx, cy] of [[3, 3], [size - 4, 3], [3, size - 4]]) {
         for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) mark(cx + dx, cy + dy);
     }
+}
+
+function isCornerAlignmentPattern(cx, cy, size) {
+    return (cx === 6 && cy === 6) || (cx === 6 && cy === size - 7) || (cx === size - 7 && cy === 6);
+}
+
+function markAlignmentPatterns(mark, size, version) {
     const centers = ALIGN[version] || [];
     for (const cy of centers) for (const cx of centers) {
-        if ((cx === 6 && cy === 6) || (cx === 6 && cy === size - 7) || (cx === size - 7 && cy === 6)) continue;
+        if (isCornerAlignmentPattern(cx, cy, size)) continue;
         for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) mark(cx + dx, cy + dy);
     }
+}
+
+function markFormatInfo(mark, size) {
     for (let i = 0; i <= 8; i++) {
         if (i !== 6) { mark(8, i); mark(i, 8); }
         if (i < 8) { mark(size - 1 - i, 8); mark(8, size - 1 - i); }
     }
+}
+
+function markVersionInfo(mark, size, version) {
     if (version >= 7) {
         for (let i = 0; i < 18; i++) {
             const a = size - 11 + (i % 3), b = Math.floor(i / 3);
             mark(a, b); mark(b, a);
         }
     }
+}
+
+function functionMap(version) {
+    const size = version * 4 + 17;
+    const fn = Array.from({ length: size }, () => new Array(size).fill(false));
+    const mark = (x, y) => { if (x >= 0 && x < size && y >= 0 && y < size) fn[y][x] = true; };
+    markTimingPatterns(mark, size);
+    markFinders(mark, size);
+    markAlignmentPatterns(mark, size, version);
+    markFormatInfo(mark, size);
+    markVersionInfo(mark, size, version);
     return fn;
 }
 
