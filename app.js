@@ -2228,6 +2228,52 @@
         }
     }
 
+    function calcClosedFooterStats(vis) {
+        let w = 0, l = 0, r = 0, pnl = 0;
+        for (const t of vis) {
+            const p = E.getRealizedPnL(t), rr = E.getRealizedR(t);
+            if (p !== null) { pnl += p; if (p > 0) w++; else if (p < 0) l++; }
+            if (rr !== null) r += rr;
+        }
+        return { w, l, r, pnl };
+    }
+
+    function renderTableFooterCount(vis) {
+        const count = $('footerTotals');
+        const isClosedView = ['closed', 'stopped', 'winners', 'losers', 'all'].includes(filters.status);
+        count.hidden = !vis.length;
+        if (!vis.length) {
+            count.innerHTML = '';
+            return;
+        }
+        if (view === 'journal') {
+            count.innerHTML = `<span class="f-val">${vis.length}</span> trade${vis.length === 1 ? '' : 's'}`;
+            return;
+        }
+        if (isClosedView) {
+            const { w, l, r, pnl } = calcClosedFooterStats(vis);
+            const sep = '<span class="f-sep">·</span>';
+            count.innerHTML = [
+                `<span class="f-val">${vis.length}</span> closed`,
+                `<span class="f-val">${w}W/${l}L</span>`,
+                `<span class="f-val">${E.fmtR(r)}</span>`,
+                `<span class="f-val">${E.fmtMoney(round2(pnl), true)}</span>`,
+            ].join(sep);
+        } else {
+            count.innerHTML = `<span class="f-val">${vis.length}</span> position${vis.length === 1 ? '' : 's'}`;
+        }
+    }
+
+    function renderTablePager(pages) {
+        $('pager').hidden = pages <= 1;
+        $('tableFooter').hidden = pages <= 1;
+        if (pages > 1) {
+            $('pageInfo').textContent = `${filters.page} / ${pages}`;
+            $('pagePrev').disabled = filters.page <= 1;
+            $('pageNext').disabled = filters.page >= pages;
+        }
+    }
+
     function renderTable() {
         const tbody = $('tradesBody');
         const vis = visibleTrades();
@@ -2246,40 +2292,8 @@
             if (t.id === expandedId) tbody.appendChild(buildRail(t, false));
         }
 
-        const count = $('footerTotals');
-        const isClosedView = ['closed', 'stopped', 'winners', 'losers', 'all'].includes(filters.status);
-        count.hidden = !vis.length;
-        if (vis.length) {
-            if (view === 'journal') {
-                /* the journal summary cards already carry W/L, R, and P&L */
-                count.innerHTML = `<span class="f-val">${vis.length}</span> trade${vis.length === 1 ? '' : 's'}`;
-            } else if (isClosedView) {
-                let w = 0, l = 0, r = 0, pnl = 0;
-                for (const t of vis) {
-                    const p = E.getRealizedPnL(t), rr = E.getRealizedR(t);
-                    if (p !== null) { pnl += p; if (p > 0) w++; else if (p < 0) l++; }
-                    if (rr !== null) r += rr;
-                }
-                const sep = '<span class="f-sep">·</span>';
-                count.innerHTML = [
-                    `<span class="f-val">${vis.length}</span> closed`,
-                    `<span class="f-val">${w}W/${l}L</span>`,
-                    `<span class="f-val">${E.fmtR(r)}</span>`,
-                    `<span class="f-val">${E.fmtMoney(round2(pnl), true)}</span>`,
-                ].join(sep);
-            } else {
-                count.innerHTML = `<span class="f-val">${vis.length}</span> position${vis.length === 1 ? '' : 's'}`;
-            }
-        } else {
-            count.innerHTML = '';
-        }
-        $('pager').hidden = pages <= 1;
-        $('tableFooter').hidden = pages <= 1;
-        if (pages > 1) {
-            $('pageInfo').textContent = `${filters.page} / ${pages}`;
-            $('pagePrev').disabled = filters.page <= 1;
-            $('pageNext').disabled = filters.page >= pages;
-        }
+        renderTableFooterCount(vis);
+        renderTablePager(pages);
     }
     $('pagePrev').addEventListener('click', () => { filters.page--; renderTable(); });
     $('pageNext').addEventListener('click', () => { filters.page++; renderTable(); });
