@@ -1985,17 +1985,20 @@
         return sortTrades(kept);
     }
 
+    function getPendingTargetAction(t, p) {
+        if (p.isStopRaise) return { type: 'raise', label: `Stop → ${E.fmtMoney(p.newStop)}`, target: p };
+        const rem = E.getRemainingShares(t);
+        const n = rem === null ? p.shares : Math.min(p.shares ?? rem, rem);
+        const verb = E.directionOf(t) === 'short' ? 'Cover' : 'Sell';
+        return { type: 'exit', label: `${verb} ${E.fmtShares(n)} @ ${E.fmtMoney(p.price)}`, target: p, shares: n };
+    }
+
     function nextAction(t) {
         const s = E.deriveStatus(t);
         if (s === 'closed' || s === 'stopped' || s === 'archived') return null;
         const pend = E.pendingTargets(t);
         if (pend.length) {
-            const p = pend[0];
-            if (p.isStopRaise) return { type: 'raise', label: `Stop → ${E.fmtMoney(p.newStop)}`, target: p };
-            const rem = E.getRemainingShares(t);
-            const n = rem === null ? p.shares : Math.min(p.shares ?? rem, rem);
-            const verb = E.directionOf(t) === 'short' ? 'Cover' : 'Sell';
-            return { type: 'exit', label: `${verb} ${E.fmtShares(n)} @ ${E.fmtMoney(p.price)}`, target: p, shares: n };
+            return getPendingTargetAction(t, pend[0]);
         }
         if (E.isFreeRolled(t)) {
             const rem = E.getRemainingShares(t);
