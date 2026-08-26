@@ -270,17 +270,7 @@ const QR = (() => {
         return score;
     }
 
-    function matrix(text) {
-        const bytes = typeof TextEncoder !== 'undefined'
-            ? new TextEncoder().encode(text)
-            : Uint8Array.from(String(text), (c) => c.charCodeAt(0) & 0xFF);
-        let version = 0;
-        for (let v = 1; v <= MAX_VERSION; v++) {
-            if (bytes.length <= dataCodewords(v) - 2) { version = v; break; }
-        }
-        if (!version) return null;
-        const codewords = addEccAndInterleave(buildCodewords(bytes, version), version);
-        const { size, modules, isFunction } = makeMatrix(version, codewords);
+    function selectBestMask(modules, size, isFunction) {
         let best = null, bestScore = Infinity;
         for (let mask = 0; mask < 8; mask++) {
             const trial = modules.map((row) => row.slice());
@@ -292,6 +282,20 @@ const QR = (() => {
             if (score < bestScore) { bestScore = score; best = trial; }
         }
         return best;
+    }
+
+    function matrix(text) {
+        const bytes = typeof TextEncoder !== 'undefined'
+            ? new TextEncoder().encode(text)
+            : Uint8Array.from(String(text), (c) => c.charCodeAt(0) & 0xFF);
+        let version = 0;
+        for (let v = 1; v <= MAX_VERSION; v++) {
+            if (bytes.length <= dataCodewords(v) - 2) { version = v; break; }
+        }
+        if (!version) return null;
+        const codewords = addEccAndInterleave(buildCodewords(bytes, version), version);
+        const { size, modules, isFunction } = makeMatrix(version, codewords);
+        return selectBestMask(modules, size, isFunction);
     }
 
     /* White tile with a 4-module quiet zone — scanners need the contrast,
