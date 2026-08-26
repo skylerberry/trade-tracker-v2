@@ -3474,6 +3474,48 @@
     }
     const fDateField = bindDateField($('fDateBtn'), $('fDate'), { allowEmpty: false, emptyLabel: 'Date' });
     $('formCancel').addEventListener('click', () => { closeEditForm(); });
+    function validateFormTrade(vals) {
+        if (!vals.ticker || !E.isNum(vals.entryPrice) || !E.isNum(vals.initialSL)) return false;
+        if (E.riskPerShare(vals.entryPrice, vals.initialSL, vals.direction) === null) {
+            const mode = vals.direction === 'short' ? 'Short' : 'Long';
+            const relation = vals.direction === 'short' ? 'above' : 'below';
+            toast(`${mode} stop must sit ${relation} entry`, { error: true });
+            return false;
+        }
+        return true;
+    }
+
+    function buildSavedLine(vals) {
+        const savedBits = [];
+        if (E.isNum(vals.shares)) savedBits.push(fmtShareCount(vals.shares));
+        if (E.isNum(vals.entryPrice)) savedBits.push(`@ ${E.fmtPrice(vals.entryPrice)}`);
+        return `<b>${E.escapeHtml(vals.ticker)}</b> saved` + (savedBits.length ? ` · ${savedBits.join(' ')}` : '');
+    }
+
+    function updateExistingTrade(id, vals, savedLine) {
+        mutateTrade(id, (tr) => {
+            Object.assign(tr, vals);
+            for (const x of tr.exits) x.rMultiple = E.computeExitR(tr, x.price);
+        }, savedLine);
+    }
+
+    function addNewTrade(vals) {
+        const added = {
+            id: uid(), ...vals, exits: [],
+            sellPlan: { enabled: false, preset: 'off', targets: [] },
+            archived: false, journal: [], notes: '',
+            createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+        };
+        trades.unshift(added);
+        saveTrades(); renderAll();
+        toast(`<b>${E.escapeHtml(vals.ticker)}</b> added`, {
+            undo: () => {
+                trades = trades.filter(t => t.id !== added.id);
+                saveTrades(); renderAll();
+            },
+        });
+    }
+
     $('tradeForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const id = $('editTradeId').value;
@@ -3488,37 +3530,13 @@
             initialSL: parseNum($('fInitialSL').value),
             currentSL: parseNum($('fCurrentSL').value),
         };
-        if (!vals.ticker || !E.isNum(vals.entryPrice) || !E.isNum(vals.initialSL)) return;
-        if (E.riskPerShare(vals.entryPrice, vals.initialSL, vals.direction) === null) {
-            toast(`${vals.direction === 'short' ? 'Short' : 'Long'} stop must sit ${vals.direction === 'short' ? 'above' : 'below'} entry`, { error: true });
-            return;
-        }
+        if (!validateFormTrade(vals)) return;
         if (!E.isNum(vals.currentSL)) vals.currentSL = vals.initialSL;
-        const savedBits = [];
-        if (E.isNum(vals.shares)) savedBits.push(fmtShareCount(vals.shares));
-        if (E.isNum(vals.entryPrice)) savedBits.push(`@ ${E.fmtPrice(vals.entryPrice)}`);
-        const savedLine = `<b>${E.escapeHtml(vals.ticker)}</b> saved` + (savedBits.length ? ` · ${savedBits.join(' ')}` : '');
+        const savedLine = buildSavedLine(vals);
         if (id) {
-            mutateTrade(id, (tr) => {
-                Object.assign(tr, vals);
-                // entry/stop edits rebuild frozen exit R so derived numbers can't desync
-                for (const x of tr.exits) x.rMultiple = E.computeExitR(tr, x.price);
-            }, savedLine);
+            updateExistingTrade(id, vals, savedLine);
         } else {
-            const added = {
-                id: uid(), ...vals, exits: [],
-                sellPlan: { enabled: false, preset: 'off', targets: [] },
-                archived: false, journal: [], notes: '',
-                createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-            };
-            trades.unshift(added);
-            saveTrades(); renderAll();
-            toast(`<b>${E.escapeHtml(vals.ticker)}</b> added`, {
-                undo: () => {
-                    trades = trades.filter(t => t.id !== added.id);
-                    saveTrades(); renderAll();
-                },
-            });
+            addNewTrade(vals);
         }
         closeEditForm({ restoreFocus: false });
     });
