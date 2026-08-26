@@ -234,14 +234,21 @@ const ENGINE = (() => {
 
     /* Purchased call/put sizing from a manually entered entry delta. This is
        deliberately a first-order estimate, capped by premium paid. */
-    function calcOptionPosition({ account, riskPct, maxPct, entry, stop, delta, premium, direction = 'long', multiplier = 100 }) {
-        const base = calcPosition({ account, riskPct, maxPct: 100, entry, stop, direction });
-        if (!base.rps) return { valid: false, invalidStop: !!base.invalidStop, direction: directionOf(direction) };
+    function validateOptionParams(delta, premium, multiplier, direction, base) {
         const absDelta = Math.abs(delta);
-        if (!isNum(delta) || absDelta <= 0 || absDelta > 1) return { valid: false, invalidDelta: true, direction: directionOf(direction), rps: base.rps };
-        if (!isNum(premium) || premium <= 0) return { valid: false, invalidPremium: true, direction: directionOf(direction), rps: base.rps };
-        if (!isNum(multiplier) || multiplier <= 0) return { valid: false, invalidMultiplier: true, direction: directionOf(direction), rps: base.rps };
+        if (!isNum(delta) || absDelta <= 0 || absDelta > 1) {
+            return { valid: false, invalidDelta: true, direction: directionOf(direction), rps: base.rps, absDelta: null };
+        }
+        if (!isNum(premium) || premium <= 0) {
+            return { valid: false, invalidPremium: true, direction: directionOf(direction), rps: base.rps, absDelta };
+        }
+        if (!isNum(multiplier) || multiplier <= 0) {
+            return { valid: false, invalidMultiplier: true, direction: directionOf(direction), rps: base.rps, absDelta };
+        }
+        return { valid: true, absDelta };
+    }
 
+    function calcOptionContracts(account, riskPct, maxPct, premium, absDelta, base, multiplier) {
         const riskBudget = account * (riskPct / 100);
         const estimatedPremiumLoss = Math.min(premium, absDelta * base.rps);
         const riskPerContract = round2(estimatedPremiumLoss * multiplier);
@@ -250,6 +257,20 @@ const ENGINE = (() => {
         const maxAllocation = isNum(maxPct) ? account * maxPct / 100 : Infinity;
         const maxContracts = premiumPerContract > 0 ? Math.floor(maxAllocation / premiumPerContract) : 0;
         const contracts = Math.max(0, Math.min(rawContracts, maxContracts));
+        return {
+            riskBudget, estimatedPremiumLoss, riskPerContract, premiumPerContract,
+            rawContracts, maxContracts, contracts
+        };
+    }
+
+    function calcOptionPosition({ account, riskPct, maxPct, entry, stop, delta, premium, direction = 'long', multiplier = 100 }) {
+        const base = calcPosition({ account, riskPct, maxPct: 100, entry, stop, direction });
+        if (!base.rps) return { valid: false, invalidStop: !!base.invalidStop, direction: directionOf(direction) };
+        const validation = validateOptionParams(delta, premium, multiplier, direction, base);
+        if (!validation.valid) return validation;
+        const absDelta = validation.absDelta;
+
+        const { riskBudget, estimatedPremiumLoss, riskPerContract, premiumPerContract, rawContracts, maxContracts, contracts } = calcOptionContracts(account, riskPct, maxPct, premium, absDelta, base, multiplier);
         const totalRisk = round2(contracts * riskPerContract);
         const premiumOutlay = round2(contracts * premiumPerContract);
         return {
