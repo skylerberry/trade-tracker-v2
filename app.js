@@ -2061,14 +2061,19 @@
     }
 
     function visibleTrades() {
-        const kept = trades.filter(t => {
-            if (filters.status !== 'archived' && t.archived) return false;
-            if (!matchesFilter(t)) return false;
+        function matchesDateRange(t) {
             if (filters.from && t.entryDate && t.entryDate < filters.from) return false;
             if (filters.to && t.entryDate && t.entryDate > filters.to) return false;
+            return true;
+        }
+        function shouldKeepTrade(t) {
+            if (filters.status !== 'archived' && t.archived) return false;
+            if (!matchesFilter(t)) return false;
+            if (!matchesDateRange(t)) return false;
             if (!matchesQuery(t)) return false;
             return true;
-        });
+        }
+        const kept = trades.filter(shouldKeepTrade);
         return sortTrades(kept);
     }
 
