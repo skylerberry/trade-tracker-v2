@@ -2044,6 +2044,15 @@
         }[status] || 'Nothing in this filter right now.';
     }
 
+    function countTradesInBucket(key) {
+        let n = 0;
+        for (const t of trades) {
+            if (key !== 'archived' && t.archived) continue;
+            if (matchesFilter(t, key)) n++;
+        }
+        return n;
+    }
+
     function hiddenBucket() {
         const keys = view === 'journal'
             ? ['closed', 'winners', 'losers', 'open', 'archived']
@@ -2051,11 +2060,7 @@
         let best = null;
         for (const key of keys) {
             if (key === filters.status) continue;
-            let n = 0;
-            for (const t of trades) {
-                if (key !== 'archived' && t.archived) continue;
-                if (matchesFilter(t, key)) n++;
-            }
+            const n = countTradesInBucket(key);
             if (n && (!best || n > best.n)) best = { key, n };
         }
         return best;
