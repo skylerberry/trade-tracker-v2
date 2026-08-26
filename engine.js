@@ -94,10 +94,14 @@ const ENGINE = (() => {
     }
 
     /* ---------- share accounting ---------- */
+    function isValidShares(val) {
+        return isNum(val) && val > 0;
+    }
+
     function getOriginalShares(trade) {
-        if (isNum(trade?.shares) && trade.shares > 0) return trade.shares;
-        if (isNum(trade?.snapshot?.shares) && trade.snapshot.shares > 0) return trade.snapshot.shares;
-        if (isNum(trade?.sellPlan?.initialShares) && trade.sellPlan.initialShares > 0) return trade.sellPlan.initialShares;
+        if (isValidShares(trade?.shares)) return trade.shares;
+        if (isValidShares(trade?.snapshot?.shares)) return trade.snapshot.shares;
+        if (isValidShares(trade?.sellPlan?.initialShares)) return trade.sellPlan.initialShares;
         return null;
     }
     function soldShares(trade) {
@@ -146,18 +150,26 @@ const ENGINE = (() => {
         const net = riskAtStop - (pnl === null ? 0 : pnl);
         return round2(Math.max(0, net));
     }
+    function isFreeRolledByStop(trade, remaining, stop) {
+        if (stop === null || !isNum(trade?.entryPrice)) return false;
+        const riskAtStop = remaining * -directionalMove(trade.entryPrice, stop, trade);
+        const pnl = getRealizedPnL(trade);
+        if (pnl !== null && pnl >= riskAtStop) return true;
+        if (riskAtStop <= 0) return true;
+        return false;
+    }
+
+    function isFreeRolledBySellPlan(trade) {
+        return trade.sellPlan?.enabled && Array.isArray(trade.sellPlan.targets) &&
+            trade.sellPlan.targets.some(t => t.status === 'executed' && t.rLevel !== 'exit');
+    }
+
     function isFreeRolled(trade) {
         const remaining = getRemainingShares(trade);
         if (remaining === null || remaining === 0) return false;
         const stop = currentStop(trade);
-        if (stop !== null && isNum(trade?.entryPrice)) {
-            const riskAtStop = remaining * -directionalMove(trade.entryPrice, stop, trade);
-            const pnl = getRealizedPnL(trade);
-            if (pnl !== null && pnl >= riskAtStop) return true;
-            if (riskAtStop <= 0) return true; // stop at/beyond entry in the profitable direction
-        }
-        if (trade.sellPlan?.enabled && Array.isArray(trade.sellPlan.targets) &&
-            trade.sellPlan.targets.some(t => t.status === 'executed' && t.rLevel !== 'exit')) return true;
+        if (isFreeRolledByStop(trade, remaining, stop)) return true;
+        if (isFreeRolledBySellPlan(trade)) return true;
         return false;
     }
 
