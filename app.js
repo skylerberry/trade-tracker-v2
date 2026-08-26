@@ -1533,19 +1533,14 @@
         setTimeout(() => el.focus(), M.reduceMotion ? 0 : 250);
         M.flash(el.closest('.field') || el.closest('.setting') || el, 'flash');
     }
-    $('logTradeBtn').addEventListener('click', () => {
-        const { inputs: c, res } = lastCalc || {};
-        if (prefs.vehicle === 'option') return;
-        if (!res?.valid || !c?.ticker) { focusFirstMissingCalcField(c, res); return; }
-        const today = E.todayLocalISO();
-        const dupe = trades.find(t => t.ticker === c.ticker && t.entryPrice === c.entry && t.entryDate === today && E.directionOf(t) === c.direction);
-        if (dupe) {
-            toast(`<b>${E.escapeHtml(c.ticker)}</b> already logged today at this entry`, { error: true });
-            const row = document.querySelector(`tr[data-id="${dupe.id}"]`);
-            if (row) M.flash(row, 'flash');
-            return;
-        }
-        const trade = {
+    function handleDuplicateTrade(dupe, ticker) {
+        toast(`<b>${E.escapeHtml(ticker)}</b> already logged today at this entry`, { error: true });
+        const row = document.querySelector(`tr[data-id="${dupe.id}"]`);
+        if (row) M.flash(row, 'flash');
+    }
+
+    function createTradeFromCalc(c, res, today) {
+        return {
             id: uid(),
             ticker: c.ticker,
             direction: c.direction,
@@ -1564,6 +1559,19 @@
             archived: false, journal: [], notes: '',
             createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
         };
+    }
+
+    $('logTradeBtn').addEventListener('click', () => {
+        const { inputs: c, res } = lastCalc || {};
+        if (prefs.vehicle === 'option') return;
+        if (!res?.valid || !c?.ticker) { focusFirstMissingCalcField(c, res); return; }
+        const today = E.todayLocalISO();
+        const dupe = trades.find(t => t.ticker === c.ticker && t.entryPrice === c.entry && t.entryDate === today && E.directionOf(t) === c.direction);
+        if (dupe) {
+            handleDuplicateTrade(dupe, c.ticker);
+            return;
+        }
+        const trade = createTradeFromCalc(c, res, today);
         trades.unshift(trade);
         saveTrades();
         lastLoggedId = trade.id;
