@@ -117,12 +117,15 @@ const QR = (() => {
         finder(3, size - 4);
     }
 
+    function isCornerAlignment(cx, cy, size) {
+        return (cx === 6 && cy === 6) || (cx === 6 && cy === size - 7) || (cx === size - 7 && cy === 6);
+    }
+
     function drawAlignment(version, size, set) {
         const centers = ALIGN[version] || [];
         for (const cy of centers) {
             for (const cx of centers) {
-                const corner = (cx === 6 && cy === 6) || (cx === 6 && cy === size - 7) || (cx === size - 7 && cy === 6);
-                if (corner) continue;
+                if (isCornerAlignment(cx, cy, size)) continue;
                 for (let dy = -2; dy <= 2; dy++) {
                     for (let dx = -2; dx <= 2; dx++) {
                         set(cx + dx, cy + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
