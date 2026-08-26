@@ -26,24 +26,27 @@ const ENGINE = (() => {
         return Number.isFinite(date.getTime()) ? date.toISOString() : null;
     }
 
-    function normalizeJournal(trade) {
-        const fallback = validIso(trade?.updatedAt)
+    function getJournalFallbackDate(trade) {
+        return validIso(trade?.updatedAt)
             || validIso(trade?.createdAt)
             || validIso(trade?.entryDate ? `${trade.entryDate}T12:00:00Z` : null)
             || new Date().toISOString();
-        const journal = (Array.isArray(trade?.journal) ? trade.journal : []).map((entry, index) => {
-            const text = String(entry?.text ?? entry?.body ?? '').trim();
-            if (!text) return null;
-            return {
-                id: String(entry?.id || `jn-${trade?.id || 'trade'}-${index}`),
-                kind: journalKinds.has(entry?.kind) ? entry.kind : 'update',
-                text,
-                createdAt: validIso(entry?.createdAt) || fallback,
-                updatedAt: validIso(entry?.updatedAt),
-                ...(entry?.migrated ? { migrated: true } : {}),
-            };
-        }).filter(Boolean);
+    }
 
+    function normalizeJournalEntry(entry, index, trade, fallback) {
+        const text = String(entry?.text ?? entry?.body ?? '').trim();
+        if (!text) return null;
+        return {
+            id: String(entry?.id || `jn-${trade?.id || 'trade'}-${index}`),
+            kind: journalKinds.has(entry?.kind) ? entry.kind : 'update',
+            text,
+            createdAt: validIso(entry?.createdAt) || fallback,
+            updatedAt: validIso(entry?.updatedAt),
+            ...(entry?.migrated ? { migrated: true } : {}),
+        };
+    }
+
+    function addLegacyNoteIfNeeded(trade, journal, fallback) {
         const legacyText = String(trade?.notes || '').trim();
         const legacyId = `jn-legacy-${trade?.id || 'trade'}`;
         if (legacyText && !journal.some(entry => entry.id === legacyId)) {
@@ -56,6 +59,14 @@ const ENGINE = (() => {
                 migrated: true,
             });
         }
+    }
+
+    function normalizeJournal(trade) {
+        const fallback = getJournalFallbackDate(trade);
+        const journal = (Array.isArray(trade?.journal) ? trade.journal : [])
+            .map((entry, index) => normalizeJournalEntry(entry, index, trade, fallback))
+            .filter(Boolean);
+        addLegacyNoteIfNeeded(trade, journal, fallback);
         return journal;
     }
     const directionalMove = (entry, price, tradeOrDirection = 'long') =>
