@@ -388,12 +388,7 @@ const COMPOUND = (() => {
         }));
     }
 
-    function renderChart(p) {
-        const host = $('compoundChart');
-        if (!host) return;
-        const width = Math.max(host.clientWidth || 560, 280);
-        const height = 236;
-        const plot = { l: 62, r: 14, t: 16, b: 32, w: width - 76, h: height - 48 };
+    function prepareChartData(p, plot) {
         const baselineRaw = p.baseline === null ? null
             : E.compoundPath(startingCapital, BASELINE_RATE, YEARS, annualContribution());
         const max = Math.max(
@@ -407,11 +402,36 @@ const COMPOUND = (() => {
             value: max * t,
             y: plot.t + (1 - scaleY(max * t, max)) * plot.h,
         }));
-        const accent = token('--accent') || '#1a365d';
-        const muted = token('--text-2') || '#3f3f46';
-        const ink = token('--text-2') || '#3f3f46';
-        const grid = token('--border') || '#e4e4e7';
-        const soft = token('--accent-soft') || 'rgba(26, 54, 93, 0.08)';
+        return { selected, baselinePath, yTicks, max };
+    }
+
+    function getChartColors() {
+        return {
+            accent: token('--accent') || '#1a365d',
+            muted: token('--text-2') || '#3f3f46',
+            ink: token('--text-2') || '#3f3f46',
+            grid: token('--border') || '#e4e4e7',
+            soft: token('--accent-soft') || 'rgba(26, 54, 93, 0.08)',
+            surface: token('--surface') || '#ffffff'
+        };
+    }
+
+    function updateChartLegend(p) {
+        if ($('compoundChartLegend')) {
+            $('compoundChartLegend').innerHTML = p.baseline === null
+                ? `<span class="lg lg-sel">${selectedRate}% a year</span>`
+                : `<span class="lg lg-sel">${selectedRate}% a year</span><span class="lg lg-base">${BASELINE_RATE}% for comparison</span>`;
+        }
+    }
+
+    function renderChart(p) {
+        const host = $('compoundChart');
+        if (!host) return;
+        const width = Math.max(host.clientWidth || 560, 280);
+        const height = 236;
+        const plot = { l: 62, r: 14, t: 16, b: 32, w: width - 76, h: height - 48 };
+        const { selected, baselinePath, yTicks } = prepareChartData(p, plot);
+        const colors = getChartColors();
         lastPlot = plot;
         lastWidth = width;
         const chartKey = `${selectedRate}|${startingCapital}|${annualContribution()}`;
@@ -419,48 +439,41 @@ const COMPOUND = (() => {
         lastChartKey = chartKey;
         const activePt = selected.find((pt) => pt.year === inspectYear) || selected[selected.length - 1];
         const basePt = baselinePath?.find((pt) => pt.year === inspectYear) || null;
-        const surface = token('--surface') || '#ffffff';
-
         updateScrubChrome(p);
-        if ($('compoundChartLegend')) {
-            $('compoundChartLegend').innerHTML = p.baseline === null
-                ? `<span class="lg lg-sel">${selectedRate}% a year</span>`
-                : `<span class="lg lg-sel">${selectedRate}% a year</span><span class="lg lg-base">${BASELINE_RATE}% for comparison</span>`;
-        }
-
+        updateChartLegend(p);
         const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
         const draw = !reduce && shouldDraw ? ' is-draw' : '';
         const fillW = shouldDraw && !reduce ? 0 : plot.w;
         host.innerHTML = `
             <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" role="img" aria-label="${selectedRate}% path versus ${BASELINE_RATE}%">
-                <line x1="${plot.l}" x2="${plot.l + plot.w}" y1="${plot.t + plot.h}" y2="${plot.t + plot.h}" stroke="${grid}" stroke-width="1"/>
+                <line x1="${plot.l}" x2="${plot.l + plot.w}" y1="${plot.t + plot.h}" y2="${plot.t + plot.h}" stroke="${colors.grid}" stroke-width="1"/>
                 ${yTicks.map((tick) => `
-                    ${tick.value ? `<line x1="${plot.l}" x2="${plot.l + plot.w}" y1="${tick.y}" y2="${tick.y}" stroke="${grid}" stroke-width="1"/>` : ''}
-                    <text class="compound-axis" x="${plot.l - 10}" y="${tick.y + 4}" text-anchor="end" fill="${ink}">${tick.value ? formatCompact(tick.value) : '$0'}</text>
+                    ${tick.value ? `<line x1="${plot.l}" x2="${plot.l + plot.w}" y1="${tick.y}" y2="${tick.y}" stroke="${colors.grid}" stroke-width="1"/>` : ''}
+                    <text class="compound-axis" x="${plot.l - 10}" y="${tick.y + 4}" text-anchor="end" fill="${colors.ink}">${tick.value ? formatCompact(tick.value) : '$0'}</text>
                 `).join('')}
                 ${[0, 5, 10].map((year) => {
                     const x = plot.l + (year / YEARS) * plot.w;
                     const anchor = year === 0 ? 'start' : year === 10 ? 'end' : 'middle';
-                    return `<text class="compound-axis" x="${x}" y="${height - 8}" text-anchor="${anchor}" fill="${ink}">${year === 0 ? 'Now' : `Y${year}`}</text>`;
+                    return `<text class="compound-axis" x="${x}" y="${height - 8}" text-anchor="${anchor}" fill="${colors.ink}">${year === 0 ? 'Now' : `Y${year}`}</text>`;
                 }).join('')}
-                ${baselinePath ? `<path d="${polyline(baselinePath)}" fill="none" stroke="${muted}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+                ${baselinePath ? `<path d="${polyline(baselinePath)}" fill="none" stroke="${colors.muted}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
                 <svg class="compound-reveal-fill" x="${plot.l}" y="0" width="${fillW}" height="${height}" overflow="hidden">
                     <g transform="translate(${-plot.l}, 0)">
-                        <path class="compound-area" d="${areaPath(selected, plot.t + plot.h)}" fill="${soft}"/>
+                        <path class="compound-area" d="${areaPath(selected, plot.t + plot.h)}" fill="${colors.soft}"/>
                     </g>
                 </svg>
-                <path class="compound-line${draw}" pathLength="1" d="${polyline(selected)}" fill="none" stroke="${accent}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+                <path class="compound-line${draw}" pathLength="1" d="${polyline(selected)}" fill="none" stroke="${colors.accent}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
                 ${activePt ? `
-                    <line class="compound-scrub-rule" x1="${activePt.x}" x2="${activePt.x}" y1="${plot.t}" y2="${plot.t + plot.h}" stroke="${accent}" stroke-opacity="0.35"/>
+                    <line class="compound-scrub-rule" x1="${activePt.x}" x2="${activePt.x}" y1="${plot.t}" y2="${plot.t + plot.h}" stroke="${colors.accent}" stroke-opacity="0.35"/>
                     ${basePt ? `
                         <g class="compound-handle compound-handle-base" transform="translate(${basePt.x}, ${basePt.y})">
-                            <circle r="4.5" fill="${surface}" stroke="${muted}" stroke-width="1.75"/>
+                            <circle r="4.5" fill="${colors.surface}" stroke="${colors.muted}" stroke-width="1.75"/>
                         </g>
                     ` : ''}
                     <g class="compound-handle" transform="translate(${activePt.x}, ${activePt.y})">
-                        <circle r="13" fill="${accent}" fill-opacity="0.16"/>
-                        <circle r="8" fill="${surface}" stroke="${accent}" stroke-width="2.5"/>
-                        <circle r="3.2" fill="${accent}"/>
+                        <circle r="13" fill="${colors.accent}" fill-opacity="0.16"/>
+                        <circle r="8" fill="${colors.surface}" stroke="${colors.accent}" stroke-width="2.5"/>
+                        <circle r="3.2" fill="${colors.accent}"/>
                     </g>
                 ` : ''}
             </svg>

@@ -602,16 +602,8 @@ const ENGINE = (() => {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    function migrateLiveSiteTrade(entry) {
-        if (!entry || typeof entry !== 'object') return null;
-        const entryPrice = toFinite(entry.entry);
-        const initialSL = toFinite(entry.originalStop ?? entry.stop);
-        const currentSL = toFinite(entry.currentStop ?? entry.stop) ?? initialSL;
-        const shares = toFinite(entry.originalShares ?? entry.shares);
-        const createdAt = validIso(entry.timestamp) || new Date().toISOString();
-        const entryDate = dateFromUnknown(entry.timestamp) || createdAt.slice(0, 10);
+    function migrateExitsFromHistory(entry, entryDate) {
         const exits = [];
-
         const history = Array.isArray(entry.trimHistory) ? entry.trimHistory : [];
         for (const trim of history) {
             const xShares = toFinite(trim.shares);
@@ -627,44 +619,54 @@ const ENGINE = (() => {
                 kind: full ? 'close' : 'trim',
             });
         }
+        return exits;
+    }
 
-        if (entry.status === 'closed') {
-            const sold = exits.reduce((s, x) => s + x.shares, 0);
-            const remaining = (shares || 0) - sold;
-            const exitPrice = toFinite(entry.exitPrice);
-            if (remaining > 0 && exitPrice !== null) {
-                const rps = entryPrice !== null && initialSL !== null
-                    ? Math.abs(entryPrice - initialSL) : null;
-                const r = rps ? round4((exitPrice - entryPrice) / rps) : null;
-                const kind = initialSL !== null && exitPrice <= initialSL ? 'stop' : 'close';
-                exits.push({
-                    id: `x-close-${entry.id}`,
-                    shares: remaining,
-                    price: exitPrice,
-                    date: dateFromUnknown(entry.exitDate) || entryDate,
-                    rMultiple: r,
-                    kind,
-                });
-            }
+    function addClosingExitIfNeeded(entry, exits, shares, entryPrice, initialSL, entryDate) {
+        if (entry.status !== 'closed') return;
+        const sold = exits.reduce((s, x) => s + x.shares, 0);
+        const remaining = (shares || 0) - sold;
+        const exitPrice = toFinite(entry.exitPrice);
+        if (remaining > 0 && exitPrice !== null) {
+            const rps = entryPrice !== null && initialSL !== null
+                ? Math.abs(entryPrice - initialSL) : null;
+            const r = rps ? round4((exitPrice - entryPrice) / rps) : null;
+            const kind = initialSL !== null && exitPrice <= initialSL ? 'stop' : 'close';
+            exits.push({
+                id: `x-close-${entry.id}`,
+                shares: remaining,
+                price: exitPrice,
+                date: dateFromUnknown(entry.exitDate) || entryDate,
+                rMultiple: r,
+                kind,
+            });
         }
+    }
 
+    function buildJournalFromThesis(thesis, entryId, createdAt) {
+        const parts = [];
+        if (thesis.setupType) parts.push(`Setup: ${thesis.setupType}`);
+        if (thesis.theme) parts.push(`Theme: ${thesis.theme}`);
+        if (thesis.conviction) parts.push(`Conviction: ${thesis.conviction}/5`);
+        if (thesis.entryType) parts.push(`Entry: ${thesis.entryType}`);
+        if (thesis.riskReasoning) parts.push(thesis.riskReasoning);
+        if (parts.length) {
+            return {
+                id: `jn-thesis-${entryId}`,
+                kind: 'thesis',
+                text: parts.join('\n'),
+                createdAt,
+                updatedAt: null,
+            };
+        }
+        return null;
+    }
+
+    function migrateJournalEntries(entry, createdAt) {
         const journal = [];
         if (entry.thesis && typeof entry.thesis === 'object') {
-            const parts = [];
-            if (entry.thesis.setupType) parts.push(`Setup: ${entry.thesis.setupType}`);
-            if (entry.thesis.theme) parts.push(`Theme: ${entry.thesis.theme}`);
-            if (entry.thesis.conviction) parts.push(`Conviction: ${entry.thesis.conviction}/5`);
-            if (entry.thesis.entryType) parts.push(`Entry: ${entry.thesis.entryType}`);
-            if (entry.thesis.riskReasoning) parts.push(entry.thesis.riskReasoning);
-            if (parts.length) {
-                journal.push({
-                    id: `jn-thesis-${entry.id}`,
-                    kind: 'thesis',
-                    text: parts.join('\n'),
-                    createdAt,
-                    updatedAt: null,
-                });
-            }
+            const thesisEntry = buildJournalFromThesis(entry.thesis, entry.id, createdAt);
+            if (thesisEntry) journal.push(thesisEntry);
         }
         const notes = String(entry.notes || '').trim();
         if (notes) {
@@ -677,7 +679,20 @@ const ENGINE = (() => {
                 migrated: true,
             });
         }
+        return journal;
+    }
 
+    function migrateLiveSiteTrade(entry) {
+        if (!entry || typeof entry !== 'object') return null;
+        const entryPrice = toFinite(entry.entry);
+        const initialSL = toFinite(entry.originalStop ?? entry.stop);
+        const currentSL = toFinite(entry.currentStop ?? entry.stop) ?? initialSL;
+        const shares = toFinite(entry.originalShares ?? entry.shares);
+        const createdAt = validIso(entry.timestamp) || new Date().toISOString();
+        const entryDate = dateFromUnknown(entry.timestamp) || createdAt.slice(0, 10);
+        const exits = migrateExitsFromHistory(entry, entryDate);
+        addClosingExitIfNeeded(entry, exits, shares, entryPrice, initialSL, entryDate);
+        const journal = migrateJournalEntries(entry, createdAt);
         return {
             id: String(entry.id || `t-import-${createdAt}`),
             ticker: String(entry.ticker || '').toUpperCase() || 'UNKNOWN',

@@ -990,15 +990,7 @@
         });
     }
 
-    function recalc() {
-        const c = readCalc();
-        const optionMode = prefs.vehicle === 'option';
-        const res = optionMode ? E.calcOptionPosition(c) : E.calcPosition(c);
-        const underlying = optionMode ? E.calcPosition({ ...c, maxPct: 100 }) : res;
-        lastCalc = { inputs: c, res };
-        syncStopValidation(c);
-
-        // hero + position card
+    function updateHeroAndPositionCard(res, optionMode) {
         const units = optionMode ? res.contracts : res.shares;
         rollTo($('sharesHero'), res.valid ? E.fmtShares(units) : '0');
         const sharesCap = $('sharesCap');
@@ -1006,10 +998,11 @@
         sharesCap.hidden = !(res.valid && (optionMode || allocationCapped));
         sharesCap.classList.toggle('is-capped', allocationCapped);
         sharesCap.removeAttribute('aria-label');
-        if (res.valid && optionMode) sharesCap.textContent = res.limitedBy === 'allocation'
-            ? `Premium allocation constraint · risk sizing suggested ${E.fmtShares(res.rawContracts)}`
-            : 'Risk budget constraint';
-        else if (allocationCapped) {
+        if (res.valid && optionMode) {
+            sharesCap.textContent = res.limitedBy === 'allocation'
+                ? `Premium allocation constraint · risk sizing suggested ${E.fmtShares(res.rawContracts)}`
+                : 'Risk budget constraint';
+        } else if (allocationCapped) {
             const rawCount = fmtShareCount(res.rawShares);
             const cappedCount = fmtShareCount(res.shares);
             sharesCap.setAttribute('aria-label', `Risk sizing suggested ${rawCount}. Limited to ${cappedCount} by the ${maxPct()} percent maximum of account.`);
@@ -1019,6 +1012,9 @@
                 <strong>${cappedCount}</strong>
                 <span class="shares-cap-reason">${maxPct()}% account cap</span>`;
         }
+    }
+
+    function updatePositionMetrics(res, optionMode) {
         $('rStopDist').textContent = res.valid ? (optionMode
             ? E.fmtMoney(res.riskPerContract)
             : `$${res.rps.toFixed(2)} (${res.stopDistPct.toFixed(2)}%)`) : '—';
@@ -1029,51 +1025,70 @@
         $('rPctAcct').textContent = res.valid ? (optionMode
             ? `${E.fmtMoney(res.totalRisk)} (${res.totalRiskPct.toFixed(2)}%)`
             : E.fmtPct(res.pctOfAccount)) : '—';
+    }
 
-        renderRiskScenarios(c, res);
+    function updateTargetCardWithData(tc, target, optionMode, c) {
+        const gain = target.perShare >= 0;
+        tc.dataset.state = gain ? 'gain' : 'loss';
+        $('targetHead').textContent = optionMode ? 'Underlying at target' : 'At target';
+        $('targetProfitLabel').hidden = false;
+        $('targetProfitLabel').textContent = optionMode ? 'Underlying reward' : 'Projected P&L';
+        $('tRr').hidden = false;
+        $('tRr').textContent = E.fmtR(target.rr);
+        rollTo($('targetProfit'), optionMode ? E.fmtR(target.rr) : E.fmtMoney(target.profit, true));
+        $('tPrice').textContent = E.fmtPrice(target.price);
+        $('tPerShareLabel').textContent = optionMode ? 'Underlying move' : 'Per share';
+        $('tRoiLabel').textContent = optionMode ? 'Underlying ROI' : 'ROI';
+        $('tPerShare').textContent = E.fmtMoney(target.perShare, true);
+        $('tRoi').textContent = E.fmtPct((target.perShare / c.entry) * 100);
+    }
 
-        // target card
+    function clearTargetCard(tc, optionMode) {
+        tc.dataset.state = 'empty';
+        $('targetHead').textContent = optionMode ? 'Underlying at target' : 'At target';
+        $('targetProfitLabel').hidden = true;
+        $('tRr').hidden = true;
+        $('targetProfit').textContent = 'set a target';
+        delete $('targetProfit').__cells;
+        $('tPerShareLabel').textContent = optionMode ? 'Underlying move' : 'Per share';
+        $('tRoiLabel').textContent = optionMode ? 'Underlying ROI' : 'ROI';
+        ['tPrice', 'tPerShare', 'tRoi'].forEach(id => $(id).textContent = '—');
+    }
+
+    function updateTargetCard(res, underlying, optionMode, c) {
         const tc = $('targetCard');
         const target = underlying.valid ? underlying.target : null;
         if (res.valid && target) {
-            const gain = target.perShare >= 0;
-            tc.dataset.state = gain ? 'gain' : 'loss';
-            $('targetHead').textContent = optionMode ? 'Underlying at target' : 'At target';
-            $('targetProfitLabel').hidden = false;
-            $('targetProfitLabel').textContent = optionMode ? 'Underlying reward' : 'Projected P&L';
-            $('tRr').hidden = false;
-            $('tRr').textContent = E.fmtR(target.rr);
-            rollTo($('targetProfit'), optionMode ? E.fmtR(target.rr) : E.fmtMoney(target.profit, true));
-            $('tPrice').textContent = E.fmtPrice(target.price);
-            $('tPerShareLabel').textContent = optionMode ? 'Underlying move' : 'Per share';
-            $('tRoiLabel').textContent = optionMode ? 'Underlying ROI' : 'ROI';
-            $('tPerShare').textContent = E.fmtMoney(target.perShare, true);
-            $('tRoi').textContent = E.fmtPct((target.perShare / c.entry) * 100);
+            updateTargetCardWithData(tc, target, optionMode, c);
         } else {
-            tc.dataset.state = 'empty';
-            $('targetHead').textContent = optionMode ? 'Underlying at target' : 'At target';
-            $('targetProfitLabel').hidden = true;
-            $('tRr').hidden = true;
-            $('targetProfit').textContent = 'set a target';
-            delete $('targetProfit').__cells;
-            $('tPerShareLabel').textContent = optionMode ? 'Underlying move' : 'Per share';
-            $('tRoiLabel').textContent = optionMode ? 'Underlying ROI' : 'ROI';
-            ['tPrice', 'tPerShare', 'tRoi'].forEach(id => $(id).textContent = '—');
+            clearTargetCard(tc, optionMode);
         }
+    }
 
-        // freeroll plan sentence + r line
-        renderPlan(c, res);
-
-        // ticker chart link
+    function updateTickerLink(c) {
         const link = $('tickerLink');
         if (c.ticker) {
             link.hidden = false;
             link.href = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(c.ticker)}`;
-        } else link.hidden = true;
+        } else {
+            link.hidden = true;
+        }
+    }
 
-        // log button + collapsed hint — aria-disabled, not disabled, so a
-        // click on the grayed button can walk the user to the missing field,
-        // and the hover tip names what's blocking the log
+    function getLogButtonTip(c, res, missing) {
+        if (!(c.account > 0)) {
+            return 'Set your account size first · click to jump there';
+        }
+        if (missing.length) {
+            return `Missing ${missing.join(' + ')} · click to jump there`;
+        }
+        if (!res.valid) {
+            return `Stop is on the wrong side for ${c.direction === 'short' ? 'Short' : 'Long'} · click to fix`;
+        }
+        return 'Complete the setup to log';
+    }
+
+    function updateLogButton(optionMode, res, c) {
         const ready = !optionMode && res.valid && !!c.ticker;
         const logBtn = $('logTradeBtn');
         logBtn.setAttribute('aria-disabled', String(!ready));
@@ -1084,15 +1099,33 @@
             if (!E.isNum(c.entry) || c.entry <= 0) missing.push('entry');
             if (!E.isNum(c.stop) || c.stop <= 0) missing.push('stop');
             if (!c.ticker) missing.push('ticker');
-            logBtn.dataset.tip = !(c.account > 0) ? 'Set your account size first · click to jump there'
-                : missing.length ? `Missing ${missing.join(' + ')} · click to jump there`
-                    : !res.valid ? `Stop is on the wrong side for ${c.direction === 'short' ? 'Short' : 'Long'} · click to fix`
-                        : 'Complete the setup to log';
+            logBtn.dataset.tip = getLogButtonTip(c, res, missing);
         }
         $('logTradeBtn').textContent = optionMode ? 'Calculator only · option logging later'
             : ready ? `Log ${prefs.direction === 'short' ? 'short ' : ''}${c.ticker} — ${fmtShareCount(res.shares)}` : 'Log trade';
+    }
+
+    function updateCalcHint(res, c, optionMode) {
+        const units = optionMode ? res.contracts : res.shares;
         $('calcHint').textContent = res.valid && c.ticker
             ? `${c.ticker} · ${optionMode ? `${E.fmtShares(units)} ${units === 1 ? 'contract' : 'contracts'}` : fmtShareCount(units)} · risk ${E.fmtMoney(res.totalRisk)}` : '';
+    }
+
+    function recalc() {
+        const c = readCalc();
+        const optionMode = prefs.vehicle === 'option';
+        const res = optionMode ? E.calcOptionPosition(c) : E.calcPosition(c);
+        const underlying = optionMode ? E.calcPosition({ ...c, maxPct: 100 }) : res;
+        lastCalc = { inputs: c, res };
+        syncStopValidation(c);
+        updateHeroAndPositionCard(res, optionMode);
+        updatePositionMetrics(res, optionMode);
+        renderRiskScenarios(c, res);
+        updateTargetCard(res, underlying, optionMode, c);
+        renderPlan(c, res);
+        updateTickerLink(c);
+        updateLogButton(optionMode, res, c);
+        updateCalcHint(res, c, optionMode);
     }
 
     function renderPlan(c, res) {
@@ -1589,15 +1622,7 @@
     /* ---------- equity curve (journal) ----------
        Hand-rolled SVG like compound.js: tokens for color, area + line,
        dashed peak line and a red wash over the peak→now give-back. */
-    function renderEquity() {
-        const card = $('equityCard');
-        if (!card) return;
-        if (view !== 'journal') { card.hidden = true; return; }
-        const eq = E.equityCurve(trades);
-        card.hidden = eq.points.length === 0;
-        if (card.hidden) return;
-        const rMode = (prefs.equityMode || 'usd') === 'r';
-        const cur = rMode ? eq.currentR : eq.current;
+    function updateEquityStats(eq, rMode, cur) {
         const num = $('eqNum');
         num.textContent = rMode ? E.fmtR(eq.currentR) : E.fmtMoney(eq.current, true);
         num.dataset.sign = cur > 0 ? 'up' : cur < 0 ? 'down' : '';
@@ -1611,20 +1636,40 @@
         $('eqPeak').textContent = rMode ? E.fmtR(eq.peakR) : E.fmtMoney(eq.peak, true);
         $('eqCount').textContent = String(eq.points.length);
         $('eqMeta').textContent = `${eq.points.length} exit${eq.points.length === 1 ? '' : 's'} · all time`;
+        return atPeak;
+    }
 
+    function getEquityColors() {
         const tok = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        const up = tok('--success') || '#16a34a';
-        const down = tok('--danger') || '#dc2626';
-        const upSoft = tok('--success-soft') || 'rgba(22,163,74,0.10)';
-        const downSoft = tok('--danger-soft') || 'rgba(220,38,38,0.08)';
-        const grid = tok('--border') || '#e4e4e7';
-        const surface = tok('--surface') || '#fff';
+        return {
+            up: tok('--success') || '#16a34a',
+            down: tok('--danger') || '#dc2626',
+            upSoft: tok('--success-soft') || 'rgba(22,163,74,0.10)',
+            downSoft: tok('--danger-soft') || 'rgba(220,38,38,0.08)',
+            grid: tok('--border') || '#e4e4e7',
+            surface: tok('--surface') || '#fff'
+        };
+    }
 
+    function renderEquity() {
+        const card = $('equityCard');
+        if (!card) return;
+        if (view !== 'journal') {
+            card.hidden = true;
+            return;
+        }
+        const eq = E.equityCurve(trades);
+        card.hidden = eq.points.length === 0;
+        if (card.hidden) return;
+        const rMode = (prefs.equityMode || 'usd') === 'r';
+        const cur = rMode ? eq.currentR : eq.current;
+        const atPeak = updateEquityStats(eq, rMode, cur);
+        const colors = getEquityColors();
         const host = $('equityChart');
         const W = Math.max(host.clientWidth || 560, 280);
         const H = 170;
         const pad = { l: 8, r: 10, t: 14, b: 10 };
-        const raw = [{ value: 0, r: 0 }, ...eq.points]; // curve starts at zero
+        const raw = [{ value: 0, r: 0 }, ...eq.points];
         const vals = raw.map(p => (rMode ? p.r : p.value));
         const peakI = eq.peakIndex + 1;
         const max = Math.max(...vals, 0), min = Math.min(...vals, 0);
@@ -1634,28 +1679,23 @@
         const pts = vals.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`);
         const line = 'M' + pts.join(' L');
         const area = `${line} L${X(vals.length - 1).toFixed(1)},${Y(Math.max(min, 0)).toFixed(1)} L${X(0).toFixed(1)},${Y(Math.max(min, 0)).toFixed(1)} Z`;
-        const color = cur >= 0 ? up : down;
-        const soft = cur >= 0 ? upSoft : downSoft;
+        const color = cur >= 0 ? colors.up : colors.down;
+        const soft = cur >= 0 ? colors.upSoft : colors.downSoft;
         host.innerHTML = `
             <svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Cumulative realized P&L, ${eq.points.length} exits">
-                <line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="${grid}" stroke-width="1"/>
-                ${!atPeak ? `<rect x="${X(peakI).toFixed(1)}" y="${pad.t}" width="${(X(vals.length - 1) - X(peakI)).toFixed(1)}" height="${H - pad.t - pad.b}" fill="${downSoft}"/>` : ''}
+                <line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="${colors.grid}" stroke-width="1"/>
+                ${!atPeak ? `<rect x="${X(peakI).toFixed(1)}" y="${pad.t}" width="${(X(vals.length - 1) - X(peakI)).toFixed(1)}" height="${H - pad.t - pad.b}" fill="${colors.downSoft}"/>` : ''}
                 <path d="${area}" fill="${soft}"/>
                 <path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 ${!atPeak ? `
-                    <line x1="${X(peakI).toFixed(1)}" x2="${W - pad.r}" y1="${Y(vals[peakI]).toFixed(1)}" y2="${Y(vals[peakI]).toFixed(1)}" stroke="${down}" stroke-width="1" stroke-dasharray="3 4" stroke-opacity="0.6"/>
-                    <circle cx="${X(peakI).toFixed(1)}" cy="${Y(vals[peakI]).toFixed(1)}" r="3.5" fill="${surface}" stroke="${down}" stroke-width="1.6"/>
+                    <line x1="${X(peakI).toFixed(1)}" x2="${W - pad.r}" y1="${Y(vals[peakI]).toFixed(1)}" y2="${Y(vals[peakI]).toFixed(1)}" stroke="${colors.down}" stroke-width="1" stroke-dasharray="3 4" stroke-opacity="0.6"/>
+                    <circle cx="${X(peakI).toFixed(1)}" cy="${Y(vals[peakI]).toFixed(1)}" r="3.5" fill="${colors.surface}" stroke="${colors.down}" stroke-width="1.6"/>
                 ` : ''}
                 <circle cx="${X(vals.length - 1).toFixed(1)}" cy="${Y(vals[vals.length - 1]).toFixed(1)}" r="4" fill="${color}"/>
             </svg>`;
     }
 
-    function renderJournalSummary() {
-        const el = $('journalSummary');
-        if (!el) return;
-        renderEquity();
-        el.hidden = view !== 'journal';
-        if (view !== 'journal') return;
+    function computeJournalStats(trades) {
         let pnl = 0, wins = 0, losses = 0, winSum = 0, lossSum = 0, r = 0, rCount = 0;
         for (const t of trades) {
             if (t.archived) continue;
@@ -1665,10 +1705,23 @@
             const rr = E.getRealizedR(t);
             if (p === null) continue;
             pnl += p;
-            if (rr !== null) { r += rr; rCount++; }
-            if (p > 0) { wins++; winSum += p; }
-            else if (p < 0) { losses++; lossSum += p; }
+            if (rr !== null) {
+                r += rr;
+                rCount++;
+            }
+            if (p > 0) {
+                wins++;
+                winSum += p;
+            } else if (p < 0) {
+                losses++;
+                lossSum += p;
+            }
         }
+        return { pnl, wins, losses, winSum, lossSum, r, rCount };
+    }
+
+    function updateJournalStatsDisplay(stats) {
+        const { pnl, wins, losses, winSum, lossSum, r, rCount } = stats;
         const decided = wins + losses;
         $('jsPnl').textContent = E.fmtMoney(round2(pnl), true);
         $('jsPnl').dataset.sign = pnl > 0 ? 'up' : pnl < 0 ? 'down' : '';
@@ -1684,24 +1737,33 @@
         $('jsAvgR').dataset.sign = rCount ? ((r / rCount) > 0 ? 'up' : (r / rCount) < 0 ? 'down' : '') : '';
     }
 
-    function setView(name, { syncHash = true, instant = false, fromSegment = false } = {}) {
-        if (!VIEWS.includes(name)) name = 'positions';
-        if (name === view && viewReady) return;
+    function renderJournalSummary() {
+        const el = $('journalSummary');
+        if (!el) return;
+        renderEquity();
+        el.hidden = view !== 'journal';
+        if (view !== 'journal') return;
+        const stats = computeJournalStats(trades);
+        updateJournalStatsDisplay(stats);
+    }
 
-        const animate = viewReady && !instant && !M.reduceMotion;
-        if (view === 'positions' || view === 'journal') viewFilters[view] = filters.status;
-        view = name;
-        document.body.dataset.view = view;
+    function updateViewHash(view, syncHash) {
         if (syncHash) {
             const next = '#' + view;
-            if (location.hash !== next) history.replaceState(null, '', next);
+            if (location.hash !== next) {
+                history.replaceState(null, '', next);
+            }
         }
-        /* Segment click already springs the pill — don't snap it. */
-        if (!fromSegment) segs.view?.set(view, instant || !viewReady);
+    }
+
+    function toggleViewElements(view) {
         if ($('journalSummary')) $('journalSummary').hidden = view !== 'journal';
         if ($('compoundView')) $('compoundView').hidden = view !== 'compound';
         if ($('journalSeg')) $('journalSeg').hidden = view !== 'journal';
         if ($('statusSeg')) $('statusSeg').hidden = view !== 'positions';
+    }
+
+    function applyViewFilters(view) {
         if (view === 'positions') {
             filters.status = viewFilters.positions || 'active';
             filters.page = 1;
@@ -1714,6 +1776,28 @@
             COMPOUND.syncAccount(account);
             COMPOUND.render();
         }
+    }
+
+    function animateViewTransition(view, animate) {
+        if (animate) {
+            const incoming = view === 'compound' ? $('compoundView') : $('trackerMount');
+            M.rowEnter(incoming);
+        }
+    }
+
+    function setView(name, { syncHash = true, instant = false, fromSegment = false } = {}) {
+        if (!VIEWS.includes(name)) name = 'positions';
+        if (name === view && viewReady) return;
+        const animate = viewReady && !instant && !M.reduceMotion;
+        if (view === 'positions' || view === 'journal') {
+            viewFilters[view] = filters.status;
+        }
+        view = name;
+        document.body.dataset.view = view;
+        updateViewHash(view, syncHash);
+        if (!fromSegment) segs.view?.set(view, instant || !viewReady);
+        toggleViewElements(view);
+        applyViewFilters(view);
         if ($('fbCalc')) $('fbCalc').textContent = view === 'positions' ? 'Calculator' : 'Positions';
         renderJournalSummary();
         renderTable();
@@ -1724,10 +1808,7 @@
             if (wrap) wrap.style.height = 'auto';
             requestAnimationFrame(() => segs.scope?.refresh());
         }
-        if (animate) {
-            const incoming = view === 'compound' ? $('compoundView') : $('trackerMount');
-            M.rowEnter(incoming);
-        }
+        animateViewTransition(view, animate);
         viewReady = true;
     }
 
@@ -2117,6 +2198,41 @@
         return `<button class="icon-btn ${cls}" data-act="${label.toLowerCase().replace(/\s/g, '-')}" aria-label="${label}" data-tip="${label}">${ICONS[iconName]}</button>`;
     }
 
+    function buildNextActionHtml(na, t) {
+        if (!na) return '';
+        if (na.type === 'runner') {
+            const rem = E.getRemainingShares(t);
+            const zero = '<span class="next-runner-zero">$0 at risk</span>';
+            const sub = rem ? `${fmtShareCount(rem)} · ${zero}` : zero;
+            return `<span class="next-runner" title="Stop covers the remaining shares — nothing left at risk. Trim anytime with ⋯" aria-label="${E.escapeHtml(na.label)} — ${E.escapeHtml(na.sub)}"><span class="shield">${ICONS['shield-check']}</span><span class="next-runner-copy"><span class="next-runner-label">${na.label}</span><span class="next-runner-sub">${sub}</span></span></span>`;
+        }
+        if (na.type === 'trim') {
+            return `<button class="next-chip" data-act="trim">Trim…</button>`;
+        }
+        const tip = na.type === 'raise' ? 'Move the stop'
+            : E.directionOf(t) === 'short' ? 'Log this cover' : 'Log this sell';
+        return `<button class="next-chip" data-act="chip" data-tip="${tip}" aria-label="${tip}: ${E.escapeHtml(na.label)}">${na.label}</button>`;
+    }
+
+    function buildRowCellData(t, orig, stop, pnl, r) {
+        const EM = '<span class="cell-empty">—</span>';
+        const direction = E.directionOf(t);
+        const subParts = [
+            `<span class="direction-tag" data-direction="${direction}">${direction}</span>`,
+            `<span class="cell-date">${E.fmtDateShort(t.entryDate)}</span>`,
+        ];
+        const sub = subParts.join('<span class="cell-dot" aria-hidden="true">·</span>');
+        const entryHtml = E.fmtMoney(t.entryPrice)
+            + (orig !== null ? `<span class="cell-entry-qty">${fmtShareCount(orig)}</span>` : '');
+        const stopHtml = stop === null ? EM
+            : E.fmtMoney(stop) + (E.isNum(t.initialSL) && stop !== t.initialSL ? `<span class="cell-stop-initial" title="Initial stop">${E.fmtMoney(t.initialSL)}</span>` : '');
+        const pnlCls = pnl === null ? 'pnl-flat' : pnl > 0 ? 'pnl-gain' : pnl < 0 ? 'pnl-loss' : 'pnl-flat';
+        const hasExits = Array.isArray(t.exits) && t.exits.length > 0;
+        const pnlHtml = (pnl === null || (pnl === 0 && !hasExits)) ? EM : E.fmtMoney(pnl, true);
+        const rHtml = hasExits ? E.fmtR(r) : EM;
+        return { sub, entryHtml, stopHtml, pnlCls, pnlHtml, rHtml };
+    }
+
     function buildRow(t) {
         const tr = document.createElement('tr');
         tr.className = 'trade-row';
@@ -2127,50 +2243,18 @@
         const b = badgeState(t);
         const stop = E.currentStop(t);
         const na = nextAction(t);
-
-        const direction = E.directionOf(t);
-        const subParts = [
-            `<span class="direction-tag" data-direction="${direction}">${direction}</span>`,
-            `<span class="cell-date">${E.fmtDateShort(t.entryDate)}</span>`,
-        ];
-        const sub = subParts.join('<span class="cell-dot" aria-hidden="true">·</span>');
-        const entryHtml = E.fmtMoney(t.entryPrice)
-            + (orig !== null ? `<span class="cell-entry-qty">${fmtShareCount(orig)}</span>` : '');
-        const EM = '<span class="cell-empty">—</span>';
-        const stopHtml = stop === null ? EM
-            : E.fmtMoney(stop) + (E.isNum(t.initialSL) && stop !== t.initialSL ? `<span class="cell-stop-initial" title="Initial stop">${E.fmtMoney(t.initialSL)}</span>` : '');
-        const pnlCls = pnl === null ? 'pnl-flat' : pnl > 0 ? 'pnl-gain' : pnl < 0 ? 'pnl-loss' : 'pnl-flat';
-        const hasExits = Array.isArray(t.exits) && t.exits.length > 0;
-        const pnlHtml = (pnl === null || (pnl === 0 && !hasExits)) ? EM : E.fmtMoney(pnl, true);
-        const rHtml = hasExits ? E.fmtR(r) : EM;
-
-        let nextHtml = '';
-        if (na) {
-            if (na.type === 'runner') {
-                const rem = E.getRemainingShares(t);
-                const zero = '<span class="next-runner-zero">$0 at risk</span>';
-                const sub = rem ? `${fmtShareCount(rem)} · ${zero}` : zero;
-                nextHtml = `<span class="next-runner" title="Stop covers the remaining shares — nothing left at risk. Trim anytime with ⋯" aria-label="${E.escapeHtml(na.label)} — ${E.escapeHtml(na.sub)}"><span class="shield">${ICONS['shield-check']}</span><span class="next-runner-copy"><span class="next-runner-label">${na.label}</span><span class="next-runner-sub">${sub}</span></span></span>`;
-            }
-            else if (na.type === 'trim') nextHtml = `<button class="next-chip" data-act="trim">Trim…</button>`;
-            else {
-                const tip = na.type === 'raise' ? 'Move the stop'
-                    : E.directionOf(t) === 'short' ? 'Log this cover' : 'Log this sell';
-                nextHtml = `<button class="next-chip" data-act="chip" data-tip="${tip}" aria-label="${tip}: ${E.escapeHtml(na.label)}">${na.label}</button>`;
-            }
-        }
+        const cells = buildRowCellData(t, orig, stop, pnl, r);
+        const nextHtml = buildNextActionHtml(na, t);
         const moreBtn = (na && E.deriveStatus(t) !== 'archived') ? `<button class="next-more" data-act="trim" aria-label="Open trim or exit for ${E.escapeHtml(t.ticker)}" data-tip="Open trim / exit">⋯</button>` : '';
-
         const dots = (t.sellPlan?.enabled && Array.isArray(t.sellPlan.targets) && t.sellPlan.targets.length)
             ? `<span class="plan-dots">${t.sellPlan.targets.filter(x => x.rLevel !== 'exit').map(x => `<span class="plan-dot ${x.status === 'executed' ? 'done' : ''}"></span>`).join('')}</span>`
             : '';
-
         tr.innerHTML = `
-            <td class="cell-ticker"><b>${E.escapeHtml(t.ticker)}</b><span class="cell-sub">${sub}</span></td>
-            <td class="num" data-k="Entry">${entryHtml}</td>
-            <td class="num" data-k="Stop">${stopHtml}</td>
-            <td class="num cell-group ${pnlCls}" data-k="Realized">${pnlHtml}</td>
-            <td class="num cell-r ${pnlCls}" data-k="R">${rHtml}</td>
+            <td class="cell-ticker"><b>${E.escapeHtml(t.ticker)}</b><span class="cell-sub">${cells.sub}</span></td>
+            <td class="num" data-k="Entry">${cells.entryHtml}</td>
+            <td class="num" data-k="Stop">${cells.stopHtml}</td>
+            <td class="num cell-group ${cells.pnlCls}" data-k="Realized">${cells.pnlHtml}</td>
+            <td class="num cell-r ${cells.pnlCls}" data-k="R">${cells.rHtml}</td>
             <td class="cell-next"><span class="next-cell">${nextHtml}${moreBtn}</span></td>
             <td class="cell-status"><span class="status-badge" data-s="${b}">${b === 'freerolled' ? `<span class="shield">${ICONS['shield-check']}</span>` : ''}${E.statusLabel(b)}</span>${dots}</td>
             <td class="cell-actions"><span class="row-actions">
@@ -2179,7 +2263,6 @@
                 ${t.archived ? iconBtn('Unarchive', 'archive-restore') : iconBtn('Archive', 'archive')}
                 ${iconBtn('Delete', 'trash', 'danger')}
             </span></td>`;
-
         tr.addEventListener('click', (e) => {
             const act = e.target.closest('[data-act]');
             if (act) {
@@ -2381,19 +2464,7 @@
         });
     }
 
-    function buildRail(t) {
-        const tr = document.createElement('tr');
-        tr.className = 'rail-row';
-        const td = document.createElement('td');
-        td.colSpan = 8;
-        const rps = E.tradeRiskPerShare(t);
-        const rem = E.getRemainingShares(t);
-        const pnl = E.getRealizedPnL(t);
-        const risk = E.getOpenRiskDollars(t);
-        const direction = E.directionOf(t);
-        const exitPast = direction === 'short' ? 'Covered' : 'Sold';
-        const exitVerb = direction === 'short' ? 'cover' : 'sell';
-
+    function buildRailEvents(t, direction, exitPast, exitVerb, rps, rem) {
         const events = [];
         events.push({ kind: 'entry', l1: `<b>${direction === 'short' ? 'Short entry' : 'Long entry'}</b> — ${E.getOriginalShares(t) !== null ? fmtShareCount(E.getOriginalShares(t)) + ' @ ' : ''}${E.fmtPrice(t.entryPrice)}`, l2: `${E.fmtDateShort(t.entryDate)} · stop ${E.fmtPrice(t.initialSL)}${rps !== null ? ' · risk / share $' + rps.toFixed(2) : ''}` });
         for (const x of (t.exits || [])) {
@@ -2407,9 +2478,19 @@
         for (const p of E.pendingTargets(t)) {
             events.push({ kind: 'pending', l1: p.isStopRaise ? `Pending — stop → ${E.fmtPrice(p.newStop)} at ${E.fmtPrice(p.price)}` : `Pending — ${exitVerb} ${fmtShareCount(p.shares)} @ ${E.fmtPrice(p.price)}`, l2: 'plan target' });
         }
+        return events;
+    }
 
-        /* stat strip (mockup A): numbers lead the rail; open risk carries a
-           tone — hot while money is exposed, safe once freerolled */
+    function getRiskCardSubtext(freerolled, doneish, riskPctAcct, risk) {
+        if (freerolled) return 'freerolled';
+        if (doneish) return 'position closed';
+        if (riskPctAcct !== null && risk > 0) {
+            return `${riskPctAcct.toFixed(riskPctAcct < 1 ? 2 : 1)}% of account`;
+        }
+        return '';
+    }
+
+    function buildRailStatCards(t, risk, rem, pnl, rps) {
         const status = E.deriveStatus(t);
         const doneish = status === 'closed' || status === 'stopped' || status === 'archived';
         const orig = E.getOriginalShares(t);
@@ -2421,8 +2502,7 @@
             {
                 k: 'Open risk',
                 v: risk === null ? '—' : E.fmtMoney(risk),
-                sub: freerolled ? 'freerolled' : doneish ? 'position closed'
-                    : riskPctAcct !== null && risk > 0 ? `${riskPctAcct.toFixed(riskPctAcct < 1 ? 2 : 1)}% of account` : '',
+                sub: getRiskCardSubtext(freerolled, doneish, riskPctAcct, risk),
                 tone: freerolled ? 'safe' : risk > 0 ? 'hot' : '',
             },
             {
@@ -2437,7 +2517,10 @@
                 tone: pnl > 0 ? 'up' : pnl < 0 ? 'down' : '',
             },
         ];
-        if (rps !== null) cards.push({ k: 'Risk / share', v: '$' + rps.toFixed(2), sub: 'entry − stop' });
+        if (rps !== null) {
+            cards.push({ k: 'Risk / share', v: '$' + rps.toFixed(2), sub: 'entry − stop' });
+        }
+        const stop = E.currentStop(t);
         if (E.isNum(stop) && E.isNum(t.entryPrice) && t.entryPrice > 0) {
             cards.push({
                 k: 'Stop distance',
@@ -2445,13 +2528,31 @@
                 sub: `stop ${E.fmtPrice(stop)}`,
             });
         }
+        return cards;
+    }
+
+    function buildRail(t) {
+        const tr = document.createElement('tr');
+        tr.className = 'rail-row';
+        const td = document.createElement('td');
+        td.colSpan = 8;
+        const rps = E.tradeRiskPerShare(t);
+        const rem = E.getRemainingShares(t);
+        const pnl = E.getRealizedPnL(t);
+        const risk = E.getOpenRiskDollars(t);
+        const direction = E.directionOf(t);
+        const exitPast = direction === 'short' ? 'Covered' : 'Sold';
+        const exitVerb = direction === 'short' ? 'cover' : 'sell';
+        const events = buildRailEvents(t, direction, exitPast, exitVerb, rps, rem);
+        const cards = buildRailStatCards(t, risk, rem, pnl, rps);
+        const status = E.deriveStatus(t);
+        const doneish = status === 'closed' || status === 'stopped' || status === 'archived';
         const stripHtml = cards.map(cd => `
             <div class="rail-stat-card"${cd.tone ? ` data-tone="${cd.tone}"` : ''}>
                 <span class="rsc-k">${cd.k}</span>
                 <span class="rsc-v">${cd.v}</span>
                 <span class="rsc-s">${cd.sub || ''}</span>
             </div>`).join('');
-
         td.innerHTML = `<div class="rail-wrap"><div class="rail">
             <div class="rail-statstrip">${stripHtml}</div>
             <div class="rail-lanes">
@@ -2472,7 +2573,6 @@
                 </div>
             </div>
         </div></div>`;
-
         td.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', (e) => {
             e.stopPropagation();
             handleRowAction(t.id, b.dataset.act);
