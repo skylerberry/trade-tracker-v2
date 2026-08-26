@@ -426,58 +426,88 @@ const COMPOUND = (() => {
         }
     }
 
-    function renderChart(p) {
-        const host = $('compoundChart');
-        if (!host) return;
+    function generateYAxisSvg(yTicks, plot, colors) {
+        return yTicks.map((tick) => `
+            ${tick.value ? `<line x1="${plot.l}" x2="${plot.l + plot.w}" y1="${tick.y}" y2="${tick.y}" stroke="${colors.grid}" stroke-width="1"/>` : ''}
+            <text class="compound-axis" x="${plot.l - 10}" y="${tick.y + 4}" text-anchor="end" fill="${colors.ink}">${tick.value ? formatCompact(tick.value) : '$0'}</text>
+        `).join('');
+    }
+
+    function generateXAxisSvg(plot, height, colors) {
+        return [0, 5, 10].map((year) => {
+            const x = plot.l + (year / YEARS) * plot.w;
+            const anchor = year === 0 ? 'start' : year === 10 ? 'end' : 'middle';
+            return `<text class="compound-axis" x="${x}" y="${height - 8}" text-anchor="${anchor}" fill="${colors.ink}">${year === 0 ? 'Now' : `Y${year}`}</text>`;
+        }).join('');
+    }
+
+    function generateScrubHandleSvg(activePt, basePt, plot, colors) {
+        if (!activePt) return '';
+        return `
+            <line class="compound-scrub-rule" x1="${activePt.x}" x2="${activePt.x}" y1="${plot.t}" y2="${plot.t + plot.h}" stroke="${colors.accent}" stroke-opacity="0.35"/>
+            ${basePt ? `
+                <g class="compound-handle compound-handle-base" transform="translate(${basePt.x}, ${basePt.y})">
+                    <circle r="4.5" fill="${colors.surface}" stroke="${colors.muted}" stroke-width="1.75"/>
+                </g>
+            ` : ''}
+            <g class="compound-handle" transform="translate(${activePt.x}, ${activePt.y})">
+                <circle r="13" fill="${colors.accent}" fill-opacity="0.16"/>
+                <circle r="8" fill="${colors.surface}" stroke="${colors.accent}" stroke-width="2.5"/>
+                <circle r="3.2" fill="${colors.accent}"/>
+            </g>
+        `;
+    }
+
+    function setupChartDimensions(host) {
         const width = Math.max(host.clientWidth || 560, 280);
         const height = 236;
         const plot = { l: 62, r: 14, t: 16, b: 32, w: width - 76, h: height - 48 };
+        return { width, height, plot };
+    }
+
+    function getChartDrawState(selectedRate, startingCapital, annualContribution) {
+        const chartKey = `${selectedRate}|${startingCapital}|${annualContribution()}`;
+        const shouldDraw = chartKey !== lastChartKey;
+        lastChartKey = chartKey;
+        return shouldDraw;
+    }
+
+    function getMotionState(shouldDraw) {
+        const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+        return {
+            draw: !reduce && shouldDraw ? ' is-draw' : '',
+            fillW: shouldDraw && !reduce ? 0 : null
+        };
+    }
+
+    function renderChart(p) {
+        const host = $('compoundChart');
+        if (!host) return;
+        const { width, height, plot } = setupChartDimensions(host);
         const { selected, baselinePath, yTicks } = prepareChartData(p, plot);
         const colors = getChartColors();
         lastPlot = plot;
         lastWidth = width;
-        const chartKey = `${selectedRate}|${startingCapital}|${annualContribution()}`;
-        const shouldDraw = chartKey !== lastChartKey;
-        lastChartKey = chartKey;
+        const shouldDraw = getChartDrawState(selectedRate, startingCapital, annualContribution);
         const activePt = selected.find((pt) => pt.year === inspectYear) || selected[selected.length - 1];
         const basePt = baselinePath?.find((pt) => pt.year === inspectYear) || null;
         updateScrubChrome(p);
         updateChartLegend(p);
-        const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-        const draw = !reduce && shouldDraw ? ' is-draw' : '';
-        const fillW = shouldDraw && !reduce ? 0 : plot.w;
+        const { draw, fillW } = getMotionState(shouldDraw);
+        const actualFillW = fillW !== null ? fillW : plot.w;
         host.innerHTML = `
             <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" role="img" aria-label="${selectedRate}% path versus ${BASELINE_RATE}%">
                 <line x1="${plot.l}" x2="${plot.l + plot.w}" y1="${plot.t + plot.h}" y2="${plot.t + plot.h}" stroke="${colors.grid}" stroke-width="1"/>
-                ${yTicks.map((tick) => `
-                    ${tick.value ? `<line x1="${plot.l}" x2="${plot.l + plot.w}" y1="${tick.y}" y2="${tick.y}" stroke="${colors.grid}" stroke-width="1"/>` : ''}
-                    <text class="compound-axis" x="${plot.l - 10}" y="${tick.y + 4}" text-anchor="end" fill="${colors.ink}">${tick.value ? formatCompact(tick.value) : '$0'}</text>
-                `).join('')}
-                ${[0, 5, 10].map((year) => {
-                    const x = plot.l + (year / YEARS) * plot.w;
-                    const anchor = year === 0 ? 'start' : year === 10 ? 'end' : 'middle';
-                    return `<text class="compound-axis" x="${x}" y="${height - 8}" text-anchor="${anchor}" fill="${colors.ink}">${year === 0 ? 'Now' : `Y${year}`}</text>`;
-                }).join('')}
+                ${generateYAxisSvg(yTicks, plot, colors)}
+                ${generateXAxisSvg(plot, height, colors)}
                 ${baselinePath ? `<path d="${polyline(baselinePath)}" fill="none" stroke="${colors.muted}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
-                <svg class="compound-reveal-fill" x="${plot.l}" y="0" width="${fillW}" height="${height}" overflow="hidden">
+                <svg class="compound-reveal-fill" x="${plot.l}" y="0" width="${actualFillW}" height="${height}" overflow="hidden">
                     <g transform="translate(${-plot.l}, 0)">
                         <path class="compound-area" d="${areaPath(selected, plot.t + plot.h)}" fill="${colors.soft}"/>
                     </g>
                 </svg>
                 <path class="compound-line${draw}" pathLength="1" d="${polyline(selected)}" fill="none" stroke="${colors.accent}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
-                ${activePt ? `
-                    <line class="compound-scrub-rule" x1="${activePt.x}" x2="${activePt.x}" y1="${plot.t}" y2="${plot.t + plot.h}" stroke="${colors.accent}" stroke-opacity="0.35"/>
-                    ${basePt ? `
-                        <g class="compound-handle compound-handle-base" transform="translate(${basePt.x}, ${basePt.y})">
-                            <circle r="4.5" fill="${colors.surface}" stroke="${colors.muted}" stroke-width="1.75"/>
-                        </g>
-                    ` : ''}
-                    <g class="compound-handle" transform="translate(${activePt.x}, ${activePt.y})">
-                        <circle r="13" fill="${colors.accent}" fill-opacity="0.16"/>
-                        <circle r="8" fill="${colors.surface}" stroke="${colors.accent}" stroke-width="2.5"/>
-                        <circle r="3.2" fill="${colors.accent}"/>
-                    </g>
-                ` : ''}
+                ${generateScrubHandleSvg(activePt, basePt, plot, colors)}
             </svg>
         `;
         if (shouldDraw) playFill(host.querySelector('.compound-reveal-fill'), plot.w);
