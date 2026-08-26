@@ -3187,34 +3187,42 @@
             qs('.ap-context').textContent = `Now: ${rem !== null ? fmtShareCount(rem) + ' @ ' : ''}avg ${E.fmtPrice(t.entryPrice)} · stop ${E.fmtPrice(E.currentStop(t))}`;
             const sharesIn = qs('.ap-shares'), priceIn = qs('.ap-price'), stopIn = qs('.ap-stop');
             const prev = qs('.ap-preview'), confirmBtn = qs('.ap-confirm');
+            function calcAddHint(rem, p, stopForBudget, t, riskPct, account) {
+                const addRiskPerShare = E.riskPerShare(p, stopForBudget, t.direction);
+                if (rem === null || !E.isNum(stopForBudget) || addRiskPerShare === null || account <= 0) return '';
+                const budget = account * (riskPct / 100);
+                const existingRisk = rem * Math.max(0, -E.directionalMove(t.entryPrice, stopForBudget, t));
+                const suggest = Math.round((budget - existingRisk) / addRiskPerShare);
+                if (suggest > 0) return `<span class="ap-hint">risk budget allows ~<b>${fmtShareCount(suggest)}</b> at ${riskPct}%</span>`;
+                return '<span class="ap-hint">no room to add at this stop within your risk budget</span>';
+            }
+
+            function buildAddPreview(n, p, hint, rem, t, stopIn) {
+                if (rem === null) {
+                    return `Adding <b>${fmtShareCount(n)}</b> @ <b>${E.fmtPrice(p)}</b>` + (hint ? '<br>' + hint : '');
+                }
+                const newTotal = rem + n;
+                const avg = round2((rem * t.entryPrice + n * p) / newTotal);
+                const stop = parseNum(stopIn.value) ?? E.currentStop(t);
+                const risk = E.isNum(stop) ? round2(Math.max(0, newTotal * -E.directionalMove(avg, stop, t) - (E.getRealizedPnL(t) ?? 0))) : null;
+                let result = `New: <b>${fmtShareCount(newTotal)}</b> @ avg <b>${E.fmtPrice(avg)}</b>`;
+                if (risk !== null) {
+                    result += ` · risk ${E.fmtMoney(risk)}`;
+                    if (risk === 0) result += ` <span class="fr-zero"><span class="shield">${ICONS['shield-check']}</span> still freerolled</span>`;
+                }
+                if (hint) result += '<br>' + hint;
+                return result;
+            }
+
             function update() {
                 const n = parseNum(sharesIn.value), p = parseNum(priceIn.value);
                 const haveInputs = !!n && n > 0 && E.isNum(p);
                 confirmBtn.disabled = !haveInputs;
                 prev.hidden = !haveInputs;
                 if (!haveInputs) { prev.replaceChildren(); return; }
-                // v1 risk-budget math: how many shares the default risk allows at this stop
                 const stopForBudget = parseNum(stopIn.value) ?? E.currentStop(t);
-                let hint = '';
-                const addRiskPerShare = E.riskPerShare(p, stopForBudget, t.direction);
-                if (rem !== null && E.isNum(stopForBudget) && addRiskPerShare !== null && account > 0) {
-                    const budget = account * (riskPct() / 100);
-                    const existingRisk = rem * Math.max(0, -E.directionalMove(t.entryPrice, stopForBudget, t));
-                    const suggest = Math.round((budget - existingRisk) / addRiskPerShare);
-                    if (suggest > 0) hint = `<span class="ap-hint">risk budget allows ~<b>${fmtShareCount(suggest)}</b> at ${riskPct()}%</span>`;
-                    else hint = '<span class="ap-hint">no room to add at this stop within your risk budget</span>';
-                }
-                if (rem === null) {
-                    prev.innerHTML = `Adding <b>${fmtShareCount(n)}</b> @ <b>${E.fmtPrice(p)}</b>` + (hint ? '<br>' + hint : '');
-                    return;
-                }
-                const newTotal = rem + n;
-                const avg = round2((rem * t.entryPrice + n * p) / newTotal);
-                const stop = parseNum(stopIn.value) ?? E.currentStop(t);
-                const risk = E.isNum(stop) ? round2(Math.max(0, newTotal * -E.directionalMove(avg, stop, t) - (E.getRealizedPnL(t) ?? 0))) : null;
-                prev.innerHTML = `New: <b>${fmtShareCount(newTotal)}</b> @ avg <b>${E.fmtPrice(avg)}</b>` +
-                    (risk !== null ? ` · risk ${E.fmtMoney(risk)}${risk === 0 ? ` <span class="fr-zero"><span class="shield">${ICONS['shield-check']}</span> still freerolled</span>` : ''}` : '') +
-                    (hint ? '<br>' + hint : '');
+                const hint = calcAddHint(rem, p, stopForBudget, t, riskPct(), account);
+                prev.innerHTML = buildAddPreview(n, p, hint, rem, t, stopIn);
             }
             [sharesIn, priceIn, stopIn].forEach(el => el.addEventListener('input', update));
             update();
