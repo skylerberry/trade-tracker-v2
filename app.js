@@ -1407,8 +1407,15 @@
         if (parsed.stop !== null) $('stopLoss').value = String(parsed.stop);
         if (parsed.riskPct !== null) {
             const preset = RISK_PRESETS.find(p => parseFloat(p) === parsed.riskPct);
-            if (preset) { prefs.riskPreset = preset; segs.risk.set(preset); }
-            else { prefs.riskPreset = 'custom'; prefs.riskCustom = parsed.riskPct; $('riskCustom').value = String(parsed.riskPct); segs.risk.set('custom'); }
+            if (preset) {
+                prefs.riskPreset = preset;
+                segs.risk.set(preset);
+            } else {
+                prefs.riskPreset = 'custom';
+                prefs.riskCustom = parsed.riskPct;
+                $('riskCustom').value = String(parsed.riskPct);
+                segs.risk.set('custom');
+            }
             savePrefs();
         }
         const wasClosed = !panels.calcSection.section.classList.contains('is-open');
