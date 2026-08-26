@@ -1115,6 +1115,20 @@
         return 'Complete the setup to log';
     }
 
+    function getMissingCalcFields(c) {
+        const missing = [];
+        if (!E.isNum(c.entry) || c.entry <= 0) missing.push('entry');
+        if (!E.isNum(c.stop) || c.stop <= 0) missing.push('stop');
+        if (!c.ticker) missing.push('ticker');
+        return missing;
+    }
+
+    function getLogButtonText(optionMode, ready, c, res) {
+        if (optionMode) return 'Calculator only · option logging later';
+        if (ready) return `Log ${prefs.direction === 'short' ? 'short ' : ''}${c.ticker} — ${fmtShareCount(res.shares)}`;
+        return 'Log trade';
+    }
+
     function updateLogButton(optionMode, res, c) {
         const ready = !optionMode && res.valid && !!c.ticker;
         const logBtn = $('logTradeBtn');
@@ -1122,14 +1136,9 @@
         if (ready || optionMode) {
             delete logBtn.dataset.tip;
         } else {
-            const missing = [];
-            if (!E.isNum(c.entry) || c.entry <= 0) missing.push('entry');
-            if (!E.isNum(c.stop) || c.stop <= 0) missing.push('stop');
-            if (!c.ticker) missing.push('ticker');
-            logBtn.dataset.tip = getLogButtonTip(c, res, missing);
+            logBtn.dataset.tip = getLogButtonTip(c, res, getMissingCalcFields(c));
         }
-        $('logTradeBtn').textContent = optionMode ? 'Calculator only · option logging later'
-            : ready ? `Log ${prefs.direction === 'short' ? 'short ' : ''}${c.ticker} — ${fmtShareCount(res.shares)}` : 'Log trade';
+        logBtn.textContent = getLogButtonText(optionMode, ready, c, res);
     }
 
     function updateCalcHint(res, c, optionMode) {
