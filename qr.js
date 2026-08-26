@@ -224,9 +224,8 @@ const QR = (() => {
     }
 
     /* Penalty score per the spec's four rules. */
-    function penalty(modules, size) {
+    function scoreRuns(modules, size, runScore) {
         let score = 0;
-        const runScore = (run) => (run >= 5 ? 3 + (run - 5) : 0);
         for (let y = 0; y < size; y++) {
             let runColor = modules[y][0], run = 1;
             for (let x = 1; x < size; x++) {
@@ -243,10 +242,20 @@ const QR = (() => {
             }
             score += runScore(run);
         }
+        return score;
+    }
+
+    function score2x2Boxes(modules, size) {
+        let score = 0;
         for (let y = 0; y < size - 1; y++) for (let x = 0; x < size - 1; x++) {
             const c = modules[y][x];
             if (c === modules[y][x + 1] && c === modules[y + 1][x] && c === modules[y + 1][x + 1]) score += 3;
         }
+        return score;
+    }
+
+    function scorePatterns(modules, size) {
+        let score = 0;
         const P1 = [true, false, true, true, true, false, true, false, false, false, false];
         const P2 = [...P1].reverse();
         const windowAt = (get) => {
@@ -263,10 +272,22 @@ const QR = (() => {
         };
         for (let y = 0; y < size; y++) windowAt((x) => modules[y][x]);
         for (let x = 0; x < size; x++) windowAt((y) => modules[y][x]);
+        return score;
+    }
+
+    function scoreDarkLight(modules, size) {
         let dark = 0;
         for (const row of modules) for (const m of row) if (m) dark++;
         const total = size * size;
-        score += (Math.ceil(Math.abs(dark * 20 - total * 10) / total) - 1) * 10;
+        return (Math.ceil(Math.abs(dark * 20 - total * 10) / total) - 1) * 10;
+    }
+
+    function penalty(modules, size) {
+        const runScore = (run) => (run >= 5 ? 3 + (run - 5) : 0);
+        let score = scoreRuns(modules, size, runScore);
+        score += score2x2Boxes(modules, size);
+        score += scorePatterns(modules, size);
+        score += scoreDarkLight(modules, size);
         return score;
     }
 
