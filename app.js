@@ -2223,6 +2223,81 @@
         return false;
     }
 
+    function setEmptyCta(cta, action, label) {
+        cta.hidden = false;
+        cta.dataset.action = action;
+        cta.textContent = label;
+    }
+
+    function setEmptyAlt(alt, action, label) {
+        if (!action) { alt.hidden = true; alt.dataset.action = ''; alt.textContent = ''; return; }
+        alt.hidden = false;
+        alt.dataset.action = action;
+        alt.textContent = label;
+    }
+
+    function handleEmptyJournalState(title, sub, cta, alt) {
+        title.textContent = 'No journal yet';
+        sub.textContent = 'Closed trades land here. Size and log from Positions.';
+        setEmptyCta(cta, 'goto-positions', 'Go to Positions');
+        setEmptyAlt(alt);
+    }
+
+    function handleEmptyBookState(title, sub, cta, alt) {
+        title.textContent = 'No trades yet';
+        sub.textContent = 'Size a position in the calculator, then log it — one click.';
+        setEmptyCta(cta, 'log', 'Log a trade');
+        setEmptyAlt(alt);
+    }
+
+    function handleSearchFilterState(title, sub, cta, alt, q) {
+        title.textContent = `No trades match "${q}"`;
+        sub.textContent = 'Try a different ticker, or clear the search.';
+        setEmptyCta(cta, 'clear-search', 'Clear search');
+        setEmptyAlt(alt);
+    }
+
+    function handleDateFilterState(title, sub, cta, alt) {
+        title.textContent = 'No trades in this range';
+        sub.textContent = 'Nothing logged between From and To.';
+        setEmptyCta(cta, 'clear-dates', 'Clear dates');
+        setEmptyAlt(alt);
+    }
+
+    function fillDefaultEmptyState(title, sub, cta, alt) {
+        title.textContent = emptyTitleForStatus(filters.status);
+        sub.textContent = emptySubForStatus(filters.status);
+        const ctaAction = view === 'journal' ? 'goto-positions' : 'log';
+        const ctaLabel = view === 'journal' ? 'Go to Positions' : 'Log a trade';
+        setEmptyCta(cta, ctaAction, ctaLabel);
+        const bucket = hiddenBucket();
+        if (bucket && STATUS_NOUN[bucket.key]) {
+            setEmptyAlt(alt, `set-status:${bucket.key}`, `View ${bucket.n} ${STATUS_NOUN[bucket.key]}`);
+        } else {
+            setEmptyAlt(alt);
+        }
+    }
+
+    function fillEmptyStateContent(title, sub, cta, alt, bookEmpty, q) {
+        if (bookEmpty && view === 'journal') {
+            handleEmptyJournalState(title, sub, cta, alt);
+            return true;
+        }
+        if (bookEmpty) {
+            handleEmptyBookState(title, sub, cta, alt);
+            return true;
+        }
+        if (filters.q) {
+            handleSearchFilterState(title, sub, cta, alt, q);
+            return true;
+        }
+        if (filters.from || filters.to) {
+            handleDateFilterState(title, sub, cta, alt);
+            return true;
+        }
+        return false;
+    }
+
     function fillEmptyState() {
         const title = document.querySelector('#emptyState .empty-title');
         const sub = document.querySelector('#emptyState .empty-sub');
@@ -2233,58 +2308,10 @@
 
         const bookEmpty = trades.length === 0;
         const q = $('tradeSearch')?.value.trim() || '';
-
-        const setCta = (action, label) => {
-            cta.hidden = false;
-            cta.dataset.action = action;
-            cta.textContent = label;
-        };
-        const setAlt = (action, label) => {
-            if (!action) { alt.hidden = true; alt.dataset.action = ''; alt.textContent = ''; return; }
-            alt.hidden = false;
-            alt.dataset.action = action;
-            alt.textContent = label;
-        };
-
         seed.hidden = !(bookEmpty && view !== 'journal');
 
-        if (bookEmpty && view === 'journal') {
-            title.textContent = 'No journal yet';
-            sub.textContent = 'Closed trades land here. Size and log from Positions.';
-            setCta('goto-positions', 'Go to Positions');
-            setAlt();
-            return;
-        }
-        if (bookEmpty) {
-            title.textContent = 'No trades yet';
-            sub.textContent = 'Size a position in the calculator, then log it — one click.';
-            setCta('log', 'Log a trade');
-            setAlt();
-            return;
-        }
-        if (filters.q) {
-            title.textContent = `No trades match “${q}”`;
-            sub.textContent = 'Try a different ticker, or clear the search.';
-            setCta('clear-search', 'Clear search');
-            setAlt();
-            return;
-        }
-        if (filters.from || filters.to) {
-            title.textContent = 'No trades in this range';
-            sub.textContent = 'Nothing logged between From and To.';
-            setCta('clear-dates', 'Clear dates');
-            setAlt();
-            return;
-        }
-
-        title.textContent = emptyTitleForStatus(filters.status);
-        sub.textContent = emptySubForStatus(filters.status);
-        if (view === 'journal') setCta('goto-positions', 'Go to Positions');
-        else setCta('log', 'Log a trade');
-        const bucket = hiddenBucket();
-        const noun = bucket && STATUS_NOUN[bucket.key];
-        if (bucket && noun) setAlt(`set-status:${bucket.key}`, `View ${bucket.n} ${noun}`);
-        else setAlt();
+        if (fillEmptyStateContent(title, sub, cta, alt, bookEmpty, q)) return;
+        fillDefaultEmptyState(title, sub, cta, alt);
     }
 
     function focusCalculator() {
