@@ -486,8 +486,7 @@ const ENGINE = (() => {
         };
     }
 
-    /* ---------- account-level open risk ---------- */
-    function accountRisk(trades, account) {
+    function calcRiskDollars(trades) {
         let dollars = 0, anyOpen = false, anyRisk = false, unknown = 0;
         for (const t of trades) {
             const s = deriveStatus(t);
@@ -497,17 +496,23 @@ const ENGINE = (() => {
             if (r === null) { if (getRemainingShares(t) !== 0) unknown++; continue; }
             if (r > 0) { anyRisk = true; dollars += r; }
         }
-        dollars = round2(dollars);
+        return { dollars: round2(dollars), anyOpen, anyRisk, unknown };
+    }
+
+    function determineRiskLevel(anyOpen, anyRisk, pct) {
+        if (anyOpen && !anyRisk) return 'FREEROLLED';
+        if (!anyRisk) return 'CASH';
+        if (pct === null) return 'MED';
+        if (pct < 1) return 'LOW';
+        if (pct < 4) return 'MED';
+        return 'HIGH';
+    }
+
+    /* ---------- account-level open risk ---------- */
+    function accountRisk(trades, account) {
+        const { dollars, anyOpen, anyRisk, unknown } = calcRiskDollars(trades);
         const pct = account > 0 ? (dollars / account) * 100 : null;
-        // v1 thresholds: LOW < 1%, MED 1–4%, HIGH ≥ 4%
-        let level = 'CASH';
-        if (anyOpen && !anyRisk) level = 'FREEROLLED';
-        else if (anyRisk) {
-            if (pct === null) level = 'MED';
-            else if (pct < 1) level = 'LOW';
-            else if (pct < 4) level = 'MED';
-            else level = 'HIGH';
-        }
+        const level = determineRiskLevel(anyOpen, anyRisk, pct);
         return { dollars, pct, level, unknown };
     }
 
