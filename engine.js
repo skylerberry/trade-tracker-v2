@@ -436,11 +436,8 @@ const ENGINE = (() => {
         if (!Array.isArray(trade.exits) || !trade.exits.length) return null;
         return trade.exits.reduce((max, x) => (x.date && (!max || x.date > max)) ? x.date : max, null);
     }
-    function computeStats(trades, scope /* 'month' | 'all' */) {
-        const now = new Date();
-        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        // archived trades stay in the stats — archiving must not erase history (v1)
-        const closed = trades.filter(t => {
+    function filterClosedTrades(trades, scope, monthKey) {
+        return trades.filter(t => {
             const s = deriveStatus(t.archived ? { ...t, archived: false } : t);
             if (s !== 'closed' && s !== 'stopped') return false;
             if (scope === 'month') {
@@ -449,27 +446,41 @@ const ENGINE = (() => {
             }
             return true;
         });
-        let wins = 0, losses = 0, be = 0, excluded = 0;
-        let sumR = 0, sumPnl = 0, winRs = [], lossRs = [];
-        for (const t of closed) {
-            const pnl = getRealizedPnL(t);
-            const r = getRealizedR(t);
-            if (pnl === null) { excluded++; continue; }
-            sumPnl += pnl;
-            if (r !== null) sumR += r;
-            if (r !== null && Math.abs(r) < 0.05) { be++; continue; }
-            if (pnl > 0) { wins++; if (r !== null) winRs.push(r); }
-            else if (pnl < 0) { losses++; if (r !== null) lossRs.push(Math.abs(r)); }
-            else be++;
-        }
+    }
+
+    function processTradeStats(t, stats) {
+        const pnl = getRealizedPnL(t);
+        const r = getRealizedR(t);
+        if (pnl === null) { stats.excluded++; return; }
+        stats.sumPnl += pnl;
+        if (r !== null) stats.sumR += r;
+        if (r !== null && Math.abs(r) < 0.05) { stats.be++; return; }
+        if (pnl > 0) { stats.wins++; if (r !== null) stats.winRs.push(r); }
+        else if (pnl < 0) { stats.losses++; if (r !== null) stats.lossRs.push(Math.abs(r)); }
+        else stats.be++;
+    }
+
+    function calcDerivedStats(wins, losses, winRs, lossRs) {
         const decided = wins + losses;
         const winRate = decided ? wins / decided : null;
         const avgWinR = winRs.length ? winRs.reduce((a, b) => a + b, 0) / winRs.length : 0;
         const avgLossR = lossRs.length ? lossRs.reduce((a, b) => a + b, 0) / lossRs.length : 0;
         const expectancy = winRate === null ? null : avgWinR * winRate - avgLossR * (1 - winRate);
+        return { winRate, expectancy };
+    }
+
+    function computeStats(trades, scope /* 'month' | 'all' */) {
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const closed = filterClosedTrades(trades, scope, monthKey);
+        const stats = { wins: 0, losses: 0, be: 0, excluded: 0, sumR: 0, sumPnl: 0, winRs: [], lossRs: [] };
+        for (const t of closed) {
+            processTradeStats(t, stats);
+        }
+        const { winRate, expectancy } = calcDerivedStats(stats.wins, stats.losses, stats.winRs, stats.lossRs);
         return {
-            n: closed.length, wins, losses, be, excluded,
-            winRate, sumR: round2(sumR), sumPnl: round2(sumPnl),
+            n: closed.length, wins: stats.wins, losses: stats.losses, be: stats.be, excluded: stats.excluded,
+            winRate, sumR: round2(stats.sumR), sumPnl: round2(stats.sumPnl),
             expectancy: expectancy === null ? null : round2(expectancy),
             monthName: now.toLocaleDateString('en-US', { month: 'long' }),
         };
