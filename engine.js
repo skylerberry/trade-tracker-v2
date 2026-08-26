@@ -162,15 +162,18 @@ const ENGINE = (() => {
     }
 
     /* ---------- derived status (never user-set) ---------- */
+    function isTradeStoppedOut(trade) {
+        const last = trade.exits[trade.exits.length - 1];
+        return last && isNum(last.price) && isNum(trade.initialSL) &&
+            (last.price - trade.initialSL) * directionSign(trade) <= 0;
+    }
+
     function deriveStatus(trade) {
         if (trade.archived) return 'archived';
         const remaining = getRemainingShares(trade);
         const hasExits = Array.isArray(trade.exits) && trade.exits.length > 0;
         if (remaining === 0 && hasExits) {
-            const last = trade.exits[trade.exits.length - 1];
-            if (last && isNum(last.price) && isNum(trade.initialSL) &&
-                (last.price - trade.initialSL) * directionSign(trade) <= 0) return 'stopped';
-            return 'closed';
+            return isTradeStoppedOut(trade) ? 'stopped' : 'closed';
         }
         if (hasExits) return 'partial';
         if (isFreeRolled(trade)) return 'freerolled';
@@ -622,24 +625,28 @@ const ENGINE = (() => {
         return exits;
     }
 
+    function makeClosingExit(entry, remaining, exitPrice, entryPrice, initialSL, entryDate) {
+        const rps = entryPrice !== null && initialSL !== null
+            ? Math.abs(entryPrice - initialSL) : null;
+        const r = rps ? round4((exitPrice - entryPrice) / rps) : null;
+        const kind = initialSL !== null && exitPrice <= initialSL ? 'stop' : 'close';
+        return {
+            id: `x-close-${entry.id}`,
+            shares: remaining,
+            price: exitPrice,
+            date: dateFromUnknown(entry.exitDate) || entryDate,
+            rMultiple: r,
+            kind,
+        };
+    }
+
     function addClosingExitIfNeeded(entry, exits, shares, entryPrice, initialSL, entryDate) {
         if (entry.status !== 'closed') return;
         const sold = exits.reduce((s, x) => s + x.shares, 0);
         const remaining = (shares || 0) - sold;
         const exitPrice = toFinite(entry.exitPrice);
         if (remaining > 0 && exitPrice !== null) {
-            const rps = entryPrice !== null && initialSL !== null
-                ? Math.abs(entryPrice - initialSL) : null;
-            const r = rps ? round4((exitPrice - entryPrice) / rps) : null;
-            const kind = initialSL !== null && exitPrice <= initialSL ? 'stop' : 'close';
-            exits.push({
-                id: `x-close-${entry.id}`,
-                shares: remaining,
-                price: exitPrice,
-                date: dateFromUnknown(entry.exitDate) || entryDate,
-                rMultiple: r,
-                kind,
-            });
+            exits.push(makeClosingExit(entry, remaining, exitPrice, entryPrice, initialSL, entryDate));
         }
     }
 
