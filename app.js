@@ -87,15 +87,41 @@
     }
 
     /* ---------- persistence ---------- */
+    function loadRiskPreset() {
+        const r = localStorage.getItem(K.risk);
+        if (!r) return;
+        prefs.riskPreset = r;
+        if (!RISK_PRESETS.includes(r)) {
+            prefs.riskPreset = 'custom';
+            prefs.riskCustom = parseNum(r) ?? 0.5;
+        }
+    }
+
+    function loadMaxPreset() {
+        const mx = localStorage.getItem(K.max);
+        if (!mx) return;
+        prefs.maxPreset = mx;
+        if (!['5', '10', '20', '50', '100'].includes(mx)) {
+            prefs.maxPreset = 'custom';
+            prefs.maxCustom = parseNum(mx) ?? 20;
+        }
+    }
+
+    function loadWatchlist() {
+        try { watchlist = JSON.parse(localStorage.getItem(K.watch)) || []; } catch { watchlist = []; }
+        if (watchlist.length && typeof watchlist[0] === 'object') {
+            watchlist = watchlist.map(w => w.ticker || w.symbol).filter(Boolean);
+        }
+    }
+
     function loadAll() {
         try { trades = JSON.parse(localStorage.getItem(K.trades)) || []; } catch { trades = []; }
         trades.forEach(normalizeTrade);
         account = parseNum(localStorage.getItem(K.account)) ?? 25000;
-        const r = localStorage.getItem(K.risk); if (r) { prefs.riskPreset = r; if (!RISK_PRESETS.includes(r)) { prefs.riskPreset = 'custom'; prefs.riskCustom = parseNum(r) ?? 0.5; } }
-        const mx = localStorage.getItem(K.max); if (mx) { prefs.maxPreset = mx; if (!['5', '10', '20', '50', '100'].includes(mx)) { prefs.maxPreset = 'custom'; prefs.maxCustom = parseNum(mx) ?? 20; } }
+        loadRiskPreset();
+        loadMaxPreset();
         const pl = localStorage.getItem(K.plan); if (pl) prefs.plan = pl;
-        try { watchlist = JSON.parse(localStorage.getItem(K.watch)) || []; } catch { watchlist = []; }
-        if (watchlist.length && typeof watchlist[0] === 'object') watchlist = watchlist.map(w => w.ticker || w.symbol).filter(Boolean);
+        loadWatchlist();
         try { Object.assign(prefs, JSON.parse(localStorage.getItem(K.prefs)) || {}); } catch { /* keep defaults */ }
         prefs.direction = prefs.direction === 'short' ? 'short' : 'long';
         prefs.vehicle = prefs.vehicle === 'option' ? 'option' : 'shares';
