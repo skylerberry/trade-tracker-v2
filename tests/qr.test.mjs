@@ -87,12 +87,7 @@ const MASKS = [
     (x, y) => (((x + y) % 2) + (x * y % 3)) % 2 === 0,
 ];
 
-function decode(m) {
-    const size = m.length;
-    const version = (size - 17) / 4;
-    if (!Number.isInteger(version) || version < 1 || version > 9) throw new Error('bad size');
-
-    // format bits (copy 1), un-XOR, BCH check
+function decodeFormatBits(m, size) {
     let bits = 0;
     const put = (i, dark) => { if (dark) bits |= 1 << i; };
     for (let i = 0; i <= 5; i++) put(i, m[i][8]);
@@ -106,15 +101,15 @@ function decode(m) {
     const ecl = data5 >>> 3;
     if (ecl !== 0b01) throw new Error('expected EC level L');
     const mask = data5 & 7;
-
-    // second format copy must agree
     let bits2 = 0;
     for (let i = 0; i < 8; i++) { if (m[8][size - 1 - i]) bits2 |= 1 << i; }
     for (let i = 8; i < 15; i++) { if (m[size - 15 + i][8]) bits2 |= 1 << i; }
     if ((bits2 ^ 0x5412) !== bits) throw new Error('format copies disagree');
     if (m[size - 8][8] !== true) throw new Error('dark module missing');
+    return mask;
+}
 
-    // unmask + zigzag read
+function unmaskAndReadZigzag(m, size, mask, version) {
     const fn = functionMap(version);
     const stream = [];
     for (let right = size - 1; right >= 1; right -= 2) {
@@ -131,10 +126,13 @@ function decode(m) {
     const totalCW = Math.floor(stream.length / 8);
     const cw = new Uint8Array(totalCW);
     for (let i = 0; i < totalCW * 8; i++) cw[i >> 3] = (cw[i >> 3] << 1) | stream[i];
+    return cw;
+}
 
-    // de-interleave + RS verify
+function deinterleaveAndVerifyRS(cw, version) {
     const numBlocks = NUM_BLOCKS[version];
     const eccLen = ECC_PER_BLOCK[version];
+    const totalCW = cw.length;
     const dataLen = totalCW - eccLen * numBlocks;
     const blockLen = dataLen / numBlocks;
     const blocks = Array.from({ length: numBlocks }, () => ({ data: [], ecc: [] }));
@@ -144,9 +142,10 @@ function decode(m) {
     for (const b of blocks) {
         if (!rsValid([...b.data, ...b.ecc], eccLen)) throw new Error('RS check failed');
     }
-    const dataCW = blocks.flatMap((b) => b.data);
+    return blocks.flatMap((b) => b.data);
+}
 
-    // byte-mode parse
+function parseByteModeData(dataCW) {
     const bit = (i) => (dataCW[i >> 3] >>> (7 - (i & 7))) & 1;
     let pos = 0;
     const read = (n) => { let v = 0; for (let i = 0; i < n; i++) v = (v << 1) | bit(pos++); return v; };
@@ -154,7 +153,18 @@ function decode(m) {
     const count = read(8);
     const bytes = [];
     for (let i = 0; i < count; i++) bytes.push(read(8));
-    return { version, mask, text: Buffer.from(bytes).toString('utf8') };
+    return Buffer.from(bytes).toString('utf8');
+}
+
+function decode(m) {
+    const size = m.length;
+    const version = (size - 17) / 4;
+    if (!Number.isInteger(version) || version < 1 || version > 9) throw new Error('bad size');
+    const mask = decodeFormatBits(m, size);
+    const cw = unmaskAndReadZigzag(m, size, mask, version);
+    const dataCW = deinterleaveAndVerifyRS(cw, version);
+    const text = parseByteModeData(dataCW);
+    return { version, mask, text };
 }
 
 /* ---- round trips across every version ---- */
