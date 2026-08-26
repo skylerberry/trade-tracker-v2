@@ -3892,19 +3892,37 @@
         e.stopPropagation();
         toggleDatePop(filterDateBinding('to'));
     });
+    function handleDatePrev() {
+        dateView.m -= 1;
+        if (dateView.m < 0) { dateView.m = 11; dateView.y -= 1; }
+        renderDatePop();
+        placeDatePop(datePick.trigger);
+    }
+
+    function handleDateNext() {
+        dateView.m += 1;
+        if (dateView.m > 11) { dateView.m = 0; dateView.y += 1; }
+        renderDatePop();
+        placeDatePop(datePick.trigger);
+    }
+
+    function handleDateClear() {
+        if (!datePick) return;
+        datePick.set('');
+        if (datePick.allowEmpty && datePick.id) renderDatePop();
+        else closeDatePop();
+    }
+
+
     $('datePop').addEventListener('click', (e) => {
         e.stopPropagation();
         const day = e.target.closest('.date-pop-day');
         if (day) { pickDate(day.dataset.iso); return; }
         const act = e.target.closest('[data-cal]')?.dataset.cal;
-        if (act === 'prev') { dateView.m -= 1; if (dateView.m < 0) { dateView.m = 11; dateView.y -= 1; } renderDatePop(); placeDatePop(datePick.trigger); }
-        if (act === 'next') { dateView.m += 1; if (dateView.m > 11) { dateView.m = 0; dateView.y += 1; } renderDatePop(); placeDatePop(datePick.trigger); }
+        if (act === 'prev') handleDatePrev();
+        if (act === 'next') handleDateNext();
         if (act === 'today') pickDate(E.todayLocalISO());
-        if (act === 'clear' && datePick) {
-            datePick.set('');
-            if (datePick.allowEmpty && datePick.id) renderDatePop();
-            else closeDatePop();
-        }
+        if (act === 'clear') handleDateClear();
     });
     $('dateClear').addEventListener('click', (e) => {
         e.stopPropagation();
