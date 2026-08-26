@@ -145,8 +145,7 @@
         return `${hours > 0 ? '+' : '−'}${magnitude}`;
     }
 
-    function updateDailyClock() {
-        const now = new Date();
+    function formatTimeInfo(now) {
         const dateText = new Intl.DateTimeFormat(undefined, {
             weekday: 'short', month: 'short', day: 'numeric',
         }).format(now);
@@ -158,12 +157,39 @@
         const period = timeParts.find(p => p.type === 'dayPeriod')?.value || '';
         const zone = new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' })
             .formatToParts(now).find(p => p.type === 'timeZoneName')?.value || 'local';
+        return { dateText, hour, minute, period, zone };
+    }
+
+    function getMarketOffsetInfo(now) {
         const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
         const marketDeltaHours = (timeZoneOffsetMinutes(now, localZone) - timeZoneOffsetMinutes(now, 'America/New_York')) / 60;
         const offsetLabel = marketOffsetLabel(marketDeltaHours);
         const offsetPhrase = Math.abs(marketDeltaHours) < 0.001 ? 'same time as ET'
             : `${Math.abs(marketDeltaHours)} hour${Math.abs(marketDeltaHours) === 1 ? '' : 's'} ${marketDeltaHours > 0 ? 'ahead of' : 'behind'} ET`;
+        return { offsetLabel, offsetPhrase };
+    }
 
+    function updateMarketSession(sessEl, session) {
+        sessEl.dataset.state = session.state;
+        $('marketSessLabel').textContent = session.label;
+        sessEl.title = '';
+        const left = session.minutesLeft;
+        const span = left === null ? '' : left >= 60 ? `${Math.floor(left / 60)}h ${left % 60}m` : `${left}m`;
+        const countdown = left === null ? ''
+            : session.state === 'open' ? ` · Closing bell in ${span}`
+                : session.state === 'pre' ? ` · Opening bell in ${span}`
+                    : ` · After hours ends in ${span}`;
+        sessEl.dataset.tip = session.detail + countdown;
+        const tip = $('instantTip');
+        if (tip && !tip.hidden && tip.__anchor === sessEl) {
+            tip.textContent = sessEl.dataset.tip;
+        }
+    }
+
+    function updateDailyClock() {
+        const now = new Date();
+        const { dateText, hour, minute, period, zone } = formatTimeInfo(now);
+        const { offsetLabel, offsetPhrase } = getMarketOffsetInfo(now);
         clockDateRoller(dateText.replace(/ /g, '\u00a0'));
         clockTimeRoller(`${hour}:${minute}`);
         if (prefs.showSeconds) clockSecondsRoller(`:${String(now.getSeconds()).padStart(2, '0')}`);
@@ -174,20 +200,7 @@
         const session = E.marketSession(now);
         const sessEl = $('marketSess');
         if (sessEl) {
-            sessEl.dataset.state = session.state;
-            $('marketSessLabel').textContent = session.label;
-            /* instant tip with a live countdown; empty title blocks the
-               clock's native tooltip from doubling up on the badge */
-            sessEl.title = '';
-            const left = session.minutesLeft;
-            const span = left === null ? '' : left >= 60 ? `${Math.floor(left / 60)}h ${left % 60}m` : `${left}m`;
-            const countdown = left === null ? ''
-                : session.state === 'open' ? ` · Closing bell in ${span}`
-                    : session.state === 'pre' ? ` · Opening bell in ${span}`
-                        : ` · After hours ends in ${span}`;
-            sessEl.dataset.tip = session.detail + countdown;
-            const tip = $('instantTip');
-            if (tip && !tip.hidden && tip.__anchor === sessEl) tip.textContent = sessEl.dataset.tip;
+            updateMarketSession(sessEl, session);
         }
         $('dailyZoneTag').title = `${zone} · ${offsetPhrase}`;
         $('dailyClock').title = `${session.detail} · Local time · ${zone} · ${offsetPhrase}`;

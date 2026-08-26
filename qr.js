@@ -94,40 +94,59 @@ const QR = (() => {
     }
 
     /* ---- matrix ---- */
-    function makeMatrix(version, codewords) {
-        const size = version * 4 + 17;
-        const modules = Array.from({ length: size }, () => new Array(size).fill(false));
-        const isFunction = Array.from({ length: size }, () => new Array(size).fill(false));
-        const set = (x, y, dark) => { modules[y][x] = dark; isFunction[y][x] = true; };
+    function drawTiming(size, set) {
+        for (let i = 0; i < size; i++) {
+            set(6, i, i % 2 === 0);
+            set(i, 6, i % 2 === 0);
+        }
+    }
 
-        // timing
-        for (let i = 0; i < size; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
-        // finders + separators
+    function drawFinders(size, set) {
         const finder = (cx, cy) => {
-            for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
-                const x = cx + dx, y = cy + dy;
-                if (x < 0 || x >= size || y < 0 || y >= size) continue;
-                const d = Math.max(Math.abs(dx), Math.abs(dy));
-                set(x, y, d !== 2 && d !== 4);
+            for (let dy = -4; dy <= 4; dy++) {
+                for (let dx = -4; dx <= 4; dx++) {
+                    const x = cx + dx, y = cy + dy;
+                    if (x < 0 || x >= size || y < 0 || y >= size) continue;
+                    const d = Math.max(Math.abs(dx), Math.abs(dy));
+                    set(x, y, d !== 2 && d !== 4);
+                }
             }
         };
-        finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
-        // alignment
+        finder(3, 3);
+        finder(size - 4, 3);
+        finder(3, size - 4);
+    }
+
+    function drawAlignment(version, size, set) {
         const centers = ALIGN[version] || [];
-        for (const cy of centers) for (const cx of centers) {
-            const corner = (cx === 6 && cy === 6) || (cx === 6 && cy === size - 7) || (cx === size - 7 && cy === 6);
-            if (corner) continue;
-            for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
-                set(cx + dx, cy + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+        for (const cy of centers) {
+            for (const cx of centers) {
+                const corner = (cx === 6 && cy === 6) || (cx === 6 && cy === size - 7) || (cx === size - 7 && cy === 6);
+                if (corner) continue;
+                for (let dy = -2; dy <= 2; dy++) {
+                    for (let dx = -2; dx <= 2; dx++) {
+                        set(cx + dx, cy + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+                    }
+                }
             }
         }
-        // reserve format areas (values drawn per mask later)
+    }
+
+    function reserveFormatAreas(size, set) {
         for (let i = 0; i <= 8; i++) {
-            if (i !== 6) { set(8, i, false); set(i, 8, false); }
-            if (i < 8) { set(size - 1 - i, 8, false); set(8, size - 1 - i, false); }
+            if (i !== 6) {
+                set(8, i, false);
+                set(i, 8, false);
+            }
+            if (i < 8) {
+                set(size - 1 - i, 8, false);
+                set(8, size - 1 - i, false);
+            }
         }
-        set(8, size - 8, true); // dark module
-        // version info (v ≥ 7)
+        set(8, size - 8, true);
+    }
+
+    function drawVersionInfo(version, size, set) {
         if (version >= 7) {
             let rem = version;
             for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
@@ -139,7 +158,9 @@ const QR = (() => {
                 set(b, a, bit);
             }
         }
-        // zigzag data placement
+    }
+
+    function placeDataZigzag(size, modules, isFunction, codewords) {
         let i = 0;
         for (let right = size - 1; right >= 1; right -= 2) {
             if (right === 6) right = 5;
@@ -155,6 +176,19 @@ const QR = (() => {
                 }
             }
         }
+    }
+
+    function makeMatrix(version, codewords) {
+        const size = version * 4 + 17;
+        const modules = Array.from({ length: size }, () => new Array(size).fill(false));
+        const isFunction = Array.from({ length: size }, () => new Array(size).fill(false));
+        const set = (x, y, dark) => { modules[y][x] = dark; isFunction[y][x] = true; };
+        drawTiming(size, set);
+        drawFinders(size, set);
+        drawAlignment(version, size, set);
+        reserveFormatAreas(size, set);
+        drawVersionInfo(version, size, set);
+        placeDataZigzag(size, modules, isFunction, codewords);
         return { size, modules, isFunction };
     }
 
