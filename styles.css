@@ -2781,6 +2781,7 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
     padding: 16px 18px 14px;
+    overflow: hidden;
 }
 .themes-section-head {
     display: flex; align-items: baseline; justify-content: space-between;
@@ -2794,6 +2795,8 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     top: 0;
     z-index: 2;
     background: var(--surface);
+    margin: -16px -18px 12px;
+    padding: 16px 18px 12px;
     border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
 .themes-kicker {
