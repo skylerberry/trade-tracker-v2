@@ -231,6 +231,9 @@ const GUIDE = (() => {
                     <div class="themes-rows">${rows}</div>
                 </section>`;
         }).join('');
+        
+        /* Hydrate icons in dynamically inserted content */
+        if (window.hydrateIcons) window.hydrateIcons(host);
     }
 
     function renderCount() {

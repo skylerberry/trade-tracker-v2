@@ -2755,6 +2755,7 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     display: flex;
     flex-direction: column;
     gap: 28px;
+    padding-bottom: 28px;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
@@ -2772,7 +2773,14 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     display: flex; align-items: baseline; justify-content: space-between;
     gap: 12px;
     padding-bottom: 12px;
+    margin-bottom: 12px;
     border-bottom: 1px solid var(--border);
+}
+[data-view="themes"] .themes-body[data-theme-view="all"] .themes-section-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface);
 }
 .themes-kicker {
     margin: 0;
@@ -4441,7 +4449,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     }
 }
 @media (max-width: 560px) {
-    .themes-section { padding: 14px 14px 6px; }
+    .themes-section { padding: 14px 14px 14px; }
     .themes-tk { font-size: 0.8rem; }
     .form-grid { grid-template-columns: 1fr; }
     .calc-inputs { grid-template-columns: 1fr; }
