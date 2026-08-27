@@ -1739,7 +1739,6 @@ button.chip:active { transform: scale(0.95); }
 .position-card .shares-hero-edit:focus { color: var(--primary); border-bottom-color: color-mix(in srgb, var(--primary) 40%, transparent); }
 :is([data-theme="dark"], [data-theme="oled"]) .position-card .shares-hero-edit,
 :is([data-theme="dark"], [data-theme="oled"]) .position-card .shares-hero-edit:focus { color: inherit; border-bottom-color: color-mix(in srgb, currentColor 40%, transparent); }
-.shares-copy-mini { margin-left: 8px; opacity: 0.8; }
 .shares-cap { font-size: 0.76rem; color: rgba(255, 255, 255, 0.85); margin-top: -2px; }
 .shares-cap.is-capped {
     display: flex;
@@ -1781,8 +1780,22 @@ button.chip:active { transform: scale(0.95); }
     color: inherit;
     background: rgba(255, 255, 255, 0.1);
 }
-.shares-label-row { margin-top: 1px; }
-.shares-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75); }
+.shares-label-row { 
+    margin-top: 1px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.shares-label { 
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75);
+}
+.shares-copy-mini { 
+    position: absolute;
+    right: 0;
+    margin-left: 0;
+    opacity: 0.8;
+}
 .result-rows { display: flex; flex-direction: column; gap: 6px; }
 .rrow { display: flex; justify-content: space-between; font-size: 0.84rem; color: rgba(255, 255, 255, 0.8); }
 .rrow b { color: #fff; font-weight: 600; }
@@ -2781,6 +2794,7 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     top: 0;
     z-index: 2;
     background: var(--surface);
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
 .themes-kicker {
     margin: 0;
@@ -4271,6 +4285,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 
 /* ---------- lucide icons (animated) ---------- */
 .lucide { width: 15px; height: 15px; display: block; }
+[data-icon="clipboard-copy"] .lucide { stroke-width: 2.5; }
 [data-icon] { display: inline-flex; align-items: center; justify-content: center; }
 .icon-btn .lucide { transition: transform var(--dur-slow) var(--ease-back); }
 .icon-btn:hover .lucide { transform: scale(1.18); }
