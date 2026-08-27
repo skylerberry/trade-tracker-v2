@@ -2756,28 +2756,40 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
 }
 .themes-body::-webkit-scrollbar { width: 4px; }
 .themes-body::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
+/* The head IS the card's rounded cap — it owns the top border and the top
+   radius, so it keeps its rounded corners while pinned. The card below it
+   keeps only the sides and the rounded bottom. No overflow clipping: a
+   clipping card would shear the cap's 1px border overhang. */
 .themes-section {
     --sect-pt: 16px;
     --sect-px: 18px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    padding: var(--sect-pt) var(--sect-px) 8px;
-    /* clip, not hidden — same rule as .table-card: the card's own radius
-       rounds the stuck head at the top corners, and clip never creates a
-       scroll container, so the head still sticks against .themes-body. */
-    overflow: clip;
+    border-top: none;
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+    padding: 0 var(--sect-px) 8px;
 }
 .themes-section-head {
     position: sticky; top: 0; z-index: 1;
     display: flex; align-items: baseline; justify-content: space-between;
     gap: 12px;
-    /* Full-bleed to the card's padding box: an inset head would let rows
-       show in the padding gutters while stuck. */
-    margin: calc(-1 * var(--sect-pt)) calc(-1 * var(--sect-px)) 0;
+    /* Overhang the card's 1px side borders so the cap's own borders sit
+       exactly on top of them — the seam is invisible at rest and pinned. */
+    margin: 0 calc(-1 * var(--sect-px) - 1px);
     padding: var(--sect-pt) var(--sect-px) 12px;
     background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+.themes-section-head::before {
+    /* Page-background mask behind the arc: hides the card's square top
+       corners at rest and rows sliding past while pinned. */
+    content: '';
+    position: absolute;
+    inset: -1px -1px auto;
+    height: var(--radius-card);
+    background: var(--bg);
+    z-index: -1;
 }
 .themes-kicker {
     margin: 0;
@@ -4424,7 +4436,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     }
 }
 @media (max-width: 560px) {
-    .themes-section { --sect-pt: 14px; --sect-px: 14px; padding: var(--sect-pt) var(--sect-px) 6px; }
+    .themes-section { --sect-pt: 14px; --sect-px: 14px; padding: 0 var(--sect-px) 6px; }
     .themes-tk { font-size: 0.8rem; }
     .form-grid { grid-template-columns: 1fr; }
     .calc-inputs { grid-template-columns: 1fr; }
