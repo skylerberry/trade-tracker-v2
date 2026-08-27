@@ -71,6 +71,30 @@ const GUIDE = (() => {
             ...resolveThemes(curatedRaw, companies, 'curated', taken),
             ...resolveThemes(moversRaw, companies, 'generated', taken),
         ];
+        
+        /* Derive "All gainers" as unique union of the 4 gainer timeframes */
+        const gainerIds = ['gainers-1w', 'gainers-1m', 'gainers-3m', 'gainers-6m'];
+        const gainerThemes = themes.filter(t => gainerIds.includes(t.id));
+        if (gainerThemes.length > 1) {
+            const allTickers = new Set();
+            gainerThemes.forEach(t => {
+                t.companies.forEach(c => allTickers.add(c.ticker));
+            });
+            const allCompanies = Array.from(allTickers)
+                .map(ticker => companies[ticker])
+                .filter(Boolean);
+            if (allCompanies.length > 0) {
+                themes.push({
+                    id: 'gainers-all',
+                    name: 'All gainers',
+                    blurb: 'Unique union of all four gainer timeframes',
+                    source: 'generated',
+                    derived: true,
+                    companies: allCompanies,
+                });
+            }
+        }
+        
         const asOf = typeof moversRaw?.asOf === 'string' ? moversRaw.asOf.trim() : '';
         return { themes, companies, asOf };
     }
@@ -99,9 +123,12 @@ const GUIDE = (() => {
     function view(data, { query = '', themeId = null } = {}) {
         const q = String(query || '').trim().toLowerCase();
         const id = themeId && themeId !== 'all' ? String(themeId) : null;
+        const showingAll = !themeId || themeId === 'all';
         const themes = [];
         for (const theme of data?.themes || []) {
             if (id && theme.id !== id) continue;
+            /* All view shows curated themes only, not generated scans or derived */
+            if (showingAll && theme.source !== 'curated') continue;
             const companies = theme.companies.filter(c => matchesQuery(c, theme, q));
             if (!companies.length) continue;
             themes.push({ ...theme, companies });
@@ -158,6 +185,10 @@ const GUIDE = (() => {
         const host = $('themesBody');
         if (!host) return;
         host.scrollTop = 0;
+        
+        /* Set data attribute for sticky header styling */
+        host.dataset.themeView = themeId === 'all' ? 'all' : 'single';
+        
         if (loadError) {
             host.innerHTML = '<p class="themes-empty">Couldn’t load the guide.</p>';
             return;
@@ -188,6 +219,13 @@ const GUIDE = (() => {
             const asOf = theme.source === 'generated' && data.asOf
                 ? `<span class="themes-asof">${escapeHtml(fmtAsOf(data.asOf))}</span>`
                 : '';
+            
+            /* Add copy button for gainer scans */
+            const isGainerScan = theme.id === 'gainers-all' || theme.id.startsWith('gainers-');
+            const copyBtn = isGainerScan
+                ? `<button type="button" class="themes-copy-btn" data-theme-id="${escapeHtml(theme.id)}" title="Copy tickers"><span data-icon="clipboard-copy"></span></button>`
+                : '';
+            
             return `
                 <section class="themes-section" aria-labelledby="theme-${escapeHtml(theme.id)}">
                     <header class="themes-section-head">
@@ -195,11 +233,14 @@ const GUIDE = (() => {
                             <h2 class="themes-kicker" id="theme-${escapeHtml(theme.id)}">${escapeHtml(theme.name)}</h2>
                             ${blurb}
                         </div>
-                        <span class="themes-section-meta">${asOf}<span class="themes-section-n">${theme.companies.length}</span></span>
+                        <span class="themes-section-meta">${asOf}<span class="themes-section-n">${theme.companies.length}</span>${copyBtn}</span>
                     </header>
                     <div class="themes-rows">${rows}</div>
                 </section>`;
         }).join('');
+        
+        /* Hydrate icons in dynamically inserted content */
+        if (window.hydrateIcons) window.hydrateIcons(host);
     }
 
     function renderCount() {
@@ -247,6 +288,7 @@ const GUIDE = (() => {
         const input = $('themesSearch');
         const clear = $('themesSearchClear');
         const railHost = $('themesRail');
+        const bodyHost = $('themesBody');
         if (input) {
             input.addEventListener('input', () => setQuery(input.value));
             input.addEventListener('keydown', (e) => {
@@ -270,6 +312,22 @@ const GUIDE = (() => {
                 const btn = e.target.closest('.themes-rail-item');
                 if (!btn) return;
                 setTheme(btn.dataset.themeId);
+            });
+        }
+        if (bodyHost) {
+            /* Copy tickers button for gainer scans */
+            bodyHost.addEventListener('click', (e) => {
+                const btn = e.target.closest('.themes-copy-btn');
+                if (!btn) return;
+                const themeId = btn.dataset.themeId;
+                const theme = data.themes.find(t => t.id === themeId);
+                if (!theme) return;
+                const tickers = theme.companies.map(c => c.ticker).join(' ');
+                navigator.clipboard.writeText(tickers);
+                const APP = window.APP || {};
+                if (APP.toast) {
+                    APP.toast(`<b>${theme.companies.length} ticker${theme.companies.length === 1 ? '' : 's'}</b> copied`);
+                }
             });
         }
         document.addEventListener('keydown', (e) => {

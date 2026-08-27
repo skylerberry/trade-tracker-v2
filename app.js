@@ -4078,5 +4078,10 @@
             maybeOnboard();
         }
     }
+    
+    /* Expose toast for guide.js */
+    window.APP = window.APP || {};
+    window.APP.toast = toast;
+    
     init();
 })();

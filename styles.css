@@ -278,8 +278,14 @@ input::placeholder { color: var(--text-3); opacity: 0.7; }
     font-size: 0.72rem; color: var(--accent); text-decoration: none;
     border: none; background: none; padding: 0 2px; cursor: pointer;
     transition: opacity var(--dur-fast);
+    display: inline-flex;
+    align-items: center;
 }
 .tiny-link:hover { opacity: 0.75; text-decoration: underline; }
+.tiny-link .lucide {
+    width: 12px;
+    height: 12px;
+}
 /* discreet view toggle on the Risk label (same idea as the clock's :SS chip) */
 .risk-view-toggle {
     margin-left: 6px;
@@ -1733,7 +1739,6 @@ button.chip:active { transform: scale(0.95); }
 .position-card .shares-hero-edit:focus { color: var(--primary); border-bottom-color: color-mix(in srgb, var(--primary) 40%, transparent); }
 :is([data-theme="dark"], [data-theme="oled"]) .position-card .shares-hero-edit,
 :is([data-theme="dark"], [data-theme="oled"]) .position-card .shares-hero-edit:focus { color: inherit; border-bottom-color: color-mix(in srgb, currentColor 40%, transparent); }
-.shares-copy-mini { margin-left: 8px; opacity: 0.8; }
 .shares-cap { font-size: 0.76rem; color: rgba(255, 255, 255, 0.85); margin-top: -2px; }
 .shares-cap.is-capped {
     display: flex;
@@ -1775,8 +1780,22 @@ button.chip:active { transform: scale(0.95); }
     color: inherit;
     background: rgba(255, 255, 255, 0.1);
 }
-.shares-label-row { margin-top: 1px; }
-.shares-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75); }
+.shares-label-row { 
+    margin-top: 1px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.shares-label { 
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75);
+}
+.shares-copy-mini { 
+    position: absolute;
+    right: 0;
+    margin-left: 0;
+    opacity: 0.8;
+}
 .result-rows { display: flex; flex-direction: column; gap: 6px; }
 .rrow { display: flex; justify-content: space-between; font-size: 0.84rem; color: rgba(255, 255, 255, 0.8); }
 .rrow b { color: #fff; font-weight: 600; }
@@ -2749,6 +2768,7 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     display: flex;
     flex-direction: column;
     gap: 28px;
+    padding-bottom: 28px;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
@@ -2760,13 +2780,24 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
-    padding: 16px 18px 8px;
+    padding: 16px 18px 14px;
+    overflow: hidden;
 }
 .themes-section-head {
     display: flex; align-items: baseline; justify-content: space-between;
     gap: 12px;
     padding-bottom: 12px;
+    margin-bottom: 12px;
     border-bottom: 1px solid var(--border);
+}
+[data-view="themes"] .themes-body[data-theme-view="all"] .themes-section-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface);
+    margin: -16px -18px 12px;
+    padding: 16px 18px 12px;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
 .themes-kicker {
     margin: 0;
@@ -2789,6 +2820,28 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     font-size: 0.72rem; font-weight: 600;
     color: var(--text-3);
     font-variant-numeric: tabular-nums;
+}
+.themes-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-left: 6px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: color var(--dur-fast), opacity var(--dur-fast);
+}
+.themes-copy-btn .lucide {
+    width: 14px;
+    height: 14px;
+}
+.themes-copy-btn:hover {
+    color: var(--accent);
+    opacity: 0.85;
 }
 .themes-asof {
     font-size: 0.72rem; font-weight: 500;
@@ -4235,6 +4288,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 
 /* ---------- lucide icons (animated) ---------- */
 .lucide { width: 15px; height: 15px; display: block; }
+[data-icon="clipboard-copy"] .lucide { stroke-width: 2.5; }
 [data-icon] { display: inline-flex; align-items: center; justify-content: center; }
 .icon-btn .lucide { transition: transform var(--dur-slow) var(--ease-back); }
 .icon-btn:hover .lucide { transform: scale(1.18); }
@@ -4413,7 +4467,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     }
 }
 @media (max-width: 560px) {
-    .themes-section { padding: 14px 14px 6px; }
+    .themes-section { padding: 14px 14px 14px; }
     .themes-tk { font-size: 0.8rem; }
     .form-grid { grid-template-columns: 1fr; }
     .calc-inputs { grid-template-columns: 1fr; }
