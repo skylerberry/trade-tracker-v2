@@ -212,6 +212,13 @@ const GUIDE = (() => {
             const asOf = theme.source === 'generated' && data.asOf
                 ? `<span class="themes-asof">${escapeHtml(fmtAsOf(data.asOf))}</span>`
                 : '';
+            
+            /* Add copy button for gainer scans */
+            const isGainerScan = theme.id === 'gainers-all' || theme.id.startsWith('gainers-');
+            const copyBtn = isGainerScan
+                ? `<button type="button" class="themes-copy-btn" data-theme-id="${escapeHtml(theme.id)}" title="Copy tickers"><span data-icon="clipboard-copy"></span></button>`
+                : '';
+            
             return `
                 <section class="themes-section" aria-labelledby="theme-${escapeHtml(theme.id)}">
                     <header class="themes-section-head">
@@ -219,7 +226,7 @@ const GUIDE = (() => {
                             <h2 class="themes-kicker" id="theme-${escapeHtml(theme.id)}">${escapeHtml(theme.name)}</h2>
                             ${blurb}
                         </div>
-                        <span class="themes-section-meta">${asOf}<span class="themes-section-n">${theme.companies.length}</span></span>
+                        <span class="themes-section-meta">${asOf}<span class="themes-section-n">${theme.companies.length}</span>${copyBtn}</span>
                     </header>
                     <div class="themes-rows">${rows}</div>
                 </section>`;
@@ -271,6 +278,7 @@ const GUIDE = (() => {
         const input = $('themesSearch');
         const clear = $('themesSearchClear');
         const railHost = $('themesRail');
+        const bodyHost = $('themesBody');
         if (input) {
             input.addEventListener('input', () => setQuery(input.value));
             input.addEventListener('keydown', (e) => {
@@ -294,6 +302,22 @@ const GUIDE = (() => {
                 const btn = e.target.closest('.themes-rail-item');
                 if (!btn) return;
                 setTheme(btn.dataset.themeId);
+            });
+        }
+        if (bodyHost) {
+            /* Copy tickers button for gainer scans */
+            bodyHost.addEventListener('click', (e) => {
+                const btn = e.target.closest('.themes-copy-btn');
+                if (!btn) return;
+                const themeId = btn.dataset.themeId;
+                const theme = data.themes.find(t => t.id === themeId);
+                if (!theme) return;
+                const tickers = theme.companies.map(c => c.ticker).join(' ');
+                navigator.clipboard.writeText(tickers);
+                const APP = window.APP || {};
+                if (APP.toast) {
+                    APP.toast(`<b>${theme.companies.length} ticker${theme.companies.length === 1 ? '' : 's'}</b> copied`);
+                }
             });
         }
         document.addEventListener('keydown', (e) => {
