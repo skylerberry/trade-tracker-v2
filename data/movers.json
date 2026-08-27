@@ -2,12 +2,2092 @@
   "_comment": "Scanner-owned. Overwritten each weekday after post-market close by the site-manager scan. Same shape as guide.json, plus asOf (YYYY-MM-DD). Never edit guide.json from the scanner — curated data wins every collision (theme ids and company records). Tickers here may reference companies defined in guide.json; add a company record below only for names the curated guide doesn't cover.",
   "asOf": "2026-08-26",
   "themes": [
-    { "id": "gainers-1w", "name": "1-week gainers", "blurb": "Sample data — the nightly scan replaces this list.", "tickers": ["NVDA", "QUBT"] },
-    { "id": "gainers-1m", "name": "1-month gainers", "blurb": "Sample data — the nightly scan replaces this list.", "tickers": ["AVGO", "SMPL"] },
-    { "id": "gainers-3m", "name": "3-month gainers", "blurb": "Sample data — the nightly scan replaces this list.", "tickers": ["TSM"] },
-    { "id": "gainers-6m", "name": "6-month gainers", "blurb": "Sample data — the nightly scan replaces this list.", "tickers": ["ASML"] }
+    {
+      "id": "gainers-1w",
+      "name": "1-week gainers",
+      "blurb": "US common names whose close peaked at least 30% above the window-start close in 1 week, with 20-day ADR at least 3% and 20-day average dollar volume at least $100M.",
+      "tickers": [
+        "AMIX",
+        "ANF"
+      ]
+    },
+    {
+      "id": "gainers-1m",
+      "name": "1-month gainers",
+      "blurb": "US common names whose close peaked at least 30% above the window-start close in 1 month, with 20-day ADR at least 3% and 20-day average dollar volume at least $100M.",
+      "tickers": [
+        "AMIX",
+        "DFNS",
+        "MRNA",
+        "ABCL",
+        "AXTI",
+        "AEHR",
+        "AMLX",
+        "IOVA",
+        "PURR",
+        "DOCS",
+        "AAOI",
+        "CAI",
+        "BSP",
+        "TEAM",
+        "SHAZ",
+        "UMAC",
+        "TWST",
+        "CRWV",
+        "TEM",
+        "LUNR",
+        "HTZ",
+        "SNDK",
+        "RDW",
+        "NBIS",
+        "P",
+        "COHR",
+        "WOLF",
+        "FORM",
+        "AU",
+        "IAG",
+        "AEM",
+        "ALM",
+        "SITM",
+        "EQX",
+        "BTG",
+        "LITE",
+        "OUST",
+        "MDB",
+        "TE",
+        "U",
+        "XE",
+        "BE",
+        "MP",
+        "ACHR",
+        "MXL",
+        "CHYM",
+        "FIGR",
+        "GFI",
+        "IESC",
+        "EGO",
+        "ANF",
+        "WPM",
+        "NVTS",
+        "RBRK",
+        "CRDO",
+        "SMCI",
+        "QLYS",
+        "INFQ",
+        "PLTR",
+        "FSLY",
+        "HL",
+        "WIX",
+        "CDE",
+        "BMNR",
+        "ONTO",
+        "USAR",
+        "UUUU",
+        "CRCL",
+        "IREN",
+        "MRVL",
+        "PAYC",
+        "KGC",
+        "WDAY",
+        "TXG",
+        "ESTC",
+        "IONQ",
+        "HBM",
+        "ALAB",
+        "ENTG",
+        "GLW",
+        "AG",
+        "SMTC",
+        "SEI",
+        "HPE",
+        "PATH",
+        "TER",
+        "TTMI",
+        "KTOS",
+        "INOD",
+        "CBRS",
+        "SKHY",
+        "TSEM",
+        "BULL",
+        "ZETA",
+        "AMKR",
+        "RKLB",
+        "ZBRA",
+        "AGI",
+        "STX",
+        "NTRA",
+        "CORT",
+        "FN",
+        "CACI",
+        "ARX",
+        "MSTR",
+        "CAKE",
+        "PSKY",
+        "RGTI",
+        "FSLR",
+        "VICR",
+        "TWLO",
+        "AVAV",
+        "VIAV",
+        "GTLB",
+        "ORCL",
+        "ASTS",
+        "MTSI",
+        "PRAX",
+        "OWL",
+        "AMBA",
+        "INSM",
+        "CIEN",
+        "EOSE",
+        "MTDR",
+        "HALO",
+        "SOUN",
+        "DELL",
+        "PCOR",
+        "FCEL",
+        "S",
+        "HRB",
+        "ATI",
+        "IT",
+        "FCX",
+        "BNTX"
+      ]
+    },
+    {
+      "id": "gainers-3m",
+      "name": "3-month gainers",
+      "blurb": "US common names whose close peaked at least 30% above the window-start close in 3 months, with 20-day ADR at least 3% and 20-day average dollar volume at least $100M.",
+      "tickers": [
+        "MRNA",
+        "AMLX",
+        "AMIX",
+        "TXG",
+        "TWST",
+        "ABCL",
+        "IOVA",
+        "QLYS",
+        "TEAM",
+        "DOCS",
+        "PBF",
+        "CHYM",
+        "SNOW",
+        "ANF",
+        "CORT",
+        "ELF",
+        "UMAC",
+        "CAI",
+        "FSLY",
+        "DFNS",
+        "CAKE",
+        "WDAY",
+        "CRL",
+        "EAT",
+        "VSXY",
+        "DAVE",
+        "PAYC",
+        "OKTA",
+        "U",
+        "HNGE",
+        "GKOS",
+        "AVTR",
+        "HPE",
+        "AXON",
+        "DELL",
+        "SEZL",
+        "NTRA",
+        "RGEN",
+        "MRVL",
+        "GTLB",
+        "RNG",
+        "AMAT",
+        "ESTC",
+        "SN",
+        "COMP",
+        "RBRK",
+        "W",
+        "WIX",
+        "MDB",
+        "PANW",
+        "BULL",
+        "VEEV",
+        "FCEL",
+        "HALO",
+        "NET",
+        "IQV",
+        "ICLR",
+        "HOOD",
+        "UCTT",
+        "KLAC",
+        "MANH",
+        "BAX",
+        "HIMS",
+        "FIVN",
+        "TEM",
+        "KMX",
+        "FRMI",
+        "EGO",
+        "ZETA",
+        "ALAB",
+        "HRB",
+        "ZBRA",
+        "OSCR",
+        "PATH",
+        "TOST",
+        "ILMN",
+        "BILL",
+        "DASH",
+        "EXPE",
+        "TGTX",
+        "ZS",
+        "LQDA",
+        "WDC",
+        "ARM",
+        "MPC",
+        "SHOP",
+        "SHAZ",
+        "SNDK",
+        "NTNX",
+        "VLO",
+        "FRPT",
+        "NTAP",
+        "ABNB",
+        "DINO",
+        "GWRE",
+        "ONTO",
+        "PURR",
+        "OUST",
+        "RVMD",
+        "NBIS",
+        "ATI",
+        "PCTY",
+        "BBY",
+        "LTH",
+        "GLW",
+        "IOT",
+        "TWLO",
+        "VSH",
+        "PSX",
+        "AEHR",
+        "TVTX",
+        "SE",
+        "FLNC",
+        "CRWD",
+        "BBIO",
+        "INOD",
+        "HUM",
+        "DUOL",
+        "RH",
+        "DBX",
+        "FBIN",
+        "CRDO",
+        "FPS",
+        "ANET",
+        "KVYO",
+        "FROG",
+        "P",
+        "GH",
+        "IP",
+        "TRI",
+        "SPHR",
+        "ETSY",
+        "PLTR",
+        "MOH",
+        "LRCX",
+        "RIVN",
+        "BMNR",
+        "DT",
+        "MKSI",
+        "PCOR",
+        "NOW",
+        "CRS",
+        "BMRN",
+        "CDW",
+        "MU",
+        "RDDT",
+        "AJG",
+        "TTEK",
+        "TPG",
+        "DOCU",
+        "SMCI",
+        "IAG",
+        "FTNT",
+        "BRKR",
+        "INFQ",
+        "AMKR",
+        "KEEL",
+        "CACI",
+        "FIG",
+        "ENTG",
+        "S",
+        "BTDR",
+        "AU",
+        "CLS",
+        "BROS",
+        "MHK",
+        "VRSK",
+        "DDOG",
+        "DXCM",
+        "STX",
+        "FDS",
+        "OC",
+        "LYFT",
+        "RVTY",
+        "ORCL",
+        "ONDS",
+        "BTG",
+        "GPN",
+        "MOG.A",
+        "HUBS",
+        "UMC",
+        "SW"
+      ]
+    },
+    {
+      "id": "gainers-6m",
+      "name": "6-month gainers",
+      "blurb": "US common names whose close peaked at least 30% above the window-start close in 6 months, with 20-day ADR at least 3% and 20-day average dollar volume at least $100M.",
+      "tickers": [
+        "MXL",
+        "FCEL",
+        "DELL",
+        "MRVL",
+        "AAOI",
+        "WOLF",
+        "ABCL",
+        "ALAB",
+        "SNDK",
+        "AEHR",
+        "AXTI",
+        "CORT",
+        "VSH",
+        "NVTS",
+        "MRNA",
+        "ARM",
+        "TXG",
+        "SHAZ",
+        "OUST",
+        "KEEL",
+        "DOCN",
+        "HPE",
+        "TWST",
+        "SEZL",
+        "LQDA",
+        "RDW",
+        "INTC",
+        "LUNR",
+        "MU",
+        "PURR",
+        "AMIX",
+        "AMLX",
+        "NBIS",
+        "AMD",
+        "PANW",
+        "WDC",
+        "UMC",
+        "STX",
+        "INOD",
+        "DAVE",
+        "DDOG",
+        "U",
+        "UMAC",
+        "OSCR",
+        "FROG",
+        "HUT",
+        "FLEX",
+        "TSEM",
+        "CRWD",
+        "CRDO",
+        "SIMO",
+        "HIMS",
+        "HUM",
+        "IOVA",
+        "TEAM",
+        "BTDR",
+        "STM",
+        "NOK",
+        "TVTX",
+        "HNGE",
+        "PLUG",
+        "FTNT",
+        "STRL",
+        "QLYS",
+        "IONQ",
+        "PBF",
+        "TWLO",
+        "SITM",
+        "RKLB",
+        "OKTA",
+        "UCTT",
+        "RVMD",
+        "PL",
+        "NTAP",
+        "TTMI",
+        "RBRK",
+        "SNOW",
+        "DINO",
+        "BE",
+        "TGTX",
+        "RNG",
+        "KLAC",
+        "HRB",
+        "VIAV",
+        "VSAT",
+        "VICR",
+        "FIVN",
+        "ON",
+        "NET",
+        "ARX",
+        "SMTC",
+        "FPS",
+        "FSLY",
+        "MARA",
+        "SEDG",
+        "AMKR",
+        "PAYC",
+        "VG",
+        "GFS",
+        "MPC",
+        "AMAT",
+        "ILMN",
+        "S",
+        "GH",
+        "HTZ",
+        "ICLR",
+        "FLNC",
+        "CLSK",
+        "AGX",
+        "HPQ",
+        "CAKE",
+        "ASX",
+        "CIFR",
+        "AFRM",
+        "BTSG",
+        "CIEN",
+        "QCOM",
+        "CRL",
+        "NTNX",
+        "POWL",
+        "SANM",
+        "LTH",
+        "VLO",
+        "RIOT",
+        "SM",
+        "LRCX",
+        "EAT",
+        "AUR",
+        "MKSI",
+        "APLD",
+        "TE",
+        "RMBS",
+        "ONTO",
+        "WDAY",
+        "PATH",
+        "GLW",
+        "ORCL",
+        "GTLB",
+        "EXPE",
+        "CORZ",
+        "CRCL",
+        "MOH",
+        "ZETA",
+        "XYZ",
+        "WULF",
+        "MUSA",
+        "BULL",
+        "DVA",
+        "AKAM",
+        "MTSI",
+        "TIGO",
+        "VSXY",
+        "PSX",
+        "ETSY",
+        "COHR",
+        "APA",
+        "BRKR",
+        "DOCS",
+        "USAR",
+        "INFQ",
+        "RAL",
+        "ASTS",
+        "CNC",
+        "IQV",
+        "P",
+        "IESC",
+        "ANET",
+        "ZBRA",
+        "AVTR",
+        "CLS",
+        "ANF",
+        "NTRA",
+        "IREN",
+        "NUE",
+        "QBTS",
+        "NEU",
+        "MANH",
+        "CHYM",
+        "RGTI",
+        "SPHR",
+        "GKOS",
+        "AXSM",
+        "CRS",
+        "GLXY",
+        "TXN",
+        "SEI",
+        "W",
+        "FFIV",
+        "HALO",
+        "LSCC",
+        "KMX",
+        "ARWR",
+        "HOOD",
+        "MTZ",
+        "CAI",
+        "JBL",
+        "ARW",
+        "CVE",
+        "IOT",
+        "SMCI",
+        "FSLR",
+        "ATI",
+        "VISN",
+        "ESTC",
+        "ENPH",
+        "AAON",
+        "NVT",
+        "CHRD",
+        "DT",
+        "FORM",
+        "STLD",
+        "FDS",
+        "DOCU",
+        "BBY",
+        "PCTY",
+        "CROX",
+        "MDB",
+        "LITE",
+        "AVT",
+        "LYB",
+        "AVGO",
+        "DBX",
+        "SN",
+        "KGS",
+        "Q",
+        "KLAR",
+        "CF",
+        "APP",
+        "ABNB",
+        "PINS",
+        "ALM",
+        "BROS",
+        "MSTR",
+        "NXPI",
+        "VRT",
+        "BAX",
+        "WIX",
+        "DOW",
+        "ENS",
+        "VEEV",
+        "SWKS",
+        "FIX",
+        "COMP",
+        "RGEN",
+        "TER",
+        "CART",
+        "GWRE",
+        "NBIX",
+        "KNX",
+        "CRWV",
+        "AAL",
+        "MOD",
+        "BBIO",
+        "CYTK",
+        "CAT",
+        "MCHP",
+        "EBAY",
+        "PWR",
+        "NXT",
+        "CLF",
+        "MPWR",
+        "RDDT",
+        "VIK",
+        "TOST",
+        "PSKY",
+        "CDNS",
+        "RS",
+        "DASH",
+        "ECHO",
+        "ONDS",
+        "CASY",
+        "QS",
+        "AMBA",
+        "JBHT",
+        "GEV",
+        "KVYO",
+        "ENTG",
+        "PLTR",
+        "IT",
+        "TEM",
+        "MTDR",
+        "JAZZ",
+        "GEN",
+        "DUOL",
+        "PRMB",
+        "NVMI",
+        "IBKR",
+        "ZM",
+        "LYFT",
+        "GDDY",
+        "NOW",
+        "M",
+        "BWA",
+        "DY",
+        "LFUS",
+        "CENX",
+        "RIVN",
+        "ROIV",
+        "SHOP",
+        "WAT",
+        "ADM",
+        "ODFL",
+        "DAR",
+        "MDGL",
+        "DKNG",
+        "BKNG",
+        "OC",
+        "MP",
+        "MNDY",
+        "TTD",
+        "AA",
+        "RVTY",
+        "WCC",
+        "KRMN"
+      ]
+    }
   ],
   "companies": {
-    "SMPL": { "name": "Sample Co", "does": "Placeholder showing that movers.json carries its own Does lines for names the curated guide doesn't cover." }
+    "AMIX": {
+      "name": "Autonomix Medical, Inc. Common Stock",
+      "does": "Developing a catheter that finds nerves from inside a blood vessel and burns them; first target is pancreatic-cancer pain. Not selling yet."
+    },
+    "ANF": {
+      "name": "Abercrombie & Fitch Co.",
+      "does": "Sells casual clothing and accessories under Abercrombie and Hollister through its stores and websites."
+    },
+    "DFNS": {
+      "name": "T3 Defense Inc. Common Stock",
+      "does": "Buys and runs defense contractors that supply parts and services for military programs."
+    },
+    "MRNA": {
+      "name": "Moderna, Inc. Common Stock",
+      "does": "Makes mRNA vaccines and medicines that tell the body's cells how to fight viruses and other diseases."
+    },
+    "ABCL": {
+      "name": "AbCellera Biologics Inc. Common Shares",
+      "does": "Finds and develops antibody medicines for drug-company partners and for its own experimental drugs."
+    },
+    "AXTI": {
+      "name": "AXT Inc Common Stock",
+      "does": "Makes specialty crystal wafers that chip makers use for lasers, fiber-optic links, and other parts silicon can't handle."
+    },
+    "AEHR": {
+      "name": "Aehr Test Systems Common Stock",
+      "does": "Sells machines that heat and stress-test semiconductor chips, often still on the wafer, so makers can catch early failures before they ship."
+    },
+    "AMLX": {
+      "name": "Amylyx Pharmaceuticals, Inc. Common Stock",
+      "does": "Developing a daily shot (avexitide) that blocks extra GLP-1 so people after weight-loss surgery stop crashing into dangerously low blood sugar. Not approved yet."
+    },
+    "IOVA": {
+      "name": "Iovance Biotherapeutics, Inc. Common Stock",
+      "does": "Takes immune cells from a patient's tumor, grows them in a lab, and infuses them back as a one-time melanoma treatment."
+    },
+    "PURR": {
+      "name": "Hyperliquid Strategies Inc Common Stock",
+      "does": "Holds HYPE, the token of the Hyperliquid crypto exchange, as a treasury and stakes it to earn extra tokens."
+    },
+    "DOCS": {
+      "name": "Doximity, Inc.",
+      "does": "Runs a professional network for U.S. doctors and sells ads and job listings on it to drugmakers and hospitals."
+    },
+    "AAOI": {
+      "name": "Applied Optoelectronics, Inc. Common Stock",
+      "does": "Makes fiber-optic lasers and transceivers that data centers, cable companies, and telecom networks use to send data as light."
+    },
+    "CAI": {
+      "name": "Caris Life Sciences, Inc. Common Stock",
+      "does": "Sequences tumor tissue and blood and sells those molecular profiles to oncologists and drug companies."
+    },
+    "BSP": {
+      "name": "Bending Spoons S.p.A. Ordinary Shares",
+      "does": "Buys existing apps and websites such as Evernote, Vimeo, and WeTransfer, then runs them to collect user fees."
+    },
+    "TEAM": {
+      "name": "Atlassian Corporation Class A Common Stock",
+      "does": "Sells subscription software like Jira and Confluence that companies use to track work and share documents."
+    },
+    "SHAZ": {
+      "name": "SharonAI Holdings, Inc. Class A Common Stock",
+      "does": "Rents GPU computers in the cloud so companies can train and run AI models."
+    },
+    "UMAC": {
+      "name": "Unusual Machines, Inc.",
+      "does": "Makes and sells drone parts and FPV video goggles, mainly through its own online shops."
+    },
+    "TWST": {
+      "name": "Twist Bioscience Corporation Common Stock",
+      "does": "Prints custom DNA on silicon chips and sells it to drugmakers, labs, and researchers."
+    },
+    "TEM": {
+      "name": "Tempus AI, Inc. Class A Common Stock",
+      "does": "Sequences cancer patients' DNA and sells the test results and data to doctors and drug companies."
+    },
+    "HTZ": {
+      "name": "Hertz Global Holdings, Inc Common Stock",
+      "does": "Rents cars under the Hertz, Dollar, and Thrifty names and later sells the used cars from its fleet."
+    },
+    "SNDK": {
+      "name": "Sandisk Corporation Common Stock",
+      "does": "Makes NAND flash memory and sells it as SSDs, memory cards, and chips for phones and data centers."
+    },
+    "RDW": {
+      "name": "Redwire Corporation",
+      "does": "Builds satellite parts, space hardware, and military drones for governments and commercial space customers."
+    },
+    "P": {
+      "name": "Everpure, Inc.",
+      "does": "Sells all-flash data-storage systems and software that companies use to store and manage their data."
+    },
+    "COHR": {
+      "name": "Coherent Corp.",
+      "does": "Makes lasers, optical parts, and light-based modules that move data inside AI data centers and factories."
+    },
+    "WOLF": {
+      "name": "Wolfspeed, Inc.",
+      "does": "Makes silicon carbide wafers and power chips used in EVs, chargers, and industrial equipment."
+    },
+    "FORM": {
+      "name": "FormFactor, Inc. FormFactor, Inc. Common Stock",
+      "does": "Makes the probe cards and testers chipmakers use to check wafers and chips before they ship."
+    },
+    "AU": {
+      "name": "AngloGold Ashanti plc",
+      "does": "Mines gold at operations on several continents and sells the metal."
+    },
+    "IAG": {
+      "name": "IAMGold Corporation",
+      "does": "Mines gold in Canada and Burkina Faso and sells the metal."
+    },
+    "AEM": {
+      "name": "Agnico Eagle Mines Ltd.",
+      "does": "Mines gold at operations in Canada, Australia, Finland, and Mexico, then sells the metal."
+    },
+    "ALM": {
+      "name": "Almonty Industries Inc. Common Shares",
+      "does": "Mines tungsten in Portugal and South Korea and sells the concentrate to makers of metal, tools, and defense goods."
+    },
+    "SITM": {
+      "name": "SiTime Corporation Common Stock",
+      "does": "Makes tiny silicon timing chips that replace quartz crystals and keep electronics in sync."
+    },
+    "EQX": {
+      "name": "Equinox Gold Corp.",
+      "does": "Mines gold in the Americas and sells the metal."
+    },
+    "BTG": {
+      "name": "B2Gold Corp.",
+      "does": "Mines gold in Mali, Namibia, the Philippines, and Canada and sells the metal."
+    },
+    "LITE": {
+      "name": "Lumentum Holdings Inc. Common Stock",
+      "does": "Makes lasers and optical parts that carry data inside cloud data centers and cut or weld materials in factories."
+    },
+    "OUST": {
+      "name": "Ouster, Inc. Common Stock",
+      "does": "Makes digital laser sensors that cars, robots, and factories use to map nearby objects."
+    },
+    "MDB": {
+      "name": "MongoDB, Inc. Class A Common Stock",
+      "does": "Sells a cloud database that companies use to store and query application data, mostly by subscription."
+    },
+    "TE": {
+      "name": "T1 Energy Inc.",
+      "does": "Makes solar panels in Texas and sells them to U.S. utilities and developers that build solar farms."
+    },
+    "U": {
+      "name": "Unity Software Inc.",
+      "does": "Sells a 3D engine and ads tools that game studios use to build games and make money from them."
+    },
+    "XE": {
+      "name": "X-Energy, Inc. Class A Common Stock",
+      "does": "Designs small factory-built nuclear reactors and the special fuel they use; still developing plants for industrial and power-company customers."
+    },
+    "BE": {
+      "name": "Bloom Energy Corporation",
+      "does": "Makes on-site fuel-cell systems that turn natural gas or hydrogen into electricity for data centers, factories, and other businesses."
+    },
+    "MP": {
+      "name": "MP Materials Corp.",
+      "does": "Mines rare-earth rock in California and turns it into the strong magnets used in electric cars, robots, and wind turbines."
+    },
+    "ACHR": {
+      "name": "Archer Aviation Inc.",
+      "does": "Designs and builds electric aircraft that take off and land vertically, meant for city air taxis and military use."
+    },
+    "MXL": {
+      "name": "MaxLinear, Inc. Common Stock",
+      "does": "Designs chips that move internet traffic through cable, fiber, Wi-Fi, and data-center links."
+    },
+    "CHYM": {
+      "name": "Chime Financial, Inc. Class A Common Stock",
+      "does": "Offers a smartphone app for fee-free checking, savings, and debit cards through partner banks."
+    },
+    "FIGR": {
+      "name": "Figure Technology Solutions, Inc. Class A Common Stock",
+      "does": "Makes home-equity loans online, then sells those loans to investors and collects origination and servicing fees."
+    },
+    "GFI": {
+      "name": "Gold Fields Ltd ADR",
+      "does": "Mines gold, and some copper and silver, then sells the metal."
+    },
+    "IESC": {
+      "name": "IES Holdings, Inc. Common Stock",
+      "does": "Designs and installs electrical and communications systems in data centers, homes, and commercial buildings."
+    },
+    "EGO": {
+      "name": "Eldorado Gold Corporation",
+      "does": "Mines gold in Canada, Turkey, and Greece and sells the metal."
+    },
+    "WPM": {
+      "name": "Wheaton Precious Metals Corp. Common Stock",
+      "does": "Pays miners upfront for the right to buy a share of their gold and silver cheaply, then resells the metal."
+    },
+    "NVTS": {
+      "name": "Navitas Semiconductor Corporation Common Stock",
+      "does": "Makes gallium-nitride and silicon-carbide chips that convert power more efficiently in chargers, cars, and data centers."
+    },
+    "RBRK": {
+      "name": "Rubrik, Inc.",
+      "does": "Sells software that backs up company data and helps restore it after ransomware or other outages."
+    },
+    "CRDO": {
+      "name": "Credo Technology Group Holding Ltd Ordinary Shares",
+      "does": "Makes high-speed cables and chips that connect servers and AI chips inside data centers."
+    },
+    "QLYS": {
+      "name": "Qualys, Inc. Common Stock",
+      "does": "Sells cloud software that scans company computers and networks for security holes."
+    },
+    "INFQ": {
+      "name": "Infleqtion, Inc.",
+      "does": "Builds and sells quantum computers and ultra-precise sensors — clocks, navigation, and radio receivers — to governments, companies, and labs."
+    },
+    "FSLY": {
+      "name": "Fastly, Inc. Class A Common Stock",
+      "does": "Runs a global network that caches and delivers websites, apps, and video closer to users, and sells security tools that block attacks."
+    },
+    "HL": {
+      "name": "Hecla Mining Company",
+      "does": "Mines silver — plus gold, lead, and zinc — in the U.S. and Canada and sells the metal."
+    },
+    "WIX": {
+      "name": "Wix.com Ltd. Ordinary Shares",
+      "does": "Sells a website builder that people and small businesses use to make and host sites, charging a subscription."
+    },
+    "CDE": {
+      "name": "Coeur Mining, Inc.",
+      "does": "Digs gold and silver out of mines in the U.S., Canada, and Mexico and sells the metal."
+    },
+    "BMNR": {
+      "name": "BitMine Immersion Technologies, Inc.",
+      "does": "Holds ether as a treasury and still does some Bitcoin mining and hosting."
+    },
+    "ONTO": {
+      "name": "Onto Innovation Inc.",
+      "does": "Makes machines that inspect and measure chips as factories build and package them."
+    },
+    "USAR": {
+      "name": "USA Rare Earth, Inc. Class A Common Stock",
+      "does": "Turns rare earths into permanent magnets for EVs, electronics, and defense, and is developing a Texas mine to supply the raw material."
+    },
+    "UUUU": {
+      "name": "Energy Fuels Inc.",
+      "does": "Mines and mills uranium sold to nuclear power plants and also processes rare-earth minerals used in magnets."
+    },
+    "CRCL": {
+      "name": "Circle Internet Group, Inc.",
+      "does": "Issues USDC, a digital dollar backed by cash and Treasuries, and keeps the interest those reserves earn."
+    },
+    "IREN": {
+      "name": "IREN Limited Ordinary Shares",
+      "does": "Runs big data centers that mine Bitcoin and rent GPU computing power to AI companies."
+    },
+    "MRVL": {
+      "name": "Marvell Technology, Inc. Common Stock",
+      "does": "Designs chips that move data inside AI data centers and telecom networks."
+    },
+    "PAYC": {
+      "name": "PAYCOM SOFTWARE, INC.",
+      "does": "Sells subscription software that companies use to run payroll and HR in one system."
+    },
+    "KGC": {
+      "name": "Kinross Gold Corporation",
+      "does": "Mines gold, mainly in the Americas and West Africa, then sells the metal."
+    },
+    "WDAY": {
+      "name": "Workday, Inc. Class A Common Stock",
+      "does": "Sells cloud software that companies use to run HR, payroll, and accounting."
+    },
+    "TXG": {
+      "name": "10x Genomics, Inc. Class A Common Stock",
+      "does": "Sells lab machines and kits that let scientists study individual cells and see where genes turn on in tissue."
+    },
+    "ESTC": {
+      "name": "Elastic N.V.",
+      "does": "Sells search software companies use to find data, monitor systems, and detect security threats."
+    },
+    "HBM": {
+      "name": "Hudbay Minerals Inc.",
+      "does": "Mines copper — plus gold, silver, and zinc — in Canada and Peru and sells the metal concentrates."
+    },
+    "ALAB": {
+      "name": "Astera Labs, Inc. Common Stock",
+      "does": "Makes chips and cables that connect GPUs and other processors inside AI servers."
+    },
+    "ENTG": {
+      "name": "Entegris, Inc. Common Stock",
+      "does": "Sells the filters, specialty chemicals, and ultra-clean materials chipmakers need to manufacture semiconductors."
+    },
+    "GLW": {
+      "name": "Corning Incorporated",
+      "does": "Makes specialty glass and fiber-optic cable — scratch-resistant glass for phone screens, glass for TVs, and the fiber that carries internet traffic."
+    },
+    "AG": {
+      "name": "FIRST MAJESTIC SILVER CORP",
+      "does": "Mines silver and gold, mainly in Mexico, and sells the metal."
+    },
+    "SMTC": {
+      "name": "Semtech Corporation Common Stock",
+      "does": "Sells analog chips for high-speed data-center links and LoRa wireless chips that let sensors talk over long distances."
+    },
+    "SEI": {
+      "name": "Solaris Energy Infrastructure, Inc.",
+      "does": "Rents portable power plants to data centers and industrial sites, and also sells sand-handling equipment for oil wells."
+    },
+    "HPE": {
+      "name": "Hewlett Packard Enterprise Company",
+      "does": "Sells servers, storage, and networking gear that companies use to run data centers and AI workloads."
+    },
+    "PATH": {
+      "name": "UiPath, Inc.",
+      "does": "Sells software that companies use to automate repetitive office work with software robots and AI agents."
+    },
+    "TER": {
+      "name": "Teradyne, Inc. Common Stock",
+      "does": "Sells the machines chipmakers use to test chips before they leave the factory."
+    },
+    "TTMI": {
+      "name": "TTM Technologies, Inc. Common Stock",
+      "does": "Makes printed circuit boards that go inside servers, aerospace gear, and other electronics."
+    },
+    "KTOS": {
+      "name": "Kratos Defense & Security Solutions, Inc. Common Stock",
+      "does": "Builds military drones, target drones, and satellite-communications gear for the U.S. military."
+    },
+    "INOD": {
+      "name": "Innodata Inc. Common Stock",
+      "does": "Pays specialists to label and check the data that AI labs and tech companies use to train and test their models."
+    },
+    "CBRS": {
+      "name": "Cerebras Systems Inc. Class A Common Stock",
+      "does": "Makes giant wafer-sized chips and computers that companies use to train and run AI, and also rents that compute in the cloud."
+    },
+    "SKHY": {
+      "name": "SK hynix Inc. American Depositary Shares",
+      "does": "Makes DRAM and NAND memory chips used in servers, phones, PCs, and other electronics."
+    },
+    "TSEM": {
+      "name": "Tower Semiconductor Ltd. Ordinary Shares",
+      "does": "Manufactures analog chips for other companies that design them but don't have their own factories."
+    },
+    "BULL": {
+      "name": "Webull Corporation Class A Ordinary Shares",
+      "does": "Runs a trading app where people buy stocks, options, and other investments, and makes money from interest, order routing, and other fees."
+    },
+    "ZETA": {
+      "name": "Zeta Global Holdings Corp.",
+      "does": "Sells software that brands use to find customers and send them personalized ads and emails."
+    },
+    "AMKR": {
+      "name": "Amkor Technology, Inc. Common Stock",
+      "does": "Packages and tests other companies' finished chips so they can go into phones, cars, and computers."
+    },
+    "ZBRA": {
+      "name": "Zebra Technologies Corporation Class A Common Stock",
+      "does": "Sells barcode scanners, rugged handheld computers, and label printers that warehouses, stores, and hospitals use to track goods and people."
+    },
+    "AGI": {
+      "name": "Alamos Gold Inc. Class A Common Shares",
+      "does": "Mines gold in Canada and Mexico and sells the metal."
+    },
+    "STX": {
+      "name": "Seagate Technology Holdings PLC Ordinary Shares (Ireland)",
+      "does": "Makes hard drives that store massive amounts of data in data centers, PCs, and backup boxes."
+    },
+    "NTRA": {
+      "name": "Natera, Inc. Common Stock",
+      "does": "Runs blood tests that read DNA fragments to check pregnancies, watch for cancer coming back, and monitor organ transplants."
+    },
+    "CORT": {
+      "name": "Corcept Therapeutics Incorporated Common Stock",
+      "does": "Sells pills that block the stress hormone cortisol — one for Cushing's syndrome and another used with chemo for hard-to-treat ovarian cancer."
+    },
+    "FN": {
+      "name": "Fabrinet",
+      "does": "Assembles precision optical and electronic parts, like fiber-optic modules, for other tech companies."
+    },
+    "CACI": {
+      "name": "CACI INTERNATIONAL CLA",
+      "does": "Does IT, intelligence, and cybersecurity work for the U.S. military and other federal agencies."
+    },
+    "ARX": {
+      "name": "Accelerant Holdings",
+      "does": "Connects specialty insurers with the money to back their policies, taking a fee, and also writes some insurance itself."
+    },
+    "MSTR": {
+      "name": "Strategy Inc Common Stock Class A",
+      "does": "Holds bitcoin as a treasury and still sells analytics software that companies use to chart their data."
+    },
+    "CAKE": {
+      "name": "Cheesecake Factory Incorporated (The) Common Stock",
+      "does": "Runs sit-down restaurants with huge menus and famous cheesecakes, and also sells those cheesecakes to grocery stores."
+    },
+    "PSKY": {
+      "name": "Paramount Skydance Corporation Class B Common Stock",
+      "does": "Makes movies and TV shows and runs CBS, cable channels, and Paramount+, earning from ads, cable fees, and subscriptions."
+    },
+    "FSLR": {
+      "name": "First Solar, Inc. Common Stock",
+      "does": "Makes thin-film solar panels and sells them to utilities and developers that build solar farms."
+    },
+    "VICR": {
+      "name": "Vicor Corporation Common Stock",
+      "does": "Makes compact power modules that convert electricity to the right voltage inside servers, cars, satellites, and factory machines."
+    },
+    "TWLO": {
+      "name": "Twilio Inc.",
+      "does": "Sells the behind-the-scenes tools companies use to send texts, make calls, and email customers from their apps."
+    },
+    "AVAV": {
+      "name": "AeroVironment, Inc. Common Stock",
+      "does": "Makes small military drones and one-way attack drones sold to the US and allied armed forces."
+    },
+    "VIAV": {
+      "name": "Viavi Solutions Inc. Common Stock",
+      "does": "Sells tools that phone and internet companies use to test and monitor their networks."
+    },
+    "GTLB": {
+      "name": "GitLab Inc. Class A Common Stock",
+      "does": "Sells software that lets engineering teams store, review, test, and ship their code from one place."
+    },
+    "ORCL": {
+      "name": "Oracle Corp",
+      "does": "Sells business software and cloud computers that companies use to run databases and applications."
+    },
+    "MTSI": {
+      "name": "MACOM Technology Solutions Holdings, Inc. Common Stock",
+      "does": "Makes radio-frequency and optical chips that send data over fiber and wireless networks, including defense gear."
+    },
+    "PRAX": {
+      "name": "Praxis Precision Medicines, Inc. Common Stock",
+      "does": "Develops experimental pills for essential tremor and rare genetic epilepsies and is seeking FDA approval to sell them."
+    },
+    "OWL": {
+      "name": "Blue Owl Capital Inc.",
+      "does": "Raises money from institutions and wealthy clients, then lends it to companies and invests in real estate, charging fees to manage the money."
+    },
+    "AMBA": {
+      "name": "Ambarella, Inc. Ordinary Shares",
+      "does": "Designs chips that let cameras compress video and run AI on-device, used in security cameras and car safety systems."
+    },
+    "INSM": {
+      "name": "Insmed Incorporated Common Stock",
+      "does": "Sells drugs for serious lung diseases — an inhaled antibiotic for hard-to-treat infections and a pill that reduces flare-ups of bronchiectasis."
+    },
+    "CIEN": {
+      "name": "Ciena Corporation",
+      "does": "Makes the fiber-optic gear that phone companies and data centers use to send data as light over long distances."
+    },
+    "EOSE": {
+      "name": "Eos Energy Enterprises, Inc. Class A Common Stock",
+      "does": "Makes zinc batteries that utilities and businesses use to store electricity for hours at a time."
+    },
+    "MTDR": {
+      "name": "MATADOR RESOURCES COMPANY",
+      "does": "Finds and pumps oil and natural gas from shale fields in West Texas and New Mexico."
+    },
+    "HALO": {
+      "name": "Halozyme Therapeutics, Inc. Common Stock",
+      "does": "Licenses an enzyme that lets drugmakers turn IV infusions into under-the-skin shots, collecting royalties when those drugs sell."
+    },
+    "SOUN": {
+      "name": "SoundHound AI, Inc Class A Common Stock",
+      "does": "Sells voice-AI software that lets cars, restaurants, and call centers take orders and answer questions by talking."
+    },
+    "DELL": {
+      "name": "Dell Technologies Inc.",
+      "does": "Makes and sells PCs, servers, and data-center hardware to consumers and businesses."
+    },
+    "PCOR": {
+      "name": "Procore Technologies, Inc.",
+      "does": "Sells subscription software that construction companies use to run jobs from planning through finish."
+    },
+    "FCEL": {
+      "name": "FuelCell Energy, Inc. Common Stock",
+      "does": "Builds and services large fuel-cell plants that generate electricity for utilities and factories."
+    },
+    "S": {
+      "name": "SentinelOne, Inc.",
+      "does": "Sells software that sits on computers and automatically stops cyber attacks."
+    },
+    "HRB": {
+      "name": "H&R Block, Inc.",
+      "does": "Prepares tax returns for individuals and small businesses, in offices and online, and charges fees for filing."
+    },
+    "ATI": {
+      "name": "ATI Inc.",
+      "does": "Makes titanium and nickel-based alloys used in jet engines, airframes, and other high-stress parts."
+    },
+    "IT": {
+      "name": "Gartner, Inc.",
+      "does": "Sells research reports, conferences, and advice that help companies decide what technology to buy."
+    },
+    "FCX": {
+      "name": "Freeport-McMoran Inc.",
+      "does": "Mines copper — plus gold and molybdenum — in Indonesia and the Americas and sells the metal."
+    },
+    "BNTX": {
+      "name": "BioNTech SE American Depositary Share",
+      "does": "Makes the Pfizer COVID vaccine and is developing mRNA shots and other drugs meant to treat cancer."
+    },
+    "PBF": {
+      "name": "PBF ENERGY INC.",
+      "does": "Refines crude oil into gasoline, diesel, and jet fuel, then sells those fuels wholesale."
+    },
+    "ELF": {
+      "name": "e.l.f. Beauty, Inc.",
+      "does": "Makes inexpensive makeup and sells it in drugstores, big-box stores, and online."
+    },
+    "CRL": {
+      "name": "Charles River Laboratories International, Inc.",
+      "does": "Runs the animal studies, lab tests, and manufacturing support that drug companies outsource before a medicine is approved."
+    },
+    "EAT": {
+      "name": "Brinker International, Inc.",
+      "does": "Owns and runs Chili’s and Maggiano’s restaurants."
+    },
+    "VSXY": {
+      "name": "Victorias Secret & Co.",
+      "does": "Sells bras, lingerie, clothing, and beauty products under Victoria's Secret, PINK, and Adore Me in stores and online."
+    },
+    "DAVE": {
+      "name": "Dave Inc. Class A Common Stock",
+      "does": "Runs a banking app that advances people a few hundred dollars between paychecks for a fee, plus a free checking account."
+    },
+    "OKTA": {
+      "name": "Okta, Inc. Class A Common Stock",
+      "does": "Sells cloud software that companies use to log employees and customers into apps and control who can access what."
+    },
+    "HNGE": {
+      "name": "Hinge Health, Inc.",
+      "does": "Sells employers a digital physical-therapy program — app, motion tracking, and a nerve-stim wearable — for workers with joint and muscle pain."
+    },
+    "GKOS": {
+      "name": "Glaukos Corporation",
+      "does": "Sells tiny implants that eye surgeons place in the eye to lower pressure and treat glaucoma, plus a treatment that stiffens the cornea."
+    },
+    "AVTR": {
+      "name": "Avantor, Inc.",
+      "does": "Makes and distributes lab chemicals, supplies, and equipment that drugmakers, hospitals, and labs use."
+    },
+    "AXON": {
+      "name": "Axon Enterprise, Inc. Common Stock",
+      "does": "Sells Tasers, body cameras, and cloud software that police use to record and store evidence."
+    },
+    "SEZL": {
+      "name": "Sezzle Inc. Common Stock",
+      "does": "Lets shoppers split a purchase into installments at checkout, pays the merchant up front, and collects from the shopper over a few weeks."
+    },
+    "RGEN": {
+      "name": "Repligen Corporation Common Stock",
+      "does": "Sells filters, packed columns, and other supplies that drugmakers use to manufacture biologic medicines."
+    },
+    "RNG": {
+      "name": "RINGCENTRAL, INC.",
+      "does": "Sells cloud phone, video, and messaging systems that replace office phone setups."
+    },
+    "AMAT": {
+      "name": "Applied Materials, Inc. Common Stock",
+      "does": "Sells the machines chipmakers use to deposit, etch, and inspect materials on silicon wafers."
+    },
+    "SN": {
+      "name": "SharkNinja, Inc.",
+      "does": "Sells Shark vacuums and Ninja kitchen appliances such as blenders and air fryers in stores and online."
+    },
+    "COMP": {
+      "name": "Compass, Inc.",
+      "does": "Runs a residential real estate brokerage that takes a cut when its agents buy and sell homes."
+    },
+    "W": {
+      "name": "Wayfair Inc.",
+      "does": "Sells furniture and home goods online and ships them to customers, mostly from suppliers."
+    },
+    "VEEV": {
+      "name": "Veeva Systems Inc.",
+      "does": "Sells cloud software that drugmakers use to run clinical trials, quality, and sales to doctors."
+    },
+    "IQV": {
+      "name": "IQVIA Holdings Inc.",
+      "does": "Runs clinical trials for drugmakers and sells healthcare data and software they use to develop and market medicines."
+    },
+    "ICLR": {
+      "name": "ICON plc Ordinary Shares",
+      "does": "Runs clinical trials and other drug-development work for pharmaceutical and biotech companies."
+    },
+    "HOOD": {
+      "name": "Robinhood Markets, Inc. Class A Common Stock",
+      "does": "Runs an app where people buy and sell stocks, options, and crypto, taking a cut of trades and earning interest on cash."
+    },
+    "UCTT": {
+      "name": "Ultra Clean Holdings, Inc. Common Stock",
+      "does": "Makes and cleans the gas-delivery parts and other subsystems that go inside chip-making machines."
+    },
+    "KLAC": {
+      "name": "KLA Corporation Common Stock",
+      "does": "Makes inspection machines that chip factories use to find defects on silicon wafers."
+    },
+    "MANH": {
+      "name": "Manhattan Associates, Inc. Common Stock",
+      "does": "Sells software that warehouses and retailers use to manage inventory, pick and pack orders, and ship goods."
+    },
+    "BAX": {
+      "name": "Baxter International Inc.",
+      "does": "Makes IV fluids, infusion pumps, hospital nutrition, surgical products, and hospital beds sold to hospitals and clinics."
+    },
+    "HIMS": {
+      "name": "Hims & Hers Health, Inc.",
+      "does": "Sells subscription prescriptions and personal-care products for hair loss, sexual health, weight loss, and skin after an online doctor visit."
+    },
+    "FIVN": {
+      "name": "Five9, Inc. Common Stock",
+      "does": "Sells subscription software that companies use to run their customer-service phone, chat, and email centers."
+    },
+    "KMX": {
+      "name": "CarMax Inc.",
+      "does": "Buys used cars from people and dealers, reconditions and resells them at no-haggle prices, and makes extra money financing the loans and selling warranties."
+    },
+    "FRMI": {
+      "name": "Fermi Inc. Common Stock",
+      "does": "Builds a Texas campus that generates its own electricity and rents the powered data-center space to companies that run AI computers."
+    },
+    "OSCR": {
+      "name": "Oscar Health, Inc.",
+      "does": "Sells health-insurance plans to individuals and small businesses, mostly through the ACA marketplace."
+    },
+    "TOST": {
+      "name": "Toast, Inc.",
+      "does": "Sells order-taking terminals and software to restaurants and takes a cut when customers pay by card."
+    },
+    "ILMN": {
+      "name": "Illumina, Inc. Common Stock",
+      "does": "Makes DNA-reading machines and the chemical kits labs need to run them, sold to hospitals, researchers, and drug companies."
+    },
+    "BILL": {
+      "name": "BILL Holdings, Inc.",
+      "does": "Sells software that small and midsize businesses use to pay bills, send invoices, and track expenses."
+    },
+    "DASH": {
+      "name": "DoorDash, Inc. Class A Common Stock",
+      "does": "Runs an app that delivers restaurant meals, groceries, and store goods, taking a cut from merchants and charging customers fees."
+    },
+    "EXPE": {
+      "name": "Expedia Group, Inc. Common Stock",
+      "does": "Runs travel booking websites that take a cut when people book hotels, vacation homes, flights, and cars."
+    },
+    "TGTX": {
+      "name": "TG Therapeutics, Inc. Common Stock",
+      "does": "Sells an antibody infusion that treats relapsing multiple sclerosis."
+    },
+    "LQDA": {
+      "name": "Liquidia Corporation Common Stock",
+      "does": "Sells inhaled medicines that treat high blood pressure in the lungs."
+    },
+    "WDC": {
+      "name": "Western Digital Corporation Common Stock",
+      "does": "Makes hard drives sold mainly to cloud and enterprise data centers, plus drives for PCs and external storage."
+    },
+    "ARM": {
+      "name": "Arm Holdings plc American Depositary Shares",
+      "does": "Designs the instruction-set and core blueprints other companies use to make chips, and collects a license fee on every chip."
+    },
+    "MPC": {
+      "name": "MARATHON PETROLEUM CORPORATION",
+      "does": "Turns crude oil into gasoline, diesel, and jet fuel, then sells those fuels wholesale and at Marathon and ARCO stations."
+    },
+    "SHOP": {
+      "name": "Shopify Inc. Class A subordinate voting shares",
+      "does": "Sells the software that lets businesses set up and run online stores, plus payments and other add-ons."
+    },
+    "NTNX": {
+      "name": "Nutanix, Inc. Class A Common Stock",
+      "does": "Sells software that companies install on servers so they can run apps, storage, and virtual machines in their data centers or in public clouds."
+    },
+    "VLO": {
+      "name": "Valero Energy Corporation",
+      "does": "Refines crude oil into gasoline, diesel, and jet fuel and sells those fuels to wholesalers and gas stations."
+    },
+    "FRPT": {
+      "name": "Freshpet, Inc. Common Stock",
+      "does": "Makes refrigerated fresh meals and treats for dogs and cats and sells them from branded fridges in grocery and pet stores."
+    },
+    "NTAP": {
+      "name": "NetApp, Inc. Common Stock",
+      "does": "Sells data-storage systems and software that companies use to keep files on-site and in the cloud."
+    },
+    "ABNB": {
+      "name": "Airbnb, Inc. Class A Common Stock",
+      "does": "Runs a booking site that takes a cut when people rent homes or book experiences from hosts."
+    },
+    "DINO": {
+      "name": "HF Sinclair Corporation",
+      "does": "Refines crude oil into gasoline, diesel, and jet fuel, then sells those fuels wholesale and at branded stations."
+    },
+    "GWRE": {
+      "name": "GUIDEWIRE SOFTWARE, INC.",
+      "does": "Sells software that property-and-casualty insurers use to write policies, handle claims, and send bills."
+    },
+    "RVMD": {
+      "name": "Revolution Medicines, Inc. Common Stock",
+      "does": "Tests experimental pills meant to block a common cancer-driving gene in pancreatic and other cancers; not selling a drug yet."
+    },
+    "PCTY": {
+      "name": "Paylocity Holding Corporation Common Stock",
+      "does": "Sells cloud software that companies use to run payroll, HR, and employee benefits."
+    },
+    "BBY": {
+      "name": "Best Buy Company, Inc.",
+      "does": "Sells TVs, computers, appliances, and other electronics in stores and online, plus Geek Squad repair and support."
+    },
+    "LTH": {
+      "name": "Life Time Group Holdings, Inc.",
+      "does": "Runs upscale gyms and athletic clubs and charges memberships."
+    },
+    "IOT": {
+      "name": "Samsara Inc.",
+      "does": "Sells GPS trackers, dashcams, and software that truck fleets and job sites use to watch vehicles, drivers, and equipment."
+    },
+    "VSH": {
+      "name": "Vishay Intertechnology, Inc.",
+      "does": "Makes resistors, capacitors, diodes, and other small parts used in nearly every electronic device."
+    },
+    "PSX": {
+      "name": "PHILLIPS 66",
+      "does": "Refines crude oil into fuels, moves them through pipelines, makes chemicals, and sells gasoline at branded stations."
+    },
+    "TVTX": {
+      "name": "Travere Therapeutics, Inc. Common Stock",
+      "does": "Sells a daily pill that treats rare kidney diseases, plus another drug for a genetic condition that causes kidney stones."
+    },
+    "SE": {
+      "name": "Sea Limited American Depositary Shares, each representing one Class A Ordinary Share",
+      "does": "Runs Shopee online shopping, Garena video games, and digital payments across Southeast Asia."
+    },
+    "FLNC": {
+      "name": "Fluence Energy, Inc. Class A Common Stock",
+      "does": "Builds and sells giant battery plants that utilities and grid operators use to store electricity, plus the software that runs them."
+    },
+    "BBIO": {
+      "name": "BridgeBio Pharma, Inc. Common Stock",
+      "does": "Sells medicines for rare genetic diseases, including a daily pill for a protein-buildup heart condition."
+    },
+    "HUM": {
+      "name": "Humana Inc.",
+      "does": "Sells Medicare Advantage and other government health plans, collecting premiums and paying members' medical bills."
+    },
+    "DUOL": {
+      "name": "Duolingo, Inc. Class A Common Stock",
+      "does": "Runs a language-learning app and makes money from subscriptions and ads."
+    },
+    "RH": {
+      "name": "RH",
+      "does": "Designs and sells high-end furniture and home goods through its own galleries and website."
+    },
+    "DBX": {
+      "name": "Dropbox, Inc. Class A Common Stock",
+      "does": "Sells cloud storage and file-sharing subscriptions so people and companies can keep and share documents online."
+    },
+    "FBIN": {
+      "name": "Fortune Brands Innovations, Inc.",
+      "does": "Makes faucets, doors, decking, and locks under brands like Moen, Therma-Tru, Fiberon, and Master Lock."
+    },
+    "FPS": {
+      "name": "Forgent Power Solutions, Inc.",
+      "does": "Builds the electrical gear that routes power inside data centers, factories, and the grid."
+    },
+    "KVYO": {
+      "name": "Klaviyo, Inc.",
+      "does": "Sells subscription software that consumer brands use to send personalized emails, texts, and app messages."
+    },
+    "FROG": {
+      "name": "JFrog Ltd. Ordinary Shares",
+      "does": "Sells software that stores and delivers the code packages developers use to build and ship apps."
+    },
+    "GH": {
+      "name": "Guardant Health, Inc. Common Stock",
+      "does": "Runs blood and tissue tests that find cancer DNA so doctors can screen, monitor, and pick treatments."
+    },
+    "IP": {
+      "name": "International Paper Co.",
+      "does": "Makes corrugated cardboard boxes and the containerboard they're made from, sold to shippers and retailers."
+    },
+    "TRI": {
+      "name": "Thomson Reuters Corporation Common Shares",
+      "does": "Sells legal research and tax software to lawyers, accountants, and companies on subscription; also runs the Reuters news service."
+    },
+    "SPHR": {
+      "name": "Sphere Entertainment Co.",
+      "does": "Owns the Sphere venues and related entertainment assets, making money from concerts, residencies, and media."
+    },
+    "ETSY": {
+      "name": "Etsy, Inc.",
+      "does": "Runs an online marketplace where people sell handmade, vintage, and craft goods, taking listing fees and a cut of each sale."
+    },
+    "MOH": {
+      "name": "Molina Healthcare, Inc.",
+      "does": "Runs Medicaid, Medicare, and Marketplace health plans and is paid by governments and members for that coverage."
+    },
+    "LRCX": {
+      "name": "Lam Research Corporation Common Stock",
+      "does": "Builds machines that etch and deposit thin layers on silicon wafers so chipmakers can make chips."
+    },
+    "RIVN": {
+      "name": "Rivian Automotive, Inc. Class A Common Stock",
+      "does": "Builds electric pickup trucks, SUVs, and delivery vans and sells them along with charging and vehicle software."
+    },
+    "DT": {
+      "name": "Dynatrace, Inc.",
+      "does": "Sells software that watches company apps and cloud systems so IT teams can find and fix problems."
+    },
+    "MKSI": {
+      "name": "MKS Inc. Common Stock",
+      "does": "Makes instruments, lasers, and process-control gear that chipmakers and electronics factories use to build semiconductors and circuit boards."
+    },
+    "CRS": {
+      "name": "Carpenter Technology Corp",
+      "does": "Makes specialty metal alloys used in jet engines, medical implants, and other high-stress parts."
+    },
+    "BMRN": {
+      "name": "BioMarin Pharmaceutical Inc. Common Stock",
+      "does": "Sells medicines that treat rare genetic diseases, often in children."
+    },
+    "CDW": {
+      "name": "CDW Corporation Common Stock",
+      "does": "Sells computers, software, and networking gear to businesses, schools, hospitals, and government, and helps install and support them."
+    },
+    "MU": {
+      "name": "Micron Technology, Inc. Common Stock",
+      "does": "Makes the memory chips that computers, phones, and AI servers use to store data."
+    },
+    "RDDT": {
+      "name": "Reddit, Inc.",
+      "does": "Runs the Reddit discussion website and makes money mainly from ads."
+    },
+    "AJG": {
+      "name": "Arthur J. Gallagher & Co.",
+      "does": "Brokers insurance and reinsurance for companies and people, and also handles their claims, earning commissions and fees."
+    },
+    "TTEK": {
+      "name": "Tetra Tech, Inc. Common Stock",
+      "does": "Sells engineering and consulting work on water, environment, and infrastructure projects to governments and companies."
+    },
+    "TPG": {
+      "name": "TPG Inc. Class A Common Stock",
+      "does": "Raises money from investors, buys and improves companies and real estate, and keeps a cut of the profits."
+    },
+    "DOCU": {
+      "name": "DocuSign, Inc. Common Stock",
+      "does": "Sells software that lets people sign contracts electronically and manage those documents."
+    },
+    "FTNT": {
+      "name": "Fortinet, Inc. Common Stock",
+      "does": "Sells firewalls and cybersecurity software that companies use to protect networks, devices, and data."
+    },
+    "BRKR": {
+      "name": "Bruker Corporation Common Stock",
+      "does": "Sells lab instruments (mass specs, NMR, X-ray, microscopes) that scientists use to see the structure of molecules and materials."
+    },
+    "KEEL": {
+      "name": "Keel Infrastructure Corp. Common Stock",
+      "does": "Builds and runs data centers and power sites for AI computing and Bitcoin mining."
+    },
+    "FIG": {
+      "name": "Figma, Inc.",
+      "does": "Sells subscription software that teams use in a web browser to design apps, websites, and other digital products together."
+    },
+    "BTDR": {
+      "name": "Bitdeer Technologies Group Class A Ordinary Shares",
+      "does": "Mines Bitcoin, hosts other people's miners, and sells mining machines; also rents computing power to AI companies."
+    },
+    "CLS": {
+      "name": "Celestica, Inc.",
+      "does": "Designs and builds electronics for other companies, especially AI servers and networking gear for data centers."
+    },
+    "BROS": {
+      "name": "Dutch Bros Inc.",
+      "does": "Runs and franchises drive-thru shops that sell coffee and other handmade drinks."
+    },
+    "MHK": {
+      "name": "Mohawk Industries, Inc.",
+      "does": "Makes carpet, tile, vinyl, and other flooring sold to homes and businesses."
+    },
+    "VRSK": {
+      "name": "Verisk Analytics, Inc. Common Stock",
+      "does": "Sells data and software that insurers use to price policies, handle claims, and measure risk."
+    },
+    "DDOG": {
+      "name": "Datadog, Inc. Class A Common Stock",
+      "does": "Sells software that companies use to spot outages and slowdowns in their servers, apps, and websites."
+    },
+    "DXCM": {
+      "name": "DexCom, Inc. Common Stock",
+      "does": "Makes wearable sensors that continuously measure blood sugar and sells them to people with diabetes."
+    },
+    "FDS": {
+      "name": "Factset Research Systems",
+      "does": "Sells financial data and software that investors use to research companies and manage portfolios."
+    },
+    "OC": {
+      "name": "Owens Corning",
+      "does": "Makes insulation, roofing, and fiberglass materials used in buildings and industrial products."
+    },
+    "LYFT": {
+      "name": "Lyft, Inc. Class A Common Stock",
+      "does": "Runs an app that takes a cut when people book a car ride."
+    },
+    "RVTY": {
+      "name": "Revvity, Inc.",
+      "does": "Sells lab machines, reagents, and software that drug researchers use to study cells and proteins, plus newborn and prenatal tests that screen for genetic disorders."
+    },
+    "ONDS": {
+      "name": "Ondas Inc. Common Stock",
+      "does": "Sells drones, anti-drone systems, and private radio networks to defense, rail, and utility customers."
+    },
+    "GPN": {
+      "name": "Global Payments, Inc.",
+      "does": "Processes credit-card and digital payments for stores and websites, taking a cut of each transaction."
+    },
+    "MOG.A": {
+      "name": "Moog Inc.",
+      "does": "Makes motion-control parts for aircraft, missiles, and factory machines."
+    },
+    "HUBS": {
+      "name": "HUBSPOT, INC.",
+      "does": "Sells subscription software that companies use to track customers and run marketing, sales, and support from one system."
+    },
+    "UMC": {
+      "name": "United Microelectronic Corp.",
+      "does": "Manufactures chips for other companies at its foundries."
+    },
+    "SW": {
+      "name": "Smurfit WestRock plc",
+      "does": "Makes corrugated boxes and other paper packaging for consumer and industrial goods."
+    },
+    "DOCN": {
+      "name": "DigitalOcean Holdings, Inc.",
+      "does": "Rents simple cloud computers and storage to developers and small companies."
+    },
+    "INTC": {
+      "name": "Intel Corporation Common Stock",
+      "does": "Designs and makes computer processors and other chips, and also manufactures chips for other companies in its factories."
+    },
+    "AMD": {
+      "name": "Advanced Micro Devices, Inc. Common Stock",
+      "does": "Designs processors and graphics chips used in PCs, game consoles, and data-center servers."
+    },
+    "HUT": {
+      "name": "Hut 8 Corp. Common Stock",
+      "does": "Builds and runs data-center campuses and rents the space and power to companies that run AI computers; also mines bitcoin."
+    },
+    "FLEX": {
+      "name": "Flex Ltd. Ordinary Shares",
+      "does": "Contract-manufactures electronics and related gear for other brands, from design through assembly."
+    },
+    "SIMO": {
+      "name": "Silicon Motion Technology Corporation American Depositary Shares",
+      "does": "Sells the controller chips that run SSDs and flash storage in PCs, phones, and data centers."
+    },
+    "STM": {
+      "name": "STMicroelectronics N.V.",
+      "does": "Makes chips that cars, factories, and everyday electronics use to sense, compute, and manage power."
+    },
+    "NOK": {
+      "name": "Nokia Corporation",
+      "does": "Sells 5G radio equipment, fiber-optic gear, and network software to phone and internet companies."
+    },
+    "PLUG": {
+      "name": "Plug Power, Inc. Common Stock",
+      "does": "Makes hydrogen fuel cells that power warehouse forklifts, and builds equipment that produces and delivers hydrogen."
+    },
+    "STRL": {
+      "name": "Sterling Infrastructure, Inc. Common Stock",
+      "does": "Builds data-center campuses, roads, and building projects as a heavy-construction contractor."
+    },
+    "PL": {
+      "name": "Planet Labs PBC",
+      "does": "Builds and flies small satellites that photograph Earth daily, then sells the images and data by subscription."
+    },
+    "VSAT": {
+      "name": "ViaSat, Inc. Common Stock",
+      "does": "Runs satellites that sell internet to homes, planes, and ships, and also sells radios and other communications gear to the military."
+    },
+    "ON": {
+      "name": "ON Semiconductor Corporation Common Stock",
+      "does": "Makes power and sensing chips used in cars, factories, and other electronics."
+    },
+    "MARA": {
+      "name": "MARA Holdings, Inc. Common Stock",
+      "does": "Mines Bitcoin at large computer farms and is converting some of those sites to rent power and space to AI companies."
+    },
+    "SEDG": {
+      "name": "SolarEdge Technologies, Inc. Common Stock",
+      "does": "Makes inverters and related gear that convert rooftop and commercial solar power into usable electricity."
+    },
+    "VG": {
+      "name": "Venture Global, Inc.",
+      "does": "Turns U.S. natural gas into LNG at Gulf Coast plants and ships it to overseas buyers."
+    },
+    "GFS": {
+      "name": "GlobalFoundries Inc. Ordinary Shares",
+      "does": "Manufactures chips that other companies design but do not have their own factories for."
+    },
+    "CLSK": {
+      "name": "CleanSpark, Inc. Common Stock",
+      "does": "Runs data-center campuses that mine Bitcoin, and is converting some of those powered sites to rent to AI companies."
+    },
+    "AGX": {
+      "name": "Argan, Inc",
+      "does": "Builds gas-fired power plants (and some renewable plants) for utilities, through its Gemma unit."
+    },
+    "HPQ": {
+      "name": "HP Inc.",
+      "does": "Sells PCs, printers, and printer ink and toner, plus related services."
+    },
+    "ASX": {
+      "name": "ASE Technology Holding Co., Ltd.",
+      "does": "Packages and tests other companies' chips and assembles finished electronics for them."
+    },
+    "CIFR": {
+      "name": "Cipher Digital Inc. Common Stock",
+      "does": "Builds and runs large data-center campuses and rents the space and power to companies that run AI computers; also mines some bitcoin."
+    },
+    "AFRM": {
+      "name": "Affirm Holdings, Inc. Class A Common Stock",
+      "does": "Lets shoppers split purchases into installments at checkout, then earns from merchant fees and interest on those loans."
+    },
+    "BTSG": {
+      "name": "BrightSpring Health Services, Inc. Common Stock",
+      "does": "Runs specialty pharmacies and home and community-care programs for people with complex or chronic illness."
+    },
+    "QCOM": {
+      "name": "QUALCOMM Incorporated Common Stock",
+      "does": "Designs the chips in most Android phones and charges phone makers to use its wireless patents."
+    },
+    "POWL": {
+      "name": "Powell Industries, Inc. Common Stock",
+      "does": "Builds custom electrical switchgear, substations, and power-control rooms for industrial sites and data centers."
+    },
+    "SANM": {
+      "name": "Sanmina Corporation Common Stock",
+      "does": "Builds other companies’ electronics — circuit boards and assembled products — in its factories."
+    },
+    "RIOT": {
+      "name": "Riot Platforms, Inc. Common Stock",
+      "does": "Mines Bitcoin and builds large data centers that it uses itself or rents to AI companies."
+    },
+    "SM": {
+      "name": "SM Energy Company",
+      "does": "Drills for and sells oil and natural gas from U.S. shale fields."
+    },
+    "AUR": {
+      "name": "Aurora Innovation, Inc. Class A Common Stock",
+      "does": "Builds the self-driving system that runs freight trucks without a driver and hauls cargo for shipping companies."
+    },
+    "APLD": {
+      "name": "Applied Digital Corporation Common Stock",
+      "does": "Builds and runs large data-center campuses and rents the space and power to companies that run AI computers."
+    },
+    "RMBS": {
+      "name": "Rambus Inc. Common Stock",
+      "does": "Sells chips that help computer memory talk to processors faster, and licenses those designs to other chipmakers."
+    },
+    "CORZ": {
+      "name": "Core Scientific, Inc. Common Stock",
+      "does": "Runs large data-center campuses that mine Bitcoin and rent powered space to AI companies."
+    },
+    "XYZ": {
+      "name": "Block, Inc.",
+      "does": "Sells card readers and checkout software that shops use to take payments, taking a cut of each swipe; also runs Cash App for sending money and buying bitcoin."
+    },
+    "WULF": {
+      "name": "TeraWulf Inc. Common Stock",
+      "does": "Runs large data centers that rent space and power to AI companies and also mine Bitcoin."
+    },
+    "MUSA": {
+      "name": "MURPHY USA INC.",
+      "does": "Runs gas stations and convenience stores, many next to Walmarts, and sells fuel and snacks."
+    },
+    "DVA": {
+      "name": "DaVita Inc.",
+      "does": "Runs dialysis clinics that treat people with kidney failure and bills insurers and government programs."
+    },
+    "AKAM": {
+      "name": "Akamai Technologies, Inc. Common Stock",
+      "does": "Runs a network that speeds up and protects websites, apps, and video streams for companies."
+    },
+    "TIGO": {
+      "name": "Millicom International Cellular S.A. Common Stock",
+      "does": "Sells mobile, home internet, and pay-TV service under the Tigo brand in Latin America."
+    },
+    "APA": {
+      "name": "APA Corporation Common Stock",
+      "does": "Finds and pumps oil and natural gas, mainly in the US, Egypt, and the North Sea, then sells the crude and gas."
+    },
+    "RAL": {
+      "name": "Ralliant Corporation",
+      "does": "Makes test instruments and sensors that engineers use to measure and check electronics and industrial equipment."
+    },
+    "CNC": {
+      "name": "Centene Corporation",
+      "does": "Runs Medicaid, Medicare, and Marketplace health plans and is paid for covering members' care."
+    },
+    "NUE": {
+      "name": "Nucor Corporation",
+      "does": "Melts scrap steel in electric furnaces and sells the new steel plus beams, rebar, and other building products."
+    },
+    "QBTS": {
+      "name": "D-Wave Quantum Inc. Common Stock",
+      "does": "Builds quantum computers for optimization problems and sells the machines or rents access over the cloud."
+    },
+    "NEU": {
+      "name": "NewMarket Corporation",
+      "does": "Blends chemical additives that go into engine oils, fuels, and industrial lubricants, and sells them to oil companies and lubricant blenders."
+    },
+    "AXSM": {
+      "name": "Axsome Therapeutics, Inc. Common Stock",
+      "does": "Sells medicines for depression, migraine, and daytime sleepiness and develops others for brain disorders."
+    },
+    "GLXY": {
+      "name": "Galaxy Digital Inc. Class A Common Stock",
+      "does": "Trades crypto and manages digital-asset funds for institutions, and builds data centers that rent computing power for AI."
+    },
+    "TXN": {
+      "name": "Texas Instruments Incorporated Common Stock",
+      "does": "Makes analog and embedded chips that go into cars, factory equipment, and other electronics."
+    },
+    "FFIV": {
+      "name": "F5, Inc. Common Stock",
+      "does": "Sells hardware and software that keep company apps and APIs fast and protected."
+    },
+    "LSCC": {
+      "name": "Lattice Semiconductor Corporation Common Stock",
+      "does": "Designs low-power programmable chips (FPGAs) that engineers customize after they ship."
+    },
+    "ARWR": {
+      "name": "Arrowhead Pharmaceuticals, Inc. Common Stock",
+      "does": "Develops RNA-interference medicines that turn off disease-causing genes."
+    },
+    "MTZ": {
+      "name": "MasTec, Inc.",
+      "does": "Builds and maintains power lines, pipelines, cell towers, and other energy and communications infrastructure."
+    },
+    "JBL": {
+      "name": "Jabil Inc.",
+      "does": "Builds electronics and other products for companies that hire it as their contract manufacturer."
+    },
+    "ARW": {
+      "name": "Arrow Electronics, Inc.",
+      "does": "Distributes electronic parts and computer equipment from makers to manufacturers and IT buyers."
+    },
+    "CVE": {
+      "name": "Cenovus Energy Inc.",
+      "does": "Produces oil and natural gas in Canada and overseas, then refines and sells fuels such as gasoline, diesel, and jet fuel."
+    },
+    "VISN": {
+      "name": "Vistance Networks, Inc. Common Stock",
+      "does": "Sells cable and broadband network gear that telecom and cable companies use to deliver internet and TV."
+    },
+    "ENPH": {
+      "name": "Enphase Energy, Inc. Common Stock",
+      "does": "Makes the microinverters that sit under rooftop solar panels and turn their DC into household AC."
+    },
+    "AAON": {
+      "name": "AAON, Inc. Common Stock",
+      "does": "Makes commercial heating, cooling, and ventilation equipment for buildings."
+    },
+    "NVT": {
+      "name": "nVent Electric plc Ordinary Shares",
+      "does": "Makes electrical enclosures, cooling, and connection hardware that protect equipment in buildings and data centers."
+    },
+    "CHRD": {
+      "name": "Chord Energy Corporation Common Stock",
+      "does": "Finds and pumps oil and natural gas from wells in North Dakota and Montana, then sells the crude and gas."
+    },
+    "STLD": {
+      "name": "Steel Dynamics, Inc.",
+      "does": "Makes steel products and recycles scrap metal, then sells the steel to manufacturers and builders."
+    },
+    "CROX": {
+      "name": "Crocs, Inc. Common Stock",
+      "does": "Sells casual foam clogs and other shoes under the Crocs and HEYDUDE brands."
+    },
+    "AVT": {
+      "name": "Avnet, Inc. Common Stock",
+      "does": "Distributes electronic components and helps customers design and source the parts they need."
+    },
+    "LYB": {
+      "name": "LyondellBasell Industries N.V. Class A",
+      "does": "Makes plastic resins and basic chemicals used in packaging, cars, and building materials, and sells them to manufacturers."
+    },
+    "KGS": {
+      "name": "Kodiak Gas Services, Inc.",
+      "does": "Owns and operates the compressor machines that push natural gas through oilfield pipelines."
+    },
+    "Q": {
+      "name": "Qnity Electronics, Inc.",
+      "does": "Sells the specialty chemicals and materials chipmakers use to polish, pattern, and package semiconductors."
+    },
+    "KLAR": {
+      "name": "Klarna Group plc",
+      "does": "Lets shoppers pay later or in installments at checkout and takes a cut from the store; also offers a card and a savings account."
+    },
+    "CF": {
+      "name": "CF Industries Holding, Inc.",
+      "does": "Turns natural gas into ammonia and nitrogen fertilizer and sells it to farms and industrial users."
+    },
+    "APP": {
+      "name": "Applovin Corporation Class A Common Stock",
+      "does": "Runs advertising software that helps companies find customers and helps app publishers sell ad space."
+    },
+    "PINS": {
+      "name": "Pinterest, Inc. Class A Common Stock",
+      "does": "Runs a picture-saving website where people collect ideas, and makes money by selling ads and shopping links on those pages."
+    },
+    "NXPI": {
+      "name": "NXP Semiconductors N.V. Common Stock",
+      "does": "Designs chips that go into cars, factories, and connected devices for control, sensing, and payments."
+    },
+    "VRT": {
+      "name": "Vertiv Holdings Co Class A Common Stock",
+      "does": "Makes and services the power and cooling gear that keeps data centers running."
+    },
+    "DOW": {
+      "name": "Dow Inc.",
+      "does": "Makes plastics, chemicals, and other materials sold to packaging, construction, and industrial customers."
+    },
+    "ENS": {
+      "name": "EnerSys, Inc.",
+      "does": "Makes industrial batteries and power systems for forklifts, data centers, telecom, and defense."
+    },
+    "SWKS": {
+      "name": "Skyworks Solutions, Inc. Common Stock",
+      "does": "Makes radio chips that phones, cars, and other gadgets use to send and receive wireless signals."
+    },
+    "FIX": {
+      "name": "Comfort Systems USA, Inc.",
+      "does": "Installs and services heating, cooling, plumbing, and electrical systems in commercial and industrial buildings."
+    },
+    "CART": {
+      "name": "Maplebear Inc. Common Stock",
+      "does": "Runs a grocery delivery app that takes a cut from shoppers and stores and also sells ads on the app."
+    },
+    "NBIX": {
+      "name": "Neurocrine Biosciences, Inc. Common Stock",
+      "does": "Sells medicines for movement disorders and a rare hormone condition, and develops others for brain and hormone diseases."
+    },
+    "KNX": {
+      "name": "Knight-Swift Transportation Holdings Inc. Class A Common Stock",
+      "does": "Hauls freight by truck across North America for shippers."
+    },
+    "AAL": {
+      "name": "American Airlines Group Inc. Common Stock",
+      "does": "Flies passengers and cargo on scheduled flights across the US and to Latin America, Europe, and Asia."
+    },
+    "MOD": {
+      "name": "Modine Manufacturing Co",
+      "does": "Makes cooling and heating gear that keeps engines, buildings, and data-center servers at the right temperature."
+    },
+    "CYTK": {
+      "name": "Cytokinetics, Incorporated Common Stock",
+      "does": "Sells Myqorzo, a daily pill for people whose heart muscle is too thick to pump properly, and is testing related heart drugs."
+    },
+    "CAT": {
+      "name": "Caterpillar Inc.",
+      "does": "Makes construction, mining, and other heavy machines and sells parts and service for them."
+    },
+    "MCHP": {
+      "name": "Microchip Technology Incorporated Common Stock",
+      "does": "Makes microcontrollers and other chips that run everyday electronics and industrial gear."
+    },
+    "EBAY": {
+      "name": "eBay Inc. Common Stock",
+      "does": "Runs an online marketplace that takes a cut when people buy and sell goods."
+    },
+    "PWR": {
+      "name": "Quanta Services, Inc.",
+      "does": "Builds and maintains power lines, substations, and other energy and communications infrastructure."
+    },
+    "NXT": {
+      "name": "Nextpower Inc. Common Stock",
+      "does": "Makes the steel trackers that tilt utility-scale solar panels to follow the sun (company now called Nextpower)."
+    },
+    "CLF": {
+      "name": "Cleveland-Cliffs Inc.",
+      "does": "Mines iron ore and turns it into steel sheets and parts, mainly for carmakers."
+    },
+    "MPWR": {
+      "name": "Monolithic Power Systems, Inc. Common Stock",
+      "does": "Makes small chips that convert and regulate electricity inside computers, cars, and other electronics."
+    },
+    "VIK": {
+      "name": "Viking Holdings Ltd",
+      "does": "Runs river and ocean cruise ships and sells tickets for those passenger trips."
+    },
+    "CDNS": {
+      "name": "Cadence Design Systems, Inc. Common Stock",
+      "does": "Sells software and hardware that engineers use to design chips and electronic systems."
+    },
+    "RS": {
+      "name": "Reliance, Inc.",
+      "does": "Buys metal from mills, cuts and processes it, and sells it to manufacturers that need smaller, ready-to-use lots."
+    },
+    "ECHO": {
+      "name": "EchoStar Corporation Common Stock",
+      "does": "Sells satellite TV, wireless phone service, and satellite internet under DISH, Boost, Sling, and Hughes."
+    },
+    "CASY": {
+      "name": "Casey's General Stores, Inc. Common Stock",
+      "does": "Runs convenience stores that sell fuel, pizza, and everyday groceries."
+    },
+    "QS": {
+      "name": "QuantumScape Corporation Class A Common Stock",
+      "does": "Develops solid-state batteries for electric cars and licenses the technology to manufacturers."
+    },
+    "JBHT": {
+      "name": "J.B. Hunt Transport Services, Inc. Common Stock",
+      "does": "Hauls freight by truck and on trains for shippers across North America."
+    },
+    "GEV": {
+      "name": "GE Vernova Inc.",
+      "does": "Makes gas, steam, and wind turbines and grid equipment that utilities use to generate and move electricity."
+    },
+    "JAZZ": {
+      "name": "Jazz Pharmaceuticals plc Common Stock (Ireland)",
+      "does": "Sells medicines for sleep disorders, rare epilepsies, and some cancers."
+    },
+    "GEN": {
+      "name": "Gen Digital Inc. Common Stock",
+      "does": "Sells consumer cybersecurity and identity-protection subscriptions under Norton, Avast, and LifeLock."
+    },
+    "PRMB": {
+      "name": "Primo Brands Corporation",
+      "does": "Sells bottled water brands like Poland Spring and Pure Life in stores and delivers water to homes and offices."
+    },
+    "NVMI": {
+      "name": "Nova Ltd. Ordinary Shares",
+      "does": "Makes measuring tools that chip factories use to check wafers as they are being built."
+    },
+    "IBKR": {
+      "name": "Interactive Brokers Group, Inc. Class A Common Stock",
+      "does": "Runs an online brokerage that lets traders and institutions buy and sell stocks, options, futures, and other assets worldwide, charging commissions and interest."
+    },
+    "ZM": {
+      "name": "Zoom Communications, Inc. Class A Common Stock",
+      "does": "Sells video-meeting, phone, and chat software that companies and people use to talk and hold meetings online."
+    },
+    "GDDY": {
+      "name": "GoDaddy Inc",
+      "does": "Sells domain names and website hosting so small businesses can get online, plus website builders, email, and payment tools."
+    },
+    "M": {
+      "name": "Macy's Inc.",
+      "does": "Runs Macy's, Bloomingdale's, and Bluemercury stores and websites that sell clothing, beauty, and home goods."
+    },
+    "BWA": {
+      "name": "BorgWarner Inc.",
+      "does": "Makes engines, transmissions, and other vehicle parts sold to car and truck makers."
+    },
+    "DY": {
+      "name": "Dycom Industries, Inc.",
+      "does": "Sends crews out to build and maintain fiber and wireless networks for phone and cable companies, and wires electrical systems for data centers, getting paid per project."
+    },
+    "LFUS": {
+      "name": "Littelfuse, Inc. Common Stock",
+      "does": "Makes fuses, sensors, and other electronic parts that protect circuits in cars, factories, and gadgets."
+    },
+    "CENX": {
+      "name": "Century Aluminum Company Common Stock",
+      "does": "Turns bauxite and alumina into primary aluminum sold to makers of cars, planes, defense goods, and consumer products."
+    },
+    "ROIV": {
+      "name": "Roivant Sciences Ltd. Common Shares",
+      "does": "Builds small drug companies that develop experimental medicines, then sells or partners the ones that work."
+    },
+    "WAT": {
+      "name": "Waters Corp",
+      "does": "Makes lab testing machines for drugmakers, food and water labs, and hospitals, and earns repeat money on the test kits, supplies, and service that keep them running."
+    },
+    "ADM": {
+      "name": "Archer Daniels Midland Company",
+      "does": "Buys crops from farmers, processes them into food ingredients and animal feed, and sells those worldwide."
+    },
+    "ODFL": {
+      "name": "Old Dominion Freight Line, Inc. Common Stock",
+      "does": "Hauls less-than-truckload freight between cities for businesses."
+    },
+    "DAR": {
+      "name": "DARLING INGREDIENTS INC.",
+      "does": "Collects leftover animal parts and used cooking oil, then turns them into pet-food ingredients, gelatin, and renewable diesel."
+    },
+    "MDGL": {
+      "name": "Madrigal Pharmaceuticals, Inc. Common Stock",
+      "does": "Sells Rezdiffra, a pill that treats a serious form of fatty liver disease."
+    },
+    "DKNG": {
+      "name": "DraftKings Inc. Class A Common Stock",
+      "does": "Runs online sports betting and daily fantasy games, taking a cut of wagers and entry fees."
+    },
+    "BKNG": {
+      "name": "Booking Holdings Inc. Common Stock",
+      "does": "Runs booking sites like Booking.com and Priceline that take a cut when people reserve hotels, flights, and other travel."
+    },
+    "MNDY": {
+      "name": "monday.com Ltd. Ordinary Shares",
+      "does": "Sells subscription software that teams use as shared boards and workflows to run projects and other work."
+    },
+    "TTD": {
+      "name": "The Trade Desk, Inc. Class A Common Stock",
+      "does": "Sells software that advertisers use to buy digital ads across websites, apps, and streaming TV."
+    },
+    "AA": {
+      "name": "Alcoa Corporation",
+      "does": "Mines bauxite and turns it into alumina and aluminum sold to makers of cars, buildings, cans, and industrial goods."
+    },
+    "WCC": {
+      "name": "Wesco International Inc.",
+      "does": "Distributes electrical gear, network cable, and utility equipment to contractors, factories, and power companies."
+    },
+    "KRMN": {
+      "name": "Karman Holdings Inc.",
+      "does": "Designs and builds missile and rocket parts such as payload covers, interstages, and propulsion hardware."
+    }
   }
 }
