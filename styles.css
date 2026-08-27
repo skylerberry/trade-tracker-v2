@@ -600,6 +600,7 @@ input::placeholder { color: var(--text-3); opacity: 0.7; }
 .wc-features li:nth-child(1) { animation-delay: 180ms; }
 .wc-features li:nth-child(2) { animation-delay: 230ms; }
 .wc-features li:nth-child(3) { animation-delay: 280ms; }
+.wc-features li:nth-child(4) { animation-delay: 330ms; }
 .wc-actions { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 280px; margin-top: 6px; }
 .wc-cta { position: relative; width: 100%; padding-top: 8px; }
 .wc-cta .btn { width: 100%; }
@@ -2101,15 +2102,22 @@ body[data-view="journal"] #formSection:not(.is-open):not(.is-exiting) { display:
 }
 body[data-view="journal"] #statusSeg { display: none; }
 body[data-view="positions"] #journalSeg { display: none; }
-body[data-view="compound"] #trackerMount { display: none; }
+body[data-view="compound"] #trackerMount,
+body[data-view="themes"] #trackerMount { display: none; }
 body[data-view="compound"] #compoundView { display: block; }
+body[data-view="themes"] #themesView { display: flex; }
 body[data-view="compound"] .metrics-block,
-body[data-view="compound"] .metrics-toggle { display: none; }
-/* The floating pill mirrors the metrics row, which Compound hides — carrying
-   "Risk $0.00 · 0 logged" onto a hypothetical-returns page only confuses. */
+body[data-view="compound"] .metrics-toggle,
+body[data-view="themes"] .metrics-block,
+body[data-view="themes"] .metrics-toggle { display: none; }
+/* The floating pill mirrors the metrics row, which Compound and Themes hide —
+   carrying "Risk $0.00 · 0 logged" onto a reference page only confuses. */
 body[data-view="compound"] .float-bar .fb-metric,
 body[data-view="compound"] .float-bar .fb-score,
-body[data-view="compound"] .float-bar .fb-sep { display: none; }
+body[data-view="compound"] .float-bar .fb-sep,
+body[data-view="themes"] .float-bar .fb-metric,
+body[data-view="themes"] .float-bar .fb-score,
+body[data-view="themes"] .float-bar .fb-sep { display: none; }
 
 /* equity curve card (journal) — number + drawdown left, curve right */
 .equity-card {
@@ -2180,6 +2188,31 @@ body[data-view="compound"] .float-bar .fb-sep { display: none; }
     text-transform: uppercase; color: var(--text-3);
 }
 .compound-view { display: none; }
+.themes-view {
+    display: none;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* Themes is a switcher, not a document: lock the page chrome to the
+   viewport and scroll names inside the pane so the footer doesn't jump
+   when a short theme replaces a long one. */
+body[data-view="themes"] {
+    height: 100dvh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+body[data-view="themes"] .app-header,
+body[data-view="themes"] .app-footer { flex: none; }
+body[data-view="themes"] .app-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    margin-bottom: 16px;
+}
 .view-head { margin: 0 2px 14px; }
 .view-title {
     margin: 0;
@@ -2641,6 +2674,158 @@ body[data-view="compound"] .float-bar .fb-sep { display: none; }
     background-image: linear-gradient(var(--cell-veil), var(--cell-veil));
 }
 .compound-th.is-hot { color: var(--text); }
+
+/* ---------- themes (company reference) ---------- */
+.themes-view > .view-head { flex: none; }
+.themes-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px 18px; flex-wrap: wrap;
+    margin: 0 2px 16px;
+    flex: none;
+}
+.themes-search.search-field { width: min(100%, 320px); height: 36px; }
+.themes-count {
+    margin: 0;
+    font-size: 0.78rem; font-weight: 600;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+}
+.themes-layout {
+    display: grid;
+    grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 22px;
+    align-items: stretch;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.themes-rail {
+    position: sticky; top: 12px;
+    display: flex; flex-direction: column; gap: 2px;
+}
+body:has(.float-bar.in) .themes-rail { top: 66px; }
+.themes-rail-item {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: var(--text-2);
+    font-size: 0.84rem; font-weight: 500;
+    text-align: left;
+    transition: background-color var(--dur-base), border-color var(--dur-base), color var(--dur-base);
+}
+.themes-rail-item:hover { background: var(--surface-2); color: var(--text); }
+.themes-rail-item.is-active {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: none;
+}
+.themes-rail-item.is-empty { color: var(--text-3); }
+.themes-rail-item.is-empty.is-active { color: var(--text-2); }
+.themes-rail-name { min-width: 0; }
+/* Seam between curated themes and the nightly scan lists. */
+.themes-rail-sep {
+    margin: 10px 0 4px;
+    padding: 10px 10px 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-3);
+}
+.themes-rail-n {
+    flex: none;
+    font-size: 0.72rem; font-weight: 600;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+}
+.themes-body {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-2) transparent;
+}
+.themes-body::-webkit-scrollbar { width: 4px; }
+.themes-body::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
+.themes-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 16px 18px 8px;
+}
+.themes-section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+.themes-kicker {
+    margin: 0;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-3);
+}
+.themes-blurb {
+    margin: 5px 0 0;
+    max-width: 56ch;
+    font-size: 0.84rem; line-height: 1.45; font-weight: 500;
+    color: var(--text-2);
+    text-transform: none; letter-spacing: 0;
+}
+.themes-section-meta {
+    flex: none;
+    display: inline-flex; align-items: baseline; gap: 10px;
+}
+.themes-section-n {
+    flex: none;
+    font-size: 0.72rem; font-weight: 600;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+}
+.themes-asof {
+    font-size: 0.72rem; font-weight: 500;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+}
+.themes-row {
+    display: grid;
+    grid-template-columns: 4.8rem minmax(0, 1fr);
+    column-gap: 14px;
+    padding: 13px 2px;
+    border-bottom: 1px solid var(--border);
+}
+.themes-row:last-child { border-bottom: none; }
+.themes-tk {
+    padding-top: 1px;
+    font-size: 0.84rem; font-weight: 600; letter-spacing: -0.02em;
+    color: var(--header-text);
+    font-variant-numeric: tabular-nums;
+}
+.themes-name {
+    font-size: 0.84rem; font-weight: 600; letter-spacing: -0.015em;
+    color: var(--text);
+}
+.themes-does {
+    margin: 3px 0 0;
+    font-size: 0.84rem; line-height: 1.5;
+    color: var(--text-2);
+}
+.themes-empty {
+    margin: 0;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    font-size: 0.84rem; color: var(--text-3);
+}
 
 /* ---------- filters bar ---------- */
 .filters-bar {
@@ -4158,9 +4343,14 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .accent-menu .accent-dot.rainbow { background: conic-gradient(#f43f5e, #f59e0b, #22c55e, #06b6d4, #8b5cf6, #f43f5e); }
 
 /* ---------- responsive ---------- */
+@media (max-width: 720px) {
+    .seg-nav button { padding: 5px 10px; }
+}
 @media (max-width: 620px) {
     .metrics-toggle-label { display: none; }
     .metrics-toggle { padding: 8px; gap: 0; }
+    .seg-nav { max-width: calc(100vw - 88px); overflow-x: auto; scrollbar-width: none; }
+    .seg-nav::-webkit-scrollbar { display: none; }
 }
 @media (max-width: 860px) {
     .calc-inputs { grid-template-columns: 1fr 1fr; }
@@ -4182,6 +4372,34 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     .header-chrome { grid-column: 2; grid-row: 1; }
     .daily-clock { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
     .compound-layout { grid-template-columns: 1fr; }
+    .themes-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(0, 1fr);
+    }
+    .themes-rail {
+        position: static;
+        flex-direction: row; flex-wrap: wrap;
+        gap: 6px;
+    }
+    .themes-rail-item {
+        width: auto;
+        padding: 5px 10px;
+        border-color: var(--border);
+        background: var(--surface);
+        font-size: 0.78rem;
+    }
+    .themes-rail-item.is-active {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--accent-soft);
+    }
+    /* In the wrap-pill rail the seam becomes a full-width label row. */
+    .themes-rail-sep {
+        flex-basis: 100%;
+        margin: 6px 2px 0;
+        padding: 8px 0 0;
+    }
+    .themes-search.search-field { width: 100%; }
     .compound-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .compound-reads { grid-template-columns: 1fr; gap: 16px; }
     #compoundRates {
@@ -4195,6 +4413,8 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     }
 }
 @media (max-width: 560px) {
+    .themes-section { padding: 14px 14px 6px; }
+    .themes-tk { font-size: 0.8rem; }
     .form-grid { grid-template-columns: 1fr; }
     .calc-inputs { grid-template-columns: 1fr; }
     .calc-modebar {

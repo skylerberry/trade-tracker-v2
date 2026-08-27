@@ -74,6 +74,7 @@
         "Trade tracker with trims, freeroll detection, and R-multiple math",
         "Timestamped trade journal with typed entries",
         "10-year compound calculator with contributions and drawdown reads",
+        "Thematic company reference with everyday one-liners for what a name does",
         "Local-first storage with optional sync via a private GitHub gist",
         "CSV, TSV, and JSON backup export"
       ],
@@ -208,6 +209,7 @@
                 <button data-seg="positions" class="is-active" role="tab">Positions</button>
                 <button data-seg="journal" role="tab">Journal</button>
                 <button data-seg="compound" role="tab">Compound</button>
+                <button data-seg="themes" role="tab">Themes</button>
             </div>
             <button type="button" class="metrics-toggle" id="metricsToggle" aria-expanded="true" aria-controls="metricsRowWrap" aria-label="Hide summary">
                 <span class="metrics-eye" aria-hidden="true">
@@ -893,6 +895,25 @@
         </div>
     </section>
 
+    <section class="themes-view" id="themesView" hidden aria-labelledby="themesTitle">
+        <header class="view-head">
+            <h1 class="view-title" id="themesTitle">Themes</h1>
+            <p class="view-sub">Everyday one-liners for what a company does. Browse a theme, or type a name to jump.</p>
+        </header>
+        <div class="themes-toolbar">
+            <label class="search-field themes-search" id="themesSearchField">
+                <span class="search-ic" data-icon="search" aria-hidden="true"></span>
+                <input type="search" id="themesSearch" placeholder="NVDA, quantum, chips…" aria-label="Search names and themes" autocomplete="off" spellcheck="false">
+                <button type="button" class="search-clear" id="themesSearchClear" aria-label="Clear search" hidden><span data-icon="x" aria-hidden="true"></span></button>
+            </label>
+            <p class="themes-count" id="themesCount"></p>
+        </div>
+        <div class="themes-layout">
+            <nav class="themes-rail" id="themesRail" aria-label="Themes"></nav>
+            <div class="themes-body" id="themesBody"></div>
+        </div>
+    </section>
+
 </main>
 
 <footer class="app-footer">
@@ -1058,6 +1079,7 @@
             <li>Positions</li>
             <li>Journal</li>
             <li>Compound</li>
+            <li>Themes</li>
         </ul>
         <div class="wc-actions">
             <div class="wc-cta">
@@ -1373,6 +1395,7 @@
 <script src="engine.js"></script>
 <script src="gist-sync.js"></script>
 <script src="compound.js"></script>
+<script src="guide.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

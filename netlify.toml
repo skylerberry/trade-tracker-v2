@@ -5,7 +5,7 @@
   command = "npm run build"
   publish = "dist"
 
-# Hash views (#positions / #journal / #compound). No SPA rewrite needed.
+# Hash views (#positions / #journal / #compound / #themes). No SPA rewrite needed.
 
 [[headers]]
   for = "/*"

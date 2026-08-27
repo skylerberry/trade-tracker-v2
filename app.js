@@ -42,7 +42,7 @@
     let filters = { status: 'active', from: '', to: '', page: 1, q: '', sortKey: '', sortDir: 'desc' };
     let datePick = null;
     let dateView = null;
-    const VIEWS = ['positions', 'journal', 'compound'];
+    const VIEWS = ['positions', 'journal', 'compound', 'themes'];
     let view = 'positions';
     let viewReady = false;
     const viewFilters = { positions: 'active', journal: 'all' };
@@ -1700,6 +1700,7 @@
         if (!fromSegment) segs.view?.set(view, instant || !viewReady);
         if ($('journalSummary')) $('journalSummary').hidden = view !== 'journal';
         if ($('compoundView')) $('compoundView').hidden = view !== 'compound';
+        if ($('themesView')) $('themesView').hidden = view !== 'themes';
         if ($('journalSeg')) $('journalSeg').hidden = view !== 'journal';
         if ($('statusSeg')) $('statusSeg').hidden = view !== 'positions';
         if (view === 'positions') {
@@ -1710,16 +1711,19 @@
             filters.status = viewFilters.journal || 'all';
             filters.page = 1;
             segs.journal?.set(filters.status, true);
-        } else {
+        } else if (view === 'compound') {
             COMPOUND.syncAccount(account);
             COMPOUND.render();
+        } else if (view === 'themes') {
+            window.scrollTo(0, 0);
+            GUIDE.render();
         }
         if ($('fbCalc')) $('fbCalc').textContent = view === 'positions' ? 'Calculator' : 'Positions';
         renderJournalSummary();
         renderTable();
         document.body.offsetHeight;
         refreshFilterSegs();
-        if (view !== 'compound' && prefs.metricsOpen !== false) {
+        if (view !== 'compound' && view !== 'themes' && prefs.metricsOpen !== false) {
             const wrap = $('metricsRowWrap');
             if (wrap) wrap.style.height = 'auto';
             requestAnimationFrame(() => segs.scope?.refresh());
@@ -4041,6 +4045,7 @@
         syncCalculatorMode();
         syncRiskLabels();
         COMPOUND.init({ account, parseNum, bindMoneyNotation });
+        GUIDE.init();
         setView(viewFromHash(), { instant: true });
         window.addEventListener('hashchange', () => setView(viewFromHash(), { syncHash: false }));
         renderAll();

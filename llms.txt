@@ -25,6 +25,8 @@ replacement across four iterations.
 - **Compounding**: a 10-year table across yearly return rates, with
   contributions or withdrawals, milestone reads, and honest caveats
   (every figure is one constant hypothetical return).
+- **Themes**: a reference of everyday one-liners for what listed companies
+  do, grouped so you can browse a tape. Data lives in data/guide.json.
 
 ## Data and philosophy
 

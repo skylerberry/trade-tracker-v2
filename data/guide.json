@@ -1,0 +1,134 @@
+{
+  "themes": [
+    {
+      "id": "semis",
+      "name": "Semiconductors",
+      "blurb": "The chips, and the machines that print them.",
+      "tickers": ["NVDA", "AVGO", "TSM", "ASML"]
+    },
+    {
+      "id": "software",
+      "name": "Software",
+      "blurb": "Subscription software companies live on.",
+      "tickers": ["ADBE", "CRM", "NOW", "PLTR", "SNOW"]
+    },
+    {
+      "id": "cyber",
+      "name": "Cybersecurity",
+      "blurb": "Who gets paid to keep networks and logins closed.",
+      "tickers": ["CRWD", "PANW", "ZS", "NET"]
+    },
+    {
+      "id": "space",
+      "name": "Space",
+      "blurb": "Rockets, landers, and phones that talk to satellites.",
+      "tickers": ["RKLB", "ASTS", "LUNR"]
+    },
+    {
+      "id": "quantum",
+      "name": "Quantum computing",
+      "blurb": "Machines that are still more lab than product.",
+      "tickers": ["IONQ", "RGTI", "QUBT"]
+    },
+    {
+      "id": "ai-infra",
+      "name": "AI infrastructure",
+      "blurb": "The buildings and boxes rented out to train models.",
+      "tickers": ["NVDA", "CRWV", "NBIS", "SMCI", "ANET"]
+    }
+  ],
+  "companies": {
+    "ADBE": {
+      "name": "Adobe",
+      "does": "Sells subscription software like Photoshop, Illustrator, Premiere, and Acrobat that people use to edit photos, video, and PDFs; also sells marketing software to companies."
+    },
+    "ANET": {
+      "name": "Arista Networks",
+      "does": "Sells high-speed switches and software that connect servers inside large data centers and AI clusters."
+    },
+    "ASML": {
+      "name": "ASML",
+      "does": "Builds the giant machines chipmakers use to print circuit patterns onto silicon wafers."
+    },
+    "ASTS": {
+      "name": "AST SpaceMobile",
+      "does": "Builds satellites that beam cell service to regular phones and charges phone companies for that coverage."
+    },
+    "AVGO": {
+      "name": "Broadcom",
+      "does": "Sells chips that move data in phones, networks, and AI servers, plus software that companies use to run their computer systems."
+    },
+    "CRM": {
+      "name": "Salesforce",
+      "does": "Sells cloud software that companies use to track customers, sales, and support tickets."
+    },
+    "CRWD": {
+      "name": "CrowdStrike",
+      "does": "Sells subscription software that watches company computers, cloud systems, and logins to detect and stop cyber attacks."
+    },
+    "CRWV": {
+      "name": "CoreWeave",
+      "does": "Rents out powerful NVIDIA computers in its data centers so companies can train and run AI models."
+    },
+    "IONQ": {
+      "name": "IonQ",
+      "does": "Builds quantum computers and rents access to them through the cloud."
+    },
+    "LUNR": {
+      "name": "Intuitive Machines",
+      "does": "Builds spacecraft and lunar landers and flies cargo to the Moon and Earth orbit for NASA and other customers."
+    },
+    "NBIS": {
+      "name": "Nebius",
+      "does": "Rents GPU computers and cloud space so companies can train and run AI models."
+    },
+    "NET": {
+      "name": "Cloudflare",
+      "does": "Sits between websites and visitors to speed up pages and block attacks."
+    },
+    "NOW": {
+      "name": "ServiceNow",
+      "does": "Sells cloud software that automates office work like IT tickets, HR requests, and customer service."
+    },
+    "NVDA": {
+      "name": "NVIDIA",
+      "does": "Designs the graphics chips that train and run AI models, plus gaming GPUs and chips for cars and data centers."
+    },
+    "PANW": {
+      "name": "Palo Alto Networks",
+      "does": "Sells firewalls and cybersecurity software that companies use to protect their networks, cloud systems, and employees."
+    },
+    "PLTR": {
+      "name": "Palantir",
+      "does": "Sells software that governments and big companies use to combine their data and run AI on it."
+    },
+    "QUBT": {
+      "name": "Quantum Computing Inc.",
+      "does": "Makes photonic chips and room-temperature quantum machines that use light to compute, sense, and send data."
+    },
+    "RGTI": {
+      "name": "Rigetti",
+      "does": "Builds superconducting quantum computers and rents access to them through the cloud."
+    },
+    "RKLB": {
+      "name": "Rocket Lab",
+      "does": "Launches small satellites on its own rockets and also builds satellites and satellite parts for customers."
+    },
+    "SMCI": {
+      "name": "Super Micro Computer",
+      "does": "Designs and sells servers and storage racks, especially AI boxes packed with GPUs, to data centers."
+    },
+    "SNOW": {
+      "name": "Snowflake",
+      "does": "Runs a cloud database that companies pay to store and analyze their data."
+    },
+    "TSM": {
+      "name": "TSMC",
+      "does": "Manufactures computer chips for other companies, including the processors in phones and AI servers."
+    },
+    "ZS": {
+      "name": "Zscaler",
+      "does": "Sells a cloud service that checks company internet and app traffic to block hacks and data leaks."
+    }
+  }
+}

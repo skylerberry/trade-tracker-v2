@@ -39,6 +39,16 @@ without a backend.
 - Exports CSV, TSV, Excel-ready clipboard data, and JSON backups, including
   journal timestamps and content
 
+### Themes
+
+- A browse-first reference of everyday one-liners for what a company does
+- Grouped by theme, with search across ticker, name, Does line, and theme
+- Curated in `data/guide.json` — add a company record, then list its ticker
+  under one or more themes
+- Scan lists live in `data/movers.json` (same shape, plus an `asOf` date) —
+  scanner-owned, optional, shown after the curated themes under a "Scans"
+  seam. Curated data wins every collision; automation never edits guide.json
+
 ### Personalization and persistence
 
 - Stores data locally using v1-compatible `localStorage` keys

@@ -1,0 +1,13 @@
+{
+  "_comment": "Scanner-owned. Overwritten each weekday after post-market close by the site-manager scan. Same shape as guide.json, plus asOf (YYYY-MM-DD). Never edit guide.json from the scanner — curated data wins every collision (theme ids and company records). Tickers here may reference companies defined in guide.json; add a company record below only for names the curated guide doesn't cover.",
+  "asOf": "2026-08-26",
+  "themes": [
+    { "id": "gainers-1w", "name": "1-week gainers", "blurb": "Sample data — the nightly scan replaces this list.", "tickers": ["NVDA", "QUBT"] },
+    { "id": "gainers-1m", "name": "1-month gainers", "blurb": "Sample data — the nightly scan replaces this list.", "tickers": ["AVGO", "SMPL"] },
+    { "id": "gainers-3m", "name": "3-month gainers", "blurb": "Sample data — the nightly scan replaces this list.", "tickers": ["TSM"] },
+    { "id": "gainers-6m", "name": "6-month gainers", "blurb": "Sample data — the nightly scan replaces this list.", "tickers": ["ASML"] }
+  ],
+  "companies": {
+    "SMPL": { "name": "Sample Co", "does": "Placeholder showing that movers.json carries its own Does lines for names the curated guide doesn't cover." }
+  }
+}
