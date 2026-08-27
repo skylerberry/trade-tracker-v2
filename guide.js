@@ -123,9 +123,12 @@ const GUIDE = (() => {
     function view(data, { query = '', themeId = null } = {}) {
         const q = String(query || '').trim().toLowerCase();
         const id = themeId && themeId !== 'all' ? String(themeId) : null;
+        const showingAll = !themeId || themeId === 'all';
         const themes = [];
         for (const theme of data?.themes || []) {
             if (id && theme.id !== id) continue;
+            /* All view shows curated themes only, not generated scans or derived */
+            if (showingAll && theme.source !== 'curated') continue;
             const companies = theme.companies.filter(c => matchesQuery(c, theme, q));
             if (!companies.length) continue;
             themes.push({ ...theme, companies });
@@ -182,6 +185,10 @@ const GUIDE = (() => {
         const host = $('themesBody');
         if (!host) return;
         host.scrollTop = 0;
+        
+        /* Set data attribute for sticky header styling */
+        host.dataset.themeView = themeId === 'all' ? 'all' : 'single';
+        
         if (loadError) {
             host.innerHTML = '<p class="themes-empty">Couldn’t load the guide.</p>';
             return;
