@@ -71,6 +71,30 @@ const GUIDE = (() => {
             ...resolveThemes(curatedRaw, companies, 'curated', taken),
             ...resolveThemes(moversRaw, companies, 'generated', taken),
         ];
+        
+        /* Derive "All gainers" as unique union of the 4 gainer timeframes */
+        const gainerIds = ['gainers-1w', 'gainers-1m', 'gainers-3m', 'gainers-6m'];
+        const gainerThemes = themes.filter(t => gainerIds.includes(t.id));
+        if (gainerThemes.length > 1) {
+            const allTickers = new Set();
+            gainerThemes.forEach(t => {
+                t.companies.forEach(c => allTickers.add(c.ticker));
+            });
+            const allCompanies = Array.from(allTickers)
+                .map(ticker => companies[ticker])
+                .filter(Boolean);
+            if (allCompanies.length > 0) {
+                themes.push({
+                    id: 'gainers-all',
+                    name: 'All gainers',
+                    blurb: 'Unique union of all four gainer timeframes',
+                    source: 'generated',
+                    derived: true,
+                    companies: allCompanies,
+                });
+            }
+        }
+        
         const asOf = typeof moversRaw?.asOf === 'string' ? moversRaw.asOf.trim() : '';
         return { themes, companies, asOf };
     }
