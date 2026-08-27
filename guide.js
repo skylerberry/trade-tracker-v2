@@ -207,7 +207,10 @@ const GUIDE = (() => {
         host.innerHTML = state.themes.map(theme => {
             const rows = theme.companies.map(c => `
                 <article class="themes-row" data-ticker="${escapeHtml(c.ticker)}">
-                    <div class="themes-tk">${escapeHtml(c.ticker)}</div>
+                    <div class="themes-tk">
+                        <img class="themes-logo" src="https://financialmodelingprep.com/image-stock/${escapeHtml(c.ticker)}.png" alt="" onerror="this.style.display='none'">
+                        ${escapeHtml(c.ticker)}
+                    </div>
                     <div class="themes-copy">
                         <div class="themes-name">${escapeHtml(c.name)}</div>
                         <p class="themes-does">${escapeHtml(c.does)}</p>

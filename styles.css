@@ -2857,10 +2857,20 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
 }
 .themes-row:last-child { border-bottom: none; }
 .themes-tk {
+    display: flex;
+    align-items: center;
+    gap: 7px;
     padding-top: 1px;
     font-size: 0.84rem; font-weight: 600; letter-spacing: -0.02em;
     color: var(--header-text);
     font-variant-numeric: tabular-nums;
+}
+.themes-logo {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 3px;
+    object-fit: contain;
 }
 .themes-name {
     font-size: 0.84rem; font-weight: 600; letter-spacing: -0.015em;
