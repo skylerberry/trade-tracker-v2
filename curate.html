@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Curate Themes — skyler.tools</title>
+<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141518" media="(prefers-color-scheme: dark)">
+<script>
+// Pre-paint theme: data-theme is ALWAYS set (design-system single-selector rule)
+(function () {
+    var t = localStorage.getItem('tradeTracker_theme');
+    if (t !== 'light' && t !== 'dark' && t !== 'oled') t = 'light';
+    document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Curate-only layout. Components (buttons, inputs, tokens) come from styles.css. */
+.curate-main { max-width: 860px; margin: 0 auto; padding: 26px 20px 60px; }
+.curate-top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 6px;
+}
+.curate-back { font-size: 0.8rem; color: var(--accent); text-decoration: none; }
+.curate-back:hover { text-decoration: underline; }
+.curate-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 16px 18px;
+    margin-top: 16px;
+}
+.curate-kicker {
+    margin: 0 0 10px;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-3);
+}
+.curate-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.curate-note { margin: 8px 0 0; font-size: 0.8rem; line-height: 1.5; color: var(--text-3); }
+.curate-note a { color: var(--accent); }
+.curate-bar {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    margin-top: 16px; padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+}
+.curate-status { font-size: 0.8rem; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.curate-status.is-dirty { color: var(--text-2); font-weight: 600; }
+.curate-status.is-err { color: var(--danger); font-weight: 600; }
+.curate-status a { color: var(--accent); }
+.theme-card { margin-top: 14px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.theme-card-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px 10px; align-items: start; }
+.theme-fields { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.theme-fields input { width: 100%; }
+.theme-tools { display: flex; gap: 6px; }
+.theme-tools .btn-sm { padding: 4px 9px; }
+.tick-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tick-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 6px 3px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-full);
+    font-size: 0.78rem; font-weight: 600; letter-spacing: -0.01em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+.tick-chip.is-broken { border-color: var(--danger); color: var(--danger); }
+.tick-chip button {
+    width: 16px; height: 16px; line-height: 1;
+    border-radius: var(--radius-full);
+    color: var(--text-3); font-size: 0.8rem;
+    background: none; border: none; cursor: pointer;
+}
+.tick-chip button:hover { color: var(--danger); background: var(--surface-3); }
+.tick-add { margin-top: 10px; display: flex; gap: 8px; }
+.tick-add input { width: 130px; text-transform: uppercase; }
+.co-row {
+    display: grid; grid-template-columns: 5.2rem minmax(0,14rem) minmax(0,1fr) auto;
+    gap: 10px; align-items: start;
+    padding: 12px 2px;
+    border-bottom: 1px solid var(--border);
+}
+.co-row:last-child { border-bottom: none; }
+.co-tk { padding-top: 7px; font-size: 0.84rem; font-weight: 600; letter-spacing: -0.02em; color: var(--header-text); font-variant-numeric: tabular-nums; }
+.co-row textarea { width: 100%; min-height: 38px; resize: vertical; font-size: 0.84rem; line-height: 1.5; }
+.co-row input { width: 100%; }
+.co-orphan { font-size: 0.7rem; color: var(--text-3); }
+.curate-problems { margin: 10px 0 0; padding: 0; list-style: none; font-size: 0.8rem; line-height: 1.6; }
+.curate-problems li { color: var(--danger); }
+.curate-problems li.is-warn { color: var(--text-3); }
+.curate-search { margin: 4px 0 6px; }
+.curate-search input { width: min(100%, 280px); }
+@media (max-width: 640px) {
+    .co-row { grid-template-columns: 4rem minmax(0,1fr) auto; }
+    .co-row textarea { grid-column: 1 / -1; }
+}
+</style>
+</head>
+<body>
+
+<main class="curate-main">
+    <div class="curate-top">
+        <header class="view-head">
+            <h1 class="view-title">Curate Themes</h1>
+            <p class="view-sub">Edits commit <code>data/guide.json</code> to main; Netlify redeploys in about a minute. Scan lists (movers.json) are Scout's — they don't appear here.</p>
+        </header>
+        <a class="curate-back" href="./#themes">← back to the app</a>
+    </div>
+
+    <section class="curate-card" id="tokenCard" hidden>
+        <h2 class="curate-kicker">GitHub token</h2>
+        <div class="curate-row">
+            <input type="password" id="tokenInput" placeholder="github_pat_…" autocomplete="off" style="flex:1 1 260px">
+            <button class="btn btn-primary btn-sm" id="tokenSave">Save</button>
+        </div>
+        <p class="curate-note">
+            Fine-grained personal access token, scoped to <b>skylerberry/trade-tracker-v2</b> only, with
+            <b>Contents: Read and write</b> as its single permission
+            (<a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">create one</a>).
+            Stored in this browser's localStorage, same as gist sync. Without a token this page is a read-only viewer.
+        </p>
+    </section>
+
+    <div class="curate-bar">
+        <span class="curate-status" id="statusLine">Loading…</span>
+        <span class="curate-row">
+            <button class="btn btn-ghost btn-sm" id="tokenForget" hidden>Forget token</button>
+            <button class="btn btn-ghost btn-sm" id="discardBtn" disabled>Discard changes</button>
+            <button class="btn btn-primary btn-sm" id="publishBtn" disabled>Publish</button>
+        </span>
+    </div>
+    <ul class="curate-problems" id="problems"></ul>
+
+    <section class="curate-card">
+        <h2 class="curate-kicker">Themes</h2>
+        <div id="themesHost"></div>
+        <div class="curate-row" style="margin-top:14px">
+            <input id="newThemeName" placeholder="New theme name…" style="flex:1 1 220px">
+            <button class="btn btn-ghost btn-sm" id="addThemeBtn">Add theme</button>
+        </div>
+    </section>
+
+    <section class="curate-card">
+        <h2 class="curate-kicker">Companies</h2>
+        <div class="curate-search"><input type="search" id="coSearch" placeholder="Filter by ticker or name…"></div>
+        <div id="companiesHost"></div>
+        <p class="curate-note">A ticker added to a theme without a record here shows up below automatically — fill in the name and the Does line before publishing. One plain sentence, everyday language.</p>
+    </section>
+</main>
+
+<script src="curate.js"></script>
+</body>
+</html>
