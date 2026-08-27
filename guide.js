@@ -145,10 +145,33 @@ const GUIDE = (() => {
     }
 
     function rail(data, query) {
-        const shown = view(data, { query, themeId: null });
-        const counts = new Map(shown.themes.map(t => [t.id, t.companies.length]));
+        const q = String(query || '').trim().toLowerCase();
+        /* Count each theme directly from data, respecting query filter */
+        const counts = new Map();
+        for (const theme of data?.themes || []) {
+            const matchingCompanies = theme.companies.filter(c => {
+                if (!q) return true;
+                if (hay(c).includes(q)) return true;
+                if (theme.name.toLowerCase().includes(q)) return true;
+                if (theme.blurb.toLowerCase().includes(q)) return true;
+                return false;
+            });
+            counts.set(theme.id, matchingCompanies.length);
+        }
+        /* For All, count unique tickers from curated themes only */
+        const curatedThemes = (data?.themes || []).filter(t => t.source === 'curated');
+        const allTickers = new Set();
+        for (const theme of curatedThemes) {
+            for (const c of theme.companies) {
+                if (!q) {
+                    allTickers.add(c.ticker);
+                } else if (hay(c).includes(q) || theme.name.toLowerCase().includes(q) || theme.blurb.toLowerCase().includes(q)) {
+                    allTickers.add(c.ticker);
+                }
+            }
+        }
         return [
-            { id: 'all', name: 'All', source: 'curated', count: shown.nameCount },
+            { id: 'all', name: 'All', source: 'curated', count: allTickers.size },
             ...(data?.themes || []).map(t => ({
                 id: t.id,
                 name: t.name,

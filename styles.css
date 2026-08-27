@@ -2782,6 +2782,7 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     border-radius: var(--radius-card);
     padding: 16px 18px 14px;
     overflow: hidden;
+    flex: 0 0 auto;
 }
 .themes-section-head {
     display: flex; align-items: baseline; justify-content: space-between;
