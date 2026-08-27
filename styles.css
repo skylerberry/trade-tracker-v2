@@ -2757,15 +2757,26 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
 .themes-body::-webkit-scrollbar { width: 4px; }
 .themes-body::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
 .themes-section {
+    --sect-pt: 16px;
+    --sect-px: 18px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
-    padding: 16px 18px 8px;
+    padding: var(--sect-pt) var(--sect-px) 8px;
+    /* clip, not hidden — same rule as .table-card: the card's own radius
+       rounds the stuck head at the top corners, and clip never creates a
+       scroll container, so the head still sticks against .themes-body. */
+    overflow: clip;
 }
 .themes-section-head {
+    position: sticky; top: 0; z-index: 1;
     display: flex; align-items: baseline; justify-content: space-between;
     gap: 12px;
-    padding-bottom: 12px;
+    /* Full-bleed to the card's padding box: an inset head would let rows
+       show in the padding gutters while stuck. */
+    margin: calc(-1 * var(--sect-pt)) calc(-1 * var(--sect-px)) 0;
+    padding: var(--sect-pt) var(--sect-px) 12px;
+    background: var(--surface);
     border-bottom: 1px solid var(--border);
 }
 .themes-kicker {
@@ -4413,7 +4424,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     }
 }
 @media (max-width: 560px) {
-    .themes-section { padding: 14px 14px 6px; }
+    .themes-section { --sect-pt: 14px; --sect-px: 14px; padding: var(--sect-pt) var(--sect-px) 6px; }
     .themes-tk { font-size: 0.8rem; }
     .form-grid { grid-template-columns: 1fr; }
     .calc-inputs { grid-template-columns: 1fr; }
