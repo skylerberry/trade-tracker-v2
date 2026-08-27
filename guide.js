@@ -246,11 +246,8 @@ const GUIDE = (() => {
                 ? `<span class="themes-asof">${escapeHtml(fmtAsOf(data.asOf))}</span>`
                 : '';
             
-            /* Add copy button for gainer scans */
-            const isGainerScan = theme.id === 'gainers-all' || theme.id.startsWith('gainers-');
-            const copyBtn = isGainerScan
-                ? `<button type="button" class="themes-copy-btn" data-theme-id="${escapeHtml(theme.id)}" title="Copy tickers"><span data-icon="clipboard-copy"></span></button>`
-                : '';
+            /* Add copy button for all themes */
+            const copyBtn = `<button type="button" class="themes-copy-btn" data-theme-id="${escapeHtml(theme.id)}" title="Copy all tickers"><span data-icon="clipboard-copy"></span>Copy</button>`;
             
             return `
                 <section class="themes-section" aria-labelledby="theme-${escapeHtml(theme.id)}">

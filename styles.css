@@ -2826,23 +2826,27 @@ body:has(.float-bar.in) .themes-rail { top: 66px; }
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    margin-left: 6px;
-    padding: 0;
+    gap: 4px;
+    height: 24px;
+    margin-left: 8px;
+    padding: 0 8px;
     border: none;
+    border-radius: var(--radius-md);
     background: transparent;
     color: var(--text-3);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     cursor: pointer;
-    transition: color var(--dur-fast), opacity var(--dur-fast);
+    transition: color var(--dur-fast), background-color var(--dur-fast);
 }
 .themes-copy-btn .lucide {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
 }
 .themes-copy-btn:hover {
     color: var(--accent);
-    opacity: 0.85;
+    background: var(--accent-soft);
 }
 .themes-asof {
     font-size: 0.72rem; font-weight: 500;
