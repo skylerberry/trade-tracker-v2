@@ -1703,6 +1703,7 @@
         if ($('journalSummary')) $('journalSummary').hidden = view !== 'journal';
         if ($('compoundView')) $('compoundView').hidden = view !== 'compound';
         if ($('themesView')) $('themesView').hidden = view !== 'themes';
+        if (view === 'themes') GUIDE.render();
         if ($('journalSeg')) $('journalSeg').hidden = view !== 'journal';
         if ($('statusSeg')) $('statusSeg').hidden = view !== 'positions';
         if (view === 'positions') {

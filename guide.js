@@ -568,6 +568,7 @@ const GUIDE = (() => {
     let loaded = false;
     let loadError = false;
     let revealed = false;
+    let winSegApi = null;
 
     function themeFromHash() {
         const m = (location.hash || '').match(/^#themes\/([a-z0-9-]+)/i);
@@ -657,10 +658,11 @@ const GUIDE = (() => {
             <div class="tb-sheet">${sheetHTML(open)}</div>`;
         if (typeof hydrateIcons === 'function') hydrateIcons(host);
         const asof = $('themesAsof');
-        if (asof && window.MOTION && !revealed && asof.textContent.trim()) {
+        if (asof && typeof MOTION !== 'undefined' && !revealed && asof.textContent.trim()) {
             revealed = true;
-            window.MOTION.letterReveal(asof);
+            MOTION.letterReveal(asof);
         }
+        winSegApi?.refresh();
     }
 
     function setTheme(id) {
@@ -705,14 +707,15 @@ const GUIDE = (() => {
             });
         }
         if (winSeg) {
-            if (window.MOTION) {
-                window.MOTION.segmented(winSeg, (id) => { windowId = id; render(); });
+            if (typeof MOTION !== 'undefined') {
+                winSegApi = MOTION.segmented(winSeg, (id) => { windowId = id; render(); });
+                winSegApi.set(windowId, true);
             } else {
                 winSeg.addEventListener('click', (e) => {
-                    const btn = e.target.closest('[data-win]');
+                    const btn = e.target.closest('[data-seg]');
                     if (!btn) return;
-                    windowId = btn.dataset.win;
-                    winSeg.querySelectorAll('[data-win]').forEach(b => b.classList.toggle('is-active', b === btn));
+                    windowId = btn.dataset.seg;
+                    winSeg.querySelectorAll('[data-seg]').forEach(b => b.classList.toggle('is-active', b === btn));
                     render();
                 });
             }

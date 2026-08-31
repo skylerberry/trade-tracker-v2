@@ -2684,9 +2684,6 @@ body[data-view="themes"] .float-bar .fb-sep { display: none; }
     padding: 0 8px; font-size: 0.82rem; font-variant-numeric: tabular-nums;
 }
 .tb-filter select { width: 8.5rem; }
-#themesWinSeg [data-win].is-active {
-    background: var(--primary); color: var(--primary-contrast); box-shadow: var(--inset-hi);
-}
 .themes-desk {
     display: grid;
     grid-template-columns: minmax(240px, 0.4fr) minmax(0, 1fr);
