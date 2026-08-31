@@ -896,22 +896,44 @@
     </section>
 
     <section class="themes-view" id="themesView" hidden aria-labelledby="themesTitle">
-        <header class="view-head">
-            <h1 class="view-title" id="themesTitle">Themes</h1>
-            <p class="view-sub">Everyday one-liners for what a company does. Browse a theme, or type a name to jump.</p>
+        <header class="view-head tb-head">
+            <div>
+                <h1 class="view-title" id="themesTitle">Themes</h1>
+                <p class="view-sub" id="themesSub">Ranked on liquid names. The sheet follows your ADR and dollar-volume floors.</p>
+            </div>
+            <div class="tb-asof" id="themesAsof"></div>
         </header>
+        <p class="tb-note">Group % is an equal-weight mean of liquid names ($100M+ · 3%+ ADR) that have a return. Rank uses a size dampener so a 3-name parent cannot lottery to the top. Tighten or loosen the sheet with the floors — ranking stays on the liquid cut.</p>
         <div class="themes-toolbar">
+            <div class="seg" id="themesWinSeg" role="tablist" aria-label="Window">
+                <span class="seg-pill" aria-hidden="true"></span>
+                <button type="button" data-win="d" class="is-active" role="tab">Daily</button>
+                <button type="button" data-win="w" role="tab">1W</button>
+                <button type="button" data-win="m" role="tab">1M</button>
+                <button type="button" data-win="q" role="tab">3M</button>
+            </div>
             <label class="search-field themes-search" id="themesSearchField">
                 <span class="search-ic" data-icon="search" aria-hidden="true"></span>
-                <input type="search" id="themesSearch" placeholder="NVDA, quantum, chips…" aria-label="Search names and themes" autocomplete="off" spellcheck="false">
-                <button type="button" class="search-clear" id="themesSearchClear" aria-label="Clear search" hidden><span data-icon="x" aria-hidden="true"></span></button>
+                <input type="search" id="themesSearch" placeholder="NVDA, neocloud, chips…" aria-label="Search names and themes" autocomplete="off" spellcheck="false">
+                <button type="button" class="search-clear" id="themesSearchClear" aria-label="Clear search" hidden><span data-icon="x"></span></button>
+            </label>
+            <label class="tb-filter">ADR ≥
+                <input type="text" id="themesMinAdr" inputmode="decimal" value="2.5" aria-label="Minimum ADR percent">
+            </label>
+            <label class="tb-filter">$vol ≥
+                <input type="text" id="themesMinDv" value="20M" aria-label="Minimum dollar volume">
+            </label>
+            <label class="tb-filter">Sort
+                <select id="themesSort" aria-label="Sort names">
+                    <option value="pct">Window %</option>
+                    <option value="adr">ADR</option>
+                    <option value="dv">Dollar volume</option>
+                    <option value="ticker">Ticker</option>
+                </select>
             </label>
             <p class="themes-count" id="themesCount"></p>
         </div>
-        <div class="themes-layout">
-            <nav class="themes-rail" id="themesRail" aria-label="Themes"></nav>
-            <div class="themes-body" id="themesBody"></div>
-        </div>
+        <div class="themes-desk" id="themesDesk"></div>
     </section>
 
 </main>

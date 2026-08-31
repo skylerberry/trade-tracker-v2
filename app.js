@@ -1583,7 +1583,7 @@
     const round2 = E.round2;
 
     function viewFromHash() {
-        const h = (location.hash || '#').slice(1).toLowerCase();
+        const h = (location.hash || '#').slice(1).toLowerCase().split('/')[0];
         if (h === 'dashboard' || h === 'tracker' || h === '') return 'positions';
         return VIEWS.includes(h) ? h : 'positions';
     }
@@ -1695,8 +1695,8 @@
         view = name;
         document.body.dataset.view = view;
         if (syncHash) {
-            const next = '#' + view;
-            if (location.hash !== next) history.replaceState(null, '', next);
+            const head = (location.hash || '#').slice(1).split('/')[0];
+            if (head !== view) history.replaceState(null, '', '#' + view);
         }
         /* Segment click already springs the pill — don't snap it. */
         if (!fromSegment) segs.view?.set(view, instant || !viewReady);

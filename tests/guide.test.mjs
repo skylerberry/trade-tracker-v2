@@ -114,5 +114,36 @@ for (const theme of liveMovers.themes || []) {
     }
 }
 
+eq(GUIDE.adjPct(20, 3, 8), 20 * 3 / 11, '3-name +20% shrinks to ~5.45 with k=8');
+eq(Math.round(GUIDE.adjPct(2.4, 65, 8) * 100) / 100, 2.14, '65-name +2.4% barely shrinks');
+eq(GUIDE.isRankable({ adr: 4, dv: 150_000_000 }), true, '4% ADR and $150M is rankable');
+eq(GUIDE.isRankable({ adr: 2.6, dv: 200_000_000 }), false, '2.6% ADR is on the sheet, not in rank');
+eq(GUIDE.isRankable({ adr: 5, dv: 40_000_000 }), false, '$40M is on the sheet, not in rank');
+eq(GUIDE.passesBrowse({ adr: 2.6, dv: 25_000_000 }, { minAdr: 2.5, minDv: 20_000_000 }), true, 'wide net keeps 2.6% / $25M');
+eq(GUIDE.passesBrowse({ adr: 2.1, dv: 80_000_000 }, { minAdr: 2.5, minDv: 20_000_000 }), false, 'below ADR floor drops from the sheet');
+
+const catalog = GUIDE.parseCatalog({
+    source: 'daily-scan', asOf: '2026-08-31', k: 8,
+    rank: { minAdr: 3, minDv: 100_000_000 },
+    browse: { minAdr: 2.5, minDv: 20_000_000 },
+    themes: [
+        { id: 'copper', name: 'Copper', tickers: ['FCX', 'TINY'] },
+        { id: 'software', name: 'Software', tickers: ['NOW', 'CRM', 'ADBE'] },
+    ],
+    companies: {
+        FCX: { name: 'Freeport', does: 'Mines copper.', ret: { d: 1 }, ext: 4, adr: 5, dv: 200_000_000 },
+        TINY: { name: 'Tiny Co', does: 'Small copper name.', ret: { d: 20 }, ext: 2, adr: 6, dv: 30_000_000 },
+        NOW: { name: 'ServiceNow', does: 'Sells workflow software.', ret: { d: 2 }, ext: 3, adr: 4, dv: 400_000_000 },
+        CRM: { name: 'Salesforce', does: 'Sells CRM software.', ret: { d: 2 }, ext: 3, adr: 3.5, dv: 500_000_000 },
+        ADBE: { name: 'Adobe', does: 'Sells creative software.', ret: { d: 2 }, ext: -1, adr: 2.6, dv: 300_000_000 },
+    },
+});
+const ranked = GUIDE.rankThemes(catalog, { window: 'd' });
+eq(ranked.themes[0].id, 'software', 'size-dampened rank puts the 2-name liquid software theme over 1-name copper lottery');
+eq(ranked.themes.find(t => t.id === 'copper').nRet, 1, 'copper rank set is only the $100M name');
+eq(ranked.themes.find(t => t.id === 'software').companies.map(c => c.ticker).sort(), ['ADBE', 'CRM', 'NOW'], 'sheet still shows the 2.6% ADR software name');
+const tight = GUIDE.rankThemes(catalog, { window: 'd', minAdr: 3, minDv: 100_000_000 });
+eq(tight.themes.find(t => t.id === 'software').companies.map(c => c.ticker).sort(), ['CRM', 'NOW'], 'user floor of 3% / $100M hides Adobe from the sheet');
+
 console.log(`${pass} pass, ${fail} fail`);
 if (fail) process.exit(1);
