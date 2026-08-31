@@ -5,7 +5,8 @@
      { id, ticker, direction, entryPrice, initialSL, currentSL, entryDate,
        shares, exits: [{id, shares, price, date, rMultiple, kind, estimated?}],
        sellPlan: { enabled, preset, initialShares, targets: [...] },
-       snapshot, archived, archivedAt, journal: [...] }
+       snapshot, archived, archivedAt, journal: [...],
+       audit: [{ id, at, field: 'entry'|'initialStop'|'stop', from, to }] }
    null = "unknown" — never NaN, never a guessed number.
    ============================================================ */
 'use strict';
@@ -86,6 +87,29 @@ const ENGINE = (() => {
     }
     function tradeRiskPerShare(trade) {
         return riskPerShare(trade?.entryPrice, trade?.initialSL, trade);
+    }
+    /* Planned R is frozen at log (snapshot.rps, else totalRisk/shares). Fill
+       edits rebase the ladder from the actual fill without shrinking R just
+       because the chart stop didn't move. Initial-stop corrections rewrite it. */
+    function planRiskPerShare(trade) {
+        const snap = trade?.snapshot;
+        if (isNum(snap?.rps) && snap.rps > 0) return round4(snap.rps);
+        if (isNum(snap?.totalRisk) && isNum(snap?.shares) && snap.shares > 0) {
+            const rps = round4(snap.totalRisk / snap.shares);
+            if (rps > 0) return rps;
+        }
+        return tradeRiskPerShare(trade);
+    }
+    function targetPrice(trade, target) {
+        const preset = trade?.sellPlan?.preset;
+        const canDerive = preset === 'half-1r' || preset === 'third-2r' || preset === 'backfill';
+        const rps = planRiskPerShare(trade);
+        const derived = rps !== null && isNum(trade?.entryPrice) && isNum(target?.rLevel) && target.rLevel !== 'exit'
+            ? round2(trade.entryPrice + directionSign(trade) * rps * target.rLevel)
+            : null;
+        if (canDerive && derived !== null) return derived;
+        if (isNum(target?.price)) return target.price;
+        return derived;
     }
     function computeExitR(trade, price) {
         const rps = tradeRiskPerShare(trade);
@@ -287,18 +311,76 @@ const ENGINE = (() => {
         return trade.sellPlan.targets
             .filter(t => t.status !== 'executed' && t.rLevel !== 'exit')
             .map(t => {
-                const rps = tradeRiskPerShare(trade);
-                const price = isNum(t.price) ? t.price
-                    : (rps !== null && isNum(t.rLevel) ? round2(trade.entryPrice + directionSign(trade) * rps * t.rLevel) : null);
+                const price = targetPrice(trade, t);
                 const isStopRaise = t.action === 'raise-stop' || (isNum(t.shares) && t.shares === 0) || t.backfill === true;
                 return {
                     ref: t, price,
                     shares: plannedShares(trade, t),
                     isStopRaise,
-                    newStop: isNum(t.newStop) ? t.newStop : trade.entryPrice,
+                    newStop: isStopRaise && isNum(trade.entryPrice) ? trade.entryPrice
+                        : (isNum(t.newStop) ? t.newStop : trade.entryPrice),
                 };
             })
             .filter(t => t.price !== null);
+    }
+    function rebasePendingTargets(trade) {
+        if (!Array.isArray(trade?.sellPlan?.targets)) return trade;
+        for (const t of trade.sellPlan.targets) {
+            if (t.status === 'executed') continue;
+            const price = targetPrice(trade, t);
+            if (price !== null) t.price = price;
+            const isStopRaise = t.action === 'raise-stop' || (isNum(t.shares) && t.shares === 0) || t.backfill === true;
+            if (isStopRaise && isNum(trade.entryPrice)) t.newStop = trade.entryPrice;
+        }
+        return trade;
+    }
+
+    const auditFields = new Set(['entry', 'initialStop', 'stop']);
+    function normalizeAudit(trade) {
+        return (Array.isArray(trade?.audit) ? trade.audit : []).map((entry, index) => {
+            const field = auditFields.has(entry?.field) ? entry.field : null;
+            const from = toFinite(entry?.from);
+            const to = toFinite(entry?.to);
+            if (!field || from === null || to === null || round4(from) === round4(to)) return null;
+            return {
+                id: String(entry?.id || `adj-${trade?.id || 'trade'}-${index}`),
+                at: validIso(entry?.at) || validIso(trade?.updatedAt) || validIso(trade?.createdAt) || new Date().toISOString(),
+                field,
+                from,
+                to,
+            };
+        }).filter(Boolean);
+    }
+    function applyAdjustmentDiff(trade, before, at = null) {
+        if (!trade || !before) return trade;
+        const stamp = validIso(at) || new Date().toISOString();
+        const changes = [
+            ['entryPrice', 'entry'],
+            ['initialSL', 'initialStop'],
+            ['currentSL', 'stop'],
+        ];
+        trade.audit = normalizeAudit(trade);
+        for (const [key, field] of changes) {
+            const from = toFinite(before[key]);
+            const to = toFinite(trade[key]);
+            if (from === null || to === null || round4(from) === round4(to)) continue;
+            trade.audit.push({
+                id: `adj-${trade.id || 'trade'}-${trade.audit.length}`,
+                at: stamp,
+                field,
+                from,
+                to,
+            });
+        }
+        const entryChanged = isNum(before.entryPrice) && isNum(trade.entryPrice) && round4(before.entryPrice) !== round4(trade.entryPrice);
+        const initialChanged = isNum(before.initialSL) && isNum(trade.initialSL) && round4(before.initialSL) !== round4(trade.initialSL);
+        if (initialChanged) {
+            if (!trade.snapshot || typeof trade.snapshot !== 'object') trade.snapshot = {};
+            const rps = tradeRiskPerShare(trade);
+            if (rps !== null) trade.snapshot.rps = rps;
+        }
+        if (entryChanged || initialChanged) rebasePendingTargets(trade);
+        return trade;
     }
 
     /* Post-trim breakeven stop: solves remaining stop risk − realized = 0. */
@@ -839,13 +921,14 @@ const ENGINE = (() => {
     }
 
     return {
-        round2, round4, isNum, directionOf, directionSign, directionalMove, normalizeJournal,
+        round2, round4, isNum, directionOf, directionSign, directionalMove, normalizeJournal, normalizeAudit,
         todayLocalISO, parseLocalDate, fmtDateShort,
-        riskPerShare, tradeRiskPerShare, computeExitR,
+        riskPerShare, tradeRiskPerShare, planRiskPerShare, targetPrice, computeExitR,
         getOriginalShares, getRemainingShares, soldShares,
         getRealizedPnL, getRealizedR, currentStop, getOpenRiskDollars, isFreeRolled,
         deriveStatus, statusLabel,
-        calcPosition, calcOptionPosition, buildSellPlan, plannedShares, pendingTargets, breakevenStop, freerollSharesAtPrice,
+        calcPosition, calcOptionPosition, buildSellPlan, plannedShares, pendingTargets, rebasePendingTargets,
+        applyAdjustmentDiff, breakevenStop, freerollSharesAtPrice,
         computeStats, accountRisk, staleTrades, lastExitDate, equityCurve,
         parseAlert, parseWatchlistTickers, toCSV,
         marketSession,

@@ -276,5 +276,91 @@ eq(E.pendingTargets({
     },
 })[0].shares, 500, 'legacy/custom targets keep their stored share count');
 
+/* ---- fill edits rebase pending 1R from planned R, not the frozen log price ---- */
+const dxcmPlan = E.buildSellPlan('half-1r', { valid: true, shares: 146, rps: 0.68 }, 90.31);
+eq(dxcmPlan.targets[0].price, 90.99, 'DXCM ½ @ 1R logs 90.31 + 0.68');
+eq(dxcmPlan.targets[0].shares, 73, 'DXCM ½ @ 1R sells 73');
+const dxcmFilled = {
+    ticker: 'DXCM', entryPrice: 90.13, initialSL: 89.63, currentSL: 89.63,
+    shares: 146, exits: [],
+    sellPlan: dxcmPlan,
+    snapshot: { shares: 146, totalRisk: 99.28, rps: 0.68 },
+};
+eq(E.pendingTargets(dxcmFilled)[0].price, 90.81, 'fill 90.13 keeps planned $0.68 R → 1R at 90.81, not the frozen 90.99');
+eq(E.planRiskPerShare(dxcmFilled), 0.68, 'planned R stays the logged risk-per-share after a fill edit');
+eq(E.tradeRiskPerShare(dxcmFilled), 0.5, 'live entry−stop rps can differ from planned R after a better fill');
+
+const dxcmNoSnap = { ...dxcmFilled, snapshot: undefined };
+eq(E.pendingTargets(dxcmNoSnap)[0].price, 90.63, 'without a calc snapshot, pending 1R uses live entry−stop rps');
+
+const shortPlan = E.buildSellPlan('half-1r', { valid: true, shares: 100, rps: 2, direction: 'short' }, 100, 'short');
+eq(shortPlan.targets[0].price, 98, 'short 1R is entry − rps');
+const shortFilled = {
+    direction: 'short', entryPrice: 99.5, initialSL: 102, currentSL: 102,
+    shares: 100, exits: [], sellPlan: shortPlan, snapshot: { rps: 2, shares: 100, totalRisk: 200 },
+};
+eq(E.pendingTargets(shortFilled)[0].price, 97.5, 'short fill edit rebases 1R: 99.5 − 2');
+
+const backfillPlan = E.buildSellPlan('backfill', { valid: true, shares: 146, rps: 0.68 }, 90.31);
+const backfillFilled = {
+    entryPrice: 90.13, initialSL: 89.63, shares: 146, exits: [],
+    sellPlan: backfillPlan, snapshot: { rps: 0.68 },
+};
+eq(E.pendingTargets(backfillFilled)[0].price, 90.81, 'back-fill 1R price follows the fill');
+eq(E.pendingTargets(backfillFilled)[0].newStop, 90.13, 'back-fill breakeven is the actual fill, not the planned entry');
+
+/* ---- audit log: entry/stop diffs, and initial-stop corrections rebuild planned R ---- */
+const dxcmBefore = {
+    id: 'dxcm-1', ticker: 'DXCM', entryPrice: 90.31, initialSL: 89.63, currentSL: 89.63,
+    shares: 146, exits: [],
+    sellPlan: E.buildSellPlan('half-1r', { valid: true, shares: 146, rps: 0.68 }, 90.31),
+    snapshot: { shares: 146, totalRisk: 99.28, rps: 0.68 },
+    audit: [],
+};
+const dxcmAfterFill = { ...dxcmBefore, sellPlan: JSON.parse(JSON.stringify(dxcmBefore.sellPlan)), snapshot: { ...dxcmBefore.snapshot } };
+dxcmAfterFill.entryPrice = 90.13;
+E.applyAdjustmentDiff(dxcmAfterFill, dxcmBefore, '2026-08-31T15:04:00Z');
+eq(dxcmAfterFill.audit, [{
+    id: 'adj-dxcm-1-0', at: '2026-08-31T15:04:00.000Z', field: 'entry', from: 90.31, to: 90.13,
+}], 'fill edit records an entry adjustment');
+eq(dxcmAfterFill.sellPlan.targets[0].price, 90.81, 'fill edit writes the rebased 1R onto the pending target');
+
+const stopBefore = JSON.parse(JSON.stringify(dxcmAfterFill));
+dxcmAfterFill.currentSL = 90.13;
+E.applyAdjustmentDiff(dxcmAfterFill, stopBefore, '2026-08-31T16:00:00Z');
+eq(dxcmAfterFill.audit[1], {
+    id: 'adj-dxcm-1-1', at: '2026-08-31T16:00:00.000Z', field: 'stop', from: 89.63, to: 90.13,
+}, 'current-stop move records a stop adjustment');
+eq(dxcmAfterFill.snapshot.rps, 0.68, 'managing current stop does not rewrite planned R');
+eq(dxcmAfterFill.sellPlan.targets[0].price, 90.81, 'current-stop move leaves the 1R target alone');
+
+const initialBefore = JSON.parse(JSON.stringify(dxcmAfterFill));
+dxcmAfterFill.initialSL = 89.45;
+E.applyAdjustmentDiff(dxcmAfterFill, initialBefore, '2026-08-31T16:30:00Z');
+eq(dxcmAfterFill.audit[2].field, 'initialStop', 'initial-stop correction is its own audit field');
+eq(dxcmAfterFill.snapshot.rps, 0.68, 'initial stop 89.45 vs fill 90.13 keeps $0.68 planned R');
+eq(dxcmAfterFill.sellPlan.targets[0].price, 90.81, 'matching-distance stop correction keeps 1R at 90.81');
+
+const tighter = JSON.parse(JSON.stringify(dxcmAfterFill));
+const tighterBefore = JSON.parse(JSON.stringify(tighter));
+tighter.initialSL = 89.80;
+E.applyAdjustmentDiff(tighter, tighterBefore, '2026-08-31T17:00:00Z');
+eq(tighter.snapshot.rps, 0.33, 'tighter initial stop rebuilds planned R from the new setup');
+eq(tighter.sellPlan.targets[0].price, 90.46, 'tighter initial stop rebases 1R to fill + new rps');
+
+const noop = JSON.parse(JSON.stringify(dxcmAfterFill));
+E.applyAdjustmentDiff(noop, JSON.parse(JSON.stringify(noop)), '2026-08-31T18:00:00Z');
+eq(noop.audit.length, dxcmAfterFill.audit.length, 'identical values do not append audit rows');
+
+eq(E.normalizeAudit({
+    id: 'n1',
+    audit: [
+        { field: 'entry', from: 1, to: 2, at: '2026-08-31T12:00:00Z' },
+        { field: 'nope', from: 1, to: 2, at: '2026-08-31T12:00:00Z' },
+        { field: 'stop', from: 1, to: 1, at: '2026-08-31T12:00:00Z' },
+        { field: 'stop', from: 'x', to: 2, at: '2026-08-31T12:00:00Z' },
+    ],
+}).map(x => x.field), ['entry'], 'normalizeAudit keeps only real from→to price changes');
+
 console.log(fail ? `\n${pass} passed, ${fail} FAILED` : `${pass}/${pass} passed`);
 process.exit(fail ? 1 : 0);

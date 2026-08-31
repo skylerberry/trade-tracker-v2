@@ -81,6 +81,7 @@
         if (t.archived === undefined) t.archived = false;
         if (!t.id) t.id = uid();
         t.journal = E.normalizeJournal(t);
+        t.audit = E.normalizeAudit(t);
         t.notes = '';
         t.direction = E.directionOf(t);
         return t;
@@ -1430,6 +1431,7 @@
                 account: c.account, riskPct: c.riskPct, maxPct: c.maxPct,
                 target: c.target ?? null, shares: res.shares, direction: c.direction,
                 posSize: res.posSize, totalRisk: res.totalRisk, capped: res.capped,
+                rps: res.rps,
             },
             archived: false, journal: [], notes: '',
             createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
@@ -2400,12 +2402,22 @@
 
         const events = [];
         events.push({ kind: 'entry', l1: `<b>${direction === 'short' ? 'Short entry' : 'Long entry'}</b> — ${E.getOriginalShares(t) !== null ? fmtShareCount(E.getOriginalShares(t)) + ' @ ' : ''}${E.fmtPrice(t.entryPrice)}`, l2: `${E.fmtDateShort(t.entryDate)} · stop ${E.fmtPrice(t.initialSL)}${rps !== null ? ' · risk / share $' + rps.toFixed(2) : ''}` });
+        const audit = E.normalizeAudit(t);
+        const auditLabels = { entry: 'Entry adjusted', initialStop: 'Initial stop corrected', stop: 'Stop moved' };
+        for (const a of audit) {
+            events.push({
+                kind: 'adjust',
+                l1: `<b>${auditLabels[a.field] || 'Adjusted'}</b> — ${E.fmtPrice(a.from)} → ${E.fmtPrice(a.to)}`,
+                l2: formatJournalTimestamp(a.at),
+            });
+        }
         for (const x of (t.exits || [])) {
             const kind = x.kind === 'stop' ? 'stop' : 'trim';
             events.push({ kind, l1: `<b>${x.kind === 'stop' ? 'Stopped' : exitPast}</b> ${fmtShareCount(x.shares)} @ ${E.fmtPrice(x.price)}`, l2: `${E.fmtDateShort(x.date)}${E.isNum(x.rMultiple) ? ' · ' + E.fmtR(x.rMultiple) : ''}${x.estimated ? ' · est.' : ''}` });
         }
         const stop = E.currentStop(t);
-        if (E.isNum(stop) && E.isNum(t.initialSL) && stop !== t.initialSL && rem !== 0) {
+        const hasStopAudit = audit.some(a => a.field === 'stop' || a.field === 'initialStop');
+        if (!hasStopAudit && E.isNum(stop) && E.isNum(t.initialSL) && stop !== t.initialSL && rem !== 0) {
             events.push({ kind: 'stopmove', l1: `<b>Stop moved</b> to ${E.fmtPrice(stop)}`, l2: E.directionalMove(t.entryPrice, stop, t) >= 0 ? 'at/beyond entry — freeroll' : `from ${E.fmtPrice(t.initialSL)}` });
         }
         for (const p of E.pendingTargets(t)) {
@@ -2462,7 +2474,7 @@
                 <div>
                     <div class="rail-title">Position</div>
                     <div class="rail-events">${events.map(ev => `
-                        <div class="rail-event kind-${ev.kind}"><span class="rail-marker">${ev.kind === 'pending' ? ICONS['circle-dashed'] : ''}</span>
+                        <div class="rail-event kind-${ev.kind}"><span class="rail-marker">${ev.kind === 'pending' ? ICONS['circle-dashed'] : ev.kind === 'adjust' ? ICONS.history : ''}</span>
                         <span><span class="rail-line1">${ev.l1}</span><span class="rail-line2"> ${ev.l2}</span></span></div>`).join('')}
                     </div>
                     <div class="rail-actions">${doneish ? '' : `
@@ -2493,6 +2505,7 @@
         const before = deepClone(trades[idx]);
         const wasFreerolled = E.isFreeRolled(trades[idx]);
         fn(trades[idx]);
+        E.applyAdjustmentDiff(trades[idx], before);
         trades[idx].updatedAt = new Date().toISOString();
         saveTrades();
         renderAll();
@@ -2596,7 +2609,7 @@
             qs('.tm-ticker').textContent = t.ticker;
             qs('.tm-shares-label').textContent = direction === 'short' ? 'Shares to cover' : 'Shares to sell';
             qs('.tm-confirm').textContent = direction === 'short' ? 'Confirm cover' : 'Confirm exit';
-            const rps = E.tradeRiskPerShare(t);
+            const rps = E.planRiskPerShare(t) ?? E.tradeRiskPerShare(t);
             let rem = E.getRemainingShares(t);
             const sizeUnknown = rem === null;
             qs('.tm-context').textContent = `${direction === 'short' ? 'Short' : 'Long'} entry ${E.fmtMoney(t.entryPrice)}${rem !== null ? ` · ${fmtShareCount(rem)} remaining` : ''}`;
@@ -2843,7 +2856,8 @@
                     // a smaller manual trim must not falsely complete a freeroll target.
                     if (tr.sellPlan?.enabled) {
                         const match = (tr.sellPlan.targets || []).find(x => {
-                            if (x.status === 'executed' || x.action === 'raise-stop' || !E.isNum(x.price) || Math.abs(x.price - price) / x.price > 0.005) return false;
+                            const plannedPrice = E.targetPrice(tr, x);
+                            if (x.status === 'executed' || x.action === 'raise-stop' || !E.isNum(plannedPrice) || Math.abs(plannedPrice - price) / plannedPrice > 0.005) return false;
                             const planned = E.plannedShares(tr, x);
                             return !E.isNum(planned) || n >= Math.min(planned, remNow ?? planned);
                         });

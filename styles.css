@@ -3444,6 +3444,18 @@ tr.rail-row > td { padding: 0; border-bottom: 1px solid var(--border); backgroun
     stroke-width: 2.4;
 }
 .rail-event.kind-stop .rail-marker { border-color: var(--danger); background: var(--danger); }
+.rail-event.kind-adjust .rail-marker {
+    border: none;
+    background: transparent;
+    color: var(--text-3);
+    display: grid;
+    place-items: center;
+}
+.rail-event.kind-adjust .rail-marker .lucide {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2.4;
+}
 .rail-line1 { font-size: 0.85rem; color: var(--text-2); }
 .rail-line1 b { color: var(--text); }
 .rail-line2 { font-size: 0.72rem; color: var(--text-3); }
