@@ -150,6 +150,7 @@
 <script src="icons.js"></script>
 <script>paintFaviconFromStorage();</script>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="themes.css">
 </head>
 <body>
 
@@ -895,46 +896,13 @@
         </div>
     </section>
 
-    <section class="themes-view" id="themesView" hidden aria-labelledby="themesTitle">
-        <header class="view-head tb-head">
-            <div>
-                <h1 class="view-title" id="themesTitle">Themes</h1>
-                <p class="view-sub" id="themesSub">Ranked on liquid names. The sheet follows your ADR and dollar-volume floors.</p>
-            </div>
-            <div class="tb-asof" id="themesAsof"></div>
-        </header>
-        <p class="tb-note">Group % is an equal-weight mean of liquid names ($100M+ · 3%+ ADR) that have a return. Rank uses a size dampener so a 3-name parent cannot lottery to the top. Tighten or loosen the sheet with the floors — ranking stays on the liquid cut.</p>
-        <div class="themes-toolbar">
-            <div class="seg" id="themesWinSeg" role="tablist" aria-label="Window">
-                <span class="seg-pill" aria-hidden="true"></span>
-                <button type="button" data-seg="d" class="is-active" role="tab">Daily</button>
-                <button type="button" data-seg="w" role="tab">1W</button>
-                <button type="button" data-seg="m" role="tab">1M</button>
-                <button type="button" data-seg="q" role="tab">3M</button>
-            </div>
-            <label class="search-field themes-search" id="themesSearchField">
-                <span class="search-ic" data-icon="search" aria-hidden="true"></span>
-                <input type="search" id="themesSearch" placeholder="NVDA, neocloud, chips…" aria-label="Search names and themes" autocomplete="off" spellcheck="false">
-                <button type="button" class="search-clear" id="themesSearchClear" aria-label="Clear search" hidden><span data-icon="x"></span></button>
-            </label>
-            <label class="tb-filter">ADR ≥
-                <input type="text" id="themesMinAdr" inputmode="decimal" value="2.5" aria-label="Minimum ADR percent">
-            </label>
-            <label class="tb-filter">$vol ≥
-                <input type="text" id="themesMinDv" value="20M" aria-label="Minimum dollar volume">
-            </label>
-            <label class="tb-filter">Sort
-                <select id="themesSort" aria-label="Sort names">
-                    <option value="pct">Window %</option>
-                    <option value="adr">ADR</option>
-                    <option value="dv">Dollar volume</option>
-                    <option value="ticker">Ticker</option>
-                </select>
-            </label>
-            <p class="themes-count" id="themesCount"></p>
-        </div>
-        <div class="themes-desk" id="themesDesk"></div>
-    </section>
+    <section class="themes-view" id="themesView" hidden aria-labelledby="themesTitle"><div class="titleline"><div><h1 id="themesTitle">Themes</h1><p class="themes-subtitle">Updated daily after the close</p><p class="themes-intro">See which market themes are leading or lagging. Compare timeframes, then open a theme to explore its stocks and find charts to review.</p></div><span class="date"><span id="themes-asof"></span><span class="dot"></span></span></div>
+<div class="toolbar"><div class="windows" role="tablist" aria-label="Performance window"><span class="seg-pill" aria-hidden="true"></span><button role="tab" data-win="d" data-seg="d" class="chosen">Daily</button><button role="tab" data-win="w" data-seg="w">1W</button><button role="tab" data-win="m" data-seg="m">1M</button><button role="tab" data-win="q" data-seg="q">3M</button><button role="tab" data-win="y" data-seg="y">YTD</button></div><input id="themes-search" type="search" aria-label="Search themes or tickers" placeholder="Search themes or tickers…"><button id="themes-filterToggle" aria-expanded="false">Filters <span id="themes-filterBadge">2</span></button><button id="themes-aboutToggle" class="quiet" aria-expanded="false">About ⓘ</button></div>
+<div id="themes-filters" class="disclosure" hidden><div class="filter-field"><label for="themes-adr">ADR ≥</label><div class="number-control"><input id="themes-adr" type="number" min="0" step="0.5" value="3"><span class="unit">%</span><div class="number-steps"><button type="button" data-step-for="themes-adr" data-step="1" aria-label="Increase ADR by 0.5 percent">+</button><button type="button" data-step-for="themes-adr" data-step="-1" aria-label="Decrease ADR by 0.5 percent">−</button></div></div></div><div class="filter-field"><label for="themes-dv">Avg. $ volume ≥</label><div class="number-control"><span class="unit prefix">$</span><input id="themes-dv" type="number" min="20" step="5" value="100"><span class="unit">M</span><div class="number-steps"><button type="button" data-step-for="themes-dv" data-step="1" aria-label="Increase average dollar volume by 5 million">+</button><button type="button" data-step-for="themes-dv" data-step="-1" aria-label="Decrease average dollar volume by 5 million">−</button></div></div></div><label><input id="themes-aboveOnly" type="checkbox"> Above 50-day SMA only</label><button id="themes-reset">Reset</button><span>Snapshot floor: 2.5% ADR · $20M avg. volume; Mag 7 includes all seven.</span></div>
+<div id="themes-about" class="disclosure about" hidden><p>Themes are sorted by their average return among names with at least 3% ADR and $100M average dollar volume. Filters change the visible stocks, not this comparison group. A theme with no eligible returns shows —.</p><p>ADR uses 20 sessions; average dollar volume uses 30. Gray names are below their 50-day simple moving average. YTD starts at the last close of the previous year. Distance from the 52-week high uses 252 sessions. Missing history shows — and is excluded from averages.</p><p id="themes-coverage"></p></div>
+<div class="context"><span id="themes-counts"></span><span><i class="graydot"></i> Gray names are below the 50-day SMA</span></div>
+<div id="themes-searchFeedback" aria-live="polite"></div><div id="themes-workspace"></div>
+</section>
 
 </main>
 
@@ -1418,6 +1386,7 @@
 <script src="gist-sync.js"></script>
 <script src="compound.js"></script>
 <script src="guide.js"></script>
+<script src="themes.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

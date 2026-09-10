@@ -1,0 +1,118 @@
+/* Theme tracker: scoped to the Themes page; shared site tokens remain authoritative. */
+#themesView{--up:var(--success);--down:var(--danger);font-variant-numeric:tabular-nums}
+#themesView .titleline{display:flex;align-items:center;justify-content:space-between;margin-bottom:17px}
+#themesView .date{font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:8px}
+#themesView .dot{height:5px;width:5px;background:var(--up);border-radius:50%}
+#themesView .toolbar{display:flex;align-items:center;gap:8px}
+#themesView .toolbar>button,#themesView .disclosure button{border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-full);padding:7px 13px;color:var(--text-2);font-weight:600;font-size:12px}
+#themesView .toolbar>.quiet{border-color:transparent;background:transparent;color:var(--text-3);margin-left:auto}
+#themesView .windows{display:flex;gap:2px;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--radius-full);padding:3px}
+#themesView .windows button{padding:4px 12px;border:0;border-radius:20px;background:transparent;color:var(--text-3);font-size:12px;font-weight:600}
+#themesView .windows .chosen{background:var(--primary);color:white;box-shadow:var(--inset-hi)}
+#themesView #themes-search{width:270px;min-width:130px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);padding:8px 12px;color:var(--text)}
+#themesView #themes-filterBadge{font-size:10px;margin-left:5px;background:var(--surface-2);border-radius:5px;padding:1px 4px}
+#themesView .context{display:flex;justify-content:space-between;gap:12px;margin:17px 0 10px;color:var(--text-3);font-size:11px}
+#themesView .graydot{display:inline-block;width:6px;height:6px;background:#93939d;border-radius:50%;margin-right:5px}
+#themesView .disclosure{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-top:12px;display:flex;align-items:center;gap:16px;font-size:12px}
+#themesView .disclosure[hidden]{display:none}
+#themesView .disclosure label{display:flex;align-items:center;gap:6px;white-space:nowrap}
+#themesView .disclosure input[type=number]{width:60px;padding:4px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+#themesView .disclosure>span{font-size:10px;color:var(--text-3)}
+#themesView .about{display:block;color:var(--text-3);line-height:1.65}
+#themesView .about p{margin:4px 0;max-width:880px}
+#themesView .return{text-align:right;font-weight:600;white-space:nowrap}
+#themesView .up{color:var(--up)}
+#themesView .down{color:var(--down)}
+#themesView .empty{padding:35px;color:var(--text-3);text-align:center}
+@media(max-width:760px){#themesView .toolbar{flex-wrap:wrap}
+#themesView #themes-search{flex:1}
+#themesView .toolbar>.quiet{margin-left:0}
+#themesView .context{flex-direction:column;gap:5px}
+#themesView .disclosure{flex-wrap:wrap}}
+@media(max-width:430px){#themesView .toolbar{gap:6px}
+#themesView .windows button{padding:4px 10px}}
+#themesView .windows{position:relative;isolation:isolate}
+#themesView .windows .seg-pill{position:absolute;left:0;top:3px;bottom:3px;border-radius:var(--radius-full);background:var(--primary);border:1px solid var(--primary-border);box-shadow:var(--inset-hi);pointer-events:none;opacity:0;will-change:transform}
+#themesView .windows button{position:relative;z-index:1;transition:color var(--dur-base) var(--ease-out-expo)}
+#themesView .windows .chosen{background:transparent;box-shadow:none;color:var(--text-3)}
+#themesView .windows.is-ready .chosen{color:var(--primary-contrast)}
+@media(prefers-reduced-motion:reduce){#themesView .windows button{transition:none}}
+#themesView .filter-field{display:flex;align-items:center;gap:7px}
+#themesView .filter-field>label{font-weight:500;color:var(--text-2)}
+#themesView .number-control{position:relative;display:flex;align-items:center;height:38px;padding:0 34px 0 10px;gap:2px;border:1px solid var(--border-2);border-radius:var(--radius-lg);background:var(--surface)}
+#themesView .disclosure .number-control input[type=number]{width:4ch;flex:none;min-width:0;border:0;padding:0;background:transparent;outline:none;box-shadow:none;appearance:textfield;-moz-appearance:textfield;text-align:right;font-weight:500}
+#themesView .number-control input::-webkit-inner-spin-button,#themesView .number-control input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#themesView .number-control:focus-within{outline:2px solid var(--focus-ring);outline-offset:2px}
+#themesView .unit{color:var(--text-3);font-size:12px}
+#themesView .number-control .prefix{display:grid;place-items:center;width:18px;height:18px;margin-right:3px;border:1px solid color-mix(in srgb,var(--primary) 30%,var(--border));border-radius:50%;color:var(--primary);background:color-mix(in srgb,var(--primary) 7%,var(--surface));font-size:11px;font-weight:700;line-height:1}
+#themesView .number-steps{position:absolute;right:4px;top:5px;bottom:5px;display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);width:22px;margin:0;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);overflow:hidden}
+#themesView .disclosure .number-steps button{display:grid;place-items:center;min-height:0;min-width:0;width:100%;height:100%;padding:0;border:0;border-radius:0;background:transparent;color:var(--text-3);font-size:.68rem;font-weight:500;line-height:1;transition:background-color var(--dur-fast),color var(--dur-fast)}
+#themesView .disclosure .number-steps button+button{border-top:1px solid var(--border)}
+#themesView .disclosure .number-steps button:hover{background:var(--surface);color:var(--text)}
+#themesView .disclosure .number-steps button:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+#themesView .tracker{border:1px solid var(--border);border-radius:var(--radius-card);background:var(--surface);overflow:hidden}
+#themesView .tracker-heading{display:flex;align-items:center;gap:9px;padding:13px 17px;border-bottom:1px solid var(--border);min-height:48px}
+#themesView .tracker-heading h2{font-size:13px;letter-spacing:-.15px;margin:0;font-weight:600}
+#themesView .tracker-count{color:var(--text-3);font-size:11px}
+#themesView .tracker-period{margin-left:auto;font-size:11px;color:var(--text-3)}
+#themesView .tracker-axis,#themesView .tracker-row{display:grid;grid-template-columns:195px minmax(0,1fr) 73px;gap:16px;align-items:center;padding:0 17px}
+#themesView .tracker-axis{height:34px;font-size:9px;letter-spacing:.45px;color:var(--text-3)}
+#themesView .tracker-axis>span:last-child{text-align:right}
+#themesView .tracker-rows{padding-bottom:9px;max-height:calc(100vh - 365px);min-height:180px;overflow:auto;scrollbar-width:thin}
+#themesView .tracker-row{border:0;background:transparent;width:100%;height:31px;min-height:31px;color:var(--text);text-align:left;font-size:12px;cursor:pointer}
+#themesView .tracker-row:hover{background:var(--row-hover)}
+#themesView .tracker-label{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#themesView .tracker-row .return{font-size:11px}
+#themesView .track{position:relative;display:block;height:9px;background:var(--surface-2);border-radius:2px}
+#themesView .track-zero{position:absolute;left:50%;top:-5px;bottom:-5px;border-left:1px solid var(--border-2)}
+#themesView .track-fill{position:absolute;top:0;bottom:0;border-radius:2px}
+#themesView .track-fill.up{background:var(--up);opacity:.75}
+#themesView .track-fill.down{background:var(--down);opacity:.75}
+#themesView .tracker-row.below .tracker-label{color:#898993}
+#themesView .tracker-row.below .tracker-label:after{content:' ·';color:#898993}
+#themesView .tracker-stock summary{list-style:none}
+#themesView .tracker-stock summary::-webkit-details-marker{display:none}
+#themesView .tracker-stock[open]{background:var(--surface-2)}
+#themesView .tracker-stock-detail{padding:8px 17px 15px;display:flex;gap:8px 18px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--text-3);border-bottom:1px solid var(--border)}
+#themesView .tracker-stock-detail strong{color:var(--text-2);font-weight:600}
+#themesView .tracker-stock-detail p{width:100%;margin:0;max-width:800px;line-height:1.6}
+#themesView .tracker-stock-detail a{color:var(--primary)}
+#themesView .tracker-back{border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--text-3);width:24px;height:24px;padding:0;font-size:13px}
+@media(max-width:760px){#themesView .tracker-axis,#themesView .tracker-row{grid-template-columns:135px minmax(0,1fr) 61px;gap:10px;padding-left:12px;padding-right:12px}
+#themesView .tracker-label{font-size:11px}
+#themesView .tracker-rows{max-height:60vh}
+#themesView .tracker-heading{padding:12px}
+#themesView .tracker-count{font-size:10px}}
+@media(max-width:430px){#themesView .tracker-axis,#themesView .tracker-row{grid-template-columns:115px minmax(0,1fr) 58px;gap:8px}
+#themesView .tracker-heading{gap:6px}
+#themesView .tracker-heading h2{font-size:12px}
+#themesView .tracker-period{font-size:10px}}
+#themesView .tracker-stock-detail{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+#themesView .tracker-company-heading{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px}
+#themesView .tracker-company-heading a{white-space:nowrap}
+#themesView .stock-metrics{display:flex;flex-wrap:wrap;gap:5px 14px}
+#themesView .stock-metric{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--text-3)}
+#themesView .stock-metric i{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--text-3);flex:none}
+#themesView .metric-adr i{background:var(--primary)}
+#themesView .metric-volume i{background:var(--warning)}
+#themesView .metric-above i{background:var(--up)}
+#themesView .metric-below i{background:var(--down)}
+#themesView .search-feedback{margin:0 0 12px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);padding:12px 14px;font-size:12px}
+#themesView .feedback-heading{color:var(--text-3);font-size:11px;margin-bottom:8px}
+#themesView .hidden-match{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:6px 0}
+#themesView .hidden-match strong{font-weight:600;margin-right:9px}
+#themesView .hidden-match span{color:var(--text-3)}
+#themesView .hidden-match small{display:block;color:var(--text-3);margin-top:3px}
+#themesView .hidden-match button{flex:none;border:1px solid var(--border);border-radius:var(--radius-full);padding:6px 10px;color:var(--primary);font-size:11px;background:var(--surface)}
+#themesView .metric-52h i{background:var(--text-3)}
+@media(max-width:480px){#themesView .hidden-match{align-items:flex-start;flex-direction:column;gap:8px}}
+#themesView .themes-subtitle{margin:4px 0 0;font-size:12px;font-weight:500;line-height:1.45;color:var(--text-3)}
+#themesView .themes-intro{max-width:620px;margin:8px 0 0;font-size:12px;font-weight:500;line-height:1.6;color:var(--text-3)}
+#themesView .titleline{align-items:flex-start}
+#themesView .titleline .date{padding-top:4px;white-space:nowrap;margin-left:16px}
+#themesView .search-company-does{max-width:620px;margin:6px 0 0;color:var(--text-3);font-size:11px;line-height:1.6}
+#themesView .titleline h1{font-size:19px;font-weight:700;letter-spacing:-.5px;color:var(--header-text);margin:0}
+#themesView .windows button{border:0;cursor:pointer}#themesView .windows.is-ready .is-active{color:var(--primary-contrast)}
+#themesView .context{flex:none}#themesView .tracker-rows{max-height:65vh}#themesView .tracker-stock-detail{font-size:12px}#themesView .tracker-label{font-size:12px}
+
+#themesView .axis-scale{display:flex;justify-content:space-between;font-size:10px;letter-spacing:0}

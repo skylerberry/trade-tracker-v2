@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const {computeThemes,filterReasons}=new Function(`${readFileSync(new URL('../themes.js',import.meta.url),'utf8')};return THEME_TRACKER`)();
+const c=(ticker,adr,dv,d,y,ext=2)=>({ticker,name:ticker,adr,dv,ext,ret:{d,y}});
+const data={companies:{NVDA:c('NVDA',2.577,2e10,-2,17),META:c('META',3.1,1e9,-1,30),TSLA:c('TSLA',4,1e9,2,null),AAPL:c('AAPL',1.5,1e9,1,10)},themes:[{id:'mag-7',name:'Mag 7',tickers:['NVDA','META','TSLA','AAPL']}]};
+assert.equal(computeThemes(data)[0].rows.length,2);
+assert.equal(computeThemes(data,{query:'NVDA'}).length,0);
+assert.match(filterReasons(data.companies.NVDA)[0],/2.58% < 3%/);
+assert.equal(computeThemes(data,{query:'NVDA',minAdr:2.5})[0].rows[0].ticker,'NVDA');
+assert.equal(computeThemes(data,{minAdr:0})[0].rows.length,4);
+assert.equal(computeThemes(data)[0].mean,0.5);
+assert.equal(computeThemes(data,{query:'META'})[0].mean,0.5,'search must not redefine group return');
+assert.equal(computeThemes(data,{window:'y'})[0].mean,30,'missing YTD is excluded, not zero');
+assert.equal(filterReasons({...data.companies.META,ext:0},{aboveOnly:true}).length,1);
+assert.equal(filterReasons({...data.companies.META,ext:null},{aboveOnly:true})[0],'50-day SMA unavailable');
+console.log('Themes: 10 assertions passed');

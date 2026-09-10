@@ -1703,7 +1703,7 @@
         if ($('journalSummary')) $('journalSummary').hidden = view !== 'journal';
         if ($('compoundView')) $('compoundView').hidden = view !== 'compound';
         if ($('themesView')) $('themesView').hidden = view !== 'themes';
-        if (view === 'themes') GUIDE.render();
+        if (view === 'themes') THEME_TRACKER.render();
         if ($('journalSeg')) $('journalSeg').hidden = view !== 'journal';
         if ($('statusSeg')) $('statusSeg').hidden = view !== 'positions';
         if (view === 'positions') {
@@ -1719,7 +1719,7 @@
             COMPOUND.render();
         } else if (view === 'themes') {
             window.scrollTo(0, 0);
-            GUIDE.render();
+            THEME_TRACKER.render();
         }
         if ($('fbCalc')) $('fbCalc').textContent = view === 'positions' ? 'Calculator' : 'Positions';
         renderJournalSummary();
@@ -4060,7 +4060,7 @@
         syncCalculatorMode();
         syncRiskLabels();
         COMPOUND.init({ account, parseNum, bindMoneyNotation });
-        GUIDE.init();
+        THEME_TRACKER.init();
         setView(viewFromHash(), { instant: true });
         window.addEventListener('hashchange', () => setView(viewFromHash(), { syncHash: false }));
         renderAll();

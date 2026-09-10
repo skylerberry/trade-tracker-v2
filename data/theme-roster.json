@@ -1757,6 +1757,19 @@
       "tickers": [
         "MARA"
       ]
+    },
+    {
+      "id": "mag-7",
+      "name": "Mag 7",
+      "tickers": [
+        "AAPL",
+        "MSFT",
+        "AMZN",
+        "GOOGL",
+        "META",
+        "NVDA",
+        "TSLA"
+      ]
     }
   ]
 }
