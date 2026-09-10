@@ -3331,7 +3331,7 @@
     },
     "ARIS": {
       "ticker": "ARIS",
-      "name": "Aris Water Solutions",
+      "name": "Aris Mining",
       "does": "Mines gold underground in Colombia and sells the metal.",
       "adr": 3.863,
       "dv": 28578944,
@@ -14931,7 +14931,7 @@
     },
     "NBIS": {
       "ticker": "NBIS",
-      "name": "Nebius",
+      "name": "Nebius Group",
       "does": "Rents GPU computers and cloud space so companies can train and run AI models.",
       "adr": 6.601,
       "dv": 5006318294,
@@ -17811,7 +17811,7 @@
     },
     "QUBT": {
       "ticker": "QUBT",
-      "name": "Quantum Computing Inc.",
+      "name": "Quantum Computing Inc",
       "does": "Makes photonic chips and room-temperature quantum machines that use light to compute, sense, and send data.",
       "adr": 4.624,
       "dv": 65856753,
@@ -18131,7 +18131,7 @@
     },
     "RGTI": {
       "ticker": "RGTI",
-      "name": "Rigetti",
+      "name": "Rigetti Computing",
       "does": "Builds superconducting quantum computers and rents access to them through the cloud.",
       "adr": 5.584,
       "dv": 304060746,
@@ -19411,7 +19411,7 @@
     },
     "SMCI": {
       "ticker": "SMCI",
-      "name": "Super Micro Computer",
+      "name": "Super Micro Computer Inc",
       "does": "Designs and sells servers and storage racks, especially AI boxes packed with GPUs, to data centers.",
       "adr": 5.733,
       "dv": 1729862732,
@@ -19763,7 +19763,7 @@
     },
     "SPCX": {
       "ticker": "SPCX",
-      "name": "SPCX",
+      "name": "Space Exploration",
       "does": "Builds reusable rockets and satellites then makes money launching payloads and selling Starlink internet from space.",
       "adr": 4.713,
       "dv": 14007533427,
@@ -22963,7 +22963,7 @@
     },
     "WPM": {
       "ticker": "WPM",
-      "name": "WPM",
+      "name": "Wheaton Precious Metals",
       "does": "Pays miners upfront for the right to buy a share of their gold and silver cheaply, then resells the metal.",
       "adr": 3.325,
       "dv": 329026565,

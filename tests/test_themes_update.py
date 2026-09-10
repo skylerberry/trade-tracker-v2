@@ -15,4 +15,16 @@ class DerivationTests(unittest.TestCase):
   from datetime import date,timedelta
   rows=[[(date(2025,1,1)+timedelta(days=i)).isoformat(),200 if i==0 else 100,80,90] for i in range(253)]
   self.assertAlmostEqual(module.derive({'b':rows},rows[-1][0])['dist52h'],10)
+class DescriptionTests(unittest.TestCase):
+ def test_canonical_sources_override_snapshot_and_preserve_fallback(self):
+  import tempfile,json
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory)
+   fallback=root/'fallback.json'; does=root/'does.csv'; identity=root/'identity.csv'
+   fallback.write_text(json.dumps({'ABC':{'name':'Old name','does':'Old description'},'XYZ':{'does':'Kept'}}))
+   does.write_text('Symbol,Does\nABC,"Makes tools, for builders."\nXYZ,\n')
+   identity.write_text('Symbol,CompanyName\nABC,Current name\n')
+   result=module.load_descriptions(fallback,does,identity)
+   self.assertEqual(result['ABC'],{'name':'Current name','does':'Makes tools, for builders.'})
+   self.assertEqual(result['XYZ']['does'],'Kept')
 if __name__=='__main__':unittest.main()

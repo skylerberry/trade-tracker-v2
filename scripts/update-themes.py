@@ -36,6 +36,23 @@ def derive(entry, session):
     }
 
 
+
+def load_descriptions(fallback_path, does_path, identity_path):
+    """RS Tape is authoritative; the committed snapshot is a portable fallback."""
+    descriptions = json.loads(fallback_path.read_text())
+    for path, column, field in [(identity_path, 'CompanyName', 'name'), (does_path, 'Does', 'does')]:
+        if not path.exists():
+            print(f'Description source unavailable; using snapshot fallback: {path}', file=sys.stderr)
+            continue
+        with path.open(newline='', encoding='utf-8-sig') as source:
+            for row in csv.DictReader(source):
+                symbol = row.get('Symbol', '').strip().upper()
+                value = row.get(column, '').strip()
+                if symbol and value:
+                    descriptions.setdefault(symbol, {})[field] = value
+    return descriptions
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--scanner-dir', type=Path, default=Path(os.environ.get('MAGIC_SCAN_DIR', str(Path.home() / 'Projects/magic-scan'))))
@@ -54,7 +71,11 @@ def main():
     spec.loader.exec_module(scan)
     roster = json.loads((ROOT / 'data/theme-roster.json').read_text())
     themes = [t for t in roster['themes'] if t['id'] != 'mag-7'] + [{'id': 'mag-7', 'name': 'Mag 7', 'tickers': MAG7}]
-    descriptions = json.loads((ROOT / 'data/company-descriptions.json').read_text())
+    descriptions = load_descriptions(
+        ROOT / 'data/company-descriptions.json',
+        Path(os.environ.get('RS_DOES', str(Path.home() / 'Projects/RS Tape/rs/data/does.csv'))),
+        Path(os.environ.get('RS_IDENTITY', str(Path.home() / 'Projects/RS Tape/rs/data/identity.csv'))),
+    )
     if args.bars_cache:
         payload = json.load(gzip.open(args.bars_cache, 'rt'))
         bars = payload['bars']

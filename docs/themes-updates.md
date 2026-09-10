@@ -21,16 +21,31 @@ The normal snapshot floor is 2.5% ADR, $20M mean dollar volume, and $1 price. Ma
 
 Theme membership comes from `data/theme-roster.json`, not that day's filtered results. This preserves temporarily excluded members for future sessions. Mag 7 uses AAPL, MSFT, AMZN, GOOGL, META, NVDA, and TSLA; Alphabet is counted once. Stocks can belong to Mag 7 and their ordinary theme. Counts of names deduplicate tickers.
 
-Descriptions are preserved from `data/company-descriptions.json`. Update that file when adding or improving Does lines; the refresh does not generate new claims about businesses. The command reports missing descriptions and qualifying symbols without a theme. It does not silently invent classifications.
+Descriptions and company names are read from the canonical RS Tape files, `~/Projects/RS Tape/rs/data/does.csv` and `identity.csv` (override with `RS_DOES` / `RS_IDENTITY`). Nonempty canonical values take precedence. `data/company-descriptions.json` is a portable fallback snapshot, not the editing source of truth. Improve Does lines in RS Tape; the refresh does not generate new claims about businesses. The command reports missing descriptions and qualifying symbols without a theme. It does not silently invent classifications.
 
 Review the report and the catalog diff. The refresh aborts before writing if the session is stale, Mag 7 is incomplete, or coverage drops by more than 25%. A successful catalog write is atomic. Weekends and market holidays leave the last completed catalog unchanged.
+
+## How this fits `/daily-scan`
+
+The Grok skill at `~/.grok/skills/daily-scan/SKILL.md` is the editorial workflow: scan, verify businesses against RS Tape or primary company sources, group the above- and below-SMA50 names, and prepare the Discord text. Its default 5% ADR / $50M cut is separate from this page's broader browse catalog and 3% / $100M defaults. The skill does not publish.
+
+For new assignments, compile the reviewed post **in this checkout**, then run the refresh above:
+
+```sh
+npm run scan:themes -- /absolute/path/to/daily-scan-YYYY-MM-DD.md /absolute/path/to/daily-scan.csv
+npm run themes:update
+```
+
+The existing compiler merges assignments into the durable roster. Its CSV contains only the older metrics, so **always run `themes:update` after compiling and before publishing** to restore full-universe measurements, YTD, 52W distance, and the seven-member Mag 7 group. Do not publish the intermediate compiler output. Review both `data/theme-roster.json` and `data/daily-scan.json` when assignments change.
+
+The installed Grok skill currently hardcodes `skyler-tools-v2`; this deployed checkout is `skyler-tools-publish`. Changes made in another checkout do not appear here automatically. Bring reviewed roster changes into the publishing checkout before refreshing. Existing uncommitted work in `skyler-tools-v2` was left intact.
 
 ## Publish
 
 After reviewing the update:
 
 ```sh
-git add data/daily-scan.json
+git add data/daily-scan.json data/theme-roster.json
 git commit -m "Refresh Themes after the close"
 git push origin main
 ```
