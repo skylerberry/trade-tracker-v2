@@ -87,5 +87,36 @@ eq(app.includes('GIST_SYNC.fetchInit'), true, 'app.js uses gist request policy')
 eq(app.includes('GIST_SYNC.mergeTrades'), true, 'app.js merges trades on conflict instead of pausing');
 eq(/keepalive:\s*flush/.test(app), false, 'hide-flush does not pass keepalive: flush');
 
+const nLocal = { id: 'n1', text: 'local', createdAt: '2026-09-01T00:00:00.000Z', updatedAt: '2026-09-11T12:00:00.000Z', pinned: true };
+const nCloud = { id: 'n1', text: 'cloud', createdAt: '2026-09-01T00:00:00.000Z', updatedAt: '2026-09-11T11:00:00.000Z', pinned: false };
+eq(GIST_SYNC.mergeNotes([nLocal], [nCloud])[0].text, 'local', 'later updatedAt wins for notes');
+eq(GIST_SYNC.mergeNotes([nLocal], [nCloud])[0].pinned, true, 'pinned follows the winning note');
+eq(GIST_SYNC.mergeNotes([nCloud], [nLocal])[0].text, 'local', 'cloud later updatedAt wins over stale local');
+eq(
+    GIST_SYNC.mergeNotes(
+        [nLocal],
+        [nCloud, { id: 'n2', text: 'only cloud', createdAt: '2026-09-02T00:00:00.000Z', updatedAt: null, pinned: false }],
+    ).map(n => n.id),
+    ['n1', 'n2'],
+    'cloud-only note is kept (union by id)',
+);
+eq(
+    GIST_SYNC.mergeNotes(
+        [nLocal, { id: 'n3', text: 'only local', createdAt: '2026-09-03T00:00:00.000Z', updatedAt: null, pinned: false }],
+        [nCloud],
+    ).map(n => n.id),
+    ['n1', 'n3'],
+    'local-only note is kept (union by id)',
+);
+eq(GIST_SYNC.mergeNotes(null, [nCloud]).map(n => n.id), ['n1'], 'non-array local yields cloud notes');
+const localPin = { id: 'n1', text: 'old', createdAt: '2026-09-11T10:00:00.000Z', updatedAt: '2026-09-11T11:00:00.000Z', changedAt: '2026-09-11T13:00:00.000Z', pinned: true };
+const cloudEdit = { id: 'n1', text: 'new', createdAt: '2026-09-11T10:00:00.000Z', updatedAt: '2026-09-11T12:00:00.000Z', changedAt: '2026-09-11T12:00:00.000Z', pinned: false };
+eq(GIST_SYNC.mergeNotes([localPin], [cloudEdit])[0].pinned, true, 'later pin changedAt wins over earlier text edit');
+eq(GIST_SYNC.mergeNotes([localPin], [cloudEdit])[0].text, 'old', 'winning pin keeps its text');
+eq(GIST_SYNC.mergeNotes([cloudEdit], [localPin])[0].pinned, true, 'cloud pin with later changedAt wins');
+eq(app.includes("'notes.json'"), true, 'app.js names notes.json in gist files');
+eq(app.includes("gistFileContent(json, 'notes.json')") || app.includes('gistFileContent(json, "notes.json")') || /gistFileContent\([^,]+,\s*'notes.json'\)/.test(app), true, 'app.js pulls notes.json');
+eq(app.includes("kind === 'notes'") || app.includes('kind === "notes"'), true, 'app.js pushes notes as their own gist file');
+
 console.log(`${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

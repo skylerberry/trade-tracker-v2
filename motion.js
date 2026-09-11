@@ -339,7 +339,17 @@ const MOTION = (() => {
             // empty-state (risk scenarios), so measure the first visible one.
             const inner = [...contentEl.children].find((c) => !c.hidden) || contentEl.firstElementChild;
             const from = contentEl.getBoundingClientRect().height;
-            const to = open ? (inner ? inner.getBoundingClientRect().height : contentEl.scrollHeight) : 0;
+            let to = 0;
+            if (open) {
+                if (inner) {
+                    const cs = getComputedStyle(inner);
+                    to = inner.getBoundingClientRect().height
+                        + (parseFloat(cs.marginTop) || 0)
+                        + (parseFloat(cs.marginBottom) || 0);
+                } else {
+                    to = contentEl.scrollHeight;
+                }
+            }
             contentEl.style.height = from + 'px';
             void contentEl.offsetHeight;
             contentEl.style.height = to + 'px';
@@ -355,12 +365,15 @@ const MOTION = (() => {
             .map((f, i, a) => ({ transform: `translateY(${f.y}px) scale(${f.s})`, opacity: Math.min(1, i / (a.length * 0.25)) }));
         el.animate(frames, { duration: 400, easing: 'linear' });
     }
-    function rowEnter(el, delay) {
+    function rowEnter(el, delay, opts) {
         if (reduceMotion || !el) return;
+        const duration = opts?.duration ?? 300;
+        const blur = opts?.blur ?? 3;
+        const y = opts?.y ?? -5;
         el.animate(
-            [{ opacity: 0, transform: 'translateY(-5px)', filter: 'blur(3px)' },
+            [{ opacity: 0, transform: `translateY(${y}px)`, filter: `blur(${blur}px)` },
              { opacity: 1, transform: 'none', filter: 'blur(0)' }],
-            { duration: 300, delay: delay || 0, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' });
+            { duration, delay: delay || 0, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' });
     }
     /* Collapse-remove: animate a row/card away, then call done(). */
     function collapseAway(el, done) {

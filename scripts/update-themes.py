@@ -119,10 +119,15 @@ def main():
         if not r or (symbol not in MAG7 and (r['adr'] < 1.5 or r['dv'] < 5e6 or r['last'] < 1)):
             continue
         desc = descriptions.get(symbol, {})
+        sma200 = r.get('sma200')
+        last = r.get('last')
+        sma200_dist = round(100.0 * (last / sma200 - 1.0), 3) if last and sma200 and sma200 > 0 else None
         companies[symbol] = {
             'ticker': symbol, 'name': desc.get('name') or universe.get(symbol) or symbol,
             'does': desc.get('does', ''), 'adr': round(r['adr'], 3), 'dv': round(r['dv']),
-            'ext': r.get('ext'), 'dist52h': derived['dist52h'],
+            'ext': r.get('ext'), 'ema10': None if r.get('ext10') is None else round(r['ext10'], 3),
+            'ema21': None if r.get('ext21') is None else round(r['ext21'], 3),
+            'sma200': sma200_dist, 'dist52h': derived['dist52h'],
             'ret': {'d': r['chg'], 'w': r.get('ret1w'), 'm': r.get('ret1m'), 'q': r.get('ret3m'), 'y': derived['ytd']},
         }
     assigned = {s for t in themes for s in t['tickers'] if s in companies}

@@ -59,6 +59,52 @@ const ENGINE = (() => {
         }
         return journal;
     }
+
+    function normalizeNotes(raw) {
+        if (!Array.isArray(raw)) return [];
+        const now = new Date().toISOString();
+        return raw.map((entry, index) => {
+            const text = String(entry?.text ?? '').trim().slice(0, 2000);
+            if (!text) return null;
+            const updatedAt = validIso(entry?.updatedAt);
+            const createdAt = validIso(entry?.createdAt) || updatedAt || now;
+            const title = String(entry?.title ?? '').replace(/\s+/g, ' ').trim().slice(0, 120);
+            return {
+                id: String(entry?.id || `nt-${index}`),
+                title,
+                text,
+                createdAt,
+                updatedAt,
+                changedAt: validIso(entry?.changedAt) || updatedAt || createdAt,
+                pinned: entry?.pinned === true,
+            };
+        }).filter(Boolean);
+    }
+
+    function sortNotes(list) {
+        const notes = Array.isArray(list) ? list.slice() : [];
+        return notes
+            .map((note, index) => ({ note, index }))
+            .sort((a, b) => {
+                const pin = Number(!!b.note.pinned) - Number(!!a.note.pinned);
+                if (pin) return pin;
+                const ta = Date.parse(a.note.createdAt) || 0;
+                const tb = Date.parse(b.note.createdAt) || 0;
+                if (tb !== ta) return tb - ta;
+                return a.index - b.index;
+            })
+            .map(item => item.note);
+    }
+
+    function notePreview(text) {
+        const lines = String(text ?? '').split('\n');
+        const start = lines.findIndex(line => line.trim());
+        if (start < 0) return { lead: '', rest: '' };
+        const lead = lines[start].trim();
+        const rest = lines.slice(start + 1).join('\n').replace(/^\n+/, '').trimEnd();
+        return { lead, rest };
+    }
+
     const directionalMove = (entry, price, tradeOrDirection = 'long') =>
         isNum(entry) && isNum(price) ? round4((price - entry) * directionSign(tradeOrDirection)) : null;
 
@@ -920,8 +966,20 @@ const ENGINE = (() => {
         return [head.join(sep), ...rows].join('\n');
     }
 
+    function toNotesCSV(list, sep = ',') {
+        const esc = (v) => {
+            const s = String(v ?? '');
+            return /[",\n\t]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        };
+        const head = ['Created', 'Updated', 'Pinned', 'Title', 'Text'];
+        const rows = (Array.isArray(list) ? list : []).map(n => [
+            n.createdAt || '', n.updatedAt || '', n.pinned ? 'yes' : 'no', n.title || '', n.text || '',
+        ].map(esc).join(sep));
+        return [head.join(sep), ...rows].join('\n');
+    }
+
     return {
-        round2, round4, isNum, directionOf, directionSign, directionalMove, normalizeJournal, normalizeAudit,
+        round2, round4, isNum, directionOf, directionSign, directionalMove, normalizeJournal, normalizeNotes, sortNotes, notePreview, normalizeAudit,
         todayLocalISO, parseLocalDate, fmtDateShort,
         riskPerShare, tradeRiskPerShare, planRiskPerShare, targetPrice, computeExitR,
         getOriginalShares, getRemainingShares, soldShares,
@@ -930,7 +988,7 @@ const ENGINE = (() => {
         calcPosition, calcOptionPosition, buildSellPlan, plannedShares, pendingTargets, rebasePendingTargets,
         applyAdjustmentDiff, breakevenStop, freerollSharesAtPrice,
         computeStats, accountRisk, staleTrades, lastExitDate, equityCurve,
-        parseAlert, parseWatchlistTickers, toCSV,
+        parseAlert, parseWatchlistTickers, toCSV, toNotesCSV,
         marketSession,
         COMPOUND_RATES, compoundAnnualContribution, compoundValue, compoundGlow,
         compoundPath, periodicRate, yearsToTarget, compoundWithYearShock, compoundPerspective,

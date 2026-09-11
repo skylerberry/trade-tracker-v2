@@ -362,5 +362,47 @@ eq(E.normalizeAudit({
     ],
 }).map(x => x.field), ['entry'], 'normalizeAudit keeps only real from→to price changes');
 
+/* ---- free notes (Journal Notes tab) ---- */
+eq(E.normalizeNotes(null), [], 'non-array notes → []');
+eq(E.normalizeNotes('nope'), [], 'string notes → []');
+eq(E.normalizeNotes([{ text: '   ' }, { text: 'keep' }]).map(n => n.text), ['keep'], 'blank text dropped');
+eq(E.normalizeNotes([{ id: 12, text: 'x', pinned: 'yes' }])[0].pinned, false, 'invalid pinned → false');
+eq(E.normalizeNotes([{ text: 'x', pinned: true }])[0].pinned, true, 'pinned true is kept');
+eq(E.normalizeNotes([{ id: 7, text: 'x' }])[0].id, '7', 'ids coerced to strings');
+eq(E.normalizeNotes([{ text: 'x' }])[0].id, 'nt-0', 'missing id falls back to nt-index');
+eq(
+    E.normalizeNotes([{ text: 'x', createdAt: 'bogus', updatedAt: '2026-09-11T12:00:00Z' }])[0].createdAt,
+    '2026-09-11T12:00:00.000Z',
+    'bad createdAt falls back to updatedAt',
+);
+eq(Number.isFinite(Date.parse(E.normalizeNotes([{ text: 'x' }])[0].createdAt)), true, 'missing timestamps fall back to a valid ISO now');
+eq(E.sortNotes([
+    { id: 'a', text: 'a', createdAt: '2026-09-01T00:00:00.000Z', pinned: false },
+    { id: 'b', text: 'b', createdAt: '2026-09-03T00:00:00.000Z', pinned: false },
+    { id: 'c', text: 'c', createdAt: '2026-09-02T00:00:00.000Z', pinned: true },
+    { id: 'd', text: 'd', createdAt: '2026-09-04T00:00:00.000Z', pinned: true },
+]).map(n => n.id), ['d', 'c', 'b', 'a'], 'pinned first, then createdAt desc');
+eq(E.sortNotes([
+    { id: 'x', text: 'x', createdAt: '2026-09-01T00:00:00.000Z', pinned: false },
+    { id: 'y', text: 'y', createdAt: '2026-09-01T00:00:00.000Z', pinned: false },
+]).map(n => n.id), ['x', 'y'], 'equal createdAt keeps original order');
+eq(E.notePreview('\n\nLead line\nrest one\nrest two'), { lead: 'Lead line', rest: 'rest one\nrest two' }, 'preview skips leading blanks');
+eq(E.notePreview('Just one'), { lead: 'Just one', rest: '' }, 'single line has empty rest');
+eq(
+    E.normalizeNotes([{ text: 'x', createdAt: '2026-09-11T12:00:00Z' }])[0].changedAt,
+    '2026-09-11T12:00:00.000Z',
+    'missing changedAt falls back to createdAt',
+);
+eq(
+    E.normalizeNotes([{ text: 'x', createdAt: '2026-09-11T12:00:00Z', updatedAt: '2026-09-11T13:00:00Z', changedAt: '2026-09-11T14:00:00Z' }])[0].changedAt,
+    '2026-09-11T14:00:00.000Z',
+    'changedAt is kept when valid',
+);
+eq(E.normalizeNotes([{ text: 'body only' }])[0].title, '', 'missing title is empty, body is not promoted');
+eq(E.normalizeNotes([{ text: 'body', title: '  Setup  ' }])[0].title, 'Setup', 'title is trimmed');
+eq(E.normalizeNotes([{ text: 'body', title: '   ' }])[0].title, '', 'whitespace-only title is empty');
+eq(E.toNotesCSV([{ createdAt: 't', updatedAt: '', pinned: false, title: 'Head', text: 'Body' }]).split('\n')[0], 'Created,Updated,Pinned,Title,Text', 'notes CSV includes Title');
+eq(E.toNotesCSV([{ createdAt: 't', updatedAt: '', pinned: true, title: 'Head', text: 'Body' }]).split('\n')[1], 't,,yes,Head,Body', 'notes CSV writes title before text');
+
 console.log(fail ? `\n${pass} passed, ${fail} FAILED` : `${pass}/${pass} passed`);
 process.exit(fail ? 1 : 0);

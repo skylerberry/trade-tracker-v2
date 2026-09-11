@@ -201,7 +201,7 @@ const COMPOUND = (() => {
             const selected = rate === selectedRate ? ' is-selected' : '';
             html += `<th class="compound-th${selected}" scope="col" data-rate="${rate}"`
                 + ` aria-pressed="${rate === selectedRate}"`
-                + ` title="Read the ${rate}% path below">${rate}%</th>`;
+                + ` title="View the projection at ${rate}% annual return">${rate}%</th>`;
         });
         row.innerHTML = html;
     }
@@ -297,21 +297,21 @@ const COMPOUND = (() => {
         const el = $('compoundMetrics');
         if (!el) return;
         const items = [
-            { label: 'Monthly pace', value: formatPct(p.monthlyPct), sub: `${formatPct(p.weeklyPct)} a week` },
+            { label: 'Equivalent monthly return', value: formatPct(p.monthlyPct), sub: `${formatPct(p.weeklyPct)} a week` },
             {
-                label: 'Doubles your money', value: formatYearMark(p.yearsToDouble),
-                sub: yearMarkSub(p.yearsToDouble, `from ${formatExact(p.start)}`, 'past year 10', 'already there'),
+                label: 'Account doubles', value: formatYearMark(p.yearsToDouble),
+                sub: yearMarkSub(p.yearsToDouble, `from ${formatExact(p.start)}`, 'beyond ten years', 'already there'),
             },
             {
                 label: 'Reaches $100K', value: formatYearMark(p.yearsTo100k),
-                sub: yearMarkSub(p.yearsTo100k, 'inside the table', 'past year 10', 'already there'),
+                sub: yearMarkSub(p.yearsTo100k, 'within ten years', 'beyond ten years', 'already there'),
             },
             {
                 label: 'Reaches $1M', value: formatYearMark(p.yearsTo1m),
-                sub: yearMarkSub(p.yearsTo1m, 'inside the table', 'past year 10', 'already there'),
+                sub: yearMarkSub(p.yearsTo1m, 'within ten years', 'beyond ten years', 'already there'),
             },
-            { label: 'Gain in year 10 alone', value: formatCompact(p.yearEndGain), sub: `${formatCompact(p.yearEndGain / 12)} a month that year`, tone: 'gain' },
-            { label: 'Years 8–10', value: `${Math.round(p.backload * 100)}% of the gain`, sub: 'last 3 years carry the run', tone: 'accent' },
+            { label: 'Projected gain in year 10', value: formatCompact(p.yearEndGain), sub: `${formatCompact(p.yearEndGain / 12)} a month that year`, tone: 'gain' },
+            { label: 'Years 8–10', value: `${Math.round(p.backload * 100)}% of the gain`, sub: 'Share of total growth in the final three years', tone: 'accent' },
         ];
         el.innerHTML = items.map((item) => `
             <div class="compound-stat"${item.tone ? ` data-tone="${item.tone}"` : ''}>
@@ -327,14 +327,14 @@ const COMPOUND = (() => {
         if (!el) return;
         const reads = [
             {
-                title: 'Stay the course',
-                body: `Year 5 is ${formatCompact(p.y5)}. Year 10 is ${formatCompact(p.yEnd)} — <span class="hi hi-gain">${formatCompact(p.stayCourse)}</span> more if you stay.`,
+                title: 'Years 5 and 10',
+                body: `Projected value rises from <span class="hi">${formatCompact(p.y5)}</span> in year 5 to <span class="hi hi-gain">${formatCompact(p.yEnd)}</span> in year 10, a difference of ${formatCompact(p.stayCourse)}.`,
             },
         ];
         if (p.vsBaseline !== null) {
             reads.push({
-                title: `Versus ${BASELINE_RATE}%`,
-                body: `A quiet ${BASELINE_RATE}% path finishes at ${formatCompact(p.baseline)}. ${selectedRate}% is <span class="hi hi-accent">${formatCompact(p.vsBaseline)}</span> more.`,
+                title: `Compared with ${BASELINE_RATE}% annually`,
+                body: `After ten years: ${formatCompact(p.baseline)} at ${BASELINE_RATE}%, compared with <span class="hi hi-accent">${formatCompact(p.yEnd)}</span> at your selected return.`,
             });
         }
         if (p.vsPrev !== null) {
@@ -344,8 +344,8 @@ const COMPOUND = (() => {
             });
         }
         reads.push({
-            title: 'One blown year',
-            body: `If year 3 is −30% instead of +${selectedRate}%, year 10 is ${formatCompact(p.shocked)} — <span class="hi hi-loss">${formatCompact(p.shockGap)}</span> left on the table.`,
+            title: 'A down year',
+            body: `With a 30% loss in year 3, projected value after ten years falls to ${formatCompact(p.shocked)}, <span class="hi hi-loss">${formatCompact(p.shockGap)}</span> below the original scenario.`,
             tone: 'loss',
         });
         el.innerHTML = reads.map((read) => `

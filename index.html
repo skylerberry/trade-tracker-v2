@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>skyler.tools — Position Size Calculator &amp; Trade Journal</title>
+<title>skyler.tools — Position calculator &amp; Trade journal</title>
 <meta name="description" content="Free position size calculator and trade journal for stock traders. Size by risk %, track trims and freerolls, project compounding. Local-first and open source — no ads, no account, your trades stay in your browser.">
 <link rel="canonical" href="https://skyler.tools/">
 <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
@@ -12,7 +12,7 @@
 <!-- Open Graph / Twitter -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="skyler.tools">
-<meta property="og:title" content="skyler.tools — Position Size Calculator &amp; Trade Journal">
+<meta property="og:title" content="skyler.tools — Position calculator &amp; Trade journal">
 <meta property="og:description" content="Size the risk. Log the trade. Compound the years. Free, local-first trading tools — no ads, no account, your data stays in your browser.">
 <meta property="og:url" content="https://skyler.tools/">
 <meta property="og:image" content="https://skyler.tools/og.png">
@@ -21,7 +21,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@skylerber">
 <meta name="twitter:creator" content="@skylerber">
-<meta name="twitter:title" content="skyler.tools — Position Size Calculator &amp; Trade Journal">
+<meta name="twitter:title" content="skyler.tools — Position calculator &amp; Trade journal">
 <meta name="twitter:description" content="Size the risk. Log the trade. Compound the years. Free, local-first trading tools.">
 <meta name="twitter:image" content="https://skyler.tools/og.png">
 
@@ -102,17 +102,17 @@
         {
           "@type": "Question",
           "name": "Why should I use it?",
-          "acceptedAnswer": { "@type": "Answer", "text": "It's free and open source, built around one workflow: enter, trim, freeroll, let the runner work. No ads, no account, no subscription, no server holding your trades — everything stays in your browser." }
+          "acceptedAnswer": { "@type": "Answer", "text": "It's free and open source, built around one workflow: enter, trim, freeroll, let the runner work. No ads, no account, no subscription — your data stays in your browser unless you enable optional sync." }
         },
         {
           "@type": "Question",
           "name": "Where does my data live?",
-          "acceptedAnswer": { "@type": "Answer", "text": "In this browser. Nothing sits on a skyler.tools server. Link a private GitHub gist to sync devices, or download a JSON backup from the footer." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Your data stays in your browser unless you enable optional sync. Nothing sits on a skyler.tools server. Link a private GitHub gist to sync devices, or download a JSON backup from the footer." }
         },
         {
           "@type": "Question",
           "name": "Why can't I pick a status?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Status follows your sells. Trim or exit from the row when you take something off." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Status updates from your position, stop, and recorded exits. Use Trim / Exit when you reduce or close a trade." }
         },
         {
           "@type": "Question",
@@ -127,7 +127,7 @@
         {
           "@type": "Question",
           "name": "What does Freerolled mean?",
-          "acceptedAnswer": { "@type": "Answer", "text": "The stop is at or beyond entry, so the trade can't give anything back — worst case is break-even." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Planned net risk is zero: your stop is at breakeven or better, or realized gains cover the remaining risk at the stop." }
         },
         {
           "@type": "Question",
@@ -207,7 +207,7 @@
         <nav class="app-nav" aria-label="Site">
             <div class="seg seg-nav" id="viewSeg" role="tablist" aria-label="Views">
                 <span class="seg-pill" aria-hidden="true"></span>
-                <button data-seg="positions" class="is-active" role="tab">Positions</button>
+                <button data-seg="positions" class="is-active" role="tab"><span class="nav-wide">Calculator</span><span class="nav-narrow">Calc</span></button>
                 <button data-seg="journal" role="tab">Journal</button>
                 <button data-seg="compound" role="tab">Compound</button>
                 <button data-seg="themes" role="tab">Themes</button>
@@ -267,7 +267,7 @@
                             <span class="sb-item">
                                 <span class="sb-label has-field-tooltip" aria-describedby="sbExpHelp">
                                     <span class="field-help-label">Expectancy</span>
-                                    <span class="field-tooltip" id="sbExpHelp" role="tooltip">Average R you keep per closed trade. Wins and losses rolled together.</span>
+                                    <span class="field-tooltip" id="sbExpHelp" role="tooltip">Average return per closed trade, measured in R, including wins and losses.</span>
                                 </span>
                                 <b id="sbExp">—</b>
                             </span>
@@ -298,14 +298,26 @@
 <div id="trackerMount">
 
     <!-- ============ POSITION CALCULATOR ============ -->
-    <section class="panel collapsible" id="calcSection">
-        <button class="panel-toggle" id="calcToggle" aria-expanded="true" aria-controls="calcBody">
-            <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
-            <span class="panel-ic" data-icon="calculator" aria-hidden="true"></span>
-            <span class="panel-title">Position Calculator</span>
-            <span class="panel-hint" id="calcHint"></span>
-        </button>
-        <div class="panel-body-wrap" id="calcBodyWrap">
+    <div class="titleline" id="calcTitleline">
+        <header class="view-head" id="calcHead">
+            <h1 class="view-title" id="calcTitle">Position calculator</h1>
+            <p class="view-sub">Calculate position size from your entry, stop, and risk.</p>
+            <p class="view-hint" id="calcHint"></p>
+        </header>
+        <button type="button" class="how-it-works-btn" id="calcHowToggle" aria-expanded="false"><span data-icon="info" aria-hidden="true"></span>How it works</button>
+    </div>
+    <div class="collapsible how-it-works-block" id="calcHowBlock">
+        <div class="disclosure-wrap how-it-works-wrap" id="calcHowWrap">
+            <div class="how-it-works-panel">
+                <dl>
+                    <div><dt>Position size</dt><dd id="calcHowSizeText">Your account size, risk percentage, and distance from entry to stop determine how many shares to trade.</dd></div>
+                    <div><dt>Allocation cap</dt><dd>Set the maximum share of your account to put into one position. If this reduces your size, you’ll see the original count crossed out.</dd></div>
+                    <div><dt>Results</dt><dd>See your position size, planned risk, and potential return at your target. Log a share trade to track it here.</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <section class="panel calc-panel is-open" id="calcSection">
             <div class="panel-body" id="calcBody">
 
                 <div class="calc-modebar" aria-label="Position type">
@@ -346,7 +358,7 @@
                         <span class="setting-label-row">
                             <label class="has-field-tooltip" aria-describedby="riskHelp">
                                 <span class="field-help-label">Risk</span>
-                                <span class="field-tooltip" id="riskHelp" role="tooltip">The maximum percentage of your account you are willing to lose if the stop is hit. This controls risk, not position size.</span>
+                                <span class="field-tooltip" id="riskHelp" role="tooltip">The percentage of your account you plan to risk on this trade. Combined with your entry and stop, it determines position size.</span>
                             </label>
                             <button type="button" id="riskViewToggle" class="risk-view-toggle" aria-pressed="false" data-tip="Show presets as fractions of 1%">½</button>
                         </span>
@@ -391,7 +403,7 @@
                         </div>
                     </div>
                     <div class="field" id="stopLossField">
-                        <label for="stopLoss">Stop loss <button id="copyStop" class="tiny-link" tabindex="-1" title="Copy stop to clipboard">copy</button></label>
+                        <label for="stopLoss">Stop loss <button id="copyStop" class="tiny-link" tabindex="-1" title="Copy stop price">copy</button></label>
                         <div class="stepper-wrap currency-input">
                             <span class="currency-prefix" aria-hidden="true">$</span>
                             <input type="text" inputmode="decimal" id="stopLoss" autocomplete="off" placeholder="0.00">
@@ -463,7 +475,7 @@
                         <div class="risk-scenarios-empty" id="riskScenariosEmpty">See how the same setup changes at half and double your selected risk.</div>
                         <div class="risk-scenarios-grid" id="riskScenariosGrid" hidden>
                             <button type="button" class="risk-scenario" data-scenario="safer">
-                                <span class="risk-scenario-top"><span class="risk-scenario-name">Safer</span><span class="risk-scenario-pct">—</span></span>
+                                <span class="risk-scenario-top"><span class="risk-scenario-name">Lower risk</span><span class="risk-scenario-pct">—</span></span>
                                 <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
                                 <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
                             </button>
@@ -473,7 +485,7 @@
                                 <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
                             </button>
                             <button type="button" class="risk-scenario" data-scenario="higher">
-                                <span class="risk-scenario-top"><span class="risk-scenario-name">Higher</span><span class="risk-scenario-pct">—</span></span>
+                                <span class="risk-scenario-top"><span class="risk-scenario-name">Higher risk</span><span class="risk-scenario-pct">—</span></span>
                                 <span class="risk-scenario-position"><strong>—</strong><span>shares</span></span>
                                 <span class="risk-scenario-meta"><span>— account</span><span>— risk</span></span>
                             </button>
@@ -484,14 +496,14 @@
                 <div class="calc-results" id="calcResults">
                     <div class="result-card position-card" id="positionCard">
                         <div class="shares-hero">
-                            <button class="shares-num-btn" id="sharesCopyBtn" title="Type your own share count — risk solves backwards">
+                            <button class="shares-num-btn" id="sharesCopyBtn" title="Enter a share count to calculate its risk">
                                 <span id="sharesHero" class="roller shares-hero-num">0</span>
                             </button>
                             <input id="sharesEdit" class="shares-hero-edit" inputmode="numeric" autocomplete="off" aria-label="Share count — risk recalculates backwards from what you type" hidden>
                             <div class="shares-cap" id="sharesCap" hidden></div>
                             <div class="shares-label-row">
                                 <span class="shares-label" id="positionUnitLabel">shares</span>
-                                <button type="button" id="sharesCopyMini" class="tiny-link shares-copy-mini" tabindex="-1" title="Copy count to clipboard">copy</button>
+                                <button type="button" id="sharesCopyMini" class="tiny-link shares-copy-mini" tabindex="-1" title="Copy share count">copy</button>
                             </div>
                         </div>
                         <div class="account-exposure">
@@ -542,15 +554,18 @@
                 <div class="log-row">
                     <button id="logTradeBtn" class="btn btn-primary btn-log" aria-disabled="true">Log trade</button>
                     <div id="logConfirm" class="log-confirm" hidden>
-                        <span class="log-confirm-check ic-draw" data-icon="circle-check"></span>
-                        <span id="logConfirmText"></span>
-                        <button id="logUndoBtn" class="btn btn-ghost btn-sm">Undo</button>
-                        <button id="logEditBtn" class="btn btn-ghost btn-sm">Edit details</button>
+                        <div class="log-confirm-main">
+                            <span class="log-confirm-check ic-draw" data-icon="circle-check" aria-hidden="true"></span>
+                            <div class="log-confirm-copy" id="logConfirmText"></div>
+                        </div>
+                        <div class="log-confirm-actions">
+                            <button id="logUndoBtn" class="btn btn-ghost btn-sm">Undo</button>
+                            <button id="logEditBtn" class="btn btn-ghost btn-sm">Edit details</button>
+                        </div>
                     </div>
                 </div>
 
             </div>
-        </div>
     </section>
 
     <!-- ============ WATCHLIST ============ -->
@@ -586,7 +601,7 @@
             <span class="chev" data-icon="chevron-down" aria-hidden="true"></span>
             <span class="panel-ic" data-icon="square-pen" aria-hidden="true"></span>
             <span class="panel-title" id="formTitle">Add trade manually</span>
-            <span class="panel-hint">For edits and old trades. Size new ones in the calculator.</span>
+            <span class="panel-hint">Add an existing trade or one entered elsewhere.</span>
         </button>
         <div class="panel-body-wrap" id="formBodyWrap">
             <div class="panel-body" id="formBody">
@@ -627,6 +642,34 @@
         </div>
     </section>
 
+    <div class="titleline" id="journalTitleline" hidden>
+        <header class="view-head" id="journalHead">
+            <h1 class="view-title" id="journalTitle">Trade journal</h1>
+            <p class="view-sub">Review your trades, track your results, and keep notes on what you learn.</p>
+        </header>
+        <div class="titleline-tools">
+            <div class="seg seg-mini" id="journalTabSeg" role="tablist" aria-label="Journal section">
+                <span class="seg-pill" aria-hidden="true"></span>
+                <button type="button" data-seg="trades" class="is-active" role="tab">Trades</button>
+                <button type="button" data-seg="notes" role="tab">Notes</button>
+            </div>
+            <button type="button" class="how-it-works-btn" id="journalHowToggle" aria-expanded="false"><span data-icon="info" aria-hidden="true"></span>How it works</button>
+        </div>
+    </div>
+    <div class="collapsible how-it-works-block" id="journalHowBlock" hidden>
+        <div class="disclosure-wrap how-it-works-wrap" id="journalHowWrap">
+            <div class="how-it-works-panel">
+                <dl>
+                    <div><dt>Performance</dt><dd>Review results from closed trades, including P&amp;L, win rate, and R-multiples.</dd></div>
+                    <div><dt>Equity curve</dt><dd>Follow your cumulative realized P&amp;L across all exits, including partial exits from positions still open.</dd></div>
+                    <div><dt>Trade notes</dt><dd>Record your setup, updates, and lessons on any trade. Each note stays with the trade and includes a timestamp.</dd></div>
+                    <div><dt>Notes</dt><dd>Reminders, market observations, and recaps that aren’t tied to a trade. Pin what you want to keep in front of you.</dd></div>
+                    <div><dt>Filters</dt><dd>Search and dates change the trade list and the notes grid. Performance totals and the equity curve always show all-time results.</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <p class="journal-scope" id="journalScope" hidden>Closed trades · all time</p>
     <div class="journal-summary" id="journalSummary" hidden>
         <div class="js-stat"><span class="js-label"><span class="js-full">Profit &amp; loss</span><span class="js-abbr">P&amp;L</span></span><span id="jsPnl">—</span></div>
         <div class="js-stat"><span class="js-label">Win rate</span><span id="jsWinRate">—</span></div>
@@ -641,7 +684,7 @@
     <div class="equity-card" id="equityCard" hidden>
         <div class="equity-split">
             <div class="equity-side">
-                <div class="equity-kicker">Realized equity</div>
+                <div class="equity-kicker">Realized P&amp;L</div>
                 <div class="equity-num roller" id="eqNum">—</div>
                 <div class="equity-dd" id="eqDd" data-state="ok">
                     <span class="equity-dd-k">Current drawdown</span>
@@ -652,7 +695,7 @@
             </div>
             <div class="equity-main">
                 <div class="equity-chart-head">
-                    <span class="equity-kicker" id="eqMeta">all time</span>
+                    <span class="equity-kicker" id="eqMeta">includes partial exits</span>
                     <div class="seg seg-mini" id="eqModeSeg" role="tablist" aria-label="Equity units">
                         <span class="seg-pill" aria-hidden="true"></span>
                         <button data-seg="usd" role="tab" aria-label="Dollars">$</button>
@@ -666,6 +709,7 @@
 
     <!-- ============ FILTERS ============ -->
     <div class="filters-bar">
+        <button type="button" class="btn btn-primary btn-sm" id="notesNew" hidden><span data-icon="plus" aria-hidden="true"></span>New note</button>
         <div class="seg seg-filters" id="statusSeg" role="tablist" aria-label="Status filter">
             <span class="seg-pill" aria-hidden="true"></span>
             <button data-seg="active" class="is-active" role="tab">Active</button>
@@ -708,7 +752,7 @@
                     </button>
                     </div>
                     <span class="date-clear-slot">
-                        <button type="button" id="dateClear" class="icon-btn date-clear danger" data-tip="Clear dates" aria-label="Clear dates">
+                        <button type="button" id="dateClear" class="icon-btn date-clear danger" data-tip="Clear date filter" aria-label="Clear date filter">
                             <span data-icon="x" aria-hidden="true"></span>
                         </button>
                     </span>
@@ -731,6 +775,10 @@
 
     <!-- ============ TABLE ============ -->
     <div class="table-card">
+        <div id="notesPanel" class="notes-panel" hidden>
+            <div id="notesComposer" class="note-composer" hidden></div>
+            <div id="notesList" class="notes-list"></div>
+        </div>
         <div class="table-scroll">
             <table class="trades-table" id="tradesTable">
                 <thead>
@@ -770,10 +818,24 @@
 </div>
 
     <section class="compound-view" id="compoundView" hidden aria-labelledby="compoundTitle">
-        <header class="view-head">
-            <h1 class="view-title" id="compoundTitle">Compound calculator</h1>
-            <p class="view-sub">What a steady yearly return does to your capital over 10 years. Pick a starting amount and a rate — the path, the milestones, and the full table all follow it.</p>
-        </header>
+        <div class="titleline">
+            <header class="view-head">
+                <h1 class="view-title" id="compoundTitle">Compound calculator</h1>
+                <p class="view-sub">Compare how different returns compound over ten years.</p>
+            </header>
+            <button type="button" class="how-it-works-btn" id="compoundHowToggle" aria-expanded="false"><span data-icon="info" aria-hidden="true"></span>How it works</button>
+        </div>
+        <div class="collapsible how-it-works-block" id="compoundHowBlock">
+            <div class="disclosure-wrap how-it-works-wrap" id="compoundHowWrap">
+                <div class="how-it-works-panel">
+                    <dl>
+                        <div><dt>Compare returns</dt><dd>Choose your starting capital and an annual return to explore a ten-year projection.</dd></div>
+                        <div><dt>Deposits and withdrawals</dt><dd>Add regular deposits or withdrawals to see how they affect the projection. Contributions are calculated as annual totals.</dd></div>
+                        <div><dt>Assumptions</dt><dd>The projection uses the same return each year and excludes taxes, fees, and inflation.</dd></div>
+                    </dl>
+                </div>
+            </div>
+        </div>
         <div class="compound-layout">
             <aside class="compound-side">
                 <div class="panel is-open">
@@ -836,7 +898,7 @@
                         </div>
                     </div>
                 </div>
-                <p class="compound-note muted-note">Every number here is hypothetical — one constant return, compounded. Real equity curves are lumpier than this.</p>
+                <p class="compound-note muted-note">Assumes a constant annual return. Actual returns vary; taxes, fees, and inflation aren’t included.</p>
             </aside>
             <div class="compound-main">
                 <div class="compound-map">
@@ -861,13 +923,13 @@
                 </div>
                 <div class="compound-hero">
                     <div class="compound-hero-copy">
-                        <div class="compound-hero-kicker" id="compoundHeroKicker">This is you in ten years</div>
+                        <div class="compound-hero-kicker" id="compoundHeroKicker">Your ten-year projection</div>
                         <div class="compound-hero-end" id="compoundHeroEnd"></div>
                         <div class="compound-hero-rate" id="compoundHeroRate"></div>
                         <div class="compound-hero-pace" id="compoundHeroPace"></div>
                     </div>
                     <div class="compound-rate-block">
-                        <div class="compound-hero-kicker">Yearly return</div>
+                        <div class="compound-hero-kicker">Annual return</div>
                         <div class="preset-row" id="compoundRates"></div>
                     </div>
                     <div class="compound-split" id="compoundSplit" hidden></div>
@@ -896,16 +958,18 @@
         </div>
     </section>
 
-    <section class="themes-view" id="themesView" hidden aria-labelledby="themesTitle"><div class="titleline"><div><h1 id="themesTitle">Themes</h1><p class="themes-subtitle">Updated daily after the close</p><p class="themes-intro">See which market themes are leading or lagging. Compare timeframes, then open a theme to explore its stocks and find charts to review.</p></div><span class="date"><span id="themes-asof"></span><span class="dot"></span></span></div>
-<div class="toolbar"><div class="scope" role="tablist" aria-label="Theme set"><span class="seg-pill" aria-hidden="true"></span><button type="button" role="tab" data-seg="focus" class="is-active">Focused</button><button type="button" role="tab" data-seg="all">All</button></div><div class="windows" role="tablist" aria-label="Performance window"><span class="seg-pill" aria-hidden="true"></span><button role="tab" data-win="d" data-seg="d" class="is-active">Daily</button><button role="tab" data-win="w" data-seg="w">1W</button><button role="tab" data-win="m" data-seg="m">1M</button><button role="tab" data-win="q" data-seg="q">3M</button><button role="tab" data-win="y" data-seg="y">YTD</button></div><input id="themes-search" type="search" aria-label="Search themes or tickers" placeholder="Search themes or tickers…"><button id="themes-filterToggle" aria-expanded="false">Filters <span id="themes-filterBadge"></span></button><button id="themes-aboutToggle" class="quiet" aria-expanded="false">About ⓘ</button></div>
-<div id="themes-filters" class="disclosure" hidden><div class="filter-field"><label for="themes-adr">ADR ≥</label><div class="number-control"><input id="themes-adr" type="number" min="0" step="0.5" value="1.5"><span class="unit">%</span><div class="number-steps"><button type="button" data-step-for="themes-adr" data-step="1" aria-label="Increase ADR by 0.5 percent">+</button><button type="button" data-step-for="themes-adr" data-step="-1" aria-label="Decrease ADR by 0.5 percent">−</button></div></div></div><div class="filter-field"><label for="themes-dv">Avg. $ volume ≥</label><div class="number-control"><span class="unit prefix">$</span><input id="themes-dv" type="number" min="0" step="5" value="5"><span class="unit">M</span><div class="number-steps"><button type="button" data-step-for="themes-dv" data-step="1" aria-label="Increase average dollar volume by 5 million">+</button><button type="button" data-step-for="themes-dv" data-step="-1" aria-label="Decrease average dollar volume by 5 million">−</button></div></div></div><label><input id="themes-aboveOnly" type="checkbox"> Above 50-day SMA only</label><button id="themes-reset">Reset</button><span>Snapshot floor: 1.5% ADR · $5M avg. volume; Mag 7 includes all seven.</span></div>
-<div id="themes-about" class="disclosure about" hidden><ul>
-<li>Focused is the working set (semis, software, cyber, healthcare, drones, quantum, space, robotics, neoclouds, crypto/blockchain, optics/photonics, oil, gold, silver, copper, commodity mining, AI storage, Mag 7). All is every theme.</li>
-<li>Default list is 1.5%+ ADR and $5M+ average volume. Theme ranking still uses 3% ADR and $100M volume so small names don’t lottery to the top.</li>
-<li>Gray ticker = below the 50-day. Open a name for what it does, ADR, volume, and distance from the 52-week high.</li>
-<li>Type to search. Click a ticker in Positions to jump here. Copy tickers copies the names on the sheet.</li>
-<li>Mag 7 always includes all seven, even under the filters.</li>
-</ul></div>
+    <section class="themes-view" id="themesView" hidden aria-labelledby="themesTitle"><div class="titleline"><header class="view-head"><h1 class="view-title" id="themesTitle">Themes tracker</h1><p class="view-sub">Find leading themes and explore the stocks within them.</p></header><span class="date"><span class="dot" aria-hidden="true"></span><span id="themes-asof"></span></span></div>
+<div class="toolbar"><div class="scope" role="tablist" aria-label="Theme set"><span class="seg-pill" aria-hidden="true"></span><button type="button" role="tab" data-seg="focus" class="is-active">Focused</button><button type="button" role="tab" data-seg="all">All</button></div><div class="windows" role="tablist" aria-label="Performance window"><span class="seg-pill" aria-hidden="true"></span><button role="tab" data-win="d" data-seg="d" class="is-active">Daily</button><button role="tab" data-win="w" data-seg="w">1W</button><button role="tab" data-win="m" data-seg="m">1M</button><button role="tab" data-win="q" data-seg="q">3M</button><button role="tab" data-win="y" data-seg="y">YTD</button></div><label class="search-field themes-search-field"><span class="search-ic" data-icon="search" aria-hidden="true"></span><input id="themes-search" type="search" aria-label="Search themes, tickers, or keywords" placeholder="Search themes, tickers, or keywords" autocomplete="off" spellcheck="false"><button type="button" class="search-clear" id="themes-searchClear" data-tip="Clear search" aria-label="Clear search" hidden><span data-icon="x" aria-hidden="true"></span></button></label><button id="themes-filterToggle" aria-expanded="false">Filters <span id="themes-filterBadge"></span></button><button id="themes-aboutToggle" class="themes-about-btn" aria-expanded="false"><span data-icon="info" aria-hidden="true"></span>How it works</button></div>
+<div class="collapsible" id="themes-filtersBlock"><div class="disclosure-wrap" id="themes-filtersWrap"><div id="themes-filters" class="disclosure"><div class="filter-field"><label for="themes-adr">ADR ≥</label><div class="number-control"><input id="themes-adr" type="number" min="0" step="0.5" value="1.5"><span class="unit">%</span><div class="number-steps"><button type="button" data-step-for="themes-adr" data-step="1" aria-label="Increase ADR by 0.5 percent">+</button><button type="button" data-step-for="themes-adr" data-step="-1" aria-label="Decrease ADR by 0.5 percent">−</button></div></div></div><div class="filter-field"><label for="themes-dv">Avg. $ volume ≥</label><div class="number-control"><span class="unit prefix">$</span><input id="themes-dv" type="number" min="0" step="5" value="5"><span class="unit">M</span><div class="number-steps"><button type="button" data-step-for="themes-dv" data-step="1" aria-label="Increase average dollar volume by 5 million">+</button><button type="button" data-step-for="themes-dv" data-step="-1" aria-label="Decrease average dollar volume by 5 million">−</button></div></div></div><div class="filter-field"><label for="themes-near52">Within 52W high</label><div class="number-control"><input id="themes-near52" type="number" min="0" step="5" value="" placeholder="off"><span class="unit">%</span><div class="number-steps"><button type="button" data-step-for="near52" data-step="1" aria-label="Tighten 52-week-high window by 5 percent">+</button><button type="button" data-step-for="near52" data-step="-1" aria-label="Widen 52-week-high window by 5 percent">−</button></div></div></div><div class="filter-field ma-field"><span class="filter-kicker">Above</span><span class="ma-filters"><label><input id="themes-above10" type="checkbox">10 EMA</label><label><input id="themes-above21" type="checkbox">21 EMA</label><label><input id="themes-aboveOnly" type="checkbox">50 SMA</label><label><input id="themes-above200" type="checkbox">200 SMA</label></span></div><button id="themes-reset">Reset</button></div></div></div>
+<div class="collapsible" id="themes-aboutBlock"><div class="disclosure-wrap" id="themes-aboutWrap"><div id="themes-about" class="disclosure about">
+<dl>
+<div><dt>Browse themes</dt><dd>Focused shows a curated selection; All shows every theme. Open a theme to explore its stocks.</dd></div>
+<div><dt>Compare performance</dt><dd>Each theme’s return is the average return of stocks with at least 3% ADR and $100M in average daily dollar volume. Filters change which stocks you see, not the theme’s return.</dd></div>
+<div><dt>Refine the list</dt><dd>Filter stocks by ADR, dollar volume, moving averages, or distance from their 52-week high. Gray tickers are below their 50-day SMA.</dd></div>
+<div><dt>Look up a company</dt><dd>Search by ticker, company, or keyword to see what it does. Copy its description for a quick chart note, or jump here from a ticker in Calculator.</dd></div>
+</dl>
+<p class="about-note">Mag 7 keeps all seven stocks visible regardless of filters.</p>
+</div></div></div>
 <div class="context"><span id="themes-counts"></span><span id="themes-belowLegend" hidden><i class="graydot"></i> Gray names are below the 50-day SMA</span></div>
 <div id="themes-searchFeedback" aria-live="polite"></div><div id="themes-workspace"></div>
 </section>
@@ -913,7 +977,7 @@
 </main>
 
 <footer class="app-footer">
-    <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerBackup" class="tiny-link">backup</button> · <button id="footerFaq" class="tiny-link">faq</button> · <button id="footerFeedback" class="tiny-link">feedback</button></span>
+    <span><a href="https://skyler.tools" target="_blank" rel="noopener">skyler.tools</a> <span class="footer-product">Trader Tools Suite</span> · local-first · <button id="footerAbout" class="tiny-link">about</button> · <button id="footerBackup" class="tiny-link">backup</button> · <button id="footerFaq" class="tiny-link">faq</button> · <button id="footerFeedback" class="tiny-link">feedback</button></span>
     <span class="footer-byline">made with <span class="footer-marks"><span class="footer-heart" data-icon="heart" aria-hidden="true"></span><span class="footer-plus" aria-hidden="true">+</span><span class="footer-coffee" data-icon="coffee" aria-hidden="true"></span></span> by <a class="footer-handle" href="https://x.com/skylerber" target="_blank" rel="noopener">@skylerber</a> on <a class="footer-x" href="https://x.com/skylerber" target="_blank" rel="noopener" aria-label="@skylerber on X"><span data-icon="x-logo" aria-hidden="true"></span></a></span>
 </footer>
 
@@ -1062,6 +1126,23 @@
     </div>
 </template>
 
+<template id="tpl-about">
+    <div class="modal-card splash-card about-card">
+        <button class="icon-btn modal-close about-close" aria-label="Close"><span data-icon="x" aria-hidden="true"></span></button>
+        <div class="wc-mark" data-icon="chart-candlestick" aria-hidden="true"></div>
+        <div class="wc-lockup">
+            <span class="brand-name">skyler.tools<sup class="brand-version">2.0</sup></span>
+            <h2 class="wc-title">About</h2>
+        </div>
+        <p class="wc-sub">I’m Skyler. I trade US stocks and keep the tools I actually use here — size, journal, compound, themes.</p>
+        <p class="wc-sub">Local-first. No account. Your data stays in this browser.</p>
+        <div class="about-links">
+            <a href="https://x.com/skylerber" target="_blank" rel="noopener"><span data-icon="x-logo" aria-hidden="true"></span>@skylerber</a>
+            <a href="https://github.com/skylerberry/trade-tracker-v2" target="_blank" rel="noopener"><span data-icon="github" aria-hidden="true"></span>GitHub</a>
+        </div>
+    </div>
+</template>
+
 <!-- First-run welcome -->
 <template id="tpl-welcome">
     <div class="modal-card welcome-card">
@@ -1072,7 +1153,7 @@
         </div>
         <p class="wc-sub">Size the risk. Log the trade. Compound the years. Local-first — your data stays in this browser.</p>
         <ul class="wc-features">
-            <li>Positions</li>
+            <li>Calculator</li>
             <li>Journal</li>
             <li>Compound</li>
             <li>Themes</li>
@@ -1085,7 +1166,7 @@
             <button class="btn btn-ghost wc-sample">Load sample trades</button>
             <button class="btn btn-ghost wc-fresh modal-cancel">Start fresh</button>
         </div>
-        <div class="wc-note muted-note">Sync keeps trades &amp; settings on every device — phone included — via a private GitHub gist you own.</div>
+        <div class="wc-note muted-note">Sync your trades, notes, and settings across devices using your own private GitHub gist.</div>
     </div>
 </template>
 
@@ -1098,7 +1179,7 @@
         </div>
 
         <div class="sync-screen" data-screen="choice" hidden>
-            <p class="sync-lead">Optional. Your trades on every device, through a <b>private GitHub gist you own</b>. The token stays in this browser — it never goes to skyler.tools.</p>
+            <p class="sync-lead">Sync your trades, notes, and settings across devices using your own private GitHub gist. The token stays in this browser — it never goes to skyler.tools.</p>
             <div class="sync-choice">
                 <button class="btn btn-gh sy-have" data-autofocus><span data-icon="github" aria-hidden="true"></span>I have a GitHub account</button>
                 <button class="btn btn-ghost sy-new">I’m new — set me up</button>
@@ -1115,7 +1196,7 @@
         </div>
 
         <div class="sync-screen" data-screen="signup" hidden>
-            <p class="sync-lead">One honest step first: sync rides on a <b>free GitHub account</b> — it holds the private gist your trades live in. About two minutes: email, password, verify.</p>
+            <p class="sync-lead">You’ll need a <b>free GitHub account</b> to store and sync your data. About two minutes: email, password, verify.</p>
             <div class="sync-choice">
                 <a class="btn btn-gh" href="https://github.com/signup" target="_blank" rel="noopener"><span data-icon="github" aria-hidden="true"></span>Create a GitHub account <span data-icon="external-link" aria-hidden="true"></span></a>
                 <button class="btn btn-primary sy-signed">Done — I have an account</button>
@@ -1135,7 +1216,7 @@
                         <span class="pm-num">1</span>
                         <div class="pm-step-copy">
                             <span>Expiration → <b>No expiration</b> <span class="pm-rec">(recommended)</span></span>
-                            <span class="pm-sub">the 30-day default kills sync when it expires — a dated token works too, you’ll just relink then</span>
+                            <span class="pm-sub">Sync pauses when the token expires. Reconnect with a new token.</span>
                         </div>
                     </div>
                     <div class="pm-scopes">
@@ -1271,7 +1352,7 @@
                         <span>Where does my data live?</span>
                     </button>
                     <div class="faq-a-wrap">
-                        <p class="faq-a">In this browser. Nothing sits on a skyler.tools server. Link a private GitHub gist to sync devices, or download a JSON backup from the footer.</p>
+                        <p class="faq-a">Your data stays in your browser unless you enable optional sync. Nothing sits on a skyler.tools server. Link a private GitHub gist to sync devices, or download a JSON backup from the footer.</p>
                     </div>
                 </article>
                 <article class="faq-item collapsible">
@@ -1281,7 +1362,7 @@
                         <span>Why can’t I pick a status?</span>
                     </button>
                     <div class="faq-a-wrap">
-                        <p class="faq-a">Status follows your sells. Trim or exit from the row when you take something off.</p>
+                        <p class="faq-a">Status updates from your position, stop, and recorded exits. Use Trim / Exit when you reduce or close a trade.</p>
                     </div>
                 </article>
                 <article class="faq-item collapsible">
@@ -1311,7 +1392,7 @@
                         <span>What does Freerolled mean?</span>
                     </button>
                     <div class="faq-a-wrap">
-                        <p class="faq-a">The stop is at or beyond entry, so the trade can’t give anything back — worst case is break-even.</p>
+                        <p class="faq-a">Planned net risk is zero: your stop is at breakeven or better, or realized gains cover the remaining risk at the stop.</p>
                     </div>
                 </article>
                 <article class="faq-item collapsible">

@@ -14,6 +14,8 @@
     /* ---------- storage keys (v1-compatible) ---------- */
     const K = {
         trades: 'tradeTracker_trades',
+        notes: 'tradeTracker_notes',
+        noteDraft: 'tradeTracker_noteDraft',
         theme: 'tradeTracker_theme',
         account: 'tradeTracker_accountSize',
         risk: 'tradeTracker_defaultRisk',
@@ -30,8 +32,9 @@
 
     /* ---------- state ---------- */
     let trades = [];
+    let notes = [];
     let prefs = {
-        scope: 'month', calcOpen: true, watchOpen: false, metricsOpen: true, scenariosOpen: true,
+        scope: 'month', calcOpen: true, watchOpen: false, metricsOpen: true, scenariosOpen: true, journalTab: 'trades',
         riskPreset: '0.5', riskCustom: 0.5, maxPreset: '20', maxCustom: 20,
         plan: 'half-1r', showSeconds: false,
         direction: 'long', vehicle: 'shares',
@@ -39,7 +42,7 @@
     const RISK_PRESETS = ['0.1', '0.125', '0.25', '0.5', '1'];
     let account = 25000;
     let watchlist = [];
-    let filters = { status: 'active', from: '', to: '', page: 1, q: '', sortKey: '', sortDir: 'desc' };
+    let filters = { status: 'active', from: '', to: '', page: 1, q: '', notesQ: '', sortKey: '', sortDir: 'desc' };
     let datePick = null;
     let dateView = null;
     const VIEWS = ['positions', 'journal', 'compound', 'themes'];
@@ -52,6 +55,8 @@
     let editFormFocusTimer = null;
 
     const uid = () => 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    const noteUid = () => 'nt-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    const notesOn = () => view === 'journal' && prefs.journalTab === 'notes';
     /* Accepts "25k" → 25,000 and "1.2m" → 1,200,000 (v1 shorthand). */
     const parseNum = (v) => {
         const s = String(v ?? '').replace(/[,$\s]/g, '');
@@ -64,12 +69,20 @@
     const deepClone = (o) => JSON.parse(JSON.stringify(o));
     const fmtShareCount = (n) => `${E.fmtShares(n)} ${Number(n) === 1 ? 'share' : 'shares'}`;
     const JOURNAL_KINDS = {
-        thesis: { label: 'Thesis', icon: 'target', prompt: 'What is the setup, catalyst, and invalidation?' },
+        thesis: { label: 'Thesis', icon: 'target', prompt: 'What’s the setup, and what would invalidate it?' },
         update: { label: 'Update', icon: 'activity', prompt: 'What changed in the trade, and why?' },
-        review: { label: 'Review', icon: 'clipboard-check', prompt: 'How did the execution match the plan?' },
+        review: { label: 'Review', icon: 'clipboard-check', prompt: 'What worked, what didn’t, and what would you repeat?' },
         lesson: { label: 'Lesson', icon: 'lightbulb', prompt: 'What should you repeat or change next time?' },
         note: { label: 'Imported note', icon: 'notebook-pen', prompt: '' },
     };
+    const RISK_HELP_SHARES = 'The percentage of your account you plan to risk on this trade. Combined with your entry and stop, it determines position size.';
+    const RISK_HELP_OPTIONS = 'Contract count uses your risk budget, the underlying entry and stop, delta, and premium.';
+    function journalDefaultKind(trade, journal) {
+        const status = E.deriveStatus(trade);
+        const closed = status === 'closed' || status === 'stopped';
+        if (closed) return journal.some(entry => entry.kind === 'review') ? 'lesson' : 'review';
+        return journal.some(entry => entry.kind === 'thesis') ? 'update' : 'thesis';
+    }
     const journalKindTagMarkup = (kind) => {
         const meta = JOURNAL_KINDS[kind] || JOURNAL_KINDS.update;
         if (kind === 'note') return E.escapeHtml(meta.label);
@@ -91,6 +104,7 @@
     function loadAll() {
         try { trades = JSON.parse(localStorage.getItem(K.trades)) || []; } catch { trades = []; }
         trades.forEach(normalizeTrade);
+        try { notes = E.normalizeNotes(JSON.parse(localStorage.getItem(K.notes))); } catch { notes = []; }
         account = parseNum(localStorage.getItem(K.account)) ?? 25000;
         const r = localStorage.getItem(K.risk); if (r) { prefs.riskPreset = r; if (!RISK_PRESETS.includes(r)) { prefs.riskPreset = 'custom'; prefs.riskCustom = parseNum(r) ?? 0.5; } }
         const mx = localStorage.getItem(K.max); if (mx) { prefs.maxPreset = mx; if (!['5', '10', '20', '50', '100'].includes(mx)) { prefs.maxPreset = 'custom'; prefs.maxCustom = parseNum(mx) ?? 20; } }
@@ -100,10 +114,15 @@
         try { Object.assign(prefs, JSON.parse(localStorage.getItem(K.prefs)) || {}); } catch { /* keep defaults */ }
         prefs.direction = prefs.direction === 'short' ? 'short' : 'long';
         prefs.vehicle = prefs.vehicle === 'option' ? 'option' : 'shares';
+        prefs.journalTab = prefs.journalTab === 'notes' ? 'notes' : 'trades';
     }
     function saveTrades() {
         localStorage.setItem(K.trades, JSON.stringify(trades));
         schedulePush('trades');
+    }
+    function saveNotes({ skipPush = false } = {}) {
+        localStorage.setItem(K.notes, JSON.stringify(notes));
+        if (!skipPush) schedulePush('notes');
     }
     function savePrefs() {
         schedulePush('settings');
@@ -488,9 +507,10 @@
         root.appendChild(holder);
         document.body.style.overflow = 'hidden';
         const isSplash = card.classList.contains('welcome-card');
+        const useSplashMotion = isSplash || card.classList.contains('splash-card');
         if (isSplash) document.body.classList.add('is-splash');
         requestAnimationFrame(() => backdrop.classList.add('in'));
-        if (isSplash) M.splashEnter(card); else M.modalEnter(card);
+        if (useSplashMotion) M.splashEnter(card); else M.modalEnter(card);
 
         const entry = { backdrop, holder, card, opener, closing: false };
         modalStack.push(entry);
@@ -519,8 +539,8 @@
         setup && setup(card, close, entry);
         /* Splash has no field to land on — focus the dialog, not the CTA,
            so the primary button doesn't open with a stuck focus ring. */
-        if (isSplash) card.tabIndex = -1;
-        const focusTarget = isSplash
+        if (isSplash || useSplashMotion) card.tabIndex = -1;
+        const focusTarget = (isSplash || useSplashMotion)
             ? card
             : (card.querySelector('[data-autofocus]') || card.querySelector('input, textarea, button.btn-primary'));
         if (focusTarget) setTimeout(() => { focusTarget.focus(); focusTarget.select && focusTarget.select(); }, 60);
@@ -686,6 +706,7 @@
     (() => {
         const ic = document.querySelector('#emptyState .empty-ic');
         ic?.addEventListener('pointerenter', () => {
+            if (ic.classList.contains('is-notebook')) return;
             ic.classList.remove('ic-draw');
             void ic.offsetWidth;
             ic.classList.add('ic-draw');
@@ -728,6 +749,11 @@
         });
         segs.journal = M.segmented($('journalSeg'), (v) => {
             filters.status = v; viewFilters.journal = v; filters.page = 1; renderTable();
+        });
+        segs.journalTab = M.segmented($('journalTabSeg'), (v) => {
+            prefs.journalTab = v === 'notes' ? 'notes' : 'trades';
+            if (view === 'journal') history.replaceState(null, '', prefs.journalTab === 'notes' ? '#journal/notes' : '#journal');
+            syncJournalChrome();
         });
         segs.formDirection = M.segmented($('formDirectionSeg'), (v) => {
             const direction = v === 'short' ? 'short' : 'long';
@@ -897,7 +923,8 @@
             : `${short ? 'Short' : 'Long'} shares`;
         $('optionGuidanceKind').textContent = `Long ${short ? 'puts' : 'calls'} only`;
         $('positionUnitLabel').textContent = optionMode ? 'contracts' : 'shares';
-        $('sharesCopyBtn').title = optionMode ? 'Copy contract count' : 'Type your own share count — risk solves backwards';
+        $('sharesCopyBtn').title = optionMode ? 'Copy contract count' : 'Enter a share count to calculate its risk';
+        if ($('riskHelp')) $('riskHelp').textContent = optionMode ? RISK_HELP_OPTIONS : RISK_HELP_SHARES;
         $('sharesCopyMini').hidden = optionMode;
         $('rStopDistLabel').textContent = optionMode ? 'Estimated loss / contract' : 'Stop distance';
         $('rPosSizeLabel').textContent = optionMode ? 'Premium outlay' : 'Position size';
@@ -906,6 +933,11 @@
         $('freerollPlan').classList.toggle('is-option-mode', optionMode);
         $('planTitle').textContent = optionMode ? 'Underlying R map' : 'Freeroll plan';
         $('planSeg').hidden = optionMode;
+        if ($('calcHowSizeText')) {
+            $('calcHowSizeText').textContent = optionMode
+                ? 'Your account size, risk percentage, and the option’s delta and premium determine how many contracts to trade.'
+                : 'Your account size, risk percentage, and distance from entry to stop determine how many shares to trade.';
+        }
     }
 
     function syncStopValidation(c) {
@@ -987,7 +1019,7 @@
             const meta = button.querySelectorAll('.risk-scenario-meta span');
             meta[0].textContent = `${allocation} account`;
             meta[1].textContent = valid ? `${riskDollars} risk${result.capped ? ' · capped' : ''}` : riskDollars;
-            button.setAttribute('aria-label', `${key === 'current' ? 'Current' : key === 'safer' ? 'Safer' : 'Higher'} scenario: ${formatRiskValue(risk)} percent risk, ${countText} ${unitText}, ${allocation} of account, ${riskDollars} risk${result.capped ? ', allocation capped' : ''}`);
+            button.setAttribute('aria-label', `${key === 'current' ? 'Current' : key === 'safer' ? 'Lower risk' : 'Higher risk'} scenario: ${formatRiskValue(risk)} percent risk, ${countText} ${unitText}, ${allocation} of account, ${riskDollars} risk${result.capped ? ', allocation capped' : ''}`);
         });
     }
 
@@ -1092,8 +1124,10 @@
         }
         $('logTradeBtn').textContent = optionMode ? 'Calculator only · option logging later'
             : ready ? `Log ${prefs.direction === 'short' ? 'short ' : ''}${c.ticker} — ${fmtShareCount(res.shares)}` : 'Log trade';
-        $('calcHint').textContent = res.valid && c.ticker
+        const hint = res.valid && c.ticker
             ? `${c.ticker} · ${optionMode ? `${E.fmtShares(units)} ${units === 1 ? 'contract' : 'contracts'}` : fmtShareCount(units)} · risk ${E.fmtMoney(res.totalRisk)}` : '';
+        $('calcHint').textContent = hint;
+        $('calcHint').hidden = !hint;
     }
 
     function renderPlan(c, res) {
@@ -1446,7 +1480,7 @@
         const btn = $('logTradeBtn'), strip = $('logConfirm');
         btn.hidden = true; strip.hidden = false;
         $('logConfirmText').innerHTML =
-            `<b>${E.escapeHtml(trade.ticker)}</b> logged` +
+            `<span class="lc-title"><b>${E.escapeHtml(trade.ticker)}</b> logged</span>` +
             `<span class="lc-meta">${fmtShareCount(res.shares)} · risking ${E.fmtMoney(res.totalRisk)} (${res.totalRiskPct.toFixed(2)}%)</span>`;
         strip.querySelector('.lc-timer')?.remove();
         const lcTimer = document.createElement('span');
@@ -1612,7 +1646,7 @@
                 : `−${E.fmtMoney(eq.drawdown)}${ddPct !== null ? ` · ${ddPct.toFixed(ddPct < 1 ? 2 : 1)}% of account` : ''}`;
         $('eqPeak').textContent = rMode ? E.fmtR(eq.peakR) : E.fmtMoney(eq.peak, true);
         $('eqCount').textContent = String(eq.points.length);
-        $('eqMeta').textContent = `${eq.points.length} exit${eq.points.length === 1 ? '' : 's'} · all time`;
+        $('eqMeta').textContent = 'includes partial exits';
 
         const tok = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
         const up = tok('--success') || '#16a34a';
@@ -1701,6 +1735,11 @@
         /* Segment click already springs the pill — don't snap it. */
         if (!fromSegment) segs.view?.set(view, instant || !viewReady);
         if ($('journalSummary')) $('journalSummary').hidden = view !== 'journal';
+        if ($('journalScope')) $('journalScope').hidden = view !== 'journal';
+        if ($('journalTitleline')) $('journalTitleline').hidden = view !== 'journal';
+        if ($('journalHowBlock')) $('journalHowBlock').hidden = view !== 'journal';
+        if ($('calcTitleline')) $('calcTitleline').hidden = view !== 'positions';
+        if ($('calcHowBlock')) $('calcHowBlock').hidden = view !== 'positions';
         if ($('compoundView')) $('compoundView').hidden = view !== 'compound';
         if ($('themesView')) $('themesView').hidden = view !== 'themes';
         if (view === 'themes') THEME_TRACKER.render();
@@ -1710,10 +1749,12 @@
             filters.status = viewFilters.positions || 'active';
             filters.page = 1;
             segs.status?.set(filters.status, true);
+            document.body.dataset.journalTab = 'trades';
         } else if (view === 'journal') {
             filters.status = viewFilters.journal || 'all';
             filters.page = 1;
             segs.journal?.set(filters.status, true);
+            applyJournalTabFromHash();
         } else if (view === 'compound') {
             COMPOUND.syncAccount(account);
             COMPOUND.render();
@@ -1721,7 +1762,7 @@
             window.scrollTo(0, 0);
             THEME_TRACKER.render();
         }
-        if ($('fbCalc')) $('fbCalc').textContent = view === 'positions' ? 'Calculator' : 'Positions';
+        if ($('fbCalc')) $('fbCalc').textContent = 'Calculator';
         renderJournalSummary();
         renderTable();
         document.body.offsetHeight;
@@ -1737,6 +1778,462 @@
         }
         viewReady = true;
     }
+
+    /* ============================================================
+       JOURNAL NOTES (free notes, not trade entries)
+       ============================================================ */
+    let openNoteId = null;
+    let composerOpen = false;
+    let noteDraftTimer = null;
+    let notesEntered = new Set();
+    let pendingNoteEnterId = null;
+    let notesEnterMode = null;
+    let notesTabWasOn = false;
+    const NOTE_ENTER = { duration: 240, blur: 1, y: -5 };
+    const noteEditTimers = new Map();
+    const noteSavedTimers = new Map();
+
+    function matchesNoteQuery(n) {
+        if (!filters.notesQ) return true;
+        const hay = `${n.title || ''} ${n.text || ''}`.toLowerCase();
+        return filters.notesQ.split(/\s+/).filter(Boolean).every(term => hay.includes(term));
+    }
+    function noteDateKey(n) {
+        const raw = n?.createdAt;
+        if (!raw) return '';
+        const d = new Date(raw);
+        if (Number.isNaN(d.getTime())) return String(raw).slice(0, 10);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+    function matchesNoteDates(n) {
+        const day = noteDateKey(n);
+        if (filters.from && day && day < filters.from) return false;
+        if (filters.to && day && day > filters.to) return false;
+        return true;
+    }
+    function noteTitleOf(value) {
+        return String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, 120);
+    }
+    function noteCardPreview(n) {
+        const title = noteTitleOf(n.title);
+        if (title) return { lead: title, rest: String(n.text || '').trim() };
+        return E.notePreview(n.text);
+    }
+    function visibleNotes() {
+        return E.sortNotes(notes.filter(n => matchesNoteQuery(n) && matchesNoteDates(n)));
+    }
+    function readNoteDraft() {
+        try { return JSON.parse(localStorage.getItem(K.noteDraft) || 'null'); } catch { return null; }
+    }
+    function writeNoteDraft(text, title) {
+        const body = String(text || '');
+        const head = noteTitleOf(title);
+        if (!body.trim() && !head) { localStorage.removeItem(K.noteDraft); return; }
+        localStorage.setItem(K.noteDraft, JSON.stringify({ text: body, title: head, at: new Date().toISOString() }));
+    }
+    function composerFields(root) {
+        return {
+            title: root?.querySelector('.note-title-input')?.value ?? '',
+            text: root?.querySelector('textarea')?.value ?? '',
+        };
+    }
+    function clearNoteDraft() { localStorage.removeItem(K.noteDraft); }
+
+    function syncSearchField() {
+        const input = $('tradeSearch');
+        if (!input) return;
+        const notesMode = notesOn();
+        const value = notesMode ? (filters.notesQ || '') : (filters.q || '');
+        input.value = value;
+        input.placeholder = notesMode ? 'Search notes…' : 'Search trades…';
+        input.setAttribute('aria-label', notesMode ? 'Search notes' : 'Search trades');
+        if ($('searchClear')) $('searchClear').hidden = !input.value;
+    }
+
+    function playNoteEnters() {
+        if (!notesOn() || $('notesPanel')?.hidden) return;
+        const cards = [...document.querySelectorAll('#notesList .note-card')];
+        const mode = notesEnterMode;
+        const fresh = pendingNoteEnterId;
+        pendingNoteEnterId = null;
+        notesEnterMode = null;
+        if (mode === 'view') {
+            let delay = 0;
+            for (const card of cards) {
+                const id = card.dataset.noteId;
+                if (!id) continue;
+                notesEntered.add(id);
+                if (M.reduceMotion) continue;
+                M.rowEnter(card, delay, NOTE_ENTER);
+                delay = Math.min(delay + 30, 120);
+            }
+            return;
+        }
+        for (const card of cards) {
+            const id = card.dataset.noteId;
+            if (!id) continue;
+            const isFresh = mode === 'add' && fresh && id === fresh && !notesEntered.has(id);
+            notesEntered.add(id);
+            if (isFresh && !M.reduceMotion) M.rowEnter(card, 0, NOTE_ENTER);
+        }
+    }
+
+    function syncJournalChrome() {
+        const notesMode = notesOn();
+        if (notesMode && !notesTabWasOn) {
+            notesEntered.clear();
+            notesEnterMode = 'view';
+        }
+        if (!notesMode) notesEnterMode = null;
+        notesTabWasOn = notesMode;
+        document.body.dataset.journalTab = notesMode ? 'notes' : 'trades';
+        segs.journalTab?.set(prefs.journalTab === 'notes' ? 'notes' : 'trades', true);
+        syncSearchField();
+        if ($('notesPanel')) $('notesPanel').hidden = !notesMode;
+        if (notesMode) {
+            if ($('journalScope')) $('journalScope').hidden = true;
+            if ($('journalSummary')) $('journalSummary').hidden = true;
+            if ($('equityCard')) $('equityCard').hidden = true;
+            if ($('journalSeg')) $('journalSeg').hidden = true;
+            if (prefs.metricsOpen !== false && panels.metricsBlock) {
+                prefs.metricsOpen = false;
+                panels.metricsBlock.set(false);
+                syncMetricsToggle();
+                savePrefs();
+            }
+            renderNotes();
+        } else {
+            if (view === 'journal') {
+                if ($('journalScope')) $('journalScope').hidden = false;
+                if ($('journalSummary')) $('journalSummary').hidden = false;
+                if ($('journalSeg')) $('journalSeg').hidden = false;
+                renderJournalSummary();
+            }
+            closeComposer({ discard: false });
+            openNoteId = null;
+            syncNotesNewBtn();
+            renderTable();
+        }
+    }
+
+    function applyJournalTabFromHash() {
+        const parts = (location.hash || '#').slice(1).split('/');
+        prefs.journalTab = (parts[0] === 'journal' && parts[1] === 'notes') ? 'notes' : 'trades';
+        syncJournalChrome();
+    }
+
+    function setNoteStatus(el, kind) {
+        if (!el) return;
+        const prev = noteSavedTimers.get(el);
+        if (prev) clearTimeout(prev);
+        if (kind === 'saved') {
+            el.textContent = 'Saved';
+            el.classList.add('is-on');
+            el.classList.remove('is-warn');
+            noteSavedTimers.set(el, setTimeout(() => { el.classList.remove('is-on'); }, 1600));
+            return;
+        }
+        if (kind === 'empty') {
+            el.textContent = 'Write something before saving.';
+            el.classList.add('is-on', 'is-warn');
+            return;
+        }
+        el.textContent = 'Saved';
+        el.classList.remove('is-on', 'is-warn');
+    }
+
+    function cancelNoteDraftTimer() {
+        if (noteDraftTimer) { clearTimeout(noteDraftTimer); noteDraftTimer = null; }
+    }
+
+    function flushNoteLocals() {
+        cancelNoteDraftTimer();
+        if (composerOpen) {
+            const fields = composerFields($('notesComposer'));
+            writeNoteDraft(fields.text, fields.title);
+        }
+        for (const [id, timer] of noteEditTimers) {
+            clearTimeout(timer);
+            noteEditTimers.delete(id);
+            const card = document.querySelector(`.note-card[data-note-id="${CSS.escape(id)}"]`);
+            if (card) persistNoteEdit(id, composerFields(card));
+        }
+    }
+
+    function syncNotesNewBtn() {
+        const btn = $('notesNew');
+        if (!btn) return;
+        const onNotes = notesOn();
+        btn.hidden = !onNotes;
+        const park = onNotes && composerOpen;
+        btn.classList.toggle('is-parked', park);
+        btn.toggleAttribute('inert', park);
+        if (park) {
+            btn.setAttribute('tabindex', '-1');
+            btn.setAttribute('aria-hidden', 'true');
+        } else {
+            btn.removeAttribute('tabindex');
+            btn.removeAttribute('aria-hidden');
+        }
+    }
+
+    function closeComposer({ discard = true } = {}) {
+        cancelNoteDraftTimer();
+        composerOpen = false;
+        syncNotesNewBtn();
+        const slot = $('notesComposer');
+        if (slot) { slot.hidden = true; slot.innerHTML = ''; }
+        if (discard) clearNoteDraft();
+    }
+
+    function openComposer() {
+        openNoteId = null;
+        composerOpen = true;
+        syncNotesNewBtn();
+        renderNotes();
+        const slot = $('notesComposer');
+        if (!slot) return;
+        const draft = readNoteDraft();
+        const draftTitle = noteTitleOf(draft?.title);
+        const draftText = String(draft?.text || '');
+        const restored = !!(draftText.trim() || draftTitle);
+        slot.hidden = false;
+        slot.innerHTML = `
+            <input type="text" class="note-title-input" maxlength="120" placeholder="Title (optional)" aria-label="Note title" value="${E.escapeHtml(restored ? draftTitle : '')}" autocomplete="off">
+            <textarea maxlength="2000" class="journal-compose-input" placeholder="Write a note…" aria-label="New note">${E.escapeHtml(restored ? draftText : '')}</textarea>
+            <div class="note-composer-footer">
+                ${restored ? '<span class="note-composer-hint">Draft restored</span>' : '<span></span>'}
+                <div class="note-composer-actions">
+                    <button type="button" class="btn btn-ghost btn-sm" data-note-cancel>Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" data-note-add disabled>Add note</button>
+                </div>
+            </div>`;
+        const titleIn = slot.querySelector('.note-title-input');
+        const ta = slot.querySelector('textarea');
+        const add = slot.querySelector('[data-note-add]');
+        const sync = () => { add.disabled = !ta.value.trim(); };
+        const saveDraft = () => writeNoteDraft(ta.value, titleIn.value);
+        sync();
+        const onDraftInput = () => {
+            sync();
+            clearTimeout(noteDraftTimer);
+            noteDraftTimer = setTimeout(saveDraft, 300);
+        };
+        titleIn.addEventListener('input', onDraftInput);
+        ta.addEventListener('input', onDraftInput);
+        ta.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && (event.metaKey || event.ctrlKey) && !add.disabled) {
+                event.preventDefault();
+                add.click();
+            }
+        });
+        slot.querySelector('[data-note-cancel]').addEventListener('click', () => {
+            const pending = ta.value.trim() || noteTitleOf(titleIn.value);
+            if (!pending) { closeComposer(); renderNotes(); return; }
+            confirmModal('Discard draft', 'This clears the note you haven’t added yet.', 'Discard', () => {
+                closeComposer();
+                renderNotes();
+            });
+        });
+        add.addEventListener('click', () => {
+            const next = ta.value.trim().slice(0, 2000);
+            if (!next) return;
+            cancelNoteDraftTimer();
+            const now = new Date().toISOString();
+            const id = noteUid();
+            notes = [{ id, title: noteTitleOf(titleIn.value), text: next, createdAt: now, updatedAt: null, changedAt: now, pinned: false }, ...notes];
+            pendingNoteEnterId = id;
+            notesEnterMode = 'add';
+            saveNotes();
+            closeComposer();
+            toast('Note added');
+            renderNotes();
+        });
+        (draftText.trim() ? ta : titleIn).focus();
+        const focusEl = document.activeElement;
+        if (focusEl && typeof focusEl.setSelectionRange === 'function') {
+            const len = focusEl.value.length;
+            focusEl.setSelectionRange(len, len);
+        }
+    }
+
+    function persistNoteEdit(id, fields = {}) {
+        const note = notes.find(n => n.id === id);
+        if (!note) return 'missing';
+        const next = String(fields.text ?? '').trim().slice(0, 2000);
+        const title = noteTitleOf(fields.title);
+        if (!next) return 'empty';
+        if (next === note.text && title === noteTitleOf(note.title)) return 'unchanged';
+        const now = new Date().toISOString();
+        note.title = title;
+        note.text = next;
+        note.updatedAt = now;
+        note.changedAt = now;
+        saveNotes();
+        return 'saved';
+    }
+
+    function clearNoteEditTimer(id) {
+        const timer = noteEditTimers.get(id);
+        if (timer) { clearTimeout(timer); noteEditTimers.delete(id); }
+    }
+
+    function toggleNotePin(id) {
+        const note = notes.find(n => n.id === id);
+        if (!note) return;
+        const card = document.querySelector(`.note-card[data-note-id="${CSS.escape(id)}"]`);
+        if (card?.querySelector('textarea')) persistNoteEdit(id, composerFields(card));
+        clearNoteEditTimer(id);
+        note.pinned = !note.pinned;
+        note.changedAt = new Date().toISOString();
+        saveNotes();
+        renderNotes();
+    }
+
+    function deleteNote(id) {
+        confirmModal('Delete note', 'This removes the note and its timestamp.', 'Delete note', () => {
+            clearNoteEditTimer(id);
+            notes = notes.filter(n => n.id !== id);
+            if (openNoteId === id) openNoteId = null;
+            saveNotes();
+            toast('Note deleted');
+            renderNotes();
+        });
+    }
+
+    function noteCardMarkup(n) {
+        const preview = noteCardPreview(n);
+        const when = formatJournalTimestamp(n.createdAt);
+        const pinBtn = `<button type="button" class="icon-btn" data-note-pin="${E.escapeHtml(n.id)}" aria-pressed="${n.pinned}" data-tip="${n.pinned ? 'Unpin' : 'Pin'}" aria-label="${n.pinned ? 'Unpin note' : 'Pin note'}">${ICONS.pin}</button>`;
+        const delBtn = `<button type="button" class="icon-btn danger" data-note-del="${E.escapeHtml(n.id)}" data-tip="Delete" aria-label="Delete note">${ICONS.trash}</button>`;
+        if (openNoteId === n.id) {
+            return `<article class="note-card is-open${n.pinned ? ' is-pinned' : ''}" data-note-id="${E.escapeHtml(n.id)}">
+                <div class="note-card-editor">
+                    <input type="text" class="note-title-input" maxlength="120" placeholder="Title (optional)" aria-label="Note title" value="${E.escapeHtml(noteTitleOf(n.title))}" autocomplete="off">
+                    <textarea maxlength="2000" aria-label="Edit note">${E.escapeHtml(n.text)}</textarea>
+                </div>
+                <div class="note-card-footer">
+                    <span class="note-saved">Saved</span>
+                    <div class="note-card-actions">${pinBtn}${delBtn}<button type="button" class="btn btn-ghost btn-sm" data-note-done>Save</button></div>
+                </div>
+            </article>`;
+        }
+        return `<article class="note-card${n.pinned ? ' is-pinned' : ''}" data-note-id="${E.escapeHtml(n.id)}">
+            <div class="note-card-lead">${n.pinned ? `<span class="note-card-pin" aria-hidden="true">${ICONS.pin}</span>` : ''}<button type="button" class="note-card-open" data-note-open data-tip="Edit note" aria-label="Edit note">${E.escapeHtml(preview.lead)}</button></div>
+            ${preview.rest ? `<p class="note-card-rest">${E.escapeHtml(preview.rest)}</p>` : ''}
+            <div class="note-card-meta"><span class="note-card-when">${when}</span><span class="note-card-actions">${pinBtn}${delBtn}</span></div>
+        </article>`;
+    }
+
+    function wireNoteCard(card) {
+        const id = card.dataset.noteId;
+        card.querySelector('[data-note-pin]')?.addEventListener('click', (e) => { e.stopPropagation(); toggleNotePin(id); });
+        card.querySelector('[data-note-del]')?.addEventListener('click', (e) => { e.stopPropagation(); deleteNote(id); });
+        const ta = card.querySelector('textarea');
+        const titleIn = card.querySelector('.note-title-input');
+        if (ta) {
+            const saved = card.querySelector('.note-saved');
+            const onEdit = () => {
+                clearTimeout(noteEditTimers.get(id));
+                noteEditTimers.set(id, setTimeout(() => {
+                    const result = persistNoteEdit(id, composerFields(card));
+                    if (result === 'saved') setNoteStatus(saved, 'saved');
+                    else if (result === 'empty') setNoteStatus(saved, 'empty');
+                }, 400));
+            };
+            titleIn?.addEventListener('input', onEdit);
+            ta.addEventListener('input', onEdit);
+            card.querySelector('[data-note-done]')?.addEventListener('click', () => {
+                clearNoteEditTimer(id);
+                const result = persistNoteEdit(id, composerFields(card));
+                if (result === 'empty') { setNoteStatus(saved, 'empty'); ta.focus(); return; }
+                openNoteId = null;
+                renderNotes();
+            });
+            return;
+        }
+        const open = () => {
+            openNoteId = id;
+            composerOpen = false;
+            const slot = $('notesComposer');
+            if (slot) { slot.hidden = true; slot.innerHTML = ''; }
+            renderNotes();
+            requestAnimationFrame(() => {
+                const editor = $('notesList')?.querySelector('.note-card.is-open textarea');
+                editor?.focus();
+                editor?.closest('.note-card')?.scrollIntoView({ behavior: M.reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
+            });
+        };
+        card.querySelector('[data-note-open]')?.addEventListener('click', (e) => { e.stopPropagation(); open(); });
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            open();
+        });
+    }
+
+    function renderNotes() {
+        const panel = $('notesPanel');
+        const list = $('notesList');
+        if (!panel || !list) return;
+        if (!notesOn()) { panel.hidden = true; return; }
+        panel.hidden = false;
+        const vis = visibleNotes();
+        const empty = $('emptyState');
+        const isEmpty = vis.length === 0;
+        if (empty) empty.hidden = !isEmpty || composerOpen;
+        list.hidden = isEmpty && !composerOpen;
+        if (isEmpty && !composerOpen) fillEmptyState();
+        else notebookMotion.teardown();
+        syncNotesNewBtn();
+        list.innerHTML = vis.map(noteCardMarkup).join('');
+        list.querySelectorAll('.note-card').forEach(wireNoteCard);
+        requestAnimationFrame(playNoteEnters);
+        if (openNoteId) {
+            const openCard = list.querySelector(`.note-card[data-note-id="${CSS.escape(openNoteId)}"] textarea`);
+            if (openCard) { /* keep */ }
+        }
+    }
+
+    function startNewNote() {
+        if (!notesOn()) {
+            prefs.journalTab = 'notes';
+            if (view !== 'journal') setView('journal');
+            history.replaceState(null, '', '#journal/notes');
+            syncJournalChrome();
+        }
+        openComposer();
+    }
+
+    $('notesNew')?.addEventListener('click', startNewNote);
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape' || e.metaKey || e.ctrlKey || e.altKey) return;
+        if (!notesOn()) return;
+        const el = document.activeElement;
+        if (el && el.closest && el.closest('#tradeSearch')) return;
+        if (composerOpen) {
+            e.preventDefault();
+            cancelNoteDraftTimer();
+            const fields = composerFields($('notesComposer'));
+            const pending = fields.text.trim() || noteTitleOf(fields.title);
+            if (!pending) { closeComposer(); renderNotes(); return; }
+            confirmModal('Discard draft', 'This clears the note you haven’t added yet.', 'Discard', () => {
+                closeComposer();
+                renderNotes();
+            });
+            return;
+        }
+        if (openNoteId) {
+            e.preventDefault();
+            const card = $('notesList')?.querySelector('.note-card.is-open');
+            if (card) persistNoteEdit(openNoteId, composerFields(card));
+            clearNoteEditTimer(openNoteId);
+            openNoteId = null;
+            renderNotes();
+        }
+    });
 
     /* ============================================================
        TABLE
@@ -1901,6 +2398,110 @@
         return best;
     }
 
+    const NOTEBOOK_SVG = `<svg class="notebook" viewBox="0 0 64 64" aria-hidden="true"><rect class="paper" x="20" y="14" width="24" height="34" rx="3"/><path opacity=".4" d="M23 45h18M23 17v25"/><path class="writing line-one" pathLength="1" d="M25 29h13"/><path class="writing line-two" pathLength="1" d="M25 35h9"/><g class="cover"><rect x="20" y="14" width="24" height="34" rx="3"/><path d="M24 15v32M29 23h9"/></g><path d="M20 17v28"/><g class="pencil"><path d="M0 0l1-6 11-14a2 2 0 0 1 3 0l2 2a2 2 0 0 1 0 3L5-1Z"/><path d="m1-6 4 5M10-17l5 4"/></g></svg>`;
+    const notebookMotion = (() => {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const touch = window.matchMedia('(hover: none)');
+        let finishTimer = 0;
+        let resetTimer = 0;
+        let playing = false;
+        let wired = false;
+        const DURATION = 900;
+        const ic = () => document.querySelector('#emptyState .empty-ic');
+        const cta = () => $('emptyCta');
+        const live = () => {
+            const tile = ic();
+            return !!(tile && tile.classList.contains('is-notebook') && $('emptyState') && !$('emptyState').hidden);
+        };
+        const held = () => {
+            const tile = ic();
+            const btn = cta();
+            return !!(tile && tile.matches(':hover')) || !!(btn && (btn.matches(':hover') || document.activeElement === btn));
+        };
+        function clearTimers() {
+            clearTimeout(finishTimer);
+            clearTimeout(resetTimer);
+            finishTimer = 0;
+            resetTimer = 0;
+        }
+        function start() {
+            if (!live() || reduced.matches || touch.matches) return;
+            const tile = ic();
+            if (!tile) return;
+            clearTimeout(resetTimer);
+            if (playing || tile.classList.contains('is-open')) return;
+            clearTimeout(finishTimer);
+            tile.classList.add('rewind');
+            tile.classList.remove('is-open', 'playing');
+            void tile.offsetWidth;
+            tile.classList.remove('rewind');
+            void tile.offsetWidth;
+            tile.classList.add('is-open', 'playing');
+            playing = true;
+            finishTimer = setTimeout(() => {
+                playing = false;
+                tile.classList.remove('playing');
+                if (!held()) reset();
+            }, DURATION);
+        }
+        function reset() {
+            if (!live()) return;
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(() => {
+                if (playing || held()) return;
+                ic()?.classList.remove('is-open', 'playing');
+            }, 160);
+        }
+        function teardown() {
+            clearTimers();
+            playing = false;
+            const tile = ic();
+            if (!tile) return;
+            tile.classList.remove('is-open', 'playing', 'rewind');
+        }
+        function show() {
+            const tile = ic();
+            if (!tile) return;
+            if (tile.classList.contains('is-notebook')) return;
+            teardown();
+            tile.classList.remove('ic-draw');
+            tile.removeAttribute('data-icon');
+            tile.classList.add('is-notebook');
+            tile.innerHTML = NOTEBOOK_SVG;
+        }
+        function restore(icon) {
+            const tile = ic();
+            if (!tile) return;
+            const name = icon || 'chart-candlestick';
+            if (!tile.classList.contains('is-notebook') && tile.dataset.icon === name && tile.querySelector('.lucide')) {
+                teardown();
+                return;
+            }
+            teardown();
+            tile.classList.remove('is-notebook', 'is-open', 'playing', 'rewind');
+            tile.dataset.icon = name;
+            tile.classList.add('ic-draw');
+            tile.innerHTML = (typeof ICONS !== 'undefined' && ICONS[name]) || '';
+        }
+        function wire() {
+            if (wired) return;
+            wired = true;
+            const tile = ic();
+            const btn = cta();
+            if (tile) {
+                tile.addEventListener('pointerenter', start);
+                tile.addEventListener('pointerleave', reset);
+            }
+            if (btn) {
+                btn.addEventListener('pointerenter', start);
+                btn.addEventListener('pointerleave', reset);
+                btn.addEventListener('focus', start);
+                btn.addEventListener('blur', reset);
+            }
+        }
+        return { show, restore, teardown, wire };
+    })();
+
     function fillEmptyState() {
         const title = document.querySelector('#emptyState .empty-title');
         const sub = document.querySelector('#emptyState .empty-sub');
@@ -1915,7 +2516,11 @@
         const setCta = (action, label) => {
             cta.hidden = false;
             cta.dataset.action = action;
-            cta.textContent = label;
+            if (action === 'new-note') {
+                cta.innerHTML = `${ICONS.plus}<span>New note</span>`;
+            } else {
+                cta.textContent = label;
+            }
         };
         const setAlt = (action, label) => {
             if (!action) { alt.hidden = true; alt.dataset.action = ''; alt.textContent = ''; return; }
@@ -1926,10 +2531,40 @@
 
         seed.hidden = !(bookEmpty && view !== 'journal');
 
+        if (notesOn()) {
+            const q = filters.notesQ || '';
+            seed.hidden = true;
+            if (!notes.length) {
+                title.textContent = 'A place for your trading thoughts';
+                sub.textContent = "Keep reminders, market observations, and daily recaps, even when you haven't logged a trade.";
+                setCta('new-note', 'New note');
+                setAlt();
+                notebookMotion.show();
+                return;
+            }
+            notebookMotion.restore('search');
+            if (q) {
+                title.textContent = `No notes match “${$('tradeSearch')?.value.trim() || q}”`;
+                sub.textContent = 'Try a different word, or clear the search.';
+                setCta('clear-search', 'Clear search');
+                setAlt();
+                return;
+            }
+            if (filters.from || filters.to) {
+                title.textContent = 'No notes in this range';
+                sub.textContent = 'Nothing written between From and To.';
+                setCta('clear-dates', 'Clear date filter');
+                setAlt();
+            }
+            return;
+        }
+
+        notebookMotion.restore('chart-candlestick');
+
         if (bookEmpty && view === 'journal') {
-            title.textContent = 'No journal yet';
-            sub.textContent = 'Closed trades land here. Size and log from Positions.';
-            setCta('goto-positions', 'Go to Positions');
+            title.textContent = 'No trades to review yet';
+            sub.textContent = 'Log a trade in Calculator to track its results and add notes.';
+            setCta('goto-positions', 'Go to Calculator');
             setAlt();
             return;
         }
@@ -1950,14 +2585,14 @@
         if (filters.from || filters.to) {
             title.textContent = 'No trades in this range';
             sub.textContent = 'Nothing logged between From and To.';
-            setCta('clear-dates', 'Clear dates');
+            setCta('clear-dates', 'Clear date filter');
             setAlt();
             return;
         }
 
         title.textContent = emptyTitleForStatus(filters.status);
         sub.textContent = emptySubForStatus(filters.status);
-        if (view === 'journal') setCta('goto-positions', 'Go to Positions');
+        if (view === 'journal') setCta('goto-positions', 'Go to Calculator');
         else setCta('log', 'Log a trade');
         const bucket = hiddenBucket();
         const noun = bucket && STATUS_NOUN[bucket.key];
@@ -1977,12 +2612,55 @@
         setTimeout(() => field.focus(), M.reduceMotion ? 0 : 350);
     }
 
+    const CALC_SETUP_FIELDS = ['tickerInput', 'entryPrice', 'stopLoss', 'targetPrice', 'optionDelta', 'optionPremium'];
+    function snapshotCalcSetup() {
+        const snap = {};
+        CALC_SETUP_FIELDS.forEach(id => { snap[id] = $(id).value; });
+        return snap;
+    }
+    function restoreCalcSetup(snap) {
+        CALC_SETUP_FIELDS.forEach(id => { $(id).value = snap[id] || ''; });
+        recalc();
+    }
+    function sizeTrade(ticker) {
+        const next = String(ticker || '').trim().toUpperCase();
+        if (!next) return;
+        const prev = snapshotCalcSetup();
+        const prevTicker = prev.tickerInput.trim().toUpperCase();
+        const same = prevTicker === next;
+        const hadSetup = CALC_SETUP_FIELDS.some(id => String(prev[id] || '').trim());
+        if (view !== 'positions') setView('positions');
+        if (!panels.calcSection.section.classList.contains('is-open')) {
+            prefs.calcOpen = true;
+            panels.calcSection.set(true);
+            savePrefs();
+        }
+        if (!same) {
+            $('tickerInput').value = next;
+            ['entryPrice', 'stopLoss', 'targetPrice', 'optionDelta', 'optionPremium'].forEach(id => { $(id).value = ''; });
+            recalc();
+            if (hadSetup) {
+                toast(`Sizing <b>${E.escapeHtml(next)}</b>`, {
+                    undo: () => restoreCalcSetup(prev),
+                    undone: prevTicker ? `Restored <b>${E.escapeHtml(prevTicker)}</b>` : 'Restored previous setup',
+                    ms: 8000,
+                });
+            }
+        }
+        $('entryPrice').focus();
+        $('entryPrice').scrollIntoView({ behavior: M.reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    }
+
     function applyEmptyAction(action) {
         if (!action) return;
         if (action === 'log') return focusCalculator();
         if (action === 'goto-positions') return setView('positions');
         if (action === 'clear-search') {
             $('searchClear')?.click();
+            return;
+        }
+        if (action === 'new-note') {
+            startNewNote();
             return;
         }
         if (action === 'clear-dates') {
@@ -2005,6 +2683,7 @@
     }
 
     function renderTable() {
+        if (notesOn()) return;
         const tbody = $('tradesBody');
         const vis = visibleTrades();
         const pages = Math.max(1, Math.ceil(vis.length / PAGE_SIZE));
@@ -2016,6 +2695,7 @@
         $('emptyState').hidden = !isEmpty;
         document.querySelector('.table-scroll').style.display = isEmpty ? 'none' : '';
         if (isEmpty) fillEmptyState();
+        else notebookMotion.teardown();
 
         for (const t of pageItems) {
             tbody.appendChild(buildRow(t));
@@ -2067,10 +2747,16 @@
         const input = $('tradeSearch'), clear = $('searchClear');
         if (!input) return;
         const apply = () => {
-            filters.q = input.value.trim().toLowerCase();
+            const value = input.value.trim().toLowerCase();
             filters.page = 1;
             clear.hidden = !input.value;
-            renderTable();
+            if (notesOn()) {
+                filters.notesQ = value;
+                renderNotes();
+            } else {
+                filters.q = value;
+                renderTable();
+            }
         };
         input.addEventListener('input', apply);
         input.addEventListener('keydown', (e) => {
@@ -2136,9 +2822,12 @@
         const na = nextAction(t);
 
         const direction = E.directionOf(t);
+        const noteCount = E.normalizeJournal(t).length;
+        const noteLabel = noteCount ? `Notes · ${noteCount}` : 'Add note';
         const subParts = [
             `<span class="direction-tag" data-direction="${direction}">${direction}</span>`,
             `<span class="cell-date">${E.fmtDateShort(t.entryDate)}</span>`,
+            `<button type="button" class="cell-note" data-act="add-note">${noteLabel}</button>`,
         ];
         const sub = subParts.join('<span class="cell-dot" aria-hidden="true">·</span>');
         const entryHtml = E.fmtMoney(t.entryPrice)
@@ -2157,7 +2846,7 @@
                 const rem = E.getRemainingShares(t);
                 const zero = '<span class="next-runner-zero">$0 at risk</span>';
                 const sub = rem ? `${fmtShareCount(rem)} · ${zero}` : zero;
-                nextHtml = `<span class="next-runner" title="Stop covers the remaining shares — nothing left at risk. Trim anytime with ⋯" aria-label="${E.escapeHtml(na.label)} — ${E.escapeHtml(na.sub)}"><span class="shield">${ICONS['shield-check']}</span><span class="next-runner-copy"><span class="next-runner-label">${na.label}</span><span class="next-runner-sub">${sub}</span></span></span>`;
+                nextHtml = `<span class="next-runner" title="At the current stop, no net loss is planned for this trade. Use ⋯ to trim or exit." aria-label="${E.escapeHtml(na.label)} — ${E.escapeHtml(na.sub)}"><span class="shield">${ICONS['shield-check']}</span><span class="next-runner-copy"><span class="next-runner-label">${na.label}</span><span class="next-runner-sub">${sub}</span></span></span>`;
             }
             else if (na.type === 'trim') nextHtml = `<button class="next-chip" data-act="trim">Trim…</button>`;
             else {
@@ -2209,14 +2898,16 @@
             case 'archive': setArchived(id, true); break;
             case 'unarchive': setArchived(id, false); break;
             case 'delete': deleteTrade(id); break;
+            case 'add-note': openRail(id, { focusJournal: true }); break;
         }
     }
 
     /* ---------- expandable position rail ---------- */
-    function toggleRail(id) {
-        expandedId = expandedId === id ? null : id;
-        renderTable();
-        if (expandedId) {
+    function openRail(id, { focusJournal = false } = {}) {
+        const already = expandedId === id;
+        if (!already) {
+            expandedId = id;
+            renderTable();
             const rail = document.querySelector('tr.rail-row .rail-wrap');
             if (rail && !M.reduceMotion) {
                 const h = rail.scrollHeight;
@@ -2225,6 +2916,19 @@
                     { duration: 300, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
             }
         }
+        if (focusJournal) {
+            requestAnimationFrame(() => {
+                document.querySelector('tr.rail-row .journal-compose-input')?.focus();
+            });
+        }
+    }
+    function toggleRail(id) {
+        if (expandedId === id) {
+            expandedId = null;
+            renderTable();
+            return;
+        }
+        openRail(id);
     }
 
     function formatJournalTimestamp(value, { full = false } = {}) {
@@ -2245,7 +2949,7 @@
 
     function journalMarkup(t) {
         const journal = E.normalizeJournal(t);
-        const defaultKind = journal.some(entry => entry.kind === 'thesis') ? 'update' : 'thesis';
+        const defaultKind = journalDefaultKind(t, journal);
         const entries = [...journal].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         const kindButtons = Object.entries(JOURNAL_KINDS).filter(([kind]) => kind !== 'note').map(([kind, meta]) => `
             <button type="button" class="journal-kind-btn${kind === defaultKind ? ' is-active' : ''}" data-journal-kind="${kind}"
@@ -2280,7 +2984,7 @@
         }).join('') : `<div class="journal-empty">
             <span class="journal-empty-ic ic-draw" aria-hidden="true">${ICONS['notebook-pen']}</span>
             <strong>No journal entries yet</strong>
-            <p>Write the setup and what would invalidate it.</p>
+            <p>${E.escapeHtml(JOURNAL_KINDS[defaultKind].prompt)}</p>
         </div>`;
 
         return `<div class="rail-journal" data-default-kind="${defaultKind}">
@@ -2685,14 +3389,14 @@
                 } else if (n === 0) {
                     sharesIn.value = '';
                     syncFractionIndicator(null);
-                    riskNote.textContent = 'This position is already freerolled. Turn Risk Manager off for a discretionary trim.';
+                    riskNote.textContent = 'This position is already freerolled. Turn off Risk Manager to choose your own exit size.';
                 } else {
                     sharesIn.value = '';
                     syncFractionIndicator(null);
                     riskNote.classList.remove('is-managed');
                     riskNote.textContent = effRemaining() === null
                         ? 'Enter the position size to calculate a freeroll trim.'
-                        : 'No trim at this price zeroes the risk and still leaves a runner. Turn Risk Manager off for a manual exit.';
+                        : 'No trim at this price zeroes the risk and still leaves a runner. Turn off Risk Manager to choose your own exit size.';
                 }
                 return n;
             }
@@ -3098,7 +3802,7 @@
         for (const tk of watchlist) {
             const pill = document.createElement('span');
             pill.className = 'watch-pill';
-            pill.innerHTML = `<button class="wp-tk" title="Click to fill ticker, Shift+Click to open TradingView">${E.escapeHtml(tk)}</button><button class="wp-x" aria-label="Remove ${E.escapeHtml(tk)}" title="Remove">${ICONS.x}</button>`;
+            pill.innerHTML = `<button class="wp-tk" title="Use this ticker in the calculator. Shift-click to open TradingView.">${E.escapeHtml(tk)}</button><button class="wp-x" aria-label="Remove ${E.escapeHtml(tk)}" title="Remove">${ICONS.x}</button>`;
             pill.querySelector('.wp-tk').addEventListener('click', (e) => {
                 if (e.shiftKey) {
                     window.open(`https://www.tradingview.com/chart/?symbol=${encodeURIComponent(tk)}`, '_blank', 'noopener');
@@ -3196,7 +3900,8 @@
         }
         filters.page = 1;
         syncDatePickState();
-        renderTable();
+        if (notesOn()) renderNotes();
+        else renderTable();
     }
     function placeDatePop(trigger) {
         const pop = $('datePop');
@@ -3371,7 +4076,8 @@
         filters.page = 1;
         closeDatePop();
         syncDatePickState();
-        renderTable();
+        if (notesOn()) renderNotes();
+        else renderTable();
     });
 
     $('exportBtn').addEventListener('click', (e) => {
@@ -3396,14 +4102,30 @@
         return `${n} trade${n === 1 ? '' : 's'}`;
     }
     async function exportVisible(kind) {
-        const vis = visibleTrades();
-        if (!vis.length) {
-            toast('No trades to export', { error: true });
-            return;
-        }
         const stamp = E.todayLocalISO();
-        const count = tradeCountLabel(vis.length);
         try {
+            if (notesOn()) {
+                const vis = visibleNotes();
+                if (!vis.length) { toast('No notes to export', { error: true }); return; }
+                const count = `${vis.length} note${vis.length === 1 ? '' : 's'}`;
+                if (kind === 'csv') {
+                    download(`notes-${stamp}.csv`, E.toNotesCSV(vis, ','), 'text/csv');
+                    toast(`Downloaded ${count} as CSV`);
+                } else if (kind === 'tsv') {
+                    download(`notes-${stamp}.tsv`, E.toNotesCSV(vis, '\t'), 'text/tab-separated-values');
+                    toast(`Downloaded ${count} as TSV`);
+                } else if (kind === 'excel') {
+                    await navigator.clipboard.writeText(E.toNotesCSV(vis, '\t'));
+                    toast(`${count} copied for Excel`);
+                }
+                return;
+            }
+            const vis = visibleTrades();
+            if (!vis.length) {
+                toast('No trades to export', { error: true });
+                return;
+            }
+            const count = tradeCountLabel(vis.length);
             if (kind === 'csv') {
                 download(`trades-${stamp}.csv`, E.toCSV(vis, ','), 'text/csv');
                 toast(`Downloaded ${count} as CSV`);
@@ -3452,6 +4174,7 @@
                 direction: prefs.direction, vehicle: prefs.vehicle,
             },
             watchlist,
+            notes,
         };
     }
     $('footerBackup').addEventListener('click', () => {
@@ -3544,6 +4267,13 @@
             });
         });
     }
+    function openAboutModal() {
+        openModal('tpl-about', (card) => {
+            const title = card.querySelector('.wc-title');
+            if (title) M.letterReveal(title);
+        });
+    }
+    $('footerAbout').addEventListener('click', openAboutModal);
     $('footerFaq').addEventListener('click', openFaqModal);
     $('footerFeedback').addEventListener('click', openFeedbackModal);
     $('restoreFile').addEventListener('change', async (e) => {
@@ -3555,9 +4285,11 @@
         const incoming = Array.isArray(data) ? data : data.trades;
         if (!Array.isArray(incoming)) { toast('No trades found in that file', { error: true }); return; }
         confirmModal('Restore from backup', `Replaces your ${trades.length} current trades with ${incoming.length} from the file. A safety copy of the current data downloads first.`, 'Restore', () => {
-            download(`pre-restore-${Date.now()}.json`, JSON.stringify({ trades }, null, 2), 'application/json');
+            download(`pre-restore-${Date.now()}.json`, JSON.stringify(backupPayload(), null, 2), 'application/json');
             trades = incoming;
             trades.forEach(normalizeTrade);
+            const hadNotes = Array.isArray(data.notes);
+            if (hadNotes) notes = E.normalizeNotes(data.notes);
             if (Array.isArray(data.watchlist)) watchlist = data.watchlist;
             const acct = E.isNum(data.account) ? data.account : data.settings?.accountSize;
             if (E.isNum(acct)) { account = acct; $('accountSize').value = account.toLocaleString('en-US'); }
@@ -3566,8 +4298,10 @@
             segs.direction.set(prefs.direction, true);
             segs.vehicle.set(prefs.vehicle, true);
             syncCalculatorMode();
-            saveTrades(); savePrefs(); renderAll();
-            toast(`Restored ${trades.length} trades`);
+            saveTrades();
+            if (hadNotes) saveNotes();
+            savePrefs(); renderAll();
+            toast(`Restored ${trades.length} trades${hadNotes ? ` · ${notes.length} note${notes.length === 1 ? '' : 's'}` : ''}`);
         });
     });
 
@@ -3652,6 +4386,25 @@
                     renderAll();
                 }
             }
+            const notesRaw = await gistFileContent(json, 'notes.json');
+            if (notesRaw === null) {
+                if (notes.length) schedulePush('notes');
+            } else {
+                let cloudNotes;
+                try { cloudNotes = JSON.parse(notesRaw); } catch { cloudNotes = undefined; }
+                if (!Array.isArray(cloudNotes)) {
+                    sync.loadFailed = true;
+                    syncSet('paused', 'Sync paused — cloud data unreadable');
+                    toast('Cloud notes unreadable — sync paused, local data kept safe', { error: true });
+                    return;
+                }
+                const nextNotes = E.normalizeNotes(cloudNotes);
+                if (JSON.stringify(nextNotes) !== JSON.stringify(notes)) {
+                    notes = nextNotes;
+                    saveNotes({ skipPush: true });
+                    if (notesOn()) renderNotes();
+                }
+            }
             const settingsRaw = await gistFileContent(json, 'settings.json');
             if (settingsRaw !== null) {
                 try {
@@ -3696,9 +4449,9 @@
         }, delay);
     }
     function filePayload(kind) {
-        return kind === 'trades'
-            ? { 'trades.json': { content: JSON.stringify(trades, null, 2) } }
-            : { 'settings.json': { content: settingsPayload() } };
+        if (kind === 'trades') return { 'trades.json': { content: JSON.stringify(trades, null, 2) } };
+        if (kind === 'notes') return { 'notes.json': { content: JSON.stringify(notes, null, 2) } };
+        return { 'settings.json': { content: settingsPayload() } };
     }
     function pushFile(kind, { flush = false, keepalive = false } = {}) {
         if (!syncLinked() || sync.loadFailed) return;
@@ -3726,6 +4479,21 @@
                                 trades.forEach(normalizeTrade);
                                 localStorage.setItem(K.trades, JSON.stringify(trades));
                                 renderAll();
+                            } else if (kind === 'notes') {
+                                const notesRaw = await gistFileContent(meta, 'notes.json');
+                                if (notesRaw !== null) {
+                                    let cloudNotes;
+                                    try { cloudNotes = JSON.parse(notesRaw); } catch { cloudNotes = undefined; }
+                                    if (!Array.isArray(cloudNotes)) {
+                                        sync.loadFailed = true;
+                                        syncSet('paused', 'Sync paused — cloud data unreadable');
+                                        toast('Cloud notes unreadable — sync paused, local data kept safe', { error: true });
+                                        return;
+                                    }
+                                    notes = E.normalizeNotes(GIST_SYNC.mergeNotes(notes, cloudNotes));
+                                    saveNotes({ skipPush: true });
+                                    if (notesOn()) renderNotes();
+                                }
                             }
                             sync.baseline = meta.updated_at;
                         }
@@ -3755,6 +4523,7 @@
     /* Hidden tabs are still alive — use a normal fetch. keepalive only on unload
        (iOS Safari drops keepalive PATCH when the tab is merely backgrounded). */
     function flushPending(reason) {
+        flushNoteLocals();
         const keepalive = GIST_SYNC.keepaliveFor(reason);
         for (const kind of Object.keys(sync.timers)) {
             if (sync.timers[kind]) {
@@ -3789,7 +4558,11 @@
                     method: 'POST',
                     body: JSON.stringify({
                         description: 'skyler.tools Trader Tools Suite data', public: false,
-                        files: { 'trades.json': { content: JSON.stringify(trades, null, 2) }, 'settings.json': { content: settingsPayload() } },
+                        files: {
+                            'trades.json': { content: JSON.stringify(trades, null, 2) },
+                            'settings.json': { content: settingsPayload() },
+                            'notes.json': { content: JSON.stringify(notes, null, 2) },
+                        },
                     }),
                 });
                 if (!res.ok) throw new Error(`Couldn’t create a gist (GitHub ${res.status} — token needs the gist scope)`);
@@ -4030,6 +4803,7 @@
         renderHeader();
         renderJournalSummary();
         renderTable();
+        if (notesOn()) renderNotes();
         renderWatchlist();
         recalc();
     }
@@ -4038,6 +4812,21 @@
         const pairPayload = readPairLink(); // strips #pair= before the hash view resolves
         loadAll();
         hydrateIcons();
+        const wireHow = (btnId, blockId, wrapId) => {
+            const btn = $(btnId);
+            const block = $(blockId);
+            const wrap = $(wrapId);
+            if (!btn || !block || !wrap || typeof MOTION === 'undefined') return;
+            const set = MOTION.collapsible(block, wrap, false);
+            btn.addEventListener('click', () => {
+                const open = !block.classList.contains('is-open');
+                set(open);
+                btn.setAttribute('aria-expanded', String(open));
+            });
+        };
+        wireHow('calcHowToggle', 'calcHowBlock', 'calcHowWrap');
+        wireHow('journalHowToggle', 'journalHowBlock', 'journalHowWrap');
+        wireHow('compoundHowToggle', 'compoundHowBlock', 'compoundHowWrap');
         startDailyClock();
         accentName = localStorage.getItem(K.accent) || 'cyan';
         applyAccent(accentName);
@@ -4048,7 +4837,10 @@
         new ResizeObserver(() => { if (view === 'journal') renderEquity(); }).observe($('equityChart'));
         new MutationObserver(() => { if (view === 'journal') renderEquity(); })
             .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
-        wirePanel('calcSection', 'calcBodyWrap', 'calcToggle', 'calcOpen');
+        panels.calcSection = {
+            section: $('calcSection'),
+            set() { $('calcSection').classList.add('is-open'); },
+        };
         wirePanel('watchSection', 'watchBodyWrap', 'watchToggle', 'watchOpen');
         wirePanel('formSection', 'formBodyWrap', 'formToggle', 'formOpen');
         wireMetrics();
@@ -4060,9 +4852,17 @@
         syncCalculatorMode();
         syncRiskLabels();
         COMPOUND.init({ account, parseNum, bindMoneyNotation });
+        notebookMotion.wire();
         THEME_TRACKER.init();
+        window.addEventListener('skyler:size-trade', (event) => {
+            const ticker = event.detail && event.detail.ticker;
+            if (ticker) sizeTrade(ticker);
+        });
         setView(viewFromHash(), { instant: true });
-        window.addEventListener('hashchange', () => setView(viewFromHash(), { syncHash: false }));
+        window.addEventListener('hashchange', () => {
+            setView(viewFromHash(), { syncHash: false });
+            if (view === 'journal') applyJournalTabFromHash();
+        });
         renderAll();
         requestAnimationFrame(() => {
             segs.theme.set(document.documentElement.getAttribute('data-theme'), true);
@@ -4079,6 +4879,7 @@
             segs.eqMode.set(prefs.equityMode || 'usd', true);
             segs.view.set(view, true);
             segs.journal.set(viewFilters.journal, true);
+            segs.journalTab.set(prefs.journalTab === 'notes' ? 'notes' : 'trades', true);
             syncCalculatorMode();
             requestAnimationFrame(refreshSegs);
         });

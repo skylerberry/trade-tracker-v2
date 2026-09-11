@@ -53,5 +53,31 @@ const GIST_SYNC = (() => {
         return out;
     }
 
-    return { fetchInit, isConflict, keepaliveFor, mergeTrades };
+    function noteStamp(n) {
+        return Date.parse(n?.changedAt || n?.updatedAt || n?.createdAt || 0) || 0;
+    }
+
+    function mergeNotes(local, cloud) {
+        if (!Array.isArray(local)) return Array.isArray(cloud) ? cloud.slice() : [];
+        if (!Array.isArray(cloud)) return local.slice();
+        const cloudById = new Map();
+        for (const n of cloud) {
+            if (n && n.id) cloudById.set(n.id, n);
+        }
+        const seen = new Set();
+        const out = [];
+        for (const n of local) {
+            if (!n || !n.id) continue;
+            seen.add(n.id);
+            const c = cloudById.get(n.id);
+            out.push(!c || noteStamp(n) >= noteStamp(c) ? n : c);
+        }
+        for (const n of cloud) {
+            if (!n || !n.id || seen.has(n.id)) continue;
+            out.push(n);
+        }
+        return out;
+    }
+
+    return { fetchInit, isConflict, keepaliveFor, mergeTrades, mergeNotes };
 })();
