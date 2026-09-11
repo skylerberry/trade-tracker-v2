@@ -1,6 +1,13 @@
 # Themes tracker and daily refresh
 
+**Working copy:** `/Users/skylerberry/Projects/skyler-tools-publish`  
+(`skyler-tools-v2` is a stale checkout. Do not compile or refresh Themes there.)
+
 The Themes page uses one static catalog, `data/daily-scan.json`. Browser clients receive derived metrics and company descriptions; credentials and raw bars stay on the local machine.
+
+## Daily (after the close)
+
+Grok: `/themes-update`. It is autonomous: NY weekday → after 16:15 ET → fast-forward `origin/main` → `npm run themes:update` → tests → commit **only** `data/daily-scan.json` → `git push origin main` (15 Netlify credits). Stop at the first failed check. Weekends, holidays, and incomplete sessions leave the last catalog in place and do not push.
 
 ## Refresh after the close
 
@@ -36,9 +43,7 @@ npm run scan:themes -- /absolute/path/to/daily-scan-YYYY-MM-DD.md /absolute/path
 npm run themes:update
 ```
 
-The existing compiler merges assignments into the durable roster. Its CSV contains only the older metrics, so **always run `themes:update` after compiling and before publishing** to restore full-universe measurements, YTD, 52W distance, and the seven-member Mag 7 group. Do not publish the intermediate compiler output. Review both `data/theme-roster.json` and `data/daily-scan.json` when assignments change.
-
-The installed Grok skill currently hardcodes `skyler-tools-v2`; this deployed checkout is `skyler-tools-publish`. Changes made in another checkout do not appear here automatically. Bring reviewed roster changes into the publishing checkout before refreshing. Existing uncommitted work in `skyler-tools-v2` was left intact.
+`scan:themes` merges assignments into `data/theme-roster.json` only. It does not write the public catalog. `themes:update` rebuilds `data/daily-scan.json` (full-universe measurements, YTD, 52W distance, Mag 7, Does from RS Tape). If it is before 16:15 ET, the roster still updates; the catalog waits until `/themes-update` after the close. Review both files when assignments change.
 
 ## Publish
 

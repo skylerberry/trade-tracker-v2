@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Refresh the public derived Themes catalog. Never exports bars or credentials.
 
-Default: fresh SIP daily bars via the local Magic Scan engine, after 16:15 ET.
+Default: fresh SIP daily bars via the local Magic Scan engine, weekday after 16:15 ET.
 For reproducible rebuilds: --bars-cache PATH --as-of YYYY-MM-DD.
-Publishing is a separate, explicit git commit/push step.
 """
 import argparse
 import csv
@@ -18,6 +17,16 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 MAG7 = ['AAPL', 'MSFT', 'AMZN', 'GOOGL', 'META', 'NVDA', 'TSLA']
+ET = ZoneInfo('America/New_York')
+
+
+def live_gate(now):
+    """Refuse a live SIP refresh on weekends or before the cash close is complete."""
+    if now.weekday() >= 5:
+        return 'US markets are closed (weekend). Catalog left unchanged.'
+    if (now.hour, now.minute) < (16, 15):
+        return 'Run after 16:15 ET so the current session is complete.'
+    return None
 
 
 def derive(entry, session):
@@ -63,9 +72,11 @@ def main():
         parser.error('--bars-cache requires --as-of')
     if args.as_of:
         date.fromisoformat(args.as_of)
-    now = datetime.now(ZoneInfo('America/New_York'))
-    if not args.bars_cache and (now.hour, now.minute) < (16, 15):
-        sys.exit('Run after 16:15 ET so the current session is complete.')
+    now = datetime.now(ET)
+    if not args.bars_cache:
+        blocked = live_gate(now)
+        if blocked:
+            sys.exit(blocked)
     spec = importlib.util.spec_from_file_location('themes_scan_engine', args.scanner_dir / 'scan.py')
     scan = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(scan)
@@ -97,6 +108,8 @@ def main():
         sys.exit('Refusing to replace the catalog with an older session.')
     companies = {}
     for symbol, entry in bars.items():
+        if symbol.endswith('.A'):
+            continue
         if symbol not in universe and symbol not in MAG7:
             continue
         derived = derive(entry, session)

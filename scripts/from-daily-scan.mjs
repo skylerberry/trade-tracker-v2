@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-/* Compile a daily-scan markdown post + CSV into data/daily-scan.json. */
+/* Merge a daily-scan markdown post into data/theme-roster.json.
+   Does not write data/daily-scan.json — that catalog is owned by
+   scripts/update-themes.py (npm run themes:update). */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -135,7 +137,6 @@ const catalog = GUIDE.catalogFromScan(scan, loadCompanies(), {
     roster: loadRoster(),
     quotes: loadQuotes(csvPath),
 });
-writeFileSync(OUT_PATH, `${JSON.stringify(catalog, null, 2)}\n`);
 writeFileSync(ROSTER_PATH, `${JSON.stringify({
     asOf: catalog.asOf,
     themes: catalog.themes.map((t) => ({ id: t.id, name: t.name, tickers: t.tickers })),
@@ -145,9 +146,9 @@ const parsed = GUIDE.parseCatalog(catalog);
 const names = Object.keys(parsed.companies).length;
 const missing = Object.values(parsed.companies).filter((c) => !c.does).length;
 const rankable = Object.values(parsed.companies).filter((c) => GUIDE.isRankable(c, parsed.rank)).length;
-console.log(`Themes catalog ← ${input}`);
+console.log(`Themes roster ← ${input}`);
 console.log(`  ${parsed.themes.length} themes · ${names} names · ${scan.asOf || 'no date'}`);
 console.log(`  ${rankable} rankable ($100M+ · 3%+ ADR) · ${missing} without a Does line`);
-if (csvPath && existsSync(csvPath)) console.log(`  quotes ← ${csvPath}`);
-console.log(`  wrote ${OUT_PATH}`);
+if (csvPath && existsSync(csvPath)) console.log(`  quotes (unused for catalog) ← ${csvPath}`);
 console.log(`  wrote ${ROSTER_PATH}`);
+console.log(`  catalog unchanged (${OUT_PATH}). Run npm run themes:update after 16:15 ET to refresh the page.`);

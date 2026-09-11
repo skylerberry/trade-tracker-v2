@@ -1,6 +1,12 @@
-# Agent runbook — skyler-tools-v2
+# Agent runbook — skyler.tools (this checkout)
 
 Live: [skyler.tools](https://skyler.tools) · local: `npm start` → http://localhost:4173
+
+This folder is the working copy that deploys. Path: `/Users/skylerberry/Projects/skyler-tools-publish`. Do not compile Themes in `skyler-tools-v2`.
+
+## Themes (after the close)
+
+`/themes-update` is the daily job: weekday + 16:15 ET checks, refresh `data/daily-scan.json`, test, commit that file, push `main` (15 Netlify credits). Discord clustering is `/daily-scan` (roster only). Other work still does not push `main` unless the slice is done.
 
 ## Before “look at the browser”
 

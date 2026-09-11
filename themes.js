@@ -19,21 +19,62 @@ const THEME_TRACKER = (() => {
         const { query = '', window: win = 'd' } = options;
         const q = query.trim().toLowerCase();
         return (data.themes || []).map(theme => {
-            const all = theme.tickers.map(t => data.companies[t]).filter(Boolean);
+            const all = theme.tickers.map(t => data.companies[t]).filter(c => c && !String(c.ticker).toUpperCase().endsWith('.A'));
             const liquid = all.filter(c => c.adr >= 3 && c.dv >= 1e8 && Number.isFinite(c.ret?.[win]));
             const mean = liquid.length ? liquid.reduce((sum, c) => sum + c.ret[win], 0) / liquid.length : null;
             const themeHit = theme.name.toLowerCase().includes(q);
-            const rows = all.filter(c => !filterReasons(c, options).length && (!q || themeHit || `${c.ticker} ${c.name}`.toLowerCase().includes(q)));
+            const rows = all.filter(c => {
+                const hay = `${c.ticker} ${c.name}`.toLowerCase();
+                const textHit = !q || themeHit || hay.includes(q);
+                if (!textHit) return false;
+                if (q && c.ticker.toLowerCase() === q) return true;
+                return !filterReasons(c, options).length;
+            });
             rows.sort((a, b) => (b.ret?.[win] ?? -Infinity) - (a.ret?.[win] ?? -Infinity) || a.ticker.localeCompare(b.ticker));
             return { ...theme, rows, mean, total: all.length };
         }).filter(t => t.rows.length).sort((a, b) => (b.mean ?? -Infinity) - (a.mean ?? -Infinity) || a.name.localeCompare(b.name));
     }
 
-    let data = null, error = false, wired = false, win = 'd', query = '', selected = null;
+    function themeForTicker(data, ticker) {
+        const tk = String(ticker || '').trim().toUpperCase();
+        if (!tk || !data?.themes) return null;
+        return data.themes.find(t => t.id !== 'mag-7' && t.tickers.includes(tk))
+            || data.themes.find(t => t.tickers.includes(tk))
+            || null;
+    }
+
+    function tickersLine(rows) {
+        return (rows || []).map(c => c.ticker).filter(Boolean).join(', ');
+    }
+
+    function loosenFor(c, current) {
+        const next = { ...current };
+        if (Number.isFinite(c.adr)) next.minAdr = Math.min(current.minAdr, Math.floor(c.adr * 2) / 2);
+        if (Number.isFinite(c.dv)) next.minDv = Math.min(current.minDv, Math.floor(c.dv / 5e6) * 5);
+        if (!(c.ext > 0)) next.aboveOnly = false;
+        return next;
+    }
+
+    let data = null, error = false, wired = false, win = 'd', query = '', selected = null, expandAll = false;
     let minAdr = 3, minDv = 100, aboveOnly = false, pill = null, pillPlaced = false;
     const $ = id => document.getElementById(`themes-${id}`);
-    const options = () => ({ query, window: win, minAdr, minDv, aboveOnly });
-    const fromHash = () => location.hash.startsWith('#themes/') ? location.hash.slice(8) : null;
+    const options = () => ({ query, window: win, minAdr, minDv, aboveOnly, selected });
+    function parseRoute(hash) {
+        if (hash.startsWith('#themes/lookup/')) {
+            let ticker = hash.slice(15);
+            try { ticker = decodeURIComponent(ticker); } catch { /* Keep malformed links readable. */ }
+            return { query: ticker.trim().toLowerCase(), selected: null };
+        }
+        return { query: null, selected: hash.startsWith('#themes/') ? hash.slice(8) : null };
+    }
+    function readRoute() {
+        const route = parseRoute(location.hash);
+        selected = route.selected;
+        if (route.query !== null) {
+            query = route.query;
+            $('search').value = query.toUpperCase();
+        }
+    }
     const setHash = () => history.replaceState(null, '', selected ? `#themes/${selected}` : '#themes');
 
     function companyDetails(c) {
@@ -52,7 +93,13 @@ const THEME_TRACKER = (() => {
             const width = Number.isFinite(value) ? Math.abs(value) / axis * 50 : 0;
             return `<span class="track" aria-hidden="true"><span class="track-zero"></span><span class="track-fill ${color(value)}" style="left:${value < 0 ? 50 - width : 50}%;width:${width}%"></span></span>`;
         };
-        return `<section class="tracker" aria-label="${theme ? escapeHtml(theme.name) + ' stocks' : 'Theme performance tracker'}"><div class="tracker-heading">${theme ? `<button type="button" class="tracker-back" data-back aria-label="Back to all themes">←</button><h2>${escapeHtml(theme.name)}</h2><span class="tracker-count">${theme.id === 'mag-7' ? `${items.length} of 7 names` : count(items.length, 'name')}</span>` : `<h2>Theme performance</h2><span class="tracker-count">${count(items.length, 'theme')}</span>`}<span class="tracker-period">${WINDOWS[win]} return</span></div><div class="tracker-axis"><span>${theme ? 'NAME' : 'THEME'}</span><span class="axis-scale"><span>−${axis}%</span><span>0</span><span>+${axis}%</span></span><span>CHANGE</span></div><div class="tracker-rows">${items.map(x => x.company ? `<details class="tracker-stock" ${query.toUpperCase() === x.label ? 'open' : ''}><summary class="tracker-row ${x.company.ext != null && x.company.ext < 0 ? 'below' : ''}" title="${escapeHtml(x.company.name)}"><span class="tracker-label">${escapeHtml(x.label)}</span>${bar(x.value)}<span class="return ${color(x.value)}">${pct(x.value)}</span></summary>${companyDetails(x.company)}</details>` : `<button type="button" class="tracker-row" data-theme="${escapeHtml(x.theme.id)}" aria-label="Open ${escapeHtml(x.label)}"><span class="tracker-label">${escapeHtml(x.label)}</span>${bar(x.value)}<span class="return ${color(x.value)}">${pct(x.value)}</span></button>`).join('')}</div></section>`;
+        const copy = theme && items.length
+            ? `<button type="button" class="tracker-copy" data-copy-tickers aria-label="Copy ${items.length} tickers">Copy tickers</button>`
+            : '';
+        const nameHead = theme
+            ? `<button type="button" class="axis-name" data-expand-names aria-pressed="${expandAll}" title="${expandAll ? 'Hide all descriptions' : 'Show all descriptions'}">NAME</button>`
+            : `<span>THEME</span>`;
+        return `<section class="tracker" aria-label="${theme ? escapeHtml(theme.name) + ' stocks' : 'Theme performance tracker'}"><div class="tracker-heading">${theme ? `<button type="button" class="tracker-back" data-back aria-label="Back to all themes">←</button><h2>${escapeHtml(theme.name)}</h2><span class="tracker-count">${theme.id === 'mag-7' ? `${items.length} of 7 names` : count(items.length, 'name')}</span>${copy}` : `<h2>Theme performance</h2><span class="tracker-count">${count(items.length, 'theme')}</span>`}<span class="tracker-period">${WINDOWS[win]} return</span></div><div class="tracker-axis">${nameHead}<span class="axis-scale"><span>−${axis}%</span><span>0</span><span>+${axis}%</span></span><span>CHANGE</span></div><div class="tracker-rows">${items.map(x => x.company ? `<details class="tracker-stock" ${expandAll || query.toUpperCase() === x.label ? 'open' : ''}><summary class="tracker-row ${x.company.ext != null && x.company.ext < 0 ? 'below' : ''}" title="${escapeHtml(x.company.name)}"><span class="tracker-label">${escapeHtml(x.label)}</span>${bar(x.value)}<span class="return ${color(x.value)}">${pct(x.value)}</span></summary>${companyDetails(x.company)}</details>` : `<button type="button" class="tracker-row" data-theme="${escapeHtml(x.theme.id)}" aria-label="Open ${escapeHtml(x.label)}"><span class="tracker-label">${escapeHtml(x.label)}</span>${bar(x.value)}<span class="return ${color(x.value)}">${pct(x.value)}</span></button>`).join('')}</div></section>`;
     }
 
     function renderFeedback() {
@@ -69,11 +116,26 @@ const THEME_TRACKER = (() => {
             pillPlaced = true;
         }
         if (!data) { $('workspace').innerHTML = `<p class="empty">${error ? 'Couldn’t load themes. Please reload to try again.' : 'Loading themes…'}</p>`; return; }
+        if (location.hash.startsWith('#themes/lookup/')) {
+            const ticker = query.toUpperCase();
+            const company = data.companies[ticker];
+            if (company && filterReasons(company, options()).length) {
+                const next = loosenFor(company, options());
+                minAdr = next.minAdr;
+                minDv = next.minDv;
+                aboveOnly = next.aboveOnly;
+                if ($('adr')) $('adr').value = minAdr;
+                if ($('dv')) $('dv').value = minDv;
+                if ($('aboveOnly')) $('aboveOnly').checked = aboveOnly;
+            }
+            selected = themeForTicker(data, ticker)?.id || null;
+        }
         const themes = computeThemes(data, options());
         $('counts').textContent = `${count(themes.length, 'theme')} · ${count(new Set(themes.flatMap(t => t.rows.map(c => c.ticker))).size, 'name')}`;
         $('filterBadge').textContent = aboveOnly ? '3' : '2';
         renderFeedback();
-        $('workspace').innerHTML = themes.length ? trackerHTML(themes) : '<p class="empty">No names match these filters. Try a broader search or reset the filters.</p>';
+        const lookupMiss = location.hash.startsWith('#themes/lookup/') && query && !Object.values(data.companies).some(c => c.ticker.toLowerCase().includes(query) || c.name.toLowerCase().includes(query));
+        $('workspace').innerHTML = themes.length ? trackerHTML(themes) : `<p class="empty">${lookupMiss ? 'No stock in the current Themes catalog matches “' + escapeHtml(query.toUpperCase()) + '”.' : 'No names match these filters. Try a broader search or reset the filters.'}</p>`;
     }
 
     function applyFilters() {
@@ -99,8 +161,34 @@ const THEME_TRACKER = (() => {
         });
         root.addEventListener('click', event => {
             const theme = event.target.closest('button[data-theme]');
-            if (theme) { selected = theme.dataset.theme; setHash(); render(); return; }
-            if (event.target.closest('[data-back]')) { selected = null; query = ''; $('search').value = ''; setHash(); render(); return; }
+            if (theme) { selected = theme.dataset.theme; expandAll = false; setHash(); render(); return; }
+            if (event.target.closest('[data-expand-names]')) { expandAll = !expandAll; render(); return; }
+            if (event.target.closest('[data-back]')) { selected = null; expandAll = false; query = ''; $('search').value = ''; setHash(); render(); return; }
+            const copy = event.target.closest('[data-copy-tickers]');
+            if (copy) {
+                const theme = computeThemes(data, options()).find(t => t.id === selected);
+                const line = tickersLine(theme?.rows);
+                if (!line) return;
+                const done = () => {
+                    copy.textContent = 'Copied';
+                    copy.setAttribute('aria-label', 'Copied');
+                    setTimeout(() => {
+                        if (!copy.isConnected) return;
+                        copy.textContent = 'Copy tickers';
+                        copy.setAttribute('aria-label', `Copy ${theme.rows.length} tickers`);
+                    }, 1600);
+                };
+                (navigator.clipboard?.writeText(line) || Promise.reject()).then(done).catch(() => {
+                    const input = document.createElement('textarea');
+                    input.value = line;
+                    document.body.appendChild(input);
+                    input.select();
+                    document.execCommand('copy');
+                    input.remove();
+                    done();
+                });
+                return;
+            }
             const step = event.target.closest('[data-step-for]');
             if (step) { const input = $(step.dataset.stepFor); Number(step.dataset.step) > 0 ? input.stepUp() : input.stepDown(); applyFilters(); return; }
             const reveal = event.target.closest('[data-reveal]');
@@ -109,23 +197,38 @@ const THEME_TRACKER = (() => {
                 $('adr').value = Math.min(minAdr, Math.floor(c.adr * 2) / 2);
                 $('dv').value = Math.min(minDv, Math.floor(c.dv / 5e6) * 5);
                 if (!(c.ext > 0)) $('aboveOnly').checked = false;
-                selected = data.themes.find(t => t.tickers.includes(c.ticker))?.id || null;
+                selected = themeForTicker(data, c.ticker)?.id || null;
                 setHash(); applyFilters();
             }
         });
         $('search').addEventListener('input', event => {
             query = event.target.value.trim().toLowerCase();
             const exact = data?.companies[query.toUpperCase()];
-            selected = exact ? data.themes.find(t => t.tickers.includes(exact.ticker))?.id || null : null;
+            selected = exact ? themeForTicker(data, exact.ticker)?.id || null : (query ? selected : null);
             setHash(); render();
         });
         $('search').addEventListener('keydown', event => { if (event.key === 'Escape') { query = ''; selected = null; $('search').value = ''; setHash(); render(); } });
         for (const [button, panel] of [['filterToggle', 'filters'], ['aboutToggle', 'about']]) $(button).addEventListener('click', () => { $(panel).hidden = !$(panel).hidden; $(button).setAttribute('aria-expanded', String(!$(panel).hidden)); });
         for (const id of ['adr', 'dv', 'aboveOnly']) $(id).addEventListener('change', applyFilters);
         $('reset').addEventListener('click', () => { $('adr').value = 3; $('dv').value = 100; $('aboveOnly').checked = false; applyFilters(); });
-        window.addEventListener('hashchange', () => { if (location.hash.startsWith('#themes')) { selected = fromHash(); render(); } });
-        document.addEventListener('keydown', event => { if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && document.body.dataset.view === 'themes' && !event.target.closest('input,textarea,[contenteditable]')) { event.preventDefault(); $('search').focus(); } });
-        selected = fromHash();
+        window.addEventListener('hashchange', () => { if (location.hash.startsWith('#themes')) { readRoute(); render(); } });
+        document.addEventListener('keydown', event => {
+            if (document.body.dataset.view !== 'themes') return;
+            if (event.ctrlKey || event.metaKey || event.altKey) return;
+            if (event.isComposing || event.repeat) return;
+            if (event.target.closest('input, textarea, select, [contenteditable]')) return;
+            const slash = event.key === '/';
+            if (!slash && event.key.length !== 1) return;
+            event.preventDefault();
+            const input = $('search');
+            input.focus();
+            if (slash) return;
+            const start = input.selectionStart ?? input.value.length;
+            const end = input.selectionEnd ?? input.value.length;
+            input.setRangeText(event.key, start, end, 'end');
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        readRoute();
         render();
         fetch('data/daily-scan.json', { cache: 'no-store' }).then(response => {
             if (!response.ok) throw new Error('catalog unavailable');
@@ -136,10 +239,13 @@ const THEME_TRACKER = (() => {
             for (const [ticker, c] of Object.entries(data.companies)) { c.ticker = ticker; c.ret ||= {}; }
             $('asof').textContent = `${new Date(data.asOf + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })} close`;
             $('asof').title = `Data as of ${data.asOf}`;
-            const missing = Object.values(data.companies).filter(c => !c.does).length;
-            $('coverage').textContent = `${count(Object.keys(data.companies).length - missing, 'company description')} available. ${count((data.unassigned || []).length, 'scan match')} awaiting a theme assignment.`;
+            const coverage = $('coverage');
+            if (coverage) {
+                const missing = Object.values(data.companies).filter(c => !c.does).length;
+                coverage.textContent = `${count(Object.keys(data.companies).length - missing, 'company description')} available. ${count((data.unassigned || []).length, 'scan match')} awaiting a theme assignment.`;
+            }
             render();
         }).catch(() => { error = true; data = null; render(); });
     }
-    return { init, render, computeThemes, filterReasons };
+    return { init, render, computeThemes, filterReasons, parseRoute, themeForTicker, tickersLine, loosenFor };
 })();

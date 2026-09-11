@@ -8,7 +8,6 @@
 #themesView .toolbar>.quiet{border-color:transparent;background:transparent;color:var(--text-3);margin-left:auto}
 #themesView .windows{display:flex;gap:2px;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--radius-full);padding:3px}
 #themesView .windows button{padding:4px 12px;border:0;border-radius:20px;background:transparent;color:var(--text-3);font-size:12px;font-weight:600}
-#themesView .windows .chosen{background:var(--primary);color:white;box-shadow:var(--inset-hi)}
 #themesView #themes-search{width:270px;min-width:130px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);padding:8px 12px;color:var(--text)}
 #themesView #themes-filterBadge{font-size:10px;margin-left:5px;background:var(--surface-2);border-radius:5px;padding:1px 4px}
 #themesView .context{display:flex;justify-content:space-between;gap:12px;margin:17px 0 10px;color:var(--text-3);font-size:11px}
@@ -18,8 +17,9 @@
 #themesView .disclosure label{display:flex;align-items:center;gap:6px;white-space:nowrap}
 #themesView .disclosure input[type=number]{width:60px;padding:4px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
 #themesView .disclosure>span{font-size:10px;color:var(--text-3)}
-#themesView .about{display:block;color:var(--text-3);line-height:1.65}
-#themesView .about p{margin:4px 0;max-width:880px}
+#themesView .about{display:block;color:var(--text-3);line-height:1.55;max-width:720px}
+#themesView .about ul{margin:0;padding-left:1.15em}
+#themesView .about li{margin:4px 0}
 #themesView .return{text-align:right;font-weight:600;white-space:nowrap}
 #themesView .up{color:var(--up)}
 #themesView .down{color:var(--down)}
@@ -34,13 +34,12 @@
 #themesView .windows{position:relative;isolation:isolate}
 #themesView .windows .seg-pill{position:absolute;left:0;top:3px;bottom:3px;border-radius:var(--radius-full);background:var(--primary);border:1px solid var(--primary-border);box-shadow:var(--inset-hi);pointer-events:none;opacity:0;will-change:transform}
 #themesView .windows button{position:relative;z-index:1;transition:color var(--dur-base) var(--ease-out-expo)}
-#themesView .windows .chosen{background:transparent;box-shadow:none;color:var(--text-3)}
-#themesView .windows.is-ready .chosen{color:var(--primary-contrast)}
+#themesView .windows.is-ready .is-active{color:var(--primary-contrast)}
 @media(prefers-reduced-motion:reduce){#themesView .windows button{transition:none}}
 #themesView .filter-field{display:flex;align-items:center;gap:7px}
 #themesView .filter-field>label{font-weight:500;color:var(--text-2)}
 #themesView .number-control{position:relative;display:flex;align-items:center;height:38px;padding:0 34px 0 10px;gap:2px;border:1px solid var(--border-2);border-radius:var(--radius-lg);background:var(--surface)}
-#themesView .disclosure .number-control input[type=number]{width:4ch;flex:none;min-width:0;border:0;padding:0;background:transparent;outline:none;box-shadow:none;appearance:textfield;-moz-appearance:textfield;text-align:right;font-weight:500}
+#themesView .disclosure .number-control input[type=number]{width:4ch;flex:none;min-width:0;border:0;padding:0;background:transparent;outline:none;box-shadow:none;appearance:textfield;-moz-appearance:textfield;text-align:right;font-weight:400}
 #themesView .number-control input::-webkit-inner-spin-button,#themesView .number-control input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 #themesView .number-control:focus-within{outline:2px solid var(--focus-ring);outline-offset:2px}
 #themesView .unit{color:var(--text-3);font-size:12px}
@@ -58,6 +57,8 @@
 #themesView .tracker-axis,#themesView .tracker-row{display:grid;grid-template-columns:195px minmax(0,1fr) 73px;gap:16px;align-items:center;padding:0 17px}
 #themesView .tracker-axis{height:34px;font-size:9px;letter-spacing:.45px;color:var(--text-3)}
 #themesView .tracker-axis>span:last-child{text-align:right}
+#themesView .axis-name{justify-self:start;padding:0;border:0;background:transparent;color:inherit;font:inherit;letter-spacing:inherit;cursor:pointer;text-align:left}
+#themesView .axis-name:hover,#themesView .axis-name[aria-pressed="true"]{color:var(--text)}
 #themesView .tracker-rows{padding-bottom:9px;max-height:calc(100vh - 365px);min-height:180px;overflow:auto;scrollbar-width:thin}
 #themesView .tracker-row{border:0;background:transparent;width:100%;height:31px;min-height:31px;color:var(--text);text-align:left;font-size:12px;cursor:pointer}
 #themesView .tracker-row:hover{background:var(--row-hover)}
@@ -78,6 +79,9 @@
 #themesView .tracker-stock-detail p{width:100%;margin:0;max-width:800px;line-height:1.6}
 #themesView .tracker-stock-detail a{color:var(--primary)}
 #themesView .tracker-back{border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--text-3);width:24px;height:24px;padding:0;font-size:13px}
+#themesView .tracker-copy{border:1px solid var(--border);border-radius:var(--radius-full);background:var(--surface);color:var(--text-3);font-size:11px;font-weight:600;padding:4px 10px;margin-left:2px;cursor:pointer}
+#themesView .tracker-copy:hover{color:var(--text);background:var(--surface-2)}
+#themesView .tracker-copy:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 @media(max-width:760px){#themesView .tracker-axis,#themesView .tracker-row{grid-template-columns:135px minmax(0,1fr) 61px;gap:10px;padding-left:12px;padding-right:12px}
 #themesView .tracker-label{font-size:11px}
 #themesView .tracker-rows{max-height:60vh}

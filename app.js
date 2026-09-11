@@ -2173,7 +2173,7 @@
             : '';
 
         tr.innerHTML = `
-            <td class="cell-ticker"><b>${E.escapeHtml(t.ticker)}</b><span class="cell-sub">${sub}</span></td>
+            <td class="cell-ticker"><a class="ticker-lookup" href="#themes/lookup/${encodeURIComponent(t.ticker)}" title="Look up in Themes" aria-label="Look up ${E.escapeHtml(t.ticker)} in Themes"><b>${E.escapeHtml(t.ticker)}</b></a><span class="cell-sub">${sub}</span></td>
             <td class="num" data-k="Entry">${entryHtml}</td>
             <td class="num" data-k="Stop">${stopHtml}</td>
             <td class="num cell-group ${pnlCls}" data-k="Realized">${pnlHtml}</td>

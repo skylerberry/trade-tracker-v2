@@ -4460,3 +4460,9 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
     .float-bar { filter: none; }
     .ltr-ch { animation: none; }
 }
+
+/* Position tickers open the Themes lookup without expanding the trade rail. */
+.cell-ticker .ticker-lookup { color: inherit; text-decoration: none; border-radius: 3px; }
+.cell-ticker .ticker-lookup:hover b { color: var(--accent); }
+.cell-ticker .ticker-lookup:hover { text-decoration: underline; text-underline-offset: 3px; }
+.cell-ticker .ticker-lookup:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

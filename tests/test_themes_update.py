@@ -15,6 +15,22 @@ class DerivationTests(unittest.TestCase):
   from datetime import date,timedelta
   rows=[[(date(2025,1,1)+timedelta(days=i)).isoformat(),200 if i==0 else 100,80,90] for i in range(253)]
   self.assertAlmostEqual(module.derive({'b':rows},rows[-1][0])['dist52h'],10)
+class LiveGateTests(unittest.TestCase):
+ def test_weekend_is_refused(self):
+  from datetime import datetime
+  from zoneinfo import ZoneInfo
+  et=ZoneInfo('America/New_York')
+  self.assertIn('weekend', module.live_gate(datetime(2026,9,12,17,0,tzinfo=et)))
+ def test_weekday_before_close_is_refused(self):
+  from datetime import datetime
+  from zoneinfo import ZoneInfo
+  et=ZoneInfo('America/New_York')
+  self.assertIn('16:15', module.live_gate(datetime(2026,9,11,16,14,tzinfo=et)))
+ def test_weekday_after_close_is_allowed(self):
+  from datetime import datetime
+  from zoneinfo import ZoneInfo
+  et=ZoneInfo('America/New_York')
+  self.assertIsNone(module.live_gate(datetime(2026,9,11,16,15,tzinfo=et)))
 class DescriptionTests(unittest.TestCase):
  def test_canonical_sources_override_snapshot_and_preserve_fallback(self):
   import tempfile,json
