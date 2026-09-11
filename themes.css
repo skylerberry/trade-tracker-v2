@@ -6,10 +6,11 @@
 #themesView .toolbar{display:flex;align-items:center;gap:8px}
 #themesView .toolbar>button,#themesView .disclosure button{border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-full);padding:7px 13px;color:var(--text-2);font-weight:600;font-size:12px}
 #themesView .toolbar>.quiet{border-color:transparent;background:transparent;color:var(--text-3);margin-left:auto}
-#themesView .windows{display:flex;gap:2px;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--radius-full);padding:3px}
-#themesView .windows button{padding:4px 12px;border:0;border-radius:20px;background:transparent;color:var(--text-3);font-size:12px;font-weight:600}
+#themesView .windows,#themesView .scope{display:flex;gap:2px;border:1px solid var(--border);background:var(--surface-2);border-radius:var(--radius-full);padding:3px}
+#themesView .windows button,#themesView .scope button{padding:4px 12px;border:0;border-radius:20px;background:transparent;color:var(--text-3);font-size:12px;font-weight:600}
 #themesView #themes-search{width:270px;min-width:130px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);padding:8px 12px;color:var(--text)}
 #themesView #themes-filterBadge{font-size:10px;margin-left:5px;background:var(--surface-2);border-radius:5px;padding:1px 4px}
+#themesView #themes-filterBadge:empty{display:none;margin:0;padding:0}
 #themesView .context{display:flex;justify-content:space-between;gap:12px;margin:17px 0 10px;color:var(--text-3);font-size:11px}
 #themesView .graydot{display:inline-block;width:6px;height:6px;background:#93939d;border-radius:50%;margin-right:5px}
 #themesView .disclosure{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-top:12px;display:flex;align-items:center;gap:16px;font-size:12px}
@@ -30,12 +31,12 @@
 #themesView .context{flex-direction:column;gap:5px}
 #themesView .disclosure{flex-wrap:wrap}}
 @media(max-width:430px){#themesView .toolbar{gap:6px}
-#themesView .windows button{padding:4px 10px}}
-#themesView .windows{position:relative;isolation:isolate}
-#themesView .windows .seg-pill{position:absolute;left:0;top:3px;bottom:3px;border-radius:var(--radius-full);background:var(--primary);border:1px solid var(--primary-border);box-shadow:var(--inset-hi);pointer-events:none;opacity:0;will-change:transform}
-#themesView .windows button{position:relative;z-index:1;transition:color var(--dur-base) var(--ease-out-expo)}
-#themesView .windows.is-ready .is-active{color:var(--primary-contrast)}
-@media(prefers-reduced-motion:reduce){#themesView .windows button{transition:none}}
+#themesView .windows button,#themesView .scope button{padding:4px 10px}}
+#themesView .windows,#themesView .scope{position:relative;isolation:isolate}
+#themesView .windows .seg-pill,#themesView .scope .seg-pill{position:absolute;left:0;top:3px;bottom:3px;border-radius:var(--radius-full);background:var(--primary);border:1px solid var(--primary-border);box-shadow:var(--inset-hi);pointer-events:none;opacity:0;will-change:transform}
+#themesView .windows button,#themesView .scope button{position:relative;z-index:1;transition:color var(--dur-base) var(--ease-out-expo)}
+#themesView .windows.is-ready .is-active,#themesView .scope.is-ready .is-active{color:var(--primary-contrast)}
+@media(prefers-reduced-motion:reduce){#themesView .windows button,#themesView .scope button{transition:none}}
 #themesView .filter-field{display:flex;align-items:center;gap:7px}
 #themesView .filter-field>label{font-weight:500;color:var(--text-2)}
 #themesView .number-control{position:relative;display:flex;align-items:center;height:38px;padding:0 34px 0 10px;gap:2px;border:1px solid var(--border-2);border-radius:var(--radius-lg);background:var(--surface)}
@@ -71,7 +72,8 @@
 #themesView .track-fill.down{background:var(--down);opacity:.75}
 #themesView .tracker-row.below .tracker-label{color:#898993}
 #themesView .tracker-row.below .tracker-label:after{content:' ·';color:#898993}
-#themesView .tracker-stock summary{list-style:none}
+#themesView .tracker-stock{display:flex;flex-direction:column}
+#themesView .tracker-stock>summary{list-style:none;flex:0 0 31px;height:31px;max-height:31px;overflow:hidden}
 #themesView .tracker-stock summary::-webkit-details-marker{display:none}
 #themesView .tracker-stock[open]{background:var(--surface-2)}
 #themesView .tracker-stock-detail{padding:8px 17px 15px;display:flex;gap:8px 18px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--text-3);border-bottom:1px solid var(--border)}
@@ -116,7 +118,7 @@
 #themesView .titleline .date{padding-top:4px;white-space:nowrap;margin-left:16px}
 #themesView .search-company-does{max-width:620px;margin:6px 0 0;color:var(--text-3);font-size:11px;line-height:1.6}
 #themesView .titleline h1{font-size:19px;font-weight:700;letter-spacing:-.5px;color:var(--header-text);margin:0}
-#themesView .windows button{border:0;cursor:pointer}#themesView .windows.is-ready .is-active{color:var(--primary-contrast)}
+#themesView .windows button,#themesView .scope button{border:0;cursor:pointer}#themesView .windows.is-ready .is-active,#themesView .scope.is-ready .is-active{color:var(--primary-contrast)}
 #themesView .context{flex:none}#themesView .tracker-rows{max-height:65vh}#themesView .tracker-stock-detail{font-size:12px}#themesView .tracker-label{font-size:12px}
 
 #themesView .axis-scale{display:flex;justify-content:space-between;font-size:10px;letter-spacing:0}

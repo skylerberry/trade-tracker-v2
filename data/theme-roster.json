@@ -140,7 +140,8 @@
         "XHLD",
         "YJ",
         "YXT",
-        "ZD"
+        "ZD",
+        "TH"
       ]
     },
     {
@@ -546,13 +547,8 @@
       "id": "financials",
       "name": "Financials",
       "tickers": [
-        "MSTR",
-        "HOOD",
-        "COIN",
         "NU",
         "SOFI",
-        "CRCL",
-        "BMNR",
         "BX",
         "KKR",
         "APO",
@@ -573,8 +569,6 @@
         "SBAC",
         "TRU",
         "FUTU",
-        "PURR",
-        "GLXY",
         "TPG",
         "WEX",
         "CRBG",
@@ -583,18 +577,15 @@
         "Z",
         "JLL",
         "BAM",
-        "BULL",
         "HRB",
         "ARE",
         "AMG",
-        "ASST",
         "VIRT",
         "JXN",
         "HLNE",
         "VCTR",
         "PGY",
         "PAY",
-        "BLSH",
         "ECPG",
         "AAMI",
         "BWIN",
@@ -655,7 +646,6 @@
         "PAGS",
         "STNE",
         "EEFT",
-        "ETOR",
         "PIPR",
         "SNEX",
         "CIB",
@@ -898,50 +888,9 @@
       ]
     },
     {
-      "id": "precious-metal-miners",
-      "name": "Precious Metal Miners",
-      "tickers": [
-        "NEM",
-        "CDE",
-        "HL",
-        "AEM",
-        "WPM",
-        "AU",
-        "PAAS",
-        "KGC",
-        "AG",
-        "FNV",
-        "EQX",
-        "RGLD",
-        "AGI",
-        "GFI",
-        "BTG",
-        "EGO",
-        "IAG",
-        "SSRM",
-        "EXK",
-        "HMY",
-        "FSM",
-        "HYMC",
-        "NG",
-        "OR",
-        "BVN",
-        "CGAU",
-        "SVM",
-        "ASM",
-        "PPTA",
-        "USAS",
-        "AYA",
-        "SA",
-        "VZLA",
-        "SBSW"
-      ]
-    },
-    {
       "id": "commodity-mining",
       "name": "Commodity Mining",
       "tickers": [
-        "B",
         "NUE",
         "ATI",
         "MP",
@@ -971,7 +920,8 @@
         "MTRN",
         "GGB",
         "TX",
-        "KNF"
+        "KNF",
+        "SBSW"
       ]
     },
     {
@@ -1098,7 +1048,6 @@
       "id": "ai-storage-infra",
       "name": "AI Storage & Infra",
       "tickers": [
-        "LITE",
         "DELL",
         "SMCI",
         "ANET",
@@ -1109,12 +1058,8 @@
         "SNDK",
         "STX",
         "WDC",
-        "COHR",
         "GLW",
-        "AAOI",
         "CLS",
-        "CIEN",
-        "FN",
         "PENG",
         "POET",
         "IPGP",
@@ -1184,7 +1129,6 @@
         "NXPI",
         "MCHP",
         "CDNS",
-        "AXTI",
         "ON",
         "STM",
         "MKSI",
@@ -1567,9 +1511,8 @@
     },
     {
       "id": "ai-data-centers",
-      "name": "AI Data Centers",
+      "name": "AI Colocation",
       "tickers": [
-        "TH",
         "CIFR",
         "WULF",
         "APLD",
@@ -1579,7 +1522,6 @@
         "CORZ",
         "KEEL",
         "FRMI",
-        "WYFI",
         "NUAI",
         "EQIX",
         "GDS",
@@ -1732,7 +1674,8 @@
         "CRWV",
         "IREN",
         "BTDR",
-        "SHAZ"
+        "SHAZ",
+        "WYFI"
       ]
     },
     {
@@ -1777,6 +1720,81 @@
       "name": "Cloud Hosting",
       "tickers": [
         "BLZE"
+      ]
+    },
+    {
+      "id": "crypto",
+      "name": "Crypto / Blockchain",
+      "tickers": [
+        "COIN",
+        "MSTR",
+        "HOOD",
+        "ASST",
+        "BLSH",
+        "BMNR",
+        "BULL",
+        "CRCL",
+        "ETOR",
+        "GLXY",
+        "PURR"
+      ]
+    },
+    {
+      "id": "optics-photonics",
+      "name": "Optics / Photonics",
+      "tickers": [
+        "AAOI",
+        "AXTI",
+        "CIEN",
+        "COHR",
+        "FN",
+        "LITE"
+      ]
+    },
+    {
+      "id": "gold-miners",
+      "name": "Gold Miners",
+      "tickers": [
+        "NEM",
+        "AEM",
+        "AU",
+        "KGC",
+        "AGI",
+        "EQX",
+        "EGO",
+        "B",
+        "WPM",
+        "FNV",
+        "RGLD",
+        "GFI",
+        "BTG",
+        "IAG",
+        "HMY",
+        "OR",
+        "CGAU",
+        "BVN",
+        "HYMC",
+        "NG",
+        "PPTA",
+        "SA",
+        "SSRM"
+      ]
+    },
+    {
+      "id": "silver-miners",
+      "name": "Silver Miners",
+      "tickers": [
+        "HL",
+        "AG",
+        "PAAS",
+        "CDE",
+        "EXK",
+        "FSM",
+        "SVM",
+        "ASM",
+        "AYA",
+        "VZLA",
+        "USAS"
       ]
     }
   ]

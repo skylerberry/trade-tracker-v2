@@ -116,7 +116,7 @@ def main():
         if derived is None:
             continue
         r = scan.compute_row(symbol, universe.get(symbol, symbol), {'b': [b for b in entry['b'] if b[0] <= session], 'd': session}, 20, 30)
-        if not r or (symbol not in MAG7 and (r['adr'] < 2.5 or r['dv'] < 20e6 or r['last'] < 1)):
+        if not r or (symbol not in MAG7 and (r['adr'] < 1.5 or r['dv'] < 5e6 or r['last'] < 1)):
             continue
         desc = descriptions.get(symbol, {})
         companies[symbol] = {
@@ -133,7 +133,7 @@ def main():
     unassigned = sorted(set(companies) - assigned)
     catalog = {
         'source': 'daily-scan', 'asOf': session, 'rosterAsOf': roster.get('asOf'),
-        'browse': {'minAdr': 3, 'minDv': 100000000}, 'rank': {'minAdr': 3, 'minDv': 100000000},
+        'browse': {'minAdr': 1.5, 'minDv': 5000000}, 'rank': {'minAdr': 3, 'minDv': 100000000},
         'themes': [{**t, 'tickers': [s for s in t['tickers'] if s in assigned]} for t in themes],
         'companies': {s: companies[s] for s in sorted(assigned)}, 'unassigned': unassigned,
     }

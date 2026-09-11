@@ -1,11 +1,11 @@
 {
   "FCFS": {
     "name": "FCFS",
-    "does": ""
+    "does": "Operates pawn stores that lend against personal items and also offers lease-to-own financing at other retailers."
   },
   "ITRI": {
     "name": "ITRI",
-    "does": ""
+    "does": "Sells smart meters, sensors, and software that utilities use to measure and manage electricity, gas, and water."
   },
   "RHI": {
     "name": "Robert Half",
@@ -25,11 +25,11 @@
   },
   "CHDN": {
     "name": "CHDN",
-    "does": ""
+    "does": "Runs the Kentucky Derby and other racetracks, plus casinos and online horse-race betting, collecting wagers, admissions, and gaming revenue."
   },
   "CHE": {
     "name": "CHE",
-    "does": ""
+    "does": "Runs VITAS hospice care for terminally ill patients and Roto-Rooter plumbing and drain-cleaning services for homes and businesses."
   },
   "BZ": {
     "name": "BZ",
@@ -37,7 +37,7 @@
   },
   "LNC": {
     "name": "LNC",
-    "does": ""
+    "does": "Sells life insurance, annuities, workplace disability benefits, and retirement-plan services to individuals and employers."
   },
   "WHR": {
     "name": "Whirlpool",
@@ -45,19 +45,19 @@
   },
   "URBN": {
     "name": "URBN",
-    "does": ""
+    "does": "Sells clothing, home goods, and accessories through Urban Outfitters, Anthropologie, and Free People stores and websites, plus a clothing-rental service."
   },
   "COKE": {
     "name": "Coca-Cola Consolidated",
-    "does": ""
+    "does": "Bottles, sells, and delivers Coca-Cola and other drinks to stores and restaurants across much of the eastern and midwestern U.S."
   },
   "G": {
     "name": "G",
-    "does": ""
+    "does": "Handles back-office work like finance, accounting, and customer operations for large companies, and sells related software and AI tools."
   },
   "APPF": {
     "name": "APPF",
-    "does": ""
+    "does": "Sells cloud software that property managers use to collect rent, screen tenants, and run rental buildings."
   },
   "FRO": {
     "name": "Frontline Ltd",
@@ -65,39 +65,39 @@
   },
   "GFL": {
     "name": "GFL",
-    "does": ""
+    "does": "Collects, hauls, recycles, and dumps household and commercial trash in Canada and the U.S."
   },
   "EXLS": {
     "name": "EXLS",
-    "does": ""
+    "does": "Handles back-office work and data analytics for insurers, hospitals, and banks, such as claims processing and underwriting support."
   },
   "RYAN": {
     "name": "RYAN",
-    "does": ""
+    "does": "Places hard-to-insure risks for other brokers and carriers, earning commissions as a wholesale insurance broker and underwriter."
   },
   "LRN": {
     "name": "LRN",
-    "does": ""
+    "does": "Runs online K-12 schools and career-training programs, paid mainly by states, school districts, and families."
   },
   "JBS": {
     "name": "JBS",
-    "does": ""
+    "does": "Slaughters and processes beef, pork, chicken, and lamb, then sells the meat and packaged foods to retailers and restaurants worldwide."
   },
   "UGI": {
     "name": "UGI",
-    "does": ""
+    "does": "Sells propane and natural gas to homes and businesses in the U.S. and Europe, and also delivers electricity and moves gas through pipelines."
   },
   "ERIE": {
     "name": "ERIE",
-    "does": ""
+    "does": "Manages Erie Insurance as its attorney-in-fact and collects fees for handling auto, home, and business policies."
   },
   "NVST": {
     "name": "NVST",
-    "does": ""
+    "does": "Makes dental implants, braces, aligners, X-ray systems, and office supplies sold to dentists under brands like Nobel Biocare and Ormco."
   },
   "RELY": {
     "name": "RELY",
-    "does": ""
+    "does": "Lets people send money overseas through an app, charging transfer fees and a spread on the exchange rate."
   },
   "UI": {
     "name": "Ubiquiti",
@@ -105,23 +105,23 @@
   },
   "WEN": {
     "name": "WEN",
-    "does": ""
+    "does": "Franchises Wendy’s hamburger restaurants and collects royalties, rent, and fees from franchisees, plus sales from the restaurants it still runs itself."
   },
   "IMAX": {
     "name": "IMAX",
-    "does": ""
+    "does": "Sells and leases giant-screen theater systems and remasters movies into IMAX format, taking a cut of premium ticket sales."
   },
   "CHEF": {
     "name": "CHEF",
-    "does": ""
+    "does": "Distributes specialty foods such as cheeses, meats, seafood, and gourmet ingredients to restaurants, hotels, and other professional kitchens."
   },
   "HTHT": {
     "name": "HTHT",
-    "does": ""
+    "does": "Runs and franchises hotels across China under brands like HanTing and JI Hotel, collecting room revenue and franchise fees."
   },
   "MORN": {
     "name": "MORN",
-    "does": ""
+    "does": "Sells investment data, research, and software to investors and advisors, plus PitchBook private-market data and credit ratings."
   },
   "HAE": {
     "name": "HAE",
@@ -129,11 +129,11 @@
   },
   "TMDX": {
     "name": "TMDX",
-    "does": ""
+    "does": "Makes portable machines that keep donated hearts, lungs, and livers working during transplant transport, and flies organs to hospitals."
   },
   "NOV": {
     "name": "NOV",
-    "does": ""
+    "does": "Makes drilling rigs, bits, pumps, and other equipment that oil and gas companies use to drill and produce wells."
   },
   "DOX": {
     "name": "DOX",
@@ -145,27 +145,27 @@
   },
   "IDCC": {
     "name": "IDCC",
-    "does": ""
+    "does": "Develops wireless and video technologies and charges phone makers, electronics companies, and streaming services to use its patents."
   },
   "PJT": {
     "name": "PJT",
-    "does": ""
+    "does": "An investment bank that advises companies on mergers, bankruptcies, and raising money from private-fund investors."
   },
   "LAZ": {
     "name": "LAZ",
-    "does": ""
+    "does": "Advises companies on mergers and restructurings and manages investments for institutions and wealthy clients."
   },
   "GLOB": {
     "name": "GLOB",
-    "does": ""
+    "does": "Builds custom software and digital products for companies, charging for the engineers and AI tools that do the work."
   },
   "CCC": {
     "name": "CCC",
-    "does": ""
+    "does": "Sells cloud software that auto insurers, repair shops, and carmakers use to estimate damage, handle claims, and order parts."
   },
   "TAL": {
     "name": "TAL",
-    "does": ""
+    "does": "Sells after-school enrichment classes, tutoring, and learning materials and devices to students in China."
   },
   "XMTR": {
     "name": "Xometry",
@@ -173,31 +173,31 @@
   },
   "PK": {
     "name": "PK",
-    "does": ""
+    "does": "Owns hotels and resorts and collects the cash those properties generate from rooms, food, and events."
   },
   "HOG": {
     "name": "HOG",
-    "does": ""
+    "does": "Builds Harley-Davidson motorcycles and sells parts, riding gear, and financing to riders."
   },
   "NICE": {
     "name": "NICE",
-    "does": ""
+    "does": "Sells software that call centers use to handle customers and that banks use to spot fraud and money laundering."
   },
   "GGB": {
     "name": "GGB",
-    "does": ""
+    "does": "Makes steel bars, rebar, and other mill products for construction, cars, and industry, mainly in the Americas."
   },
   "FOX": {
     "name": "FOX",
-    "does": ""
+    "does": "Runs Fox News, Fox Sports, and the Fox broadcast network, making money from ads and fees from cable and satellite carriers."
   },
   "STEP": {
     "name": "STEP",
-    "does": ""
+    "does": "Helps pensions and other large investors put money into private equity, real estate, infrastructure, and private debt, earning management and advisory fees."
   },
   "MAN": {
     "name": "ManpowerGroup",
-    "does": ""
+    "does": "Places temporary and permanent workers with companies worldwide and charges for staffing, recruiting, and workforce-management services."
   },
   "MATX": {
     "name": "MATX",
@@ -205,39 +205,39 @@
   },
   "MGNI": {
     "name": "MGNI",
-    "does": ""
+    "does": "Runs software that helps websites, apps, and streaming TV channels sell their ad space, taking a cut of each sale."
   },
   "MC": {
     "name": "MC",
-    "does": ""
+    "does": "Advises companies on mergers, restructurings, and raising capital, earning fees when those deals close."
   },
   "SKY": {
     "name": "SKY",
-    "does": ""
+    "does": "Builds manufactured and modular homes in factories and sells them through dealers and housing communities."
   },
   "SRRK": {
     "name": "SRRK",
-    "does": ""
+    "does": "Tests an experimental antibody drug meant to strengthen muscles in people with spinal muscular atrophy, and currently has no approved product to sell."
   },
   "SAIC": {
     "name": "SAIC",
-    "does": ""
+    "does": "Provides IT, engineering, and tech services to the U.S. military, intelligence agencies, and other government offices."
   },
   "GEO": {
     "name": "GEO",
-    "does": ""
+    "does": "Runs prisons and immigration detention centers under government contracts, and also provides electronic monitoring and reentry programs."
   },
   "SAIL": {
     "name": "SAIL",
-    "does": ""
+    "does": "Sells software that companies use to control who can access which apps and data."
   },
   "WMG": {
     "name": "WMG",
-    "does": ""
+    "does": "Signs recording artists and songwriters and collects money when their music is streamed, sold, licensed, or performed."
   },
   "KD": {
     "name": "KD",
-    "does": ""
+    "does": "Runs and modernizes large companies’ IT infrastructure, including cloud, data centers, networks, and workplace systems, for a fee."
   },
   "STNG": {
     "name": "Scorpio Tankers",
@@ -245,7 +245,7 @@
   },
   "KSPI": {
     "name": "KSPI",
-    "does": ""
+    "does": "Runs a super-app in Kazakhstan that takes fees when people pay bills, shop, and borrow, and when merchants sell goods."
   },
   "KBR": {
     "name": "KBR",
@@ -253,11 +253,11 @@
   },
   "DHT": {
     "name": "DHT",
-    "does": ""
+    "does": "Owns giant oil tankers that haul crude across oceans and collects freight fees from oil companies and traders."
   },
   "KNTK": {
     "name": "KNTK",
-    "does": ""
+    "does": "Gathers, processes, and pipelines natural gas, oil, and produced water for drillers in West Texas, mainly charging fees to move them."
   },
   "OII": {
     "name": "Oceaneering International",
@@ -265,35 +265,35 @@
   },
   "MAT": {
     "name": "MAT",
-    "does": ""
+    "does": "Makes and sells toys and games such as Barbie, Hot Wheels, and Fisher-Price to retailers and directly to families."
   },
   "WK": {
     "name": "WK",
-    "does": ""
+    "does": "Sells cloud software that companies use to prepare SEC filings, audits, risk reports, and sustainability reports from connected data."
   },
   "PSNL": {
     "name": "PSNL",
-    "does": ""
+    "does": "Sells advanced cancer DNA tests that help doctors and drugmakers detect leftover tumor DNA and choose treatments."
   },
   "MIAX": {
     "name": "MIAX",
-    "does": ""
+    "does": "Runs U.S. options, stock, and futures exchanges and charges traders fees to trade and to receive market data."
   },
   "BFAM": {
     "name": "BFAM",
-    "does": ""
+    "does": "Runs employer-sponsored child-care centers and backup care, and manages tuition-help programs for companies, paid by employers and families."
   },
   "SBSW": {
     "name": "SBSW",
-    "does": ""
+    "does": "Mines platinum, palladium, gold, and related metals, then sells them to industrial buyers and the market."
   },
   "QTWO": {
     "name": "QTWO",
-    "does": ""
+    "does": "Sells cloud software that banks and credit unions use to run their apps, websites, and digital banking for customers."
   },
   "GPK": {
     "name": "GPK",
-    "does": ""
+    "does": "Makes paperboard cartons, cups, and food packaging for food, drink, and restaurant brands, and sells the machines that pack them."
   },
   "TDW": {
     "name": "Tidewater",
@@ -305,23 +305,23 @@
   },
   "SLG": {
     "name": "SLG",
-    "does": ""
+    "does": "Owns and rents Manhattan office buildings, collecting rent from tenants."
   },
   "NWL": {
     "name": "NWL",
-    "does": ""
+    "does": "Makes household brands such as Rubbermaid, Sharpie, Yankee Candle, Graco, and Coleman, sold in stores and online."
   },
   "WHD": {
     "name": "WHD",
-    "does": ""
+    "does": "Makes, sells, and rents wellheads and pressure-control gear used on oil and gas wells, plus flexible pipe that carries oil and gas."
   },
   "UFPT": {
     "name": "UFPT",
-    "does": ""
+    "does": "Makes custom foam, film, and plastic parts, sterile packaging, and surgical drapes for large medical-device companies."
   },
   "HP": {
     "name": "HP",
-    "does": ""
+    "does": "Rents high-tech oil and gas drilling rigs and crews to energy companies on land and offshore."
   },
   "BH.A": {
     "name": "BH.A",
@@ -333,7 +333,7 @@
   },
   "NCNO": {
     "name": "NCNO",
-    "does": ""
+    "does": "Sells cloud software that banks and credit unions use to open accounts, make loans, and onboard customers."
   },
   "INSW": {
     "name": "International Seaways",
@@ -345,39 +345,39 @@
   },
   "RDNT": {
     "name": "RDNT",
-    "does": ""
+    "does": "Runs outpatient imaging centers that perform MRIs, CT scans, and mammograms, billed to insurers and patients."
   },
   "CSW": {
     "name": "CSW",
-    "does": ""
+    "does": "Sells HVAC, plumbing, and building products plus industrial lubricants and sealants that contractors and factories use."
   },
   "CXW": {
     "name": "CXW",
-    "does": ""
+    "does": "Runs private prisons, detention centers, and reentry housing for U.S. government agencies and gets paid to operate them."
   },
   "FA": {
     "name": "FA",
-    "does": ""
+    "does": "Runs background checks, identity verification, and drug screens that employers use when hiring."
   },
   "LOPE": {
     "name": "LOPE",
-    "does": ""
+    "does": "Runs the technology, marketing, and student-support operations that partner universities use to enroll and teach students, mainly online."
   },
   "ZIM": {
     "name": "ZIM",
-    "does": ""
+    "does": "Moves cargo in containers on ocean ships and charges shippers for door-to-door and port-to-port freight."
   },
   "FCUV": {
     "name": "FCUV",
-    "does": ""
+    "does": "Sells grow-room sensors and filters and installs smart-home lighting, cameras, and automation."
   },
   "IPST": {
     "name": "IPST",
-    "does": ""
+    "does": "Holds Story Protocol crypto tokens as a treasury and still sells craft whiskey, vodka, and canned cocktails."
   },
   "AI": {
     "name": "AI",
-    "does": ""
+    "does": "Sells enterprise software that large companies use to build and run AI applications on their own data."
   },
   "ORCL.PRD": {
     "name": "ORCL.PRD",
@@ -385,15 +385,15 @@
   },
   "CVSA": {
     "name": "CVSA",
-    "does": ""
+    "does": "Runs nursing, medical, and veterinary schools such as Chamberlain, Walden, and Ross, and charges students tuition."
   },
   "CBRL": {
     "name": "CBRL",
-    "does": ""
+    "does": "Runs Cracker Barrel restaurants with attached gift shops, making money from homestyle meals and retail souvenirs, mostly along U.S. highways."
   },
   "IMVT": {
     "name": "IMVT",
-    "does": ""
+    "does": "Tests experimental antibody shots meant to treat autoimmune diseases such as Graves’ disease and myasthenia gravis; not selling a drug yet."
   },
   "LIFE": {
     "name": "Ethos Technologies",
@@ -405,63 +405,63 @@
   },
   "ZG": {
     "name": "ZG",
-    "does": ""
+    "does": "Runs Zillow and other home-search sites, and makes money from ads sold to real-estate agents, landlords, and lenders, plus mortgages."
   },
   "ASAN": {
     "name": "ASAN",
-    "does": ""
+    "does": "Sells subscription software that teams use to organize tasks, projects, and workflows."
   },
   "MRX": {
     "name": "MRX",
-    "does": ""
+    "does": "Helps companies trade and hedge commodities and financial products, earning fees from clearing, brokerage, and market making."
   },
   "SPSC": {
     "name": "SPSC",
-    "does": ""
+    "does": "Sells cloud software that lets retailers and suppliers automatically exchange orders, invoices, and inventory data, charging a subscription."
   },
   "SBLK": {
     "name": "SBLK",
-    "does": ""
+    "does": "Owns cargo ships that haul iron ore, grain, coal, and other bulk goods around the world for a fee."
   },
   "FGI": {
     "name": "FGI",
-    "does": ""
+    "does": "Sells toilets, sinks, vanities, shower stalls, and kitchen cabinets to home-improvement stores and distributors."
   },
   "OTEX": {
     "name": "OTEX",
-    "does": ""
+    "does": "Sells software that companies use to store, manage, and secure documents and other business data, mainly through subscriptions and support."
   },
   "DAN": {
     "name": "DAN",
-    "does": ""
+    "does": "Makes axles, driveshafts, and other drivetrain parts that car and truck makers use to send power to the wheels."
   },
   "CALX": {
     "name": "CALX",
-    "does": ""
+    "does": "Sells software, cloud tools, and network gear that small and regional internet providers use to run broadband and home Wi-Fi."
   },
   "FTDR": {
     "name": "FTDR",
-    "does": ""
+    "does": "Sells annual home-warranty plans that cover repairs of appliances, HVAC, plumbing, and electrical systems."
   },
   "TNDM": {
     "name": "TNDM",
-    "does": ""
+    "does": "Sells insulin pumps and the disposable cartridges and infusion sets people with diabetes use to deliver insulin."
   },
   "VISN": {
     "name": "VISN",
-    "does": ""
+    "does": "Sells cable-modem systems, amplifiers, and fiber-access gear that cable and broadband companies use to deliver internet and TV."
   },
   "DNOW": {
     "name": "DNOW",
-    "does": ""
+    "does": "Distributes pipes, valves, pumps, and other parts that energy and industrial companies use to build and maintain their facilities."
   },
   "DAIC": {
     "name": "DAIC",
-    "does": ""
+    "does": "Sells RFID tags, sensors, and software that track the location of equipment and inventory in warehouses, factories, and job sites."
   },
   "DXC": {
     "name": "DXC",
-    "does": ""
+    "does": "Runs and modernizes large companies’ computer systems, data centers, and software for a fee."
   },
   "DXYZ": {
     "name": "Destiny Tech100",
@@ -469,19 +469,19 @@
   },
   "PGEN": {
     "name": "PGEN",
-    "does": ""
+    "does": "Sells PAPZIMEOS, an approved treatment for a rare HPV disease that causes recurring growths in the throat, and develops other gene and cell therapies."
   },
   "MZTI": {
     "name": "MZTI",
-    "does": ""
+    "does": "Makes salad dressings, dips, garlic bread, and dinner rolls sold in grocery stores and to restaurant chains."
   },
   "SUNC": {
     "name": "SUNC",
-    "does": ""
+    "does": "Owns a stake in Sunoco LP, which wholesales gasoline to gas stations and runs fuel pipelines and terminals, and collects its share of those distributions."
   },
   "ARXS": {
     "name": "ARXS",
-    "does": ""
+    "does": "Makes specialized connectors, cables, bearings, seals, and other electronic and mechanical parts for aircraft, missiles, medical devices, and chip testers."
   },
   "NWS": {
     "name": "NWS",
@@ -489,7 +489,7 @@
   },
   "TX": {
     "name": "TX",
-    "does": ""
+    "does": "Makes steel sheets, plates, and pipes for cars, construction, and appliances in the Americas, and also mines and sells iron ore."
   },
   "COUR": {
     "name": "Coursera",
@@ -497,7 +497,7 @@
   },
   "AVNT": {
     "name": "AVNT",
-    "does": ""
+    "does": "Blends custom colors, additives, and specialty plastics that makers of packaging, medical devices, car parts, and other goods buy."
   },
   "TNK": {
     "name": "Teekay Tankers",
@@ -505,15 +505,15 @@
   },
   "FLYW": {
     "name": "FLYW",
-    "does": ""
+    "does": "Runs a payments platform that helps schools, hospitals, and travel companies collect large and international bills, taking a fee on each transfer."
   },
   "BL": {
     "name": "BL",
-    "does": ""
+    "does": "Sells cloud software that companies use to close their books, match transactions, and automate accounting work."
   },
   "PRGO": {
     "name": "PRGO",
-    "does": ""
+    "does": "Makes store-brand and branded over-the-counter medicines, infant formula, and other self-care products sold in pharmacies and grocery stores."
   },
   "MMS": {
     "name": "MMS",
@@ -525,43 +525,43 @@
   },
   "OCTV": {
     "name": "OCTV",
-    "does": ""
+    "does": "Sells software that utilities, factories, and builders use to design, run, and protect plants, buildings, and other critical equipment."
   },
   "DLO": {
     "name": "DLO",
-    "does": ""
+    "does": "Helps global companies take and send payments in emerging markets through local cards, bank transfers, and cash methods, charging a fee per transaction."
   },
   "ATAT": {
     "name": "ATAT",
-    "does": ""
+    "does": "Franchises and manages hotels in China under the Atour brand, collecting fees from owners, and also sells branded bedding and other products."
   },
   "ATRC": {
     "name": "ATRC",
-    "does": ""
+    "does": "Makes surgical devices that treat irregular heartbeat, clip a heart pouch to cut stroke risk, and freeze nerves to ease post-surgery pain."
   },
   "EZPW": {
     "name": "EZPW",
-    "does": ""
+    "does": "Runs pawn shops that make small loans against jewelry and electronics and then sell unredeemed items."
   },
   "OMER": {
     "name": "OMER",
-    "does": ""
+    "does": "Sells YARTEMLEA, a drug for a dangerous clotting complication after stem-cell transplants, and develops other immune-system medicines."
   },
   "UPWK": {
     "name": "UPWK",
-    "does": ""
+    "does": "Runs an online marketplace that connects companies with freelance workers and takes a fee on each job."
   },
   "GFF": {
     "name": "GFF",
-    "does": ""
+    "does": "Makes garage doors and sells shovels, rakes, and other yard and hand tools through brands like Clopay and Ames."
   },
   "AGYS": {
     "name": "AGYS",
-    "does": ""
+    "does": "Sells hotel and restaurant software for check-in, point-of-sale, and kitchen operations."
   },
   "CARG": {
     "name": "CARG",
-    "does": ""
+    "does": "Runs a car-shopping website that dealers pay to list vehicles and reach shoppers, plus ads from automakers."
   },
   "ECO": {
     "name": "Okeanis Eco Tankers",
@@ -573,19 +573,19 @@
   },
   "OTF": {
     "name": "OTF",
-    "does": ""
+    "does": "Lends money to private software companies and collects interest on those loans."
   },
   "BGC": {
     "name": "BGC",
-    "does": ""
+    "does": "Brokers trades in bonds, currencies, energy, and other markets for banks and institutions, charging commissions plus fees for electronic trading and market data."
   },
   "PLMR": {
     "name": "PLMR",
-    "does": ""
+    "does": "Sells specialty property insurance, especially earthquake coverage, to homeowners and businesses."
   },
   "XNCR": {
     "name": "XNCR",
-    "does": ""
+    "does": "Designs engineered antibody drugs for cancer and autoimmune disease, and earns royalties and fees when partners sell medicines that use its technology."
   },
   "EXPO": {
     "name": "EXPO",
@@ -593,15 +593,15 @@
   },
   "CNXC": {
     "name": "CNXC",
-    "does": ""
+    "does": "Runs customer-service and back-office operations for big brands, staffing call centers and digital support around the world."
   },
   "VERX": {
     "name": "VERX",
-    "does": ""
+    "does": "Sells software that calculates sales tax, VAT, and other transaction taxes for large companies as they sell goods."
   },
   "CIB": {
     "name": "CIB",
-    "does": ""
+    "does": "Takes deposits and makes loans through Bancolombia and other banks in Colombia and Central America, and also offers cards, insurance, and digital banking."
   },
   "CON": {
     "name": "CON",
@@ -609,15 +609,15 @@
   },
   "SDRL": {
     "name": "SDRL",
-    "does": ""
+    "does": "Rents offshore drillships and rigs to oil companies that drill wells in the ocean, charging by the day."
   },
   "IRON": {
     "name": "IRON",
-    "does": ""
+    "does": "Develops experimental drugs meant to treat blood disorders such as porphyria, anemia, and polycythemia vera; not selling a drug yet."
   },
   "APPN": {
     "name": "APPN",
-    "does": ""
+    "does": "Sells software that large companies and governments use to design and automate their business processes."
   },
   "RUM": {
     "name": "Rumble Inc",
@@ -625,27 +625,27 @@
   },
   "FTRE": {
     "name": "FTRE",
-    "does": ""
+    "does": "Runs clinical trials for drug and medical-device companies that pay it to manage studies from early testing through later phases."
   },
   "SUZ": {
     "name": "SUZ",
-    "does": ""
+    "does": "Turns planted eucalyptus into wood pulp and paper used in tissue, packaging, and printing, and sells it worldwide."
   },
   "STN": {
     "name": "STN",
-    "does": ""
+    "does": "Designs and engineers roads, water systems, buildings, and other infrastructure for governments and companies, earning consulting fees."
   },
   "IMNM": {
     "name": "IMNM",
-    "does": ""
+    "does": "Develops experimental cancer drugs, including a pill for desmoid tumors and antibody-drug conjugates; not selling a drug yet."
   },
   "BTCT": {
     "name": "BTCT",
-    "does": ""
+    "does": "Mines bitcoin and also sells, rents, and hosts mining machines in the United States."
   },
   "HPE.PRC": {
     "name": "HPE.PRC",
-    "does": ""
+    "does": "Preferred stock of Hewlett Packard Enterprise, which sells servers, storage, and networking gear that companies use to run data centers and hybrid cloud."
   },
   "WEAV": {
     "name": "WEAV",
@@ -653,35 +653,35 @@
   },
   "CERT": {
     "name": "CERT",
-    "does": ""
+    "does": "Sells software and consulting that drugmakers use to simulate how medicines behave in the body before and during clinical trials."
   },
   "TNET": {
     "name": "TNET",
-    "does": ""
+    "does": "Handles payroll, health benefits, and HR paperwork for small and midsize companies as their co-employer."
   },
   "YJ": {
     "name": "YJ",
-    "does": ""
+    "does": "Runs a membership shopping app in China that sells beauty, household, food, and other everyday goods."
   },
   "INTA": {
     "name": "INTA",
-    "does": ""
+    "does": "Sells cloud software that law firms, investment banks, and private-equity firms use to manage deals, clients, time billing, and compliance."
   },
   "HNI": {
     "name": "HNI",
-    "does": ""
+    "does": "Makes office furniture such as desks, chairs, and cubicles, and also makes home fireplaces and stoves."
   },
   "LPG": {
     "name": "LPG",
-    "does": ""
+    "does": "Owns giant gas tankers that haul liquefied petroleum gas across oceans and collects freight fees from energy companies."
   },
   "NIQ": {
     "name": "NIQ",
-    "does": ""
+    "does": "Sells shopping data and analytics that brands and retailers use to see what people buy in stores and online."
   },
   "XHLD": {
     "name": "XHLD",
-    "does": ""
+    "does": "Plans, produces, and livestreams virtual and in-person corporate events using its Xyvid and TEN Pro platforms."
   },
   "LBTYA": {
     "name": "LBTYA",
@@ -689,55 +689,55 @@
   },
   "SONO": {
     "name": "SONO",
-    "does": ""
+    "does": "Makes wireless speakers, soundbars, and headphones that play music around the home, sold in stores and online."
   },
   "DGII": {
     "name": "DGII",
-    "does": ""
+    "does": "Sells routers, wireless modules, and cloud software that keep industrial machines and remote devices connected to the internet."
   },
   "NSP": {
     "name": "Insperity Inc",
-    "does": ""
+    "does": "Handles payroll, benefits, and HR for small and mid-size companies as a co-employer, charging a fee on top of employee wages."
   },
   "BLKB": {
     "name": "BLKB",
-    "does": ""
+    "does": "Sells software that nonprofits, schools, and charities use to raise money, keep books, and manage donors."
   },
   "ZLAB": {
     "name": "ZLAB",
-    "does": ""
+    "does": "Licenses, develops, and sells prescription drugs in China for cancer, immune, brain, and infectious diseases."
   },
   "ANDG": {
     "name": "ANDG",
-    "does": ""
+    "does": "Provides tax, valuation, and financial-advisory work to families, businesses, and investment funds."
   },
   "AVPT": {
     "name": "AVPT",
-    "does": ""
+    "does": "Sells cloud software that backs up, governs, and migrates company data on Microsoft 365 and other workplace apps."
   },
   "EFOR": {
     "name": "EFOR",
-    "does": ""
+    "does": "Provides IT consulting, staffing, and digital services to companies and U.S. government agencies through brands like Apex Systems."
   },
   "RPD": {
     "name": "RPD",
-    "does": ""
+    "does": "Sells cybersecurity software that helps companies find weak spots, watch for attacks, and respond to breaches."
   },
   "DXPE": {
     "name": "DXPE",
-    "does": ""
+    "does": "Distributes pumps, bearings, and other industrial repair parts, and builds custom pump systems for factories and energy plants."
   },
   "KWR": {
     "name": "KWR",
-    "does": ""
+    "does": "Makes industrial fluids such as metalworking lubricants, coolants, and corrosion inhibitors used in steel mills, auto plants, and factories."
   },
   "JOYY": {
     "name": "JOYY",
-    "does": ""
+    "does": "Runs live-streaming and short-video apps such as Bigo Live and Likee, and makes money from virtual gifts, ads, and commerce."
   },
   "KMPR": {
     "name": "KMPR",
-    "does": ""
+    "does": "Sells auto insurance to higher-risk drivers and small businesses, plus life and supplemental health policies."
   },
   "ADUS": {
     "name": "ADUS",
@@ -745,59 +745,59 @@
   },
   "ALKT": {
     "name": "ALKT",
-    "does": ""
+    "does": "Sells cloud software that community banks and credit unions use for online banking, opening accounts, and marketing."
   },
   "AMPL": {
     "name": "AMPL",
-    "does": ""
+    "does": "Sells subscription software that shows companies how people use their apps and websites so they can improve those products."
   },
   "PRCH": {
     "name": "PRCH",
-    "does": ""
+    "does": "Sells home insurance and warranties and software that inspectors, lenders, and title companies use around a home purchase."
   },
   "COTY": {
     "name": "COTY",
-    "does": ""
+    "does": "Makes and sells fragrances, makeup, and nail products under brands such as Gucci, CoverGirl, and Sally Hansen."
   },
   "ALG": {
     "name": "ALG",
-    "does": ""
+    "does": "Makes mowers, snowplows, street sweepers, and other equipment for cities, farms, and contractors."
   },
   "STRA": {
     "name": "STRA",
-    "does": ""
+    "does": "Runs online and campus universities such as Strayer and Capella, charging tuition for degrees and job-skills programs."
   },
   "MMED": {
     "name": "MMED",
-    "does": ""
+    "does": "Makes insulin pumps, continuous glucose monitors, and related supplies and software for people with diabetes."
   },
   "CBC": {
     "name": "CBC",
-    "does": ""
+    "does": "Takes deposits and makes consumer, business, and mortgage loans through Central Bank branches in the Midwest and Florida, plus wealth management."
   },
   "CRAI": {
     "name": "CRAI",
-    "does": ""
+    "does": "Sells economic and management consulting, including expert testimony that companies and law firms use in lawsuits and regulatory cases."
   },
   "ENR": {
     "name": "ENR",
-    "does": ""
+    "does": "Makes Energizer, Rayovac, and other household batteries, plus car-care products like Armor All and STP sold in stores worldwide."
   },
   "PRDO": {
     "name": "PRDO",
-    "does": ""
+    "does": "Runs for-profit universities that sell online and campus degrees in business, IT, nursing, and other career fields."
   },
   "AZTA": {
     "name": "AZTA",
-    "does": ""
+    "does": "Sells automated ultra-cold storage systems and lab tubes for biological samples, and sequences and synthesizes DNA for drug researchers."
   },
   "NEOG": {
     "name": "NEOG",
-    "does": ""
+    "does": "Makes kits that food plants use to test for bacteria, allergens, and toxins, and sells animal-health products to farms and vets."
   },
   "XOS": {
     "name": "XOS",
-    "does": ""
+    "does": "Builds battery-electric delivery vans and stepvans for commercial fleets, and sells chargers and fleet software alongside them."
   },
   "CNMD": {
     "name": "CNMD",
@@ -805,11 +805,11 @@
   },
   "CIGI": {
     "name": "CIGI",
-    "does": ""
+    "does": "Sells commercial real-estate services such as leasing, property sales, building management, and investment management, collecting fees from owners and tenants."
   },
   "WLY": {
     "name": "WLY",
-    "does": ""
+    "does": "Publishes scientific journals and textbooks and sells subscriptions, books, and digital courseware to universities, libraries, and professionals."
   },
   "NAT": {
     "name": "Nordic American Tankers",
@@ -821,7 +821,7 @@
   },
   "BRSL": {
     "name": "BRSL",
-    "does": ""
+    "does": "Provides lottery machines, tickets, and computer systems that governments use to run lotteries, and takes a cut of ticket sales."
   },
   "NCRA": {
     "name": "NCRA",
@@ -829,15 +829,15 @@
   },
   "KKR.PRD": {
     "name": "KKR.PRD",
-    "does": ""
+    "does": "Manages private-equity, credit, and real-asset funds for investors, and sells life and retirement insurance through Global Atlantic."
   },
   "INVX": {
     "name": "INVX",
-    "does": ""
+    "does": "Sells and rents specialized well tools that oil and gas companies use to drill, complete, and produce wells on land and offshore."
   },
   "CXM": {
     "name": "CXM",
-    "does": ""
+    "does": "Sells software that large companies use to run customer service, social media, and marketing from one platform."
   },
   "IBM": {
     "name": "IBM",
@@ -997,7 +997,7 @@
   },
   "VFC": {
     "name": "VFC",
-    "does": ""
+    "does": "Makes and sells outdoor and lifestyle clothing, shoes, and bags under The North Face, Vans, Timberland, and related brands."
   },
   "BAP": {
     "name": "BAP",
@@ -1009,7 +1009,7 @@
   },
   "ACI": {
     "name": "ACI",
-    "does": ""
+    "does": "Runs grocery stores under names like Albertsons, Safeway, and Vons, selling food, pharmacy, and fuel."
   },
   "BIRK": {
     "name": "BIRK",
@@ -1017,15 +1017,15 @@
   },
   "CR": {
     "name": "CR",
-    "does": ""
+    "does": "Makes industrial valves and pumps for factories, plus sensors, brakes, and other parts used in commercial and military aircraft."
   },
   "ENS": {
     "name": "ENS",
-    "does": ""
+    "does": "Makes industrial batteries and backup power systems used in telecom networks, data centers, forklifts, and military vehicles."
   },
   "WH": {
     "name": "WH",
-    "does": ""
+    "does": "Licenses hotel brands such as Super 8, Days Inn, and La Quinta to independent owners and collects franchise fees and royalties."
   },
   "AOS": {
     "name": "AOS",
@@ -1033,7 +1033,7 @@
   },
   "SPXC": {
     "name": "SPXC",
-    "does": ""
+    "does": "Makes HVAC cooling towers, heaters, and fans for buildings, plus tools that locate underground pipes and cables, and sells them to contractors and utilities."
   },
   "BBD": {
     "name": "BBD",
@@ -1045,7 +1045,7 @@
   },
   "AIT": {
     "name": "AIT",
-    "does": ""
+    "does": "Distributes industrial parts like bearings, motors, and hydraulic systems that factories use to keep machines running."
   },
   "MTRN": {
     "name": "Materion",
@@ -1053,27 +1053,27 @@
   },
   "LSTR": {
     "name": "LSTR",
-    "does": ""
+    "does": "Arranges truck, rail, air, and ocean freight for shippers through independent truckers and agents, without owning a big fleet."
   },
   "MAIR": {
     "name": "MAIR",
-    "does": ""
+    "does": "Makes heating, cooling, fans, and air-filtration equipment for homes, factories, hospitals, and data centers."
   },
   "MGA": {
     "name": "MGA",
-    "does": ""
+    "does": "Makes body parts, seats, cameras, and other systems for carmakers, and also assembles complete vehicles for them."
   },
   "AN": {
     "name": "AN",
-    "does": ""
+    "does": "Sells new and used cars at dealerships, then makes more from repairs, parts, and financing."
   },
   "LKQ": {
     "name": "LKQ",
-    "does": ""
+    "does": "Sells recycled, remanufactured, and aftermarket auto parts that repair shops use to fix cars instead of buying new dealer parts."
   },
   "KLIC": {
     "name": "KLIC",
-    "does": ""
+    "does": "Sells machines that wire-bond and attach semiconductor chips to packages, plus replacement tools and service."
   },
   "INOD": {
     "name": "Innodata",
@@ -1085,11 +1085,11 @@
   },
   "LPX": {
     "name": "LPX",
-    "does": ""
+    "does": "Makes engineered wood siding and OSB wall-and-floor panels used in new homes, remodeling, and outdoor structures."
   },
   "MTN": {
     "name": "MTN",
-    "does": ""
+    "does": "Operates ski resorts such as Vail and Whistler and makes money from lift tickets, season passes, lodging, lessons, and food."
   },
   "AYI": {
     "name": "AYI",
@@ -1097,67 +1097,67 @@
   },
   "POST": {
     "name": "POST",
-    "does": ""
+    "does": "Makes breakfast cereals, pet food, peanut butter, and egg and potato products sold in grocery stores and to restaurants."
   },
   "SITE": {
     "name": "SITE",
-    "does": ""
+    "does": "Wholesales sprinklers, plants, pavers, fertilizer, and other landscape supplies to professional landscapers."
   },
   "ORA": {
     "name": "ORA",
-    "does": ""
+    "does": "Runs geothermal power plants that sell electricity to utilities, and also sells the equipment and batteries used to generate and store that power."
   },
   "TDC": {
     "name": "TDC",
-    "does": ""
+    "does": "Sells data-warehouse software that large companies use to store and analyze their information, plus consulting to run it."
   },
   "MSGS": {
     "name": "MSGS",
-    "does": ""
+    "does": "Owns the New York Knicks and Rangers and makes money from tickets, media rights, and sponsorships."
   },
   "YOU": {
     "name": "Clear Secure",
-    "does": ""
+    "does": "Sells airport memberships that let people skip regular security lines using biometric ID, plus ID checks for businesses."
   },
   "WU": {
     "name": "WU",
-    "does": ""
+    "does": "Lets people send money across borders through agent shops, websites, and apps, and charges fees on those transfers."
   },
   "MLI": {
     "name": "MLI",
-    "does": ""
+    "does": "Makes copper tubes, fittings, and brass parts used in plumbing, air-conditioning, and other building systems."
   },
   "YETI": {
     "name": "YETI",
-    "does": ""
+    "does": "Sells premium coolers, insulated drinkware, bags, and outdoor gear through its own stores and wholesale."
   },
   "TEX": {
     "name": "TEX",
-    "does": ""
+    "does": "Makes aerial work platforms, crushers, and waste-collection trucks that construction, mining, and sanitation companies buy."
   },
   "ENVA": {
     "name": "ENVA",
-    "does": ""
+    "does": "Makes online personal and small-business loans under brands like CashNetUSA, NetCredit, and OnDeck, earning interest and fees."
   },
   "WLK": {
     "name": "WLK",
-    "does": ""
+    "does": "Makes plastics and chemicals such as polyethylene and PVC, and turns them into building products like pipe, siding, and roofing."
   },
   "PSN": {
     "name": "PSN",
-    "does": ""
+    "does": "Provides engineering, cyber, and defense technology services to the U.S. government and designs roads, transit, and other infrastructure for cities."
   },
   "ALKS": {
     "name": "ALKS",
-    "does": ""
+    "does": "Makes and sells prescription drugs for schizophrenia, bipolar disorder, alcohol and opioid dependence, and narcolepsy."
   },
   "JBTM": {
     "name": "JBTM",
-    "does": ""
+    "does": "Sells machines and software that food plants use to process, cook, freeze, and package meat, poultry, and beverages."
   },
   "IRTC": {
     "name": "IRTC",
-    "does": ""
+    "does": "Sells Zio wearable heart patches and monitoring services that doctors use to detect irregular heartbeats."
   },
   "VVV": {
     "name": "VVV",
@@ -1165,11 +1165,11 @@
   },
   "PLXS": {
     "name": "PLXS",
-    "does": ""
+    "does": "Designs and builds complex electronic products for medical, industrial, and aerospace companies that outsource manufacturing."
   },
   "AEO": {
     "name": "AEO",
-    "does": ""
+    "does": "Sells jeans, casual clothes, and Aerie intimates through its stores and websites."
   },
   "MSM": {
     "name": "MSM",
@@ -1177,15 +1177,15 @@
   },
   "ST": {
     "name": "ST",
-    "does": ""
+    "does": "Makes sensors and electrical-protection parts used in cars, planes, appliances, and factory equipment."
   },
   "PVH": {
     "name": "PVH",
-    "does": ""
+    "does": "Designs and sells Calvin Klein and Tommy Hilfiger clothing, underwear, and accessories through stores and wholesale."
   },
   "GTX": {
     "name": "GTX",
-    "does": ""
+    "does": "Makes turbochargers and related compressors that help car and industrial engines make more power from the same fuel."
   },
   "CACC": {
     "name": "CACC",
@@ -1193,7 +1193,7 @@
   },
   "MIDD": {
     "name": "MIDD",
-    "does": ""
+    "does": "Makes ovens, fryers, and other kitchen equipment sold to restaurants, food processors, and home cooks."
   },
   "ULS": {
     "name": "ULS",
@@ -1201,19 +1201,19 @@
   },
   "RSI": {
     "name": "RSI",
-    "does": ""
+    "does": "Runs online casinos and sportsbooks under brands like BetRivers, taking a cut of bets and casino play."
   },
   "WSC": {
     "name": "WSC",
-    "does": ""
+    "does": "Leases and sells portable offices, classrooms, and storage containers to construction sites, schools, and other businesses."
   },
   "ASO": {
     "name": "ASO",
-    "does": ""
+    "does": "Sells hunting, fishing, camping, and team-sports gear, plus apparel and shoes, from its stores and website."
   },
   "BKD": {
     "name": "BKD",
-    "does": ""
+    "does": "Owns and runs senior living communities that charge residents for independent living, help with daily tasks, memory care, and nursing."
   },
   "CECO": {
     "name": "CECO Environmental Corp",
@@ -1221,11 +1221,11 @@
   },
   "SNEX": {
     "name": "SNEX",
-    "does": ""
+    "does": "Connects companies and traders to commodity, currency, and securities markets, earning from hedging, brokerage, payments, and trading."
   },
   "COCO": {
     "name": "The Vita Coco Company",
-    "does": ""
+    "does": "Makes Vita Coco coconut water and related drinks, then sells them in grocery and convenience stores, plus private-label coconut water for retailers."
   },
   "CAR": {
     "name": "Avis Budget Group",
@@ -1233,19 +1233,19 @@
   },
   "SEB": {
     "name": "SEB",
-    "does": ""
+    "does": "Produces pork and turkey, trades and mills grain, runs cargo ships, and makes biodiesel, selling food, feed, freight, and fuel."
   },
   "YMM": {
     "name": "YMM",
-    "does": ""
+    "does": "Runs a digital freight marketplace in China that matches shippers with truckers and charges for matching and extra services."
   },
   "CVCO": {
     "name": "CVCO",
-    "does": ""
+    "does": "Builds manufactured and modular homes in factories and sells them through retailers, and also offers mortgages and home insurance."
   },
   "OLED": {
     "name": "OLED",
-    "does": ""
+    "does": "Sells specialty chemicals and licenses patents that phone and TV makers use to light up OLED screens."
   },
   "HEI.A": {
     "name": "HEI.A",
@@ -1253,39 +1253,39 @@
   },
   "VVX": {
     "name": "VVX",
-    "does": ""
+    "does": "Provides logistics, base operations, aircraft maintenance, and other support services under long-term contracts with the U.S. military and allied governments."
   },
   "VCYT": {
     "name": "VCYT",
-    "does": ""
+    "does": "Sells genomic tests that help doctors decide whether a thyroid, prostate, or other tumor is cancer and how to treat it."
   },
   "SMG": {
     "name": "SMG",
-    "does": ""
+    "does": "Makes Scotts lawn fertilizer, Miracle-Gro plant food, grass seed, and Ortho weed and pest killers sold at home and garden stores."
   },
   "NOVT": {
     "name": "NOVT",
-    "does": ""
+    "does": "Makes lasers, motion controls, and medical components that other manufacturers put into factory machines and surgical tools."
   },
   "AROC": {
     "name": "AROC",
-    "does": ""
+    "does": "Owns and operates natural gas compressors that oil and gas companies rent to move gas through pipelines, and also services customer-owned compressors."
   },
   "CPRI": {
     "name": "CPRI",
-    "does": ""
+    "does": "Designs and sells Michael Kors and Jimmy Choo clothes, handbags, and shoes through its own stores, department stores, and online."
   },
   "ESE": {
     "name": "ESE",
-    "does": ""
+    "does": "Makes specialized filters, grid-testing tools, and RF-shielded rooms for aerospace, utility, and defense customers."
   },
   "AIR": {
     "name": "AIR",
-    "does": ""
+    "does": "Supplies aircraft parts and does maintenance and overhaul work for airlines and the military."
   },
   "NPO": {
     "name": "NPO",
-    "does": ""
+    "does": "Makes industrial seals, gaskets, and semiconductor-equipment parts that keep factories from leaking chemicals and gases."
   },
   "AMPX": {
     "name": "Amprius Technologies",
@@ -1293,79 +1293,79 @@
   },
   "GLBE": {
     "name": "GLBE",
-    "does": ""
+    "does": "Helps online brands sell to shoppers in other countries by handling local checkout, payments, duties, and shipping, taking a cut of sales."
   },
   "ESAB": {
     "name": "ESAB",
-    "does": ""
+    "does": "Makes welding machines, cutting equipment, and filler metals used in factories and construction shops worldwide."
   },
   "SIG": {
     "name": "SIG",
-    "does": ""
+    "does": "Sells diamond rings and other jewelry through Kay, Zales, Jared, and related stores and websites."
   },
   "VNO": {
     "name": "VNO",
-    "does": ""
+    "does": "Owns office towers and street-level stores, mainly in New York City, and collects rent from tenants."
   },
   "BC": {
     "name": "BC",
-    "does": ""
+    "does": "Makes Mercury boat engines, recreational boats such as Boston Whaler and Sea Ray, and marine electronics and parts sold to boat builders and boaters."
   },
   "BMI": {
     "name": "BMI",
-    "does": ""
+    "does": "Makes water meters, leak sensors, and related software that utilities use to measure and manage water use."
   },
   "PII": {
     "name": "Polaris Inc.",
-    "does": ""
+    "does": "Makes ATVs, side-by-sides, snowmobiles, motorcycles, and pontoon boats, plus parts and riding gear sold through dealers."
   },
   "GPI": {
     "name": "GPI",
-    "does": ""
+    "does": "Sells new and used cars at dealerships in the U.S. and U.K. and makes money from vehicle sales, financing, parts, and repair work."
   },
   "BF.B": {
     "name": "BF.B",
-    "does": ""
+    "does": "Makes and sells Jack Daniel's whiskey, Woodford Reserve bourbon, Herradura tequila, and other spirits through distributors worldwide."
   },
   "BCO": {
     "name": "BCO",
-    "does": ""
+    "does": "Moves cash and valuables in armored trucks, counts and vaults money for banks and stores, and fills and services ATMs."
   },
   "VAC": {
     "name": "VAC",
-    "does": ""
+    "does": "Sells Marriott, Sheraton, Westin, and Hyatt vacation timeshares, then finances the purchases and manages the resorts."
   },
   "GDS": {
     "name": "GDS",
-    "does": ""
+    "does": "Builds and runs data centers in China, renting space, power, and cooling to cloud and internet companies."
   },
   "XRAY": {
     "name": "XRAY",
-    "does": ""
+    "does": "Makes dental chairs, scanners, implants, aligners, and everyday dental supplies that dentists buy to treat patients."
   },
   "GT": {
     "name": "GT",
-    "does": ""
+    "does": "Makes and sells tires for cars, trucks, aircraft, and farm equipment, and also does tire service and retreading."
   },
   "ABG": {
     "name": "ABG",
-    "does": ""
+    "does": "Sells new and used cars at U.S. dealerships and makes extra on repairs, parts, and auto financing."
   },
   "CHH": {
     "name": "CHH",
-    "does": ""
+    "does": "Franchises hotel brands such as Comfort Inn, Quality, and Radisson, collecting royalty and marketing fees from independent hotel owners."
   },
   "KTB": {
     "name": "KTB",
-    "does": ""
+    "does": "Makes and sells jeans and outdoor clothes under Wrangler, Lee, and Helly Hansen through stores and retailers."
   },
   "BDC": {
     "name": "BDC",
-    "does": ""
+    "does": "Makes copper and fiber cables, connectors, and networking gear that carry data and power in buildings, factories, and data centers."
   },
   "KNF": {
     "name": "KNF",
-    "does": ""
+    "does": "Mines crushed stone, sand, and gravel and sells asphalt, ready-mix concrete, and road-paving work to governments and developers."
   },
   "ACIW": {
     "name": "ACIW",
@@ -1373,35 +1373,35 @@
   },
   "COLD": {
     "name": "COLD",
-    "does": ""
+    "does": "Owns refrigerated warehouses that store frozen and perishable food for producers and grocers, and hauls those goods between plants and stores."
   },
   "GTES": {
     "name": "GTES",
-    "does": ""
+    "does": "Makes industrial belts, hoses, and related parts that transfer power and fluids in engines, factories, and equipment."
   },
   "STNE": {
     "name": "STNE",
-    "does": ""
+    "does": "Sells card readers, payment processing, and small-business banking to Brazilian merchants, taking a cut of each transaction."
   },
   "LIVN": {
     "name": "LIVN",
-    "does": ""
+    "does": "Sells heart-lung machines used in open-heart surgery and an implanted nerve stimulator that treats hard-to-control epilepsy."
   },
   "BLZE": {
     "name": "BLZE",
-    "does": ""
+    "does": "Sells cheap cloud storage that people and companies use to back up computers and keep files, charging by subscription or how much data is stored."
   },
   "REZI": {
     "name": "REZI",
-    "does": ""
+    "does": "Makes thermostats, smoke alarms, and home security gear, and also wholesales security and AV products to contractors."
   },
   "MTH": {
     "name": "MTH",
-    "does": ""
+    "does": "Builds and sells single-family homes, mainly to first-time and first move-up buyers in Sun Belt states, and also offers mortgages and title services."
   },
   "PFSA": {
     "name": "PFSA",
-    "does": ""
+    "does": "Sells tiny injectable sensors that sit under the skin and continuously report tissue oxygen for wound care and research, and is developing a similar glucose sensor."
   },
   "BAND": {
     "name": "Bandwidth Inc",
@@ -1409,47 +1409,47 @@
   },
   "EEFT": {
     "name": "EEFT",
-    "does": ""
+    "does": "Operates ATMs, sells prepaid phone and gift cards, and moves money across borders for consumers and banks."
   },
   "JAN": {
     "name": "JAN",
-    "does": ""
+    "does": "Owns senior housing communities and collects fees from residents for housing and care."
   },
   "KBH": {
     "name": "KBH",
-    "does": ""
+    "does": "Builds and sells new single-family homes, townhomes, and condos, and also originates mortgages and sells insurance to buyers."
   },
   "YXT": {
     "name": "YXT",
-    "does": ""
+    "does": "Sells software and online courses that Chinese companies use to train employees."
   },
   "AMTM": {
     "name": "AMTM",
-    "does": ""
+    "does": "Does engineering, nuclear cleanup, and cybersecurity work for the U.S. government under long-term contracts."
   },
   "HGV": {
     "name": "HGV",
-    "does": ""
+    "does": "Sells and finances Hilton-branded timeshare vacations, then charges members for resort stays, club fees, and rentals."
   },
   "MBLY": {
     "name": "MBLY",
-    "does": ""
+    "does": "Sells camera chips and software that help cars detect hazards, stay in lane, and move toward self-driving."
   },
   "UAA": {
     "name": "UAA",
-    "does": ""
+    "does": "Designs and sells Under Armour athletic clothing, shoes, and accessories through its own stores and websites and through sporting-goods retailers."
   },
   "OPLN": {
     "name": "OPLN",
-    "does": ""
+    "does": "Runs online wholesale auctions where dealers and fleets buy and sell used cars, and lends dealers money to stock inventory."
   },
   "PRM": {
     "name": "PRM",
-    "does": ""
+    "does": "Makes fire-retardant chemicals and foams used to fight wildfires, plus lubricant additives sold to industrial customers."
   },
   "LEVI": {
     "name": "LEVI",
-    "does": ""
+    "does": "Makes and sells jeans, pants, and related clothes under Levi's and other brands through stores and retailers."
   },
   "VPG": {
     "name": "Vishay Precision Group",
@@ -1457,47 +1457,47 @@
   },
   "STUB": {
     "name": "STUB",
-    "does": ""
+    "does": "Runs the StubHub and viagogo sites where people buy and sell tickets to concerts, sports, and other live events, taking a fee on each sale."
   },
   "ARCB": {
     "name": "ARCB",
-    "does": ""
+    "does": "Hauls less-than-truckload freight on its own trucks and also brokers extra trucking, air, and ocean shipments."
   },
   "HUBG": {
     "name": "HUBG",
-    "does": ""
+    "does": "Moves freight in containers that ride both trucks and trains, and also brokers trucking and warehouse deliveries."
   },
   "FSS": {
     "name": "FSS",
-    "does": ""
+    "does": "Makes street sweepers, sewer-cleaning trucks, and emergency lights and sirens for cities and industry."
   },
   "KMT": {
     "name": "KMT",
-    "does": ""
+    "does": "Makes metal-cutting tools and wear-resistant carbide parts used in factories, mining, and oil and gas."
   },
   "UTI": {
     "name": "UTI",
-    "does": ""
+    "does": "Runs trade schools that train auto, diesel, and skilled-trade technicians, plus Concorde campuses for nursing and allied-health jobs, charging tuition."
   },
   "WERN": {
     "name": "WERN",
-    "does": ""
+    "does": "Hauls freight with its own trucks and trailers across North America and also brokers shipments and other logistics for shippers."
   },
   "PTON": {
     "name": "Peloton Interactive",
-    "does": ""
+    "does": "Sells connected exercise bikes, treadmills, and rowers and charges monthly subscriptions for live and on-demand workout classes."
   },
   "CYCU": {
     "name": "CYCU",
-    "does": ""
+    "does": "Sells cybersecurity consulting, managed IT security, and 24/7 monitoring mainly to government agencies and businesses."
   },
   "SBS": {
     "name": "SBS",
-    "does": ""
+    "does": "Supplies tap water and sewage service to homes and businesses in São Paulo, Brazil, collecting utility bills."
   },
   "BRUN": {
     "name": "BRUN",
-    "does": ""
+    "does": "Rents GPU servers and related computing power that companies use to train and run AI models."
   },
   "LIF": {
     "name": "Life360",
@@ -1505,59 +1505,59 @@
   },
   "VC": {
     "name": "VC",
-    "does": ""
+    "does": "Makes digital dashboards, infotainment screens, and battery-management systems that automakers install in cars."
   },
   "CTRI": {
     "name": "CTRI",
-    "does": ""
+    "does": "Builds, repairs, and replaces gas pipes and electric lines for utilities in the U.S. and Canada."
   },
   "RRR": {
     "name": "RRR",
-    "does": ""
+    "does": "Owns and runs casino-hotels around Las Vegas, making money from slots, table games, rooms, and restaurants."
   },
   "BRBR": {
     "name": "BRBR",
-    "does": ""
+    "does": "Sells Premier Protein shakes and Dymatize protein powders through grocery, club, and online stores."
   },
   "PSMT": {
     "name": "PSMT",
-    "does": ""
+    "does": "Operates Costco-style membership warehouse clubs in Latin America and the Caribbean, charging dues and selling groceries and household goods in bulk."
   },
   "LOAR": {
     "name": "LOAR",
-    "does": ""
+    "does": "Makes specialized aircraft parts such as seat belts, brakes, ice-protection systems, and latches for commercial and military planes."
   },
   "DCO": {
     "name": "DCO",
-    "does": ""
+    "does": "Builds electronic assemblies and structural aircraft parts for commercial planes, military aircraft, and space programs."
   },
   "EXTR": {
     "name": "Extreme Networks",
-    "does": ""
+    "does": "Sells wired and wireless network gear and cloud software that companies use to run campus Wi-Fi and data networks."
   },
   "THO": {
     "name": "THO",
-    "does": ""
+    "does": "Builds travel trailers, fifth wheels, and motorhomes sold through RV dealers in North America and Europe."
   },
   "CLBT": {
     "name": "CLBT",
-    "does": ""
+    "does": "Sells software that police and investigators use to unlock phones and extract, analyze, and manage digital evidence from devices."
   },
   "SAM": {
     "name": "SAM",
-    "does": ""
+    "does": "Brews and sells beer, hard tea, hard seltzer, and cider under brands like Samuel Adams, Twisted Tea, and Truly."
   },
   "EYE": {
     "name": "EYE",
-    "does": ""
+    "does": "Operates America's Best and Eyeglass World stores that sell glasses and contacts and provide eye exams."
   },
   "PPLI": {
     "name": "PPLI",
-    "does": ""
+    "does": "Owns People magazine and other lifestyle media brands and websites, earning mainly from advertising and subscriptions."
   },
   "TFII": {
     "name": "TFII",
-    "does": ""
+    "does": "Hauls freight by truck across the U.S., Canada, and Mexico and also brokers and manages shipments for a fee."
   },
   "SKYW": {
     "name": "SKYW",
@@ -1565,51 +1565,51 @@
   },
   "ATEN": {
     "name": "ATEN",
-    "does": ""
+    "does": "Sells hardware and software that load-balance website traffic and block DDoS and other attacks on company networks."
   },
   "ESTA": {
     "name": "ESTA",
-    "does": ""
+    "does": "Makes Motiva silicone breast implants and related devices used in cosmetic and reconstructive surgery."
   },
   "PZZA": {
     "name": "PZZA",
-    "does": ""
+    "does": "Operates and franchises Papa John's pizza restaurants, earning from pizza sales, franchise royalties, and selling dough and ingredients to franchisees."
   },
   "SXI": {
     "name": "SXI",
-    "does": ""
+    "does": "Makes electronic sensors, transformers, and other industrial parts, plus lab freezers and specialty metal components, and sells them to manufacturers."
   },
   "KAI": {
     "name": "KAI",
-    "does": ""
+    "does": "Sells equipment and replacement parts that paper mills, wood plants, and recyclers use to process fiber, handle steam, and move materials."
   },
   "DORM": {
     "name": "DORM",
-    "does": ""
+    "does": "Makes replacement parts for cars, trucks, and off-road vehicles that auto shops and retailers sell when original parts wear out."
   },
   "PATK": {
     "name": "Patrick Industries",
-    "does": ""
+    "does": "Makes and distributes cabinets, countertops, and other parts used to build RVs, boats, and factory-built homes."
   },
   "TRIP": {
     "name": "TRIP",
-    "does": ""
+    "does": "Runs the Tripadvisor travel site and makes money from hotel ads, booked tours and activities, and restaurant reservations."
   },
   "ETOR": {
     "name": "ETOR",
-    "does": ""
+    "does": "Runs the eToro app where people trade stocks, crypto, and other assets and can copy other investors' trades."
   },
   "PIPR": {
     "name": "PIPR",
-    "does": ""
+    "does": "An investment bank that advises companies on mergers and stock sales and trades stocks and bonds for institutions."
   },
   "LINE": {
     "name": "LINE",
-    "does": ""
+    "does": "Owns refrigerated warehouses and charges food producers and retailers to store and move frozen and chilled goods."
   },
   "BLBD": {
     "name": "BLBD",
-    "does": ""
+    "does": "Makes school buses, including propane, natural-gas, and electric models, and sells replacement parts."
   },
   "CPA": {
     "name": "CPA",
@@ -1617,19 +1617,19 @@
   },
   "PTRN": {
     "name": "PTRN",
-    "does": ""
+    "does": "Buys products from consumer brands and resells them on Amazon and other online marketplaces, keeping the spread."
   },
   "UFPI": {
     "name": "UFPI",
-    "does": ""
+    "does": "Makes treated lumber, composite decking, roof trusses, and wood pallets sold to home centers, builders, and factories."
   },
   "PEB": {
     "name": "PEB",
-    "does": ""
+    "does": "Owns urban and resort hotels across the United States and earns money from rooms, restaurants, and other hotel services."
   },
   "SDOT": {
     "name": "SDOT",
-    "does": ""
+    "does": "Sources and trades farm commodities such as soybean meal, wheat, and corn for food and animal-feed buyers."
   },
   "GOLF": {
     "name": "GOLF",
@@ -1641,43 +1641,43 @@
   },
   "PACS": {
     "name": "PACS",
-    "does": ""
+    "does": "Operates skilled nursing homes and senior living facilities, paid mainly by Medicare, Medicaid, and other insurers."
   },
   "FUL": {
     "name": "FUL",
-    "does": ""
+    "does": "Makes industrial glues, sealants, and coatings used in packaging, diapers, electronics, cars, and construction."
   },
   "BELFA": {
     "name": "BELFA",
-    "does": ""
+    "does": "Makes power supplies, connectors, circuit-protection parts, and magnetic components used in aerospace, defense, networking, and industrial electronics."
   },
   "ALH": {
     "name": "ALH",
-    "does": ""
+    "does": "Makes commercial washers and dryers for laundromats, hotels, and hospitals under brands like Speed Queen."
   },
   "KN": {
     "name": "KN",
-    "does": ""
+    "does": "Sells capacitors, RF filters, speakers, and microphones used in hearing aids, defense gear, and industrial electronics."
   },
   "VIPS": {
     "name": "VIPS",
-    "does": ""
+    "does": "Runs a Chinese online flash-sale site that sells leftover branded clothing, beauty, and home goods at a discount."
   },
   "EYPT": {
     "name": "EYPT",
-    "does": ""
+    "does": "Develops long-acting implants that slowly release medicine inside the eye to treat retinal diseases like wet AMD."
   },
   "AZZ": {
     "name": "AZZ",
-    "does": ""
+    "does": "Dips fabricated steel in molten zinc to prevent rust and coats steel and aluminum coil used in buildings, appliances, and HVAC equipment."
   },
   "EROC": {
     "name": "EROC",
-    "does": ""
+    "does": "Builds, installs, and runs modular natural-gas generators that give data centers and factories backup or bridge power when the grid can't keep up."
   },
   "GHC": {
     "name": "GHC",
-    "does": ""
+    "does": "Owns a mix of businesses including Kaplan education, local TV stations, home health care, and car dealerships."
   },
   "LMAT": {
     "name": "LMAT",
@@ -1685,39 +1685,39 @@
   },
   "SGRY": {
     "name": "SGRY",
-    "does": ""
+    "does": "Owns surgery centers and small hospitals where doctors do planned procedures, billing insurers and patients."
   },
   "VNET": {
     "name": "VNET",
-    "does": ""
+    "does": "Rents space, power, and connectivity in Chinese data centers so companies can house their servers, and also sells related cloud and network services."
   },
   "WTTR": {
     "name": "WTTR",
-    "does": ""
+    "does": "Sources, moves, treats, recycles, and disposes of water used in oil and gas drilling, and sells related chemicals to producers."
   },
   "SRAD": {
     "name": "SRAD",
-    "does": ""
+    "does": "Sells live sports scores, odds, and streaming feeds that betting sites and TV networks use to run wagers and broadcasts."
   },
   "GRPN": {
     "name": "Groupon",
-    "does": ""
+    "does": "Runs a deals marketplace that sells discounted local services, experiences, and goods, taking a commission from merchants."
   },
   "CALY": {
     "name": "CALY",
-    "does": ""
+    "does": "Makes and sells Callaway golf clubs and balls, Odyssey putters, and TravisMathew apparel."
   },
   "ATMU": {
     "name": "ATMU",
-    "does": ""
+    "does": "Makes Fleetguard fuel, oil, air, and hydraulic filters for trucks, farm machines, and construction equipment, sold to manufacturers and as replacement parts."
   },
   "BEP": {
     "name": "BEP",
-    "does": ""
+    "does": "Owns hydro, wind, and solar power plants around the world and sells the electricity they generate, mostly under long-term contracts."
   },
   "LINC": {
     "name": "LINC",
-    "does": ""
+    "does": "Runs career schools that train people for auto repair, welding, electrical work, and healthcare jobs, charging tuition."
   },
   "SPB": {
     "name": "SPB",
@@ -1725,19 +1725,19 @@
   },
   "ALOY": {
     "name": "ALOY",
-    "does": ""
+    "does": "Produces rare-earth metals and magnets in Ohio and sells them to U.S. defense agencies and industrial magnet customers."
   },
   "ATEX": {
     "name": "ATEX",
-    "does": ""
+    "does": "Holds 900 MHz radio licenses covering the U.S. and leases or sells that spectrum so electric utilities can run private wireless networks."
   },
   "SGHC": {
     "name": "SGHC",
-    "does": ""
+    "does": "Runs online sports betting and casino sites such as Betway and Spin, taking a cut of wagers."
   },
   "PGNY": {
     "name": "PGNY",
-    "does": ""
+    "does": "Sells fertility benefits to employers, connecting workers to IVF clinics and covering treatments and fertility drugs."
   },
   "ENVX": {
     "name": "Enovix",
@@ -1745,23 +1745,23 @@
   },
   "OMCL": {
     "name": "OMCL",
-    "does": ""
+    "does": "Sells automated cabinets, software, and services that hospitals use to store, track, and dispense medicines."
   },
   "LION": {
     "name": "LION",
-    "does": ""
+    "does": "Makes movies and TV shows and licenses them to theaters, streamers, and networks, and also manages talent."
   },
   "PAC": {
     "name": "PAC",
-    "does": ""
+    "does": "Operates airports in Mexico and Jamaica and collects fees from airlines, passengers, and airport shops."
   },
   "ROG": {
     "name": "ROG",
-    "does": ""
+    "does": "Makes specialized circuit materials, ceramics, and rubber-like foams used in electric vehicles, wireless gear, and industrial equipment."
   },
   "IPAR": {
     "name": "IPAR",
-    "does": ""
+    "does": "Makes and sells prestige perfumes under licensed fashion brands such as Montblanc, Jimmy Choo, and Coach through stores and duty-free shops."
   },
   "MCY": {
     "name": "MCY",
@@ -1769,15 +1769,15 @@
   },
   "PRKS": {
     "name": "PRKS",
-    "does": ""
+    "does": "Runs SeaWorld, Busch Gardens, and water parks, making money from tickets, food, and in-park spending."
   },
   "TPB": {
     "name": "Turning Point Brands",
-    "does": ""
+    "does": "Makes and sells Zig-Zag rolling papers and Stoker's chewing tobacco and nicotine pouches through convenience stores."
   },
   "LCII": {
     "name": "LCI Industries",
-    "does": ""
+    "does": "Makes chassis, windows, awnings, furniture, and other parts for RVs, boats, and trailers, and sells replacements after they leave the factory."
   },
   "BATRK": {
     "name": "BATRK",
@@ -1789,15 +1789,15 @@
   },
   "CXT": {
     "name": "CXT",
-    "does": ""
+    "does": "Makes bill-checking machines for vending and ATMs, and security features that governments put in paper money to stop counterfeiting."
   },
   "INTR": {
     "name": "INTR",
-    "does": ""
+    "does": "Runs a phone-based bank in Brazil that offers checking, cards, loans, insurance, and a shopping marketplace."
   },
   "BHE": {
     "name": "BHE",
-    "does": ""
+    "does": "Designs and builds circuit boards and complete electronic systems for aerospace, medical, industrial, and semiconductor-equipment companies."
   },
   "INLF": {
     "name": "INLF",
@@ -1805,7 +1805,7 @@
   },
   "CLRO": {
     "name": "CLRO",
-    "does": ""
+    "does": "Has no product sales after selling its conferencing-equipment business, and is a public shell pursuing a merger with Cortigent, a neurostimulation developer."
   },
   "PHIN": {
     "name": "PHIN",
@@ -1817,19 +1817,19 @@
   },
   "GRND": {
     "name": "GRND",
-    "does": ""
+    "does": "Runs the Grindr dating and social app for LGBTQ people and makes money from paid subscriptions and in-app ads."
   },
   "HAPN": {
     "name": "HAPN",
-    "does": ""
+    "does": "Runs a digital bank (formerly LendingClub) that takes deposits and makes personal and small-business loans."
   },
   "BCC": {
     "name": "BCC",
-    "does": ""
+    "does": "Makes engineered wood beams, I-joists, and plywood, and wholesales lumber, siding, and other building materials to dealers and home-improvement stores."
   },
   "CWK": {
     "name": "CWK",
-    "does": ""
+    "does": "Helps companies lease, buy, sell, and manage offices and other commercial buildings, charging fees for those services."
   },
   "MWA": {
     "name": "MWA",
@@ -1841,39 +1841,39 @@
   },
   "ALNT": {
     "name": "ALNT",
-    "does": ""
+    "does": "Makes motors, drives, and motion-control systems sold to industrial, vehicle, medical, and aerospace equipment makers."
   },
   "WYHG": {
     "name": "WYHG",
-    "does": ""
+    "does": "Processes and sells cured sausages, jerky, and frozen meat products in China through stores, distributors, and online shops."
   },
   "YELP": {
     "name": "YELP",
-    "does": ""
+    "does": "Runs a review site for restaurants and local businesses, and makes most of its money selling ads to those businesses."
   },
   "AVEX": {
     "name": "AVEX",
-    "does": ""
+    "does": "Builds expendable military drones and unmanned boats, and also flies reconnaissance missions and modifies aircraft for U.S. defense customers."
   },
   "SNDR": {
     "name": "SNDR",
-    "does": ""
+    "does": "Hauls freight by truck and by rail container across North America, and also brokers loads for other carriers."
   },
   "TBBK": {
     "name": "TBBK",
-    "does": ""
+    "does": "Banks for fintech apps by issuing prepaid and debit cards and processing payments, and also makes specialty loans, earning fees and interest."
   },
   "LIND": {
     "name": "LIND",
-    "does": ""
+    "does": "Runs small-ship expedition cruises and land adventure trips to remote places like Antarctica and the Galápagos."
   },
   "QFIN": {
     "name": "QFIN",
-    "does": ""
+    "does": "Runs an online lending platform in China that matches borrowers with banks and charges fees for credit checks and loan processing."
   },
   "SAH": {
     "name": "SAH",
-    "does": ""
+    "does": "Sells new and used cars at dealerships, and also makes money from repairs, parts, and auto financing."
   },
   "WDFC": {
     "name": "WDFC",
@@ -1881,11 +1881,11 @@
   },
   "ANDE": {
     "name": "ANDE",
-    "does": ""
+    "does": "Buys, stores, and sells grain and fertilizer, and produces and trades ethanol and other biofuels."
   },
   "PAGS": {
     "name": "PAGS",
-    "does": ""
+    "does": "Sells payment machines and digital banking to small Brazilian merchants, earning fees on transactions, accounts, and loans."
   },
   "ABSI": {
     "name": "Absci Corp",
@@ -1893,15 +1893,15 @@
   },
   "OI": {
     "name": "OI",
-    "does": ""
+    "does": "Makes glass bottles and jars that beer, wine, spirits, and food companies fill and sell."
   },
   "HLIO": {
     "name": "HLIO",
-    "does": ""
+    "does": "Makes hydraulic valves, couplings, and electronic controls used in construction, farm, marine, and spa equipment."
   },
   "BKV": {
     "name": "BKV",
-    "does": ""
+    "does": "Produces and sells natural gas from Texas and Pennsylvania wells, and also generates electricity and stores captured carbon underground."
   },
   "VRRM": {
     "name": "VRRM",
@@ -1913,15 +1913,15 @@
   },
   "HE": {
     "name": "HE",
-    "does": ""
+    "does": "Generates and sells electricity to most of Hawaii’s homes and businesses."
   },
   "PRG": {
     "name": "PRG",
-    "does": ""
+    "does": "Offers lease-to-own and pay-over-time plans at stores so shoppers with weaker credit can buy furniture, appliances, and electronics."
   },
   "OSW": {
     "name": "OSW",
-    "does": ""
+    "does": "Runs spas on cruise ships and at resorts, charging guests for massages, treatments, and related products."
   },
   "DBD": {
     "name": "DBD",
@@ -1933,7 +1933,7 @@
   },
   "STAA": {
     "name": "STAA",
-    "does": ""
+    "does": "Makes implantable Collamer lenses that eye surgeons insert to correct nearsightedness and other vision problems."
   },
   "GPRE": {
     "name": "Green Plains",
@@ -1941,7 +1941,7 @@
   },
   "QDEL": {
     "name": "QDEL",
-    "does": ""
+    "does": "Makes diagnostic tests and lab instruments that hospitals and clinics use to check blood, infections, and transfusion matching."
   },
   "BIYA": {
     "name": "BIYA",
@@ -1961,15 +1961,15 @@
   },
   "VCEL": {
     "name": "VCEL",
-    "does": ""
+    "does": "Makes cell therapies that repair damaged knee cartilage and treat severe burns, sold to hospitals and sports-medicine doctors."
   },
   "LZB": {
     "name": "LZB",
-    "does": ""
+    "does": "Makes and sells recliners, sofas, and other home furniture through its own stores and independent dealers."
   },
   "RVLV": {
     "name": "RVLV",
-    "does": ""
+    "does": "Sells trendy clothes, shoes, and beauty products online to younger shoppers through its Revolve and FWRD sites."
   },
   "HROW": {
     "name": "HROW",
@@ -1977,11 +1977,11 @@
   },
   "NMRK": {
     "name": "NMRK",
-    "does": ""
+    "does": "Helps clients buy, sell, lease, and finance office and other commercial buildings, and manages properties for owners."
   },
   "TAC": {
     "name": "TAC",
-    "does": ""
+    "does": "Runs power plants that generate electricity from gas, wind, solar, and hydro and sells that power, mainly in Canada, the U.S., and Australia."
   },
   "RLJ": {
     "name": "RLJ",
@@ -1989,7 +1989,7 @@
   },
   "BBW": {
     "name": "BBW",
-    "does": ""
+    "does": "Runs stores and a website where people stuff and dress custom teddy bears and other plush toys, and also sells those toys wholesale and through franchises."
   },
   "UHAL.B": {
     "name": "UHAL.B",
@@ -1997,7 +1997,7 @@
   },
   "HAWK": {
     "name": "HAWK",
-    "does": ""
+    "does": "Uses satellites to find and track radio signals for militaries and governments, selling that location data and analysis."
   },
   "ADTN": {
     "name": "ADTRAN Holdings",
@@ -2005,7 +2005,7 @@
   },
   "HWKN": {
     "name": "HWKN",
-    "does": ""
+    "does": "Blends and distributes water-treatment chemicals and specialty ingredients to cities, factories, and food and supplement makers."
   },
   "GHM": {
     "name": "GHM",
@@ -2233,7 +2233,7 @@
   },
   "BIO": {
     "name": "BIO",
-    "does": ""
+    "does": "Sells lab instruments, reagents, and test kits that researchers and hospital labs use to analyze DNA, proteins, and blood."
   },
   "SOLV": {
     "name": "SOLV",
@@ -2249,7 +2249,7 @@
   },
   "CRSP": {
     "name": "CRSP",
-    "does": ""
+    "does": "Uses CRISPR gene editing to make medicines, including CASGEVY for sickle cell disease and beta thalassemia, sold with partner Vertex."
   },
   "ABCL": {
     "name": "AbCellera Biologics",
@@ -2261,11 +2261,11 @@
   },
   "KYMR": {
     "name": "KYMR",
-    "does": ""
+    "does": "Develops experimental oral pills that tag disease-causing proteins for the body to destroy; not selling a drug yet."
   },
   "PTGX": {
     "name": "PTGX",
-    "does": ""
+    "does": "Discovers peptide medicines for psoriasis and a rare blood disorder, earning royalties and milestone payments from partners that sell them."
   },
   "HTFL": {
     "name": "HeartFlow Inc",
@@ -2293,7 +2293,7 @@
   },
   "CGON": {
     "name": "CGON",
-    "does": ""
+    "does": "Tests an experimental virus-based immunotherapy for bladder cancer and currently has no approved product to sell."
   },
   "ADPT": {
     "name": "Adaptive Biotechnologies",
@@ -2317,11 +2317,11 @@
   },
   "ICUI": {
     "name": "ICUI",
-    "does": ""
+    "does": "Sells IV pumps, tubing, needle-free connectors, and related hospital supplies used to deliver fluids and drugs into patients."
   },
   "RXRX": {
     "name": "RXRX",
-    "does": ""
+    "does": "Uses AI and automated labs to find new medicines, getting paid through drug-company partnerships while it tests its own experimental drugs."
   },
   "GRAL": {
     "name": "GRAIL Inc",
@@ -2329,11 +2329,11 @@
   },
   "TARS": {
     "name": "TARS",
-    "does": ""
+    "does": "Sells XDEMVY eye drops that treat eyelid inflammation caused by Demodex mites."
   },
   "KNSA": {
     "name": "KNSA",
-    "does": ""
+    "does": "Sells a drug that treats repeated inflammation of the sac around the heart."
   },
   "AXGN": {
     "name": "Axogen Inc",
@@ -2341,7 +2341,7 @@
   },
   "ACAD": {
     "name": "ACAD",
-    "does": ""
+    "does": "Sells NUPLAZID for Parkinson's hallucinations and DAYBUE for Rett syndrome, a rare genetic brain disorder."
   },
   "NKTR": {
     "name": "Nektar Therapeutics",
@@ -2349,15 +2349,15 @@
   },
   "LFST": {
     "name": "LFST",
-    "does": ""
+    "does": "Provides in-person and virtual outpatient mental health care through psychiatrists, therapists, and testing, billed to insurers and patients."
   },
   "SMCIP": {
     "name": "SMCIP",
-    "does": ""
+    "does": "Preferred stock of Super Micro, which builds and sells servers and storage systems used in data centers and AI clusters."
   },
   "BLFS": {
     "name": "BLFS",
-    "does": ""
+    "does": "Sells special fluids, vials, and thawing devices that keep living cells alive while they are frozen, stored, or shipped for cell and gene therapies."
   },
   "URGN": {
     "name": "UroGen Pharma",
@@ -2365,7 +2365,7 @@
   },
   "BHVN": {
     "name": "BHVN",
-    "does": ""
+    "does": "Develops experimental medicines for epilepsy, immune diseases, Parkinson's, obesity, and cancer."
   },
   "FIGS": {
     "name": "FIGS Inc",
@@ -2373,27 +2373,27 @@
   },
   "NUVB": {
     "name": "NUVB",
-    "does": ""
+    "does": "Sells Ibtrozi, a pill for a genetic form of lung cancer, and is developing other cancer drugs."
   },
   "AVAH": {
     "name": "AVAH",
-    "does": ""
+    "does": "Sends nurses into homes to care for medically complex children and adults, billed mainly to Medicaid and other insurers."
   },
   "CLDX": {
     "name": "CLDX",
-    "does": ""
+    "does": "Tests experimental antibody drugs for chronic hives, itch, and other mast-cell diseases, and currently has no approved product to sell."
   },
   "NEO": {
     "name": "NEO",
-    "does": ""
+    "does": "Runs labs that test tumor samples for hospitals, oncologists, and drug companies so they can diagnose and treat cancer."
   },
   "VRDN": {
     "name": "VRDN",
-    "does": ""
+    "does": "Sells an injected drug for thyroid eye disease and is developing related treatments for Graves’ disease and other autoimmune conditions."
   },
   "ETON": {
     "name": "ETON",
-    "does": ""
+    "does": "Sells specialty medicines for rare diseases such as adrenal insufficiency, Wilson disease, and severe growth failure."
   },
   "NVAX": {
     "name": "Novavax",
@@ -2409,15 +2409,15 @@
   },
   "OMDA": {
     "name": "OMDA",
-    "does": ""
+    "does": "Provides virtual coaching and care programs for diabetes, weight, and other chronic conditions, paid mainly by employers and health plans."
   },
   "MNPR": {
     "name": "MNPR",
-    "does": ""
+    "does": "Tests an experimental once-daily pill for Wilson disease and radiopharmaceuticals aimed at solid tumors, and currently has no approved product to sell."
   },
   "TRAX": {
     "name": "TRAX",
-    "does": ""
+    "does": "Develops experimental antibody drugs for autoimmune and inflammatory diseases and is not yet selling an approved medicine."
   },
   "NVCR": {
     "name": "NovoCure",
@@ -2425,15 +2425,15 @@
   },
   "BHC": {
     "name": "BHC",
-    "does": ""
+    "does": "Sells specialty drugs for gut, skin, and other conditions, including Xifaxan, plus aesthetic medical devices and Bausch + Lomb eye-care products."
   },
   "IDYA": {
     "name": "IDYA",
-    "does": ""
+    "does": "Develops experimental cancer drugs matched to specific genetic mutations, mainly a pill for a rare eye cancer; not selling a drug yet."
   },
   "HRMY": {
     "name": "HRMY",
-    "does": ""
+    "does": "Sells WAKIX, a prescription pill that helps people with narcolepsy stay awake during the day."
   },
   "MRVI": {
     "name": "Maravai LifeSciences",
@@ -2445,15 +2445,15 @@
   },
   "STOK": {
     "name": "STOK",
-    "does": ""
+    "does": "Tests experimental RNA drugs that raise missing proteins, led by a treatment for Dravet syndrome, and currently has no approved product to sell."
   },
   "NRIX": {
     "name": "NRIX",
-    "does": ""
+    "does": "Develops experimental pills that tag disease-causing proteins for the body to destroy, earning money so far from partnerships with big drugmakers."
   },
   "PBH": {
     "name": "PBH",
-    "does": ""
+    "does": "Sells over-the-counter brands such as Dramamine, Monistat, and Clear Eyes through pharmacies, grocery stores, and online."
   },
   "NUTX": {
     "name": "Nutex Health",
@@ -2465,7 +2465,7 @@
   },
   "OCUL": {
     "name": "OCUL",
-    "does": ""
+    "does": "Sells DEXTENZA, a dissolving eye insert that delivers steroid after surgery, and is developing longer-lasting treatments for retinal disease."
   },
   "ADVB": {
     "name": "ADVB",
@@ -2473,7 +2473,7 @@
   },
   "ZBIO": {
     "name": "ZBIO",
-    "does": ""
+    "does": "Tests experimental drugs for autoimmune diseases such as multiple sclerosis, and currently has no approved product to sell."
   },
   "AMN": {
     "name": "AMN Healthcare",
@@ -2481,23 +2481,23 @@
   },
   "KURA": {
     "name": "KURA",
-    "does": ""
+    "does": "Sells an oral cancer pill for a genetically defined form of leukemia and develops other targeted cancer drugs."
   },
   "BBNX": {
     "name": "BBNX",
-    "does": ""
+    "does": "Sells the iLet bionic pancreas, an insulin pump that automatically doses insulin for people with type 1 diabetes, plus the cartridges and supplies that keep it running."
   },
   "PMI": {
     "name": "PMI",
-    "does": ""
+    "does": "Makes the SynCardia Total Artificial Heart, a pump that fully replaces a failing heart until a transplant is available."
   },
   "SLN": {
     "name": "SLN",
-    "does": ""
+    "does": "Develops gene-silencing medicines for blood, heart, and rare diseases, earning from research partnerships while the drugs are still in trials."
   },
   "MD": {
     "name": "MD",
-    "does": ""
+    "does": "Provides doctors and nurses who staff hospital newborn intensive-care units and high-risk pregnancy clinics."
   },
   "LLY": {
     "name": "LLY",
@@ -2605,7 +2605,7 @@
   },
   "AMIX": {
     "name": "AMIX",
-    "does": ""
+    "does": "Developing a catheter that finds and treats nerves from inside blood vessels, starting with pancreatic cancer pain; not selling a product yet."
   },
   "ABVX": {
     "name": "Abivax",
@@ -2621,11 +2621,11 @@
   },
   "DFTX": {
     "name": "DFTX",
-    "does": ""
+    "does": "Develops experimental medicines for anxiety, depression, and other brain disorders, including an LSD-based pill still in late-stage trials."
   },
   "INDV": {
     "name": "INDV",
-    "does": ""
+    "does": "Sells prescription drugs that treat opioid addiction, mainly a once-monthly injection and a film that dissolves under the tongue."
   },
   "CELC": {
     "name": "Celcuity",
@@ -2633,7 +2633,7 @@
   },
   "HQY": {
     "name": "HQY",
-    "does": ""
+    "does": "Administers health savings accounts and other tax-advantaged medical spending accounts for employers and their workers, charging fees on the accounts."
   },
   "BLLN": {
     "name": "BillionToOne",
@@ -2645,15 +2645,15 @@
   },
   "MANE": {
     "name": "Veradermics",
-    "does": ""
+    "does": "Develops an experimental oral pill for pattern hair loss and other skin treatments still in clinical trials, with no product sales yet."
   },
   "ALHC": {
     "name": "ALHC",
-    "does": ""
+    "does": "Sells Medicare Advantage health plans to seniors and is paid monthly by the government for each member it covers."
   },
   "PTCT": {
     "name": "PTCT",
-    "does": ""
+    "does": "Sells medicines for rare genetic diseases such as Duchenne muscular dystrophy and spinal muscular atrophy."
   },
   "CAPR": {
     "name": "Capricor Therapeutics",
@@ -2669,19 +2669,19 @@
   },
   "ACHC": {
     "name": "ACHC",
-    "does": ""
+    "does": "Runs psychiatric hospitals and addiction treatment centers, paid by insurers, Medicare, and Medicaid."
   },
   "COGT": {
     "name": "COGT",
-    "does": ""
+    "does": "Tests experimental drugs for rare mast-cell diseases and a type of stomach tumor, and currently has no approved product to sell."
   },
   "RYTM": {
     "name": "RYTM",
-    "does": ""
+    "does": "Sells a prescription drug called IMCIVREE that treats rare genetic conditions causing extreme hunger and obesity."
   },
   "MIRM": {
     "name": "MIRM",
-    "does": ""
+    "does": "Sells prescription drugs for rare liver diseases that cause severe itching and bile-acid problems, mainly Livmarli."
   },
   "VERA": {
     "name": "Vera Therapeutics",
@@ -2689,7 +2689,7 @@
   },
   "VKTX": {
     "name": "VKTX",
-    "does": ""
+    "does": "Tests experimental drugs for obesity, fatty-liver disease, and other metabolic conditions, and currently has no approved product to sell."
   },
   "ERAS": {
     "name": "Erasca Inc",
@@ -2701,15 +2701,15 @@
   },
   "RARE": {
     "name": "RARE",
-    "does": ""
+    "does": "Sells drugs for rare genetic diseases such as a phosphate-related bone disorder and other ultra-rare conditions."
   },
   "EWTX": {
     "name": "EWTX",
-    "does": ""
+    "does": "Develops experimental pills for serious muscle and heart diseases, including hypertrophic cardiomyopathy."
   },
   "LEGN": {
     "name": "LEGN",
-    "does": ""
+    "does": "Makes and sells a CAR-T cell therapy for multiple myeloma with Johnson & Johnson."
   },
   "BFLY": {
     "name": "Butterfly Network",
@@ -2725,11 +2725,11 @@
   },
   "ARQT": {
     "name": "ARQT",
-    "does": ""
+    "does": "Sells prescription creams and foams that treat psoriasis, eczema, and other chronic skin conditions."
   },
   "XENE": {
     "name": "XENE",
-    "does": ""
+    "does": "Tests experimental drugs for epilepsy, depression, and pain, and currently has no approved product to sell."
   },
   "NTLA": {
     "name": "Intellia Therapeutics",
@@ -2737,15 +2737,15 @@
   },
   "SUPN": {
     "name": "SUPN",
-    "does": ""
+    "does": "Sells prescription drugs for ADHD, epilepsy, Parkinson’s, and other brain and nerve conditions."
   },
   "AGIO": {
     "name": "AGIO",
-    "does": ""
+    "does": "Sells Pyrukynd, a pill that treats rare blood disorders by helping red blood cells work better."
   },
   "TDOC": {
     "name": "TDOC",
-    "does": ""
+    "does": "Lets people see doctors and therapists by video and phone through Teladoc and BetterHelp, paid by employers, insurers, and individuals."
   },
   "AGL": {
     "name": "agilon health",
@@ -2753,7 +2753,7 @@
   },
   "AMRX": {
     "name": "AMRX",
-    "does": ""
+    "does": "Makes generic and specialty drugs, including Parkinson's treatments, and supplies medicines to U.S. government agencies."
   },
   "NAMS": {
     "name": "NewAmsterdam Pharma",
@@ -2765,19 +2765,19 @@
   },
   "MPT": {
     "name": "MPT",
-    "does": ""
+    "does": "Buys hospital buildings and leases them back to operators under long-term net leases, collecting rent."
   },
   "MBX": {
     "name": "MBX Biosciences",
-    "does": ""
+    "does": "Develops experimental peptide drugs for hormone disorders such as hypoparathyroidism and for obesity, still in clinical trials."
   },
   "DNLI": {
     "name": "DNLI",
-    "does": ""
+    "does": "Develops medicines that can reach the brain and sells AVLAYAH, a treatment for Hunter syndrome, a rare genetic disease."
   },
   "BCRX": {
     "name": "BCRX",
-    "does": ""
+    "does": "Sells ORLADEYO, a daily pill that prevents swelling attacks in people with hereditary angioedema, and an IV flu medicine, and develops other rare-disease drugs."
   },
   "TRVI": {
     "name": "Trevi Therapeutics",
@@ -2789,11 +2789,11 @@
   },
   "INGM": {
     "name": "INGM",
-    "does": ""
+    "does": "Buys computers, software, and cloud services from manufacturers and resells them to IT resellers and retailers worldwide."
   },
   "ANIP": {
     "name": "ANIP",
-    "does": ""
+    "does": "Makes generic drugs and branded rare-disease medicines, including Cortrophin Gel, sold through pharmacies and hospitals."
   },
   "ENOV": {
     "name": "Enovis",
@@ -2801,11 +2801,11 @@
   },
   "BLTE": {
     "name": "BLTE",
-    "does": ""
+    "does": "Tests an experimental daily pill meant to slow inherited and age-related eye diseases that can cause blindness, and currently has no approved product to sell."
   },
   "PRVA": {
     "name": "PRVA",
-    "does": ""
+    "does": "Helps independent doctors run their practices with software, billing, and insurance contracting, taking a share of those medical payments."
   },
   "ANAB": {
     "name": "AnaptysBio",
@@ -2813,7 +2813,7 @@
   },
   "SNDX": {
     "name": "SNDX",
-    "does": ""
+    "does": "Sells cancer drugs, including Revuforj for certain leukemias and Niktimvo for a transplant complication, to hospitals and doctors."
   },
   "BMA": {
     "name": "Banco Macro",
@@ -2821,23 +2821,23 @@
   },
   "NHC": {
     "name": "NHC",
-    "does": ""
+    "does": "Operates nursing homes, assisted living, home health, and hospice, paid mainly by Medicare, Medicaid, and private patients."
   },
   "TENX": {
     "name": "TENX",
-    "does": ""
+    "does": "Develops experimental drugs for heart and lung disease, including oral levosimendan, and does not yet sell an approved medicine."
   },
   "KOD": {
     "name": "Kodiak Sciences",
-    "does": ""
+    "does": "Develops experimental long-lasting eye injections for retinal diseases that can cause blindness; not selling a drug yet."
   },
   "TNON": {
     "name": "TNON",
-    "does": ""
+    "does": "Sells a titanium implant and surgical tools that doctors use to fuse a painful sacroiliac joint in the lower back."
   },
   "GLUE": {
     "name": "GLUE",
-    "does": ""
+    "does": "Tests experimental pills that tag disease-causing proteins for the body to destroy, and currently has no approved product to sell."
   },
   "ALMS": {
     "name": "Alumis Inc",
@@ -2845,11 +2845,11 @@
   },
   "AHCO": {
     "name": "AHCO",
-    "does": ""
+    "does": "Delivers CPAP machines, oxygen gear, and other home medical equipment to patients, billed to Medicare and insurers."
   },
   "MLTX": {
     "name": "MoonLake Immunotherapeutics",
-    "does": ""
+    "does": "Tests an experimental nanobody drug for inflammatory skin and joint diseases such as hidradenitis and psoriatic arthritis, and currently has no approved product to sell."
   },
   "PLTR": {
     "name": "Palantir",
@@ -3093,7 +3093,7 @@
   },
   "BOX": {
     "name": "BOX",
-    "does": ""
+    "does": "Sells cloud software that companies use to store, share, and control business files."
   },
   "FRSH": {
     "name": "Freshworks",
@@ -3121,7 +3121,7 @@
   },
   "HURN": {
     "name": "HURN",
-    "does": ""
+    "does": "Sells consulting, software, and managed services that help hospitals and universities improve operations and install technology."
   },
   "RZLV": {
     "name": "Rezolve AI",
@@ -3329,11 +3329,11 @@
   },
   "ARE": {
     "name": "ARE",
-    "does": ""
+    "does": "Owns lab and office campuses in life-science hubs such as Boston and San Diego, collecting rent from drug and tech tenants."
   },
   "AMG": {
     "name": "AMG",
-    "does": ""
+    "does": "Owns stakes in independent money-management firms and takes a share of the investment fees those firms earn."
   },
   "ASST": {
     "name": "Strive Inc (fka Asset Entities)",
@@ -3341,7 +3341,7 @@
   },
   "VIRT": {
     "name": "VIRT",
-    "does": ""
+    "does": "Continuously buys and sells stocks, ETFs, and other securities to provide liquidity, and charges institutions for executing trades and related tools."
   },
   "JXN": {
     "name": "JXN",
@@ -3353,7 +3353,7 @@
   },
   "VCTR": {
     "name": "VCTR",
-    "does": ""
+    "does": "Manages mutual funds, ETFs, and other investments for institutions and individuals, charging fees on the assets."
   },
   "PGY": {
     "name": "Pagaya Technologies",
@@ -3361,7 +3361,7 @@
   },
   "PAY": {
     "name": "PAY",
-    "does": ""
+    "does": "Provides cloud software that utilities and other billers use so customers can view and pay bills, charging a fee per payment."
   },
   "BLSH": {
     "name": "Bullish",
@@ -3369,11 +3369,11 @@
   },
   "ECPG": {
     "name": "ECPG",
-    "does": ""
+    "does": "Buys unpaid consumer debts from banks at a discount and then collects what it can from the borrowers."
   },
   "AAMI": {
     "name": "AAMI",
-    "does": ""
+    "does": "Manages stock and multi-asset portfolios for institutions and individuals using computer-driven models, earning fees on the money it runs."
   },
   "BWIN": {
     "name": "Baldwin Insurance Group",
@@ -3381,7 +3381,7 @@
   },
   "GSHD": {
     "name": "GSHD",
-    "does": ""
+    "does": "Sells home, auto, and other personal insurance through corporate and franchise agencies and earns commissions from the insurers."
   },
   "FSK": {
     "name": "FSK",
@@ -3441,7 +3441,7 @@
   },
   "JEF": {
     "name": "JEF",
-    "does": ""
+    "does": "Advises companies on mergers and stock and bond offerings, and trades securities for institutions."
   },
   "SEZL": {
     "name": "Sezzle",
@@ -3457,11 +3457,11 @@
   },
   "BHF": {
     "name": "BHF",
-    "does": ""
+    "does": "Sells annuities and life insurance that help people save for retirement and leave money to their families."
   },
   "BFH": {
     "name": "BFH",
-    "does": ""
+    "does": "Issues store-branded and co-branded credit cards and checkout installment loans for retailers, earning interest and fees on those loans."
   },
   "PFSI": {
     "name": "PFSI",
@@ -3477,7 +3477,7 @@
   },
   "CCXI": {
     "name": "CCXI",
-    "does": ""
+    "does": "A blank-check company that raised investor cash to merge with a private business and list it; it currently has a deal to combine with Agility Robotics."
   },
   "GGAL": {
     "name": "Grupo Financiero Galicia",
@@ -3489,7 +3489,7 @@
   },
   "SKWD": {
     "name": "SKWD",
-    "does": ""
+    "does": "Sells specialty commercial insurance for businesses that standard insurers won't cover, collecting premiums and paying claims."
   },
   "WRLD": {
     "name": "World Acceptance Corp",
@@ -3653,7 +3653,7 @@
   },
   "NOG": {
     "name": "NOG",
-    "does": ""
+    "does": "Buys minority stakes in oil and gas wells that other companies operate, then sells its share of the oil and gas."
   },
   "YPF": {
     "name": "YPF Sociedad Anonima",
@@ -3677,7 +3677,7 @@
   },
   "XPON": {
     "name": "XPON",
-    "does": ""
+    "does": "Makes lithium iron phosphate batteries and related chargers for RVs, boats, golf carts, and home backup power."
   },
   "KOS": {
     "name": "Kosmos Energy",
@@ -3721,7 +3721,7 @@
   },
   "FLNC": {
     "name": "Fluence Energy",
-    "does": ""
+    "does": "Sells large battery systems that store electricity for the grid, plus software and maintenance to run them."
   },
   "EOSE": {
     "name": "Eos Energy Enterprises",
@@ -3733,7 +3733,7 @@
   },
   "MWH": {
     "name": "MWH",
-    "does": ""
+    "does": "Designs, builds, and maintains large solar farms and battery storage projects for utilities and power developers."
   },
   "PUMP": {
     "name": "ProPetro Holding",
@@ -3749,7 +3749,7 @@
   },
   "CWEN": {
     "name": "Clearway Energy",
-    "does": ""
+    "does": "Owns wind farms, solar plants, batteries, and gas power plants and sells the electricity under long-term contracts."
   },
   "MELI": {
     "name": "MELI",
@@ -3893,7 +3893,7 @@
   },
   "TBBB": {
     "name": "TBBB",
-    "does": ""
+    "does": "Operates Tiendas 3B discount grocery stores in Mexico that sell food and household goods to budget shoppers."
   },
   "GO": {
     "name": "Grocery Outlet Holding",
@@ -3901,11 +3901,11 @@
   },
   "STKH": {
     "name": "STKH",
-    "does": ""
+    "does": "Sells 3D food printers and plant-based ingredient mixes that manufacturers use to make meat- and fish-like products."
   },
   "SBH": {
     "name": "SBH",
-    "does": ""
+    "does": "Sells hair color, styling tools, and salon supplies through stores and to professional stylists."
   },
   "BLMN": {
     "name": "Bloomin' Brands",
@@ -4033,7 +4033,7 @@
   },
   "CALM": {
     "name": "CALM",
-    "does": ""
+    "does": "Produces and sells chicken eggs, including cage-free and organic, plus prepared egg foods, mainly to grocery stores."
   },
   "KSS": {
     "name": "Kohl's Corporation",
@@ -4049,15 +4049,15 @@
   },
   "FLO": {
     "name": "FLO",
-    "does": ""
+    "does": "Bakes and sells packaged bread, buns, and snacks under brands like Nature's Own, Wonder, and Tastykake."
   },
   "CRI": {
     "name": "Carter's Inc",
-    "does": ""
+    "does": "Makes and sells baby and kids' clothes under Carter's and OshKosh B'gosh in its own stores, at big retailers, and online."
   },
   "REAL": {
     "name": "The RealReal",
-    "does": ""
+    "does": "Authenticates and resells used designer clothes, handbags, and jewelry on consignment, taking a commission from sellers."
   },
   "SG": {
     "name": "Sweetgreen Inc.",
@@ -4065,15 +4065,15 @@
   },
   "BJRI": {
     "name": "BJRI",
-    "does": ""
+    "does": "Runs BJ's Restaurant & Brewhouse casual-dining spots that sell pizza, craft beer, and desserts."
   },
   "SMPL": {
     "name": "SMPL",
-    "does": ""
+    "does": "Makes high-protein, low-sugar snacks and shakes under Quest, Atkins, and OWYN and sells them in grocery stores and online."
   },
   "UNFI": {
     "name": "UNFI",
-    "does": ""
+    "does": "Wholesale-distributes natural, organic, and conventional groceries to supermarket chains, independent grocers, and other retailers."
   },
   "NEM": {
     "name": "NEM",
@@ -4153,7 +4153,7 @@
   },
   "HMY": {
     "name": "HMY",
-    "does": ""
+    "does": "Mines gold in South Africa, Papua New Guinea, and Australia and sells the metal, with some silver, uranium, and copper on the side."
   },
   "FSM": {
     "name": "Fortuna Mining Corp",
@@ -4197,7 +4197,7 @@
   },
   "AYA": {
     "name": "AYA",
-    "does": ""
+    "does": "Mines silver in Morocco and sells the metal."
   },
   "SA": {
     "name": "Seabridge Gold",
@@ -4305,7 +4305,7 @@
   },
   "KALU": {
     "name": "KALU",
-    "does": ""
+    "does": "Makes specialty aluminum plate, sheet, and extrusions sold to aerospace, auto, packaging, and industrial customers."
   },
   "UAMY": {
     "name": "United States Antimony Corp",
@@ -4373,7 +4373,7 @@
   },
   "BB": {
     "name": "BlackBerry Ltd",
-    "does": ""
+    "does": "Sells QNX software that runs inside car computers, plus secure device-management and communications software for governments and regulated companies."
   },
   "CTVA": {
     "name": "CTVA",
@@ -4413,7 +4413,7 @@
   },
   "ADMA": {
     "name": "ADMA",
-    "does": ""
+    "does": "Makes immune-globulin medicines from donated plasma for people with weak immune systems."
   },
   "DE": {
     "name": "DE",
@@ -4449,7 +4449,7 @@
   },
   "ALSN": {
     "name": "Allison Transmission",
-    "does": ""
+    "does": "Makes automatic transmissions and electric drivetrains for trucks, buses, construction equipment, and military vehicles."
   },
   "CAT": {
     "name": "CAT",
@@ -4509,15 +4509,15 @@
   },
   "VSNT": {
     "name": "VSNT",
-    "does": ""
+    "does": "Runs cable networks and digital brands such as CNBC, USA Network, and Golf Channel, earning from ads, carriage fees, and related digital businesses."
   },
   "NXST": {
     "name": "NXST",
-    "does": ""
+    "does": "Owns local TV stations and the NewsNation cable channel, making money from ads and fees that cable and streaming companies pay to carry them."
   },
   "DJT": {
     "name": "DJT",
-    "does": ""
+    "does": "Operates the Truth Social social network and related streaming and finance brands, earning mainly from ads and other platform fees."
   },
   "DJCO": {
     "name": "Daily Journal Corp",
@@ -4533,7 +4533,7 @@
   },
   "TME": {
     "name": "TME",
-    "does": ""
+    "does": "Runs China's main music and karaoke apps and makes money from paid subscriptions, virtual gifts, ads, and live streaming."
   },
   "OUT": {
     "name": "OUT",
@@ -4545,7 +4545,7 @@
   },
   "MSGE": {
     "name": "MSGE",
-    "does": ""
+    "does": "Owns venues including Madison Square Garden and Radio City Music Hall and makes money from concerts, sports, and shows such as the Rockettes' Christmas Spectacular."
   },
   "LITE": {
     "name": "Lumentum Holdings",
@@ -4625,7 +4625,7 @@
   },
   "IPGP": {
     "name": "IPG Photonics",
-    "does": ""
+    "does": "Makes high-power fiber lasers that factories use to cut, weld, and clean metal, plus related laser systems for industrial and medical work."
   },
   "LPTH": {
     "name": "LightPath Technologies",
@@ -4937,11 +4937,11 @@
   },
   "EXP": {
     "name": "EXP",
-    "does": ""
+    "does": "Makes cement, concrete, and gypsum wallboard used to build roads, houses, and commercial buildings in the U.S."
   },
   "ACMR": {
     "name": "ACM Research",
-    "does": ""
+    "does": "Sells wafer-cleaning and other chip-factory machines that semiconductor plants use to make chips."
   },
   "SYNA": {
     "name": "Synaptics Incorporated",
@@ -4949,7 +4949,7 @@
   },
   "LASR": {
     "name": "nLIGHT Inc",
-    "does": ""
+    "does": "Makes high-power semiconductor and fiber lasers used in factory cutting tools and defense directed-energy systems."
   },
   "CAMT": {
     "name": "Camtek",
@@ -4969,7 +4969,7 @@
   },
   "ACLS": {
     "name": "Axcelis Technologies",
-    "does": ""
+    "does": "Sells ion implantation machines that chipmakers use to build transistors, plus spare parts and service."
   },
   "POWI": {
     "name": "Power Integrations",
@@ -4981,7 +4981,7 @@
   },
   "VECO": {
     "name": "Veeco Instruments",
-    "does": ""
+    "does": "Makes factory machines that deposit, etch, and anneal thin films used to produce computer chips, LEDs, and hard-drive heads."
   },
   "AMBQ": {
     "name": "Ambiq Micro",
@@ -4997,7 +4997,7 @@
   },
   "CEVA": {
     "name": "Ceva Inc",
-    "does": ""
+    "does": "Licenses chip designs and software for wireless, audio, and on-device AI that other companies put into phones, cars, and gadgets."
   },
   "PDFS": {
     "name": "PDF Solutions",
@@ -5005,7 +5005,7 @@
   },
   "INDI": {
     "name": "INDI",
-    "does": ""
+    "does": "Makes chips and software that cars use for radar, cameras, driver-assist, and in-cabin electronics."
   },
   "MRAM": {
     "name": "Everspin Technologies",
@@ -5033,7 +5033,7 @@
   },
   "MEOH": {
     "name": "Methanex",
-    "does": ""
+    "does": "Makes methanol, a chemical used as a building block for plastics, adhesives, fuels, and other industrial products."
   },
   "SOLS": {
     "name": "SOLS",
@@ -5045,19 +5045,19 @@
   },
   "CE": {
     "name": "Celanese",
-    "does": ""
+    "does": "Makes specialty plastics and chemicals such as acetic acid used in paints, adhesives, car parts, and packaging, then sells them to manufacturers."
   },
   "OLN": {
     "name": "Olin Corporation",
-    "does": ""
+    "does": "Makes chlorine, caustic soda, and epoxy chemicals for industry, plus Winchester ammunition for hunters, police, and the military."
   },
   "CC": {
     "name": "Chemours",
-    "does": ""
+    "does": "Makes industrial chemicals such as titanium-dioxide white pigment, refrigerants, and Teflon-type materials, then sells them to manufacturers."
   },
   "HUN": {
     "name": "Huntsman Corporation",
-    "does": ""
+    "does": "Makes industrial chemicals, mainly polyurethanes used in insulation foam, furniture cushions, coatings, and adhesives."
   },
   "SPCX": {
     "name": "SPCX",
@@ -5109,11 +5109,11 @@
   },
   "HXL": {
     "name": "Hexcel",
-    "does": ""
+    "does": "Makes lightweight carbon-fiber composites used in airplane wings, engine parts, and other aerospace structures."
   },
   "SARO": {
     "name": "StandardAero Inc",
-    "does": ""
+    "does": "Repairs and overhauls aircraft engines for airlines, the military, and business jets."
   },
   "VSEC": {
     "name": "VSE Corp",
@@ -5149,23 +5149,23 @@
   },
   "AADX": {
     "name": "AADX",
-    "does": ""
+    "does": "Makes aerospace and defense hardware such as tanks, wings, antennas, and satellite parts sold into space and military programs."
   },
   "PEGA": {
     "name": "PEGA",
-    "does": ""
+    "does": "Sells software that large companies use to automate customer service and internal workflows, through licenses, cloud subscriptions, and support."
   },
   "TFX": {
     "name": "TFX",
-    "does": ""
+    "does": "Makes single-use hospital devices such as catheters, surgical clips, and trauma products sold to hospitals and doctors."
   },
   "DSGX": {
     "name": "DSGX",
-    "does": ""
+    "does": "Sells cloud software that shippers, truckers, and customs brokers use to plan routes, track freight, and file trade paperwork."
   },
   "INSP": {
     "name": "INSP",
-    "does": ""
+    "does": "Sells an implantable nerve stimulator that hospitals implant to keep the airway open in people with sleep apnea who cannot use CPAP."
   },
   "FLEX": {
     "name": "FLEX",
@@ -5185,23 +5185,23 @@
   },
   "WMS": {
     "name": "WMS",
-    "does": ""
+    "does": "Makes plastic drainage pipe, stormwater chambers, and septic systems used on construction sites, farms, and roads."
   },
   "OSIS": {
     "name": "OSIS",
-    "does": ""
+    "does": "Makes security scanners used at airports and borders, plus hospital patient monitors and electronic components."
   },
   "CWST": {
     "name": "CWST",
-    "does": ""
+    "does": "Collects, hauls, recycles, and dumps trash for homes, businesses, and towns, mainly in the northeastern U.S."
   },
   "TDS": {
     "name": "TDS",
-    "does": ""
+    "does": "Sells fiber internet, TV, and phone service in smaller U.S. towns and leases cell-tower space to wireless carriers."
   },
   "AMSC": {
     "name": "American Superconductor",
-    "does": ""
+    "does": "Sells grid equipment that keeps electric power stable, plus wind-turbine controls and Navy ship-protection systems."
   },
   "NTCT": {
     "name": "NTCT",
@@ -5249,19 +5249,19 @@
   },
   "TPC": {
     "name": "TPC",
-    "does": ""
+    "does": "Builds highways, bridges, tunnels, and large buildings as a contractor paid by governments and private clients."
   },
   "PCVX": {
     "name": "PCVX",
-    "does": ""
+    "does": "Develops experimental vaccines to prevent bacterial infections such as pneumonia; still in clinical trials and not yet selling a product."
   },
   "PPC": {
     "name": "PPC",
-    "does": ""
+    "does": "Processes and sells chicken and pork products to grocery stores, restaurants, and foodservice distributors."
   },
   "BEPC": {
     "name": "BEPC",
-    "does": ""
+    "does": "Corporate share in the same Brookfield renewable business: owns hydro, wind, and solar plants and sells the electricity they generate under long-term contracts."
   },
   "PCT": {
     "name": "PureCycle Technologies",
@@ -5289,7 +5289,7 @@
   },
   "SERV": {
     "name": "Serve Robotics",
-    "does": ""
+    "does": "Runs sidewalk robots that deliver restaurant and store orders, charging for each drop-off."
   },
   "BKNG": {
     "name": "BKNG",
@@ -5305,7 +5305,7 @@
   },
   "MMYT": {
     "name": "MakeMyTrip",
-    "does": ""
+    "does": "Runs India's main online travel sites (MakeMyTrip, Goibibo, redBus) and takes a cut when people book flights, hotels, and bus tickets."
   },
   "VIK": {
     "name": "VIK",
@@ -5325,7 +5325,7 @@
   },
   "IBP": {
     "name": "IBP",
-    "does": ""
+    "does": "Installs insulation, garage doors, gutters, and other building products in new homes and commercial buildings for builders."
   },
   "QXO": {
     "name": "QXO Inc.",
@@ -5345,7 +5345,7 @@
   },
   "TREX": {
     "name": "Trex",
-    "does": ""
+    "does": "Makes composite deck boards and railings from recycled plastic and wood that homeowners use instead of lumber."
   },
   "ZBRA": {
     "name": "Zebra Technologies",
@@ -5385,7 +5385,7 @@
   },
   "CRSR": {
     "name": "CRSR",
-    "does": ""
+    "does": "Makes gaming PCs, keyboards, mice, headsets, and streaming gear sold to gamers and content creators."
   },
   "TTWO": {
     "name": "TTWO",
@@ -5397,7 +5397,7 @@
   },
   "PENN": {
     "name": "Penn Entertainment",
-    "does": ""
+    "does": "Operates casinos, racetracks, and hotels, plus online sports betting and casino apps, and earns from gaming, rooms, and food."
   },
   "NET": {
     "name": "Cloudflare",
@@ -5409,7 +5409,7 @@
   },
   "CDNA": {
     "name": "CDNA",
-    "does": ""
+    "does": "Sells blood tests and software that doctors use to match organ donors and watch for transplant rejection after a kidney, heart, or lung transplant."
   },
   "AKAM": {
     "name": "Akamai Technologies",
@@ -5469,15 +5469,15 @@
   },
   "MYRG": {
     "name": "MYRG",
-    "does": ""
+    "does": "Builds and repairs power lines, substations, and electrical systems for utilities, factories, and commercial buildings."
   },
   "PRIM": {
     "name": "Primoris Services",
-    "does": ""
+    "does": "Builds and maintains power lines, gas pipes, solar farms, and other energy and utility infrastructure."
   },
   "ECG": {
     "name": "Everus Construction Group",
-    "does": ""
+    "does": "Installs electrical and mechanical systems in buildings, including data centers, and builds power and communications lines for utilities."
   },
   "HRI": {
     "name": "Herc Holdings Inc.",
@@ -5513,7 +5513,7 @@
   },
   "UNIT": {
     "name": "Uniti Group",
-    "does": ""
+    "does": "Builds and operates fiber-optic networks and sells internet and communications service to homes, businesses, and other carriers."
   },
   "TSLA": {
     "name": "TSLA",
@@ -5521,7 +5521,7 @@
   },
   "VGNT": {
     "name": "Versigent PLC",
-    "does": ""
+    "does": "Makes vehicle wiring, high-voltage power systems, and charging gear that automakers use to send electricity and data through cars and trucks."
   },
   "RIVN": {
     "name": "Rivian Automotive",
@@ -5533,7 +5533,7 @@
   },
   "XPEV": {
     "name": "XPEV",
-    "does": ""
+    "does": "Designs, builds, and sells smart electric cars in China, plus related software and charging services."
   },
   "LCID": {
     "name": "Lucid Group",
@@ -5545,7 +5545,7 @@
   },
   "QMCO": {
     "name": "QMCO",
-    "does": ""
+    "does": "Sells tape libraries, file storage, and backup systems that companies use to store and archive video and other large files."
   },
   "IONQ": {
     "name": "IonQ",
@@ -5585,7 +5585,7 @@
   },
   "APPS": {
     "name": "APPS",
-    "does": ""
+    "does": "Puts apps and ads on phones through deals with carriers and phone makers, and takes a cut of mobile advertising."
   },
   "BE": {
     "name": "Bloom Energy",
@@ -5721,11 +5721,11 @@
   },
   "GXO": {
     "name": "GXO",
-    "does": ""
+    "does": "Runs warehouses and fulfillment for other companies, charging them to store, pick, pack, and ship their goods."
   },
   "PRCT": {
     "name": "PRCT",
-    "does": ""
+    "does": "Sells surgical robots that use a water jet to remove excess prostate tissue in men with enlarged prostates."
   },
   "AUR": {
     "name": "Aurora Innovation",
@@ -5737,11 +5737,11 @@
   },
   "WETO": {
     "name": "WETO",
-    "does": ""
+    "does": "Sells packaged tours, chartered buses, and chauffeur rides for travelers, mainly Chinese-speaking customers, and currently has no robotics product sales."
   },
   "SYM": {
     "name": "Symbotic Inc",
-    "does": ""
+    "does": "Sells warehouse robots and software that automatically store, sort, and palletize goods for large retailers."
   },
   "AEVA": {
     "name": "Aeva Technologies",
@@ -5773,11 +5773,11 @@
   },
   "LFUS": {
     "name": "Littelfuse",
-    "does": ""
+    "does": "Makes fuses, semiconductors, and sensors that protect cars, factories, and electronics from power surges and shorts."
   },
   "BELFB": {
     "name": "Bel Fuse",
-    "does": ""
+    "does": "Makes power supplies, connectors, circuit-protection parts, and magnetic components used in aerospace, defense, networking, and industrial electronics."
   },
   "PLPC": {
     "name": "Preformed Line Products",
@@ -5805,7 +5805,7 @@
   },
   "ACVA": {
     "name": "ACV Auctions",
-    "does": ""
+    "does": "Runs an online wholesale auction where car dealers buy and sell used vehicles, charging fees on each sale."
   },
   "HONA": {
     "name": "HONA",
@@ -5845,7 +5845,7 @@
   },
   "DRS": {
     "name": "Leonardo DRS",
-    "does": ""
+    "does": "Makes sensors, computers, and electric power systems that the military uses on ships, vehicles, and other platforms."
   },
   "FSLR": {
     "name": "First Solar",
@@ -5869,19 +5869,19 @@
   },
   "RUN": {
     "name": "Sunrun",
-    "does": ""
+    "does": "Installs rooftop solar panels and home batteries, often as a long-term subscription so homeowners pay monthly instead of buying the system."
   },
   "SHLS": {
     "name": "Shoals Technologies",
-    "does": ""
+    "does": "Makes the plug-and-play wiring and electrical gear that connect solar panels and batteries on large energy projects."
   },
   "ARRY": {
     "name": "Array Technologies",
-    "does": ""
+    "does": "Makes solar tracking systems that rotate rows of panels to follow the sun at large solar farms."
   },
   "CSIQ": {
     "name": "Canadian Solar",
-    "does": ""
+    "does": "Makes solar panels and battery storage systems, and develops and sells solar power projects."
   },
   "AAL": {
     "name": "AAL",
@@ -5905,7 +5905,7 @@
   },
   "ALGT": {
     "name": "Allegiant Travel",
-    "does": ""
+    "does": "Flies leisure travelers from smaller U.S. cities to vacation spots and sells extras like bags, hotels, and rental cars."
   },
   "LTM": {
     "name": "LTM",

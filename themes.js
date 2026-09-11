@@ -1,13 +1,19 @@
 /* Themes tracker: read-only daily catalog, isolated from trading state. */
 const THEME_TRACKER = (() => {
     const WINDOWS = { d: 'Daily', w: '1W', m: '1M', q: '3M', y: 'YTD' };
+    const FOCUSED = new Set([
+        'semiconductors', 'software-related', 'cybersecurity', 'drones-related',
+        'quantum-computing', 'space-satellite', 'robotics', 'neoclouds', 'crypto',
+        'gold-miners', 'silver-miners', 'copper', 'commodity-mining', 'ai-storage-infra',
+        'healthcare-biotech', 'optics-photonics', 'oil-gas', 'mag-7',
+    ]);
     const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const pct = n => Number.isFinite(n) ? `${n > 0 ? '+' : ''}${n.toFixed(2)}%` : '—';
     const money = n => !Number.isFinite(n) ? '—' : n >= 1e9 ? `$${(n / 1e9).toFixed(1)}B` : `$${Math.round(n / 1e6)}M`;
     const color = n => !Number.isFinite(n) ? '' : n >= 0 ? 'up' : 'down';
     const count = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`;
 
-    function filterReasons(c, { minAdr = 3, minDv = 100, aboveOnly = false } = {}) {
+    function filterReasons(c, { minAdr = 1.5, minDv = 5, aboveOnly = false } = {}) {
         return [
             !Number.isFinite(c.adr) ? 'ADR unavailable' : c.adr < minAdr ? `ADR ${c.adr.toFixed(2)}% < ${minAdr}%` : null,
             !Number.isFinite(c.dv) ? 'Average volume unavailable' : c.dv < minDv * 1e6 ? `Avg. volume ${money(c.dv)} < $${minDv}M` : null,
@@ -16,7 +22,7 @@ const THEME_TRACKER = (() => {
     }
 
     function computeThemes(data, options = {}) {
-        const { query = '', window: win = 'd' } = options;
+        const { query = '', window: win = 'd', scope = 'all', selected = null } = options;
         const q = query.trim().toLowerCase();
         return (data.themes || []).map(theme => {
             const all = theme.tickers.map(t => data.companies[t]).filter(c => c && !String(c.ticker).toUpperCase().endsWith('.A'));
@@ -32,7 +38,12 @@ const THEME_TRACKER = (() => {
             });
             rows.sort((a, b) => (b.ret?.[win] ?? -Infinity) - (a.ret?.[win] ?? -Infinity) || a.ticker.localeCompare(b.ticker));
             return { ...theme, rows, mean, total: all.length };
-        }).filter(t => t.rows.length).sort((a, b) => (b.mean ?? -Infinity) - (a.mean ?? -Infinity) || a.name.localeCompare(b.name));
+        }).filter(t => {
+            if (!t.rows.length) return false;
+            if (scope !== 'focus') return true;
+            if (FOCUSED.has(t.id) || t.id === selected) return true;
+            return q && t.rows.some(c => c.ticker.toLowerCase() === q);
+        }).sort((a, b) => (b.mean ?? -Infinity) - (a.mean ?? -Infinity) || a.name.localeCompare(b.name));
     }
 
     function themeForTicker(data, ticker) {
@@ -56,9 +67,9 @@ const THEME_TRACKER = (() => {
     }
 
     let data = null, error = false, wired = false, win = 'd', query = '', selected = null, expandAll = false;
-    let minAdr = 3, minDv = 100, aboveOnly = false, pill = null, pillPlaced = false;
+    let minAdr = 1.5, minDv = 5, aboveOnly = false, pill = null, pillPlaced = false, scope = 'focus', scopePill = null, scopePlaced = false;
     const $ = id => document.getElementById(`themes-${id}`);
-    const options = () => ({ query, window: win, minAdr, minDv, aboveOnly, selected });
+    const options = () => ({ query, window: win, minAdr, minDv, aboveOnly, selected, scope });
     function parseRoute(hash) {
         if (hash.startsWith('#themes/lookup/')) {
             let ticker = hash.slice(15);
@@ -113,6 +124,7 @@ const THEME_TRACKER = (() => {
         // Initial reveal may follow hidden layout. Never snap a spring on data changes.
         if (!pillPlaced && document.getElementById('themesView').getClientRects().length) {
             pill?.set(win, true);
+            scopePill?.set(scope, true);
             pillPlaced = true;
         }
         if (!data) { $('workspace').innerHTML = `<p class="empty">${error ? 'Couldn’t load themes. Please reload to try again.' : 'Loading themes…'}</p>`; return; }
@@ -132,7 +144,10 @@ const THEME_TRACKER = (() => {
         }
         const themes = computeThemes(data, options());
         $('counts').textContent = `${count(themes.length, 'theme')} · ${count(new Set(themes.flatMap(t => t.rows.map(c => c.ticker))).size, 'name')}`;
-        $('filterBadge').textContent = aboveOnly ? '3' : '2';
+        if ($('belowLegend')) $('belowLegend').hidden = !selected;
+        const active = (minAdr !== 1.5 ? 1 : 0) + (minDv !== 5 ? 1 : 0) + (aboveOnly ? 1 : 0);
+        $('filterBadge').textContent = active || '';
+        $('filterBadge').hidden = !active;
         renderFeedback();
         const lookupMiss = location.hash.startsWith('#themes/lookup/') && query && !Object.values(data.companies).some(c => c.ticker.toLowerCase().includes(query) || c.name.toLowerCase().includes(query));
         $('workspace').innerHTML = themes.length ? trackerHTML(themes) : `<p class="empty">${lookupMiss ? 'No stock in the current Themes catalog matches “' + escapeHtml(query.toUpperCase()) + '”.' : 'No names match these filters. Try a broader search or reset the filters.'}</p>`;
@@ -140,7 +155,7 @@ const THEME_TRACKER = (() => {
 
     function applyFilters() {
         minAdr = Math.max(0, Number($('adr').value) || 0);
-        minDv = Math.max(20, Number($('dv').value) || 20);
+        minDv = Math.max(0, Number($('dv').value) || 0);
         $('adr').value = minAdr; $('dv').value = minDv;
         aboveOnly = $('aboveOnly').checked;
         render();
@@ -152,6 +167,8 @@ const THEME_TRACKER = (() => {
         const root = document.getElementById('themesView');
         const segment = root.querySelector('.windows');
         pill = MOTION.segmented(segment, value => { win = value; render(); });
+        const scopeSeg = root.querySelector('.scope');
+        scopePill = MOTION.segmented(scopeSeg, value => { scope = value; render(); });
         segment.addEventListener('keydown', event => {
             if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
             event.stopPropagation(); event.preventDefault();
@@ -210,7 +227,7 @@ const THEME_TRACKER = (() => {
         $('search').addEventListener('keydown', event => { if (event.key === 'Escape') { query = ''; selected = null; $('search').value = ''; setHash(); render(); } });
         for (const [button, panel] of [['filterToggle', 'filters'], ['aboutToggle', 'about']]) $(button).addEventListener('click', () => { $(panel).hidden = !$(panel).hidden; $(button).setAttribute('aria-expanded', String(!$(panel).hidden)); });
         for (const id of ['adr', 'dv', 'aboveOnly']) $(id).addEventListener('change', applyFilters);
-        $('reset').addEventListener('click', () => { $('adr').value = 3; $('dv').value = 100; $('aboveOnly').checked = false; applyFilters(); });
+        $('reset').addEventListener('click', () => { $('adr').value = 1.5; $('dv').value = 5; $('aboveOnly').checked = false; applyFilters(); });
         window.addEventListener('hashchange', () => { if (location.hash.startsWith('#themes')) { readRoute(); render(); } });
         document.addEventListener('keydown', event => {
             if (document.body.dataset.view !== 'themes') return;

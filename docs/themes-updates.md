@@ -24,7 +24,7 @@ The refresh command uses the dependency-free engine in `~/Projects/magic-scan/sc
 
 It fetches fresh adjusted SIP daily bars, identifies the completed session from SPY, and computes daily/1W/1M/3M/YTD returns, 20-session ADR, 30-session mean dollar volume, position relative to SMA50, and distance below the highest daily high in 252 sessions. YTD anchors on the final available session of the previous year (including years with a December 31 holiday). New listings with insufficient history have null readings.
 
-The normal snapshot floor is 2.5% ADR, $20M mean dollar volume, and $1 price. Mag 7 explicitly retains all seven members. The page defaults to 3% ADR and $100M; filters affect stock visibility, while theme means always use the fixed 3%/$100M comparison group. Theme ordering uses the displayed mean, with no size adjustment. Changing search does not redefine the comparison population.
+The normal snapshot floor is 1.5% ADR, $5M mean dollar volume, and $1 price. Mag 7 explicitly retains all seven members. The page defaults to 1.5% ADR and $5M; filters affect stock visibility, while theme means always use the fixed 3%/$100M comparison group. Theme ordering uses the displayed mean, with no size adjustment. Changing search does not redefine the comparison population.
 
 Theme membership comes from `data/theme-roster.json`, not that day's filtered results. This preserves temporarily excluded members for future sessions. Mag 7 uses AAPL, MSFT, AMZN, GOOGL, META, NVDA, and TSLA; Alphabet is counted once. Stocks can belong to Mag 7 and their ordinary theme. Counts of names deduplicate tickers.
 
