@@ -12,6 +12,16 @@ const THEME_TRACKER = (() => {
     const money = n => !Number.isFinite(n) ? '—' : n >= 1e9 ? `$${(n / 1e9).toFixed(1)}B` : `$${Math.round(n / 1e6)}M`;
     const color = n => !Number.isFinite(n) ? '' : n >= 0 ? 'up' : 'down';
     const count = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`;
+    function themeNameCount(theme) {
+        const shown = theme.rows.length;
+        if (theme.id === 'mag-7') return `${shown} of 7 names`;
+        if (shown === theme.total) return count(shown, 'name');
+        return `${shown}/${theme.total} names`;
+    }
+    function countsLine(themes) {
+        const names = new Set(themes.flatMap(t => t.rows.map(c => c.ticker))).size;
+        return `${count(themes.length, 'theme')} · ${count(names, 'name')} total`;
+    }
 
     function fold(s) {
         return String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/\$/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
@@ -172,7 +182,7 @@ const THEME_TRACKER = (() => {
         const nameHead = theme
             ? `<button type="button" class="axis-name" data-expand-names aria-pressed="${expandAll}" title="${expandAll ? 'Hide all descriptions' : 'Show all descriptions'}">NAME</button>`
             : `<span>THEME</span>`;
-        return `<section class="tracker" aria-label="${theme ? escapeHtml(theme.name) + ' stocks' : 'Theme performance tracker'}"><div class="tracker-heading">${theme ? `<button type="button" class="tracker-back" data-back aria-label="Back to all themes">←</button><h2>${escapeHtml(theme.name)}</h2><span class="tracker-count">${theme.id === 'mag-7' ? `${items.length} of 7 names` : count(items.length, 'name')}</span>${copy}` : `<h2>Theme performance</h2><span class="tracker-count">${count(items.length, 'theme')}</span>`}<span class="tracker-period">${WINDOWS[win]} return</span></div><div class="tracker-axis">${nameHead}<span class="axis-scale"><span>−${axis}%</span><span>0</span><span>+${axis}%</span></span><span>CHANGE</span></div><div class="tracker-rows">${items.map(x => x.company ? `<details class="tracker-stock" ${expandAll || query.toUpperCase() === x.label || (query && searchMatch(`${x.company.ticker} ${x.company.name} ${x.company.does || ''}`, query)) ? 'open' : ''}><summary class="tracker-row ${x.company.ext != null && x.company.ext < 0 ? 'below' : ''}" title="${escapeHtml(x.company.name)}"><span class="tracker-label">${escapeHtml(x.label)}</span>${bar(x.value)}<span class="return ${color(x.value)}">${pct(x.value)}</span></summary>${companyDetails(x.company)}</details>` : `<button type="button" class="tracker-row" data-theme="${escapeHtml(x.theme.id)}" aria-label="Open ${escapeHtml(x.label)}"><span class="tracker-label">${escapeHtml(x.label)}</span>${bar(x.value)}<span class="return ${color(x.value)}">${pct(x.value)}</span></button>`).join('')}</div></section>`;
+        return `<section class="tracker" aria-label="${theme ? escapeHtml(theme.name) + ' stocks' : 'Theme performance tracker'}"><div class="tracker-heading">${theme ? `<button type="button" class="tracker-back" data-back aria-label="Back to all themes">←</button><h2>${escapeHtml(theme.name)}</h2><span class="tracker-count">${themeNameCount(theme)}</span>${copy}` : `<h2>Theme performance</h2><span class="tracker-count">${count(items.length, 'theme')}</span>`}<span class="tracker-period">${WINDOWS[win]} return</span></div><div class="tracker-axis">${nameHead}<span class="axis-scale"><span>−${axis}%</span><span>0</span><span>+${axis}%</span></span><span>CHANGE</span></div><div class="tracker-rows">${items.map(x => x.company ? `<details class="tracker-stock" ${expandAll || query.toUpperCase() === x.label || (query && searchMatch(`${x.company.ticker} ${x.company.name} ${x.company.does || ''}`, query)) ? 'open' : ''}><summary class="tracker-row ${x.company.ext != null && x.company.ext < 0 ? 'below' : ''}" title="${escapeHtml(x.company.name)}"><span class="tracker-label">${escapeHtml(x.label)}</span>${bar(x.value)}<span class="return ${color(x.value)}">${pct(x.value)}</span></summary>${companyDetails(x.company)}</details>` : `<button type="button" class="tracker-row" data-theme="${escapeHtml(x.theme.id)}" aria-label="Open ${escapeHtml(x.label)}"><span class="tracker-label">${escapeHtml(x.label)}</span>${bar(x.value)}<span class="return ${color(x.value)}">${pct(x.value)}</span></button>`).join('')}</div></section>`;
     }
 
     function renderFeedback() {
@@ -213,7 +223,7 @@ const THEME_TRACKER = (() => {
             selected = themeForTicker(data, ticker)?.id || null;
         }
         const themes = computeThemes(data, options());
-        $('counts').textContent = `${count(themes.length, 'theme')} · ${count(new Set(themes.flatMap(t => t.rows.map(c => c.ticker))).size, 'name')}`;
+        $('counts').textContent = countsLine(themes);
         if ($('belowLegend')) $('belowLegend').hidden = !selected;
         const active = (minAdr !== 1.5 ? 1 : 0) + (minDv !== 5 ? 1 : 0) + (aboveOnly ? 1 : 0) + (above10 ? 1 : 0) + (above21 ? 1 : 0) + (above200 ? 1 : 0) + (max52 != null ? 1 : 0);
         $('filterBadge').textContent = active || '';
@@ -425,5 +435,5 @@ const THEME_TRACKER = (() => {
             render();
         }).catch(() => { error = true; data = null; render(); });
     }
-    return { init, render, computeThemes, filterReasons, parseRoute, themeForTicker, tickersLine, loosenFor, searchMatch };
+    return { init, render, computeThemes, filterReasons, parseRoute, themeForTicker, tickersLine, loosenFor, searchMatch, themeNameCount, countsLine };
 })();
