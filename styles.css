@@ -2333,9 +2333,11 @@ body[data-view="themes"] .float-bar .fb-sep { display: none; }
 .how-it-works-btn .lucide { width: 14px; height: 14px; }
 .how-it-works-btn:hover,
 .how-it-works-btn[aria-expanded="true"] { color: var(--text); background: var(--surface-2); }
-.how-it-works-block:not(.is-open) {
-    height: 0;
-    overflow: hidden;
+/* Closed height lives on .how-it-works-wrap (JS drives px→0 + blur).
+   Do not height:0 the block — that clips the wrap and close snaps. */
+.how-it-works-block {
+    transition: margin-top var(--dur-slow) var(--ease-out-expo),
+                margin-bottom var(--dur-slow) var(--ease-out-expo);
 }
 #trackerMount .how-it-works-block:not(.is-open) {
     margin-top: -14px;
