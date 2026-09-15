@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Themes filter-swap · mockup</title>
+<!--
+  Throwaway motion study. Not wired into production Themes.
+
+  Question: when filters change the ticker set, can the list swap feel
+  quiet and Cap-grade — one surface settling — instead of restaging
+  every row?
+
+  T Today — instant innerHTML (current Themes)
+  A Fade — opacity only on the list body
+  B Blur settle — collapse vocabulary: blur(4px)+fade on the list as one
+    unit, --ease-out-expo, ~160ms out / 220ms in. Recommended.
+  C Crossfade — outgoing and incoming overlap so there is no empty frame
+  D Heavy — per-row blur+stagger (the thing we would not ship)
+
+  Bars stay static. Count updates with the set (12 names ↔ 7/12 names).
+  prefers-reduced-motion and the Reduce motion chip snap with no blur.
+
+  Preview: http://localhost:4173/docs/mockups/themes-filter-swap.html
+-->
+<style>
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur-fast: 150ms;
+    --dur-base: 200ms;
+    --dur-slow: 300ms;
+    --bg: #fbfbfc;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --border: #e4e4e7;
+    --border-2: #d4d4d8;
+    --text: #18181b;
+    --text-2: #3f3f46;
+    --text-3: #71717a;
+    --primary: #1a365d;
+    --up: #16a34a;
+    --down: #dc2626;
+    --radius-card: 16px;
+    --radius-full: 9999px;
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 28px 20px 96px;
+}
+.page-head { max-width: 720px; margin: 0 auto 22px; }
+.page-head h1 { font-size: 19px; letter-spacing: -0.02em; font-weight: 600; }
+.page-head p { color: var(--text-3); max-width: 68ch; margin-top: 6px; font-size: 13.5px; }
+.page-head code {
+    font: 11.5px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 6px;
+}
+.controls {
+    max-width: 720px;
+    margin: 0 auto 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+.controls button {
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    color: var(--text-2);
+    font: 600 12px/1 -apple-system, sans-serif;
+    cursor: pointer;
+}
+.controls button:hover { color: var(--text); background: var(--surface-2); }
+.controls button.is-on {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+.controls .hint { color: var(--text-3); font-size: 11px; margin-left: 4px; }
+.rows { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.variant {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+}
+.v-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 12px 16px 0;
+}
+.v-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    white-space: nowrap;
+}
+.v-head h2 { font-size: 14px; letter-spacing: -0.01em; font-weight: 600; }
+.v-head p { font-size: 12.5px; color: var(--text-2); margin-left: auto; text-align: right; }
+.v-head p.pick { color: var(--primary); font-weight: 600; }
+.tracker-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 16px;
+    min-height: 44px;
+}
+.tracker-heading h3 { font-size: 13px; letter-spacing: -0.15px; font-weight: 600; }
+.tracker-count { color: var(--text-3); font-size: 11px; }
+.tracker-period { margin-left: auto; font-size: 11px; color: var(--text-3); }
+.tracker-axis, .tracker-row {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr) 64px;
+    gap: 14px;
+    align-items: center;
+    padding: 0 16px;
+}
+.tracker-axis {
+    height: 28px;
+    font-size: 9px;
+    letter-spacing: 0.45px;
+    color: var(--text-3);
+}
+.tracker-axis span:last-child { text-align: right; }
+.stage { position: relative; }
+.tracker-rows { padding-bottom: 8px; }
+.tracker-row {
+    height: 31px;
+    font-size: 12px;
+    color: var(--text);
+}
+.tracker-label { font-weight: 500; }
+.return { text-align: right; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.up { color: var(--up); }
+.down { color: var(--down); }
+.track {
+    position: relative;
+    display: block;
+    height: 9px;
+    background: var(--surface-2);
+    border-radius: 2px;
+}
+.track-zero {
+    position: absolute;
+    left: 50%;
+    top: -5px;
+    bottom: -5px;
+    border-left: 1px solid var(--border-2);
+}
+.track-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-radius: 2px;
+    opacity: 0.75;
+}
+.track-fill.up { background: var(--up); }
+.track-fill.down { background: var(--down); }
+.ghost {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    pointer-events: none;
+}
+html.reduce .variant .stage { filter: none !important; }
+@media (prefers-reduced-motion: reduce) {
+    html:not(.allow-motion) .variant .stage { filter: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-head">
+    <h1>Themes — filter-swap of the ticker list</h1>
+    <p>Throwaway preview. Production Themes still snaps. Tighten ADR and watch the same Oil &amp; Gas slice swap from <strong>12 names</strong> to <strong>7/12 names</strong>. B is the one to judge: the list as one surface, collapse-style blur, no per-row restage. Bars stay put.</p>
+    <p style="margin-top:8px"><code>docs/mockups/themes-filter-swap.html</code> · leave as a follow-up after a look; do not fold into this PR.</p>
+</div>
+
+<div class="controls">
+    <button type="button" id="tighten">Tighten ADR</button>
+    <button type="button" id="reset">Reset</button>
+    <button type="button" id="reduce">Reduce motion</button>
+    <span class="hint">Same click fires every row. Reduced motion snaps with no blur.</span>
+</div>
+
+<div class="rows" id="rows"></div>
+
+<script>
+const EXPO = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const LOOSE = [
+    ['ECO', 4.69], ['FRO', 2.66], ['OVV', 2.82], ['SM', 2.44],
+    ['NAT', 2.28], ['INSW', 2.11], ['YPF', 1.40], ['STNG', 1.11],
+    ['APA', 0.67], ['CVE', 0.48], ['FANG', 0.37], ['MPC', -0.13],
+];
+const TIGHT = LOOSE.filter(([t]) => ['ECO','FRO','OVV','SM','NAT','INSW','YPF'].includes(t));
+const VARIANTS = [
+    { tag: 'T · today', name: 'Snap', note: 'current Themes — the list just jumps', fx: 'none' },
+    { tag: 'A · fade', name: 'Opacity only', note: 'quiet, but the swap still flashes', fx: 'fade' },
+    { tag: 'B · blur settle', name: 'List as one surface', note: 'collapse vocabulary — the pick', fx: 'blur', pick: true },
+    { tag: 'C · crossfade', name: 'Overlap the two sets', note: 'no empty frame; slightly busier', fx: 'crossfade' },
+    { tag: 'D · heavy', name: 'Per-row restage', note: 'staggered blur-in — too much', fx: 'stagger' },
+];
+
+const AXIS = 5;
+const reduceOn = () => document.documentElement.classList.contains('reduce')
+    || (matchMedia('(prefers-reduced-motion: reduce)').matches && !document.documentElement.classList.contains('allow-motion'));
+
+function countLabel(n, total) {
+    return n === total ? `${n} names` : `${n}/${total} names`;
+}
+
+function bar(value) {
+    const width = Math.abs(value) / AXIS * 50;
+    const cls = value >= 0 ? 'up' : 'down';
+    const left = value < 0 ? 50 - width : 50;
+    return `<span class="track" aria-hidden="true"><span class="track-zero"></span><span class="track-fill ${cls}" style="left:${left}%;width:${width}%"></span></span>`;
+}
+
+function rowsHTML(items) {
+    return items.map(([label, value]) => {
+        const cls = value >= 0 ? 'up' : 'down';
+        const sign = value > 0 ? '+' : '';
+        return `<div class="tracker-row"><span class="tracker-label">${label}</span>${bar(value)}<span class="return ${cls}">${sign}${value.toFixed(2)}%</span></div>`;
+    }).join('');
+}
+
+function makeCard(v) {
+    const el = document.createElement('section');
+    el.className = 'variant';
+    el.dataset.fx = v.fx;
+    el.innerHTML = `
+        <div class="v-head">
+            <span class="v-tag">${v.tag}</span>
+            <h2>${v.name}</h2>
+            <p class="${v.pick ? 'pick' : ''}">${v.note}</p>
+        </div>
+        <div class="tracker-heading">
+            <h3>Oil &amp; Gas</h3>
+            <span class="tracker-count">${countLabel(LOOSE.length, LOOSE.length)}</span>
+            <span class="tracker-period">Daily return</span>
+        </div>
+        <div class="tracker-axis"><span>NAME</span><span>−${AXIS}% · 0 · +${AXIS}%</span><span>CHANGE</span></div>
+        <div class="stage"><div class="tracker-rows">${rowsHTML(LOOSE)}</div></div>`;
+    return el;
+}
+
+function swap(el, items, fx) {
+    const stage = el.querySelector('.stage');
+    const count = el.querySelector('.tracker-count');
+    const html = rowsHTML(items);
+    count.textContent = countLabel(items.length, LOOSE.length);
+    const live = stage.querySelector('.tracker-rows');
+    live.getAnimations().forEach(a => a.cancel());
+    live.querySelectorAll('.tracker-row').forEach(row => row.getAnimations().forEach(a => a.cancel()));
+    stage.querySelectorAll('.ghost').forEach(n => n.remove());
+    if (fx === 'none' || reduceOn()) {
+        live.innerHTML = html;
+        return;
+    }
+
+    if (fx === 'stagger') {
+        live.innerHTML = html;
+        [...live.children].forEach((row, i) => {
+            row.animate(
+                [{ opacity: 0, transform: 'translateY(-4px)', filter: 'blur(3px)' },
+                 { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+                { duration: 280, delay: i * 22, easing: EXPO, fill: 'both' });
+        });
+        return;
+    }
+
+    if (fx === 'crossfade') {
+        const ghost = live.cloneNode(true);
+        ghost.classList.add('ghost');
+        stage.appendChild(ghost);
+        live.innerHTML = html;
+        ghost.animate(
+            [{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(4px)' }],
+            { duration: 220, easing: EXPO, fill: 'forwards' }
+        ).finished.then(() => ghost.remove()).catch(() => ghost.remove());
+        live.animate(
+            [{ opacity: 0, filter: 'blur(4px)' }, { opacity: 1, filter: 'blur(0)' }],
+            { duration: 220, easing: EXPO }
+        );
+        return;
+    }
+
+    const blur = fx === 'blur' ? 4 : 0;
+    const outMs = fx === 'blur' ? 160 : 140;
+    const inMs = fx === 'blur' ? 220 : 180;
+    const out = live.animate(
+        [{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: `blur(${blur}px)` }],
+        { duration: outMs, easing: EXPO, fill: 'forwards' }
+    );
+    out.finished.then(() => {
+        live.innerHTML = html;
+        out.cancel();
+        live.animate(
+            [{ opacity: 0, filter: `blur(${blur}px)` }, { opacity: 1, filter: 'blur(0)' }],
+            { duration: inMs, easing: EXPO }
+        );
+    }).catch(() => { live.innerHTML = html; });
+}
+
+const root = document.getElementById('rows');
+VARIANTS.forEach(v => root.appendChild(makeCard(v)));
+
+let tight = false;
+function apply(next) {
+    if (next === tight) return;
+    tight = next;
+    document.getElementById('tighten').classList.toggle('is-on', tight);
+    const items = tight ? TIGHT : LOOSE;
+    root.querySelectorAll('.variant').forEach(el => swap(el, items, el.dataset.fx));
+}
+
+document.getElementById('tighten').addEventListener('click', () => apply(true));
+document.getElementById('reset').addEventListener('click', () => apply(false));
+document.getElementById('reduce').addEventListener('click', e => {
+    const on = document.documentElement.classList.toggle('reduce');
+    document.documentElement.classList.toggle('allow-motion', !on);
+    e.currentTarget.classList.toggle('is-on', on);
+    e.currentTarget.textContent = on ? 'Motion off' : 'Reduce motion';
+    const items = tight ? TIGHT : LOOSE;
+    root.querySelectorAll('.variant').forEach(el => swap(el, items, 'none'));
+});
+</script>
+</body>
+</html>
