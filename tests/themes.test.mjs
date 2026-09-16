@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-const {computeThemes,filterReasons,parseRoute,themeForTicker,tickersLine,loosenFor,searchMatch}=new Function(`${readFileSync(new URL('../themes.js',import.meta.url),'utf8')};return THEME_TRACKER`)();
+const {computeThemes,filterReasons,parseRoute,themeForTicker,tickersLine,loosenFor,searchMatch,themeNameCount,countsLine}=new Function(`${readFileSync(new URL('../themes.js',import.meta.url),'utf8')};return THEME_TRACKER`)();
 const c=(ticker,adr,dv,d,y,ext=2)=>({ticker,name:ticker,adr,dv,ext,ret:{d,y}});
 const data={companies:{NVDA:c('NVDA',2.577,2e10,-2,17),META:c('META',3.1,1e9,-1,30),TSLA:c('TSLA',4,1e9,2,null),AAPL:c('AAPL',1.5,1e9,1,10)},themes:[{id:'mag-7',name:'Mag 7',tickers:['NVDA','META','TSLA','AAPL']}]};
 assert.equal(computeThemes(data)[0].rows.length,4);
@@ -41,4 +41,17 @@ assert.equal(searchMatch('rents data center space and power','data-center'), tru
 assert.equal(searchMatch('Mines silver in Mexico','datacenter'), false);
 assert.equal(searchMatch('NVDA NVIDIA','$nvda'), true);
 assert.deepEqual(loosenFor({adr:2.577,dv:2e10,ext:3,ema10:1,ema21:1,sma200:1},{minAdr:3,minDv:100,aboveOnly:false,above10:false,above21:false,above200:false}),{minAdr:2.5,minDv:100,aboveOnly:false,above10:false,above21:false,above200:false});
-console.log('Themes: 33 assertions passed');
+assert.equal(computeThemes(data)[0].total,4);
+assert.equal(themeNameCount({id:'oil-gas',rows:new Array(53),total:86}),'53/86 names');
+assert.equal(themeNameCount({id:'oil-gas',rows:new Array(86),total:86}),'86 names');
+assert.equal(themeNameCount({id:'oil-gas',rows:[{}],total:1}),'1 name');
+assert.equal(themeNameCount({id:'mag-7',rows:new Array(5),total:7}),'5 of 7 names');
+assert.equal(themeNameCount({id:'mag-7',rows:new Array(7),total:7}),'7 of 7 names');
+assert.equal(countsLine([{rows:[{ticker:'NVDA'}]},{rows:[{ticker:'META'},{ticker:'NVDA'}]}]),'2 themes · 2 names total');
+assert.equal(countsLine([{rows:[{ticker:'NVDA'}]}]),'1 theme · 1 name total');
+const oil={companies:{XOM:c('XOM',4,1e9,1,10),CVX:c('CVX',1.5,1e9,1,10)},themes:[{id:'oil-gas',name:'Oil & Gas',tickers:['XOM','CVX']}]};
+assert.equal(themeNameCount(computeThemes(oil,{minAdr:3})[0]),'1/2 names');
+assert.equal(themeNameCount(computeThemes(oil)[0]),'2 names');
+assert.equal(themeNameCount(computeThemes(data,{minAdr:3})[0]),'2 of 7 names');
+assert.equal(countsLine(computeThemes(oil)),'1 theme · 2 names total');
+console.log('Themes: 45 assertions passed');

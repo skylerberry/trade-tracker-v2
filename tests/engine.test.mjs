@@ -191,6 +191,20 @@ eq(E.marketSession(new Date('2026-08-19T12:00:00.000Z')).minutesLeft, 90, 'Wed 8
 eq(E.marketSession(new Date('2026-08-19T23:30:00.000Z')).minutesLeft, 30, 'Wed 19:30 ET → 30m of after hours left');
 eq(E.marketSession(new Date('2026-08-22T15:00:00.000Z')).minutesLeft, null, 'closed session has no countdown');
 
+/* ---- Themes catalog freshness: last session that should be published by now ---- */
+eq(E.expectedPublishedSession(new Date('2026-09-14T15:59:00-04:00')), '2026-09-11', 'Mon 15:59 ET still expects Friday');
+eq(E.expectedPublishedSession(new Date('2026-09-14T16:14:00-04:00')), '2026-09-11', 'Mon 16:14 ET is still inside the job window');
+eq(E.expectedPublishedSession(new Date('2026-09-14T16:15:00-04:00')), '2026-09-14', 'Mon 16:15 ET expects today’s close');
+eq(E.expectedPublishedSession(new Date('2026-09-14T18:00:00-04:00')), '2026-09-14', 'Mon evening expects Monday');
+eq(E.expectedPublishedSession(new Date('2026-09-12T18:00:00-04:00')), '2026-09-11', 'Saturday still expects Friday');
+eq(E.expectedPublishedSession(new Date('2026-09-13T18:00:00-04:00')), '2026-09-11', 'Sunday still expects Friday');
+eq(E.expectedPublishedSession(new Date('2026-09-07T18:00:00-04:00')), '2026-09-04', 'Labor Day expects prior Friday');
+eq(E.expectedPublishedSession(new Date('2026-09-08T10:00:00-04:00')), '2026-09-04', 'Tue before close expects Friday before Labor Day');
+eq(E.expectedPublishedSession(new Date('2026-09-08T16:20:00-04:00')), '2026-09-08', 'Tue after the job window expects Tuesday');
+eq(E.expectedPublishedSession(new Date('2026-11-27T16:14:00-05:00')), '2026-11-25', 'early-close Friday before 16:15 ET still expects Wednesday');
+eq(E.expectedPublishedSession(new Date('2026-11-27T16:15:00-05:00')), '2026-11-27', 'early-close Friday still publishes at 16:15 ET');
+eq(E.expectedPublishedSession('not-a-date'), null, 'invalid instant has no expected session');
+
 /* ---- equity curve: cumulative realized P&L + drawdown ---- */
 const eqTrades = [
     { ticker: 'AAA', entryPrice: 10, initialSL: 9, exits: [

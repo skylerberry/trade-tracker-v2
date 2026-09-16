@@ -914,6 +914,38 @@ const ENGINE = (() => {
         return { state, minutesLeft, ...SESSION_META[state] };
     }
 
+    /* Latest US cash session whose Themes catalog should already be on
+       the page. Weekdays publish after the 16:15 ET job window; before that
+       (and on weekends / holidays) the prior completed session is still current. */
+    const THEMES_PUBLISH_MINUTE = 16 * 60 + 15;
+    function ymdWeekday(ymd) {
+        const [year, month, day] = ymd.split('-').map(Number);
+        return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+    }
+    function prevYmd(ymd) {
+        const [year, month, day] = ymd.split('-').map(Number);
+        return new Date(Date.UTC(year, month - 1, day - 1)).toISOString().slice(0, 10);
+    }
+    function isNySessionDay(ymd) {
+        const weekday = ymdWeekday(ymd);
+        return weekday !== 0 && weekday !== 6 && !NYSE_HOLIDAYS.has(ymd);
+    }
+    function lastSessionOnOrBefore(ymd) {
+        let cursor = ymd;
+        for (let i = 0; i < 15; i++) {
+            if (isNySessionDay(cursor)) return cursor;
+            cursor = prevYmd(cursor);
+        }
+        return cursor;
+    }
+    function expectedPublishedSession(when = new Date()) {
+        const date = when instanceof Date ? when : new Date(when);
+        if (!Number.isFinite(date.getTime())) return null;
+        const { ymd, minutes } = nyWall(date);
+        if (isNySessionDay(ymd) && minutes >= THEMES_PUBLISH_MINUTE) return ymd;
+        return lastSessionOnOrBefore(prevYmd(ymd));
+    }
+
     /* ---------- equity curve ----------
        Cumulative realized P&L (and R), one point per exit event across all
        non-archived trades — trims on open positions are realized money too.
@@ -989,7 +1021,7 @@ const ENGINE = (() => {
         applyAdjustmentDiff, breakevenStop, freerollSharesAtPrice,
         computeStats, accountRisk, staleTrades, lastExitDate, equityCurve,
         parseAlert, parseWatchlistTickers, toCSV, toNotesCSV,
-        marketSession,
+        marketSession, expectedPublishedSession,
         COMPOUND_RATES, compoundAnnualContribution, compoundValue, compoundGlow,
         compoundPath, periodicRate, yearsToTarget, compoundWithYearShock, compoundPerspective,
         migrateLiveSiteTrade, migrateLiveSiteJournal,
