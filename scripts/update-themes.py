@@ -128,7 +128,7 @@ def main():
             'ext': r.get('ext'), 'ema10': None if r.get('ext10') is None else round(r['ext10'], 3),
             'ema21': None if r.get('ext21') is None else round(r['ext21'], 3),
             'sma200': sma200_dist, 'dist52h': derived['dist52h'],
-            'ret': {'d': r['chg'], 'w': r.get('ret1w'), 'm': r.get('ret1m'), 'q': r.get('ret3m'), 'y': derived['ytd']},
+            'ret': {'d': r['chg'], 'w': r.get('ret1w'), 'm': r.get('ret1m'), 'q': r.get('ret3m'), 'h': r.get('ret6m'), 'y': derived['ytd']},
         }
     assigned = {s for t in themes for s in t['tickers'] if s in companies}
     # Refuse a partial/failed response rather than publishing an empty or truncated site.

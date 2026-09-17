@@ -1,6 +1,6 @@
 /* Themes tracker: read-only daily catalog, isolated from trading state. */
 const THEME_TRACKER = (() => {
-    const WINDOWS = { d: 'Daily', w: '1W', m: '1M', q: '3M', y: 'YTD' };
+    const WINDOWS = { d: 'Daily', w: '1W', m: '1M', q: '3M', h: '6M', y: 'YTD' };
     const FOCUSED = new Set([
         'semiconductors', 'software-related', 'cybersecurity', 'drones-related',
         'quantum-computing', 'space-satellite', 'robotics', 'neoclouds', 'crypto',
@@ -407,8 +407,16 @@ const THEME_TRACKER = (() => {
             data = raw;
             for (const [ticker, c] of Object.entries(data.companies)) { c.ticker = ticker; c.ret ||= {}; }
             const asOfDate = new Date(data.asOf + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
-            $('asof').textContent = `Updated after the close · ${asOfDate}`;
-            $('asof').title = `Market data as of ${data.asOf}`;
+            const asof = $('asof');
+            asof.textContent = `Updated after the close · ${asOfDate}`;
+            asof.title = `Market data as of ${data.asOf}`;
+            const chip = asof.closest('.date');
+            if (chip) {
+                const expected = typeof ENGINE !== 'undefined' && ENGINE.expectedPublishedSession
+                    ? ENGINE.expectedPublishedSession()
+                    : data.asOf;
+                chip.classList.toggle('is-stale', data.asOf < expected);
+            }
             const coverage = $('coverage');
             if (coverage) {
                 const missing = Object.values(data.companies).filter(c => !c.does).length;

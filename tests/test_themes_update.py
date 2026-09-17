@@ -31,6 +31,10 @@ class LiveGateTests(unittest.TestCase):
   from zoneinfo import ZoneInfo
   et=ZoneInfo('America/New_York')
   self.assertIsNone(module.live_gate(datetime(2026,9,11,16,15,tzinfo=et)))
+class CatalogWindowTests(unittest.TestCase):
+ def test_six_month_return_is_mapped_from_scanner(self):
+  src=Path(__file__).resolve().parents[1].joinpath('scripts/update-themes.py').read_text()
+  self.assertIn("'h': r.get('ret6m')", src)
 class DescriptionTests(unittest.TestCase):
  def test_canonical_sources_override_snapshot_and_preserve_fallback(self):
   import tempfile,json
