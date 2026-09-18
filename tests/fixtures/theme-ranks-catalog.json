@@ -1,0 +1,16 @@
+{
+  "asOf": "2026-09-16",
+  "themes": [
+    {"id": "semiconductors", "name": "Semiconductors", "tickers": ["NVDA", "AVGO"]},
+    {"id": "oil-gas", "name": "Oil & Gas", "tickers": ["XOM"]},
+    {"id": "unclustered", "name": "Unclustered", "tickers": ["ZZZ"]},
+    {"id": "mag-7", "name": "Mag 7", "tickers": ["NVDA", "AAPL"]}
+  ],
+  "companies": {
+    "NVDA": {"ticker": "NVDA", "adr": 4.0, "dv": 200000000, "ret": {"d": 2.0, "m": 10.0, "y": 17.0}},
+    "AVGO": {"ticker": "AVGO", "adr": 3.5, "dv": 150000000, "ret": {"d": 1.0, "m": 8.0, "y": 12.0}},
+    "XOM": {"ticker": "XOM", "adr": 3.2, "dv": 120000000, "ret": {"d": 3.0, "m": 1.0, "y": null}},
+    "AAPL": {"ticker": "AAPL", "adr": 1.5, "dv": 300000000, "ret": {"d": 5.0, "m": 20.0, "y": 10.0}},
+    "ZZZ": {"ticker": "ZZZ", "adr": 6.0, "dv": 200000000, "ret": {"d": 9.0, "m": 9.0, "y": 9.0}}
+  }
+}

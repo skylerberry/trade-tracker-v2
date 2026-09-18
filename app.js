@@ -45,7 +45,7 @@
     let filters = { status: 'active', from: '', to: '', page: 1, q: '', notesQ: '', sortKey: '', sortDir: 'desc' };
     let datePick = null;
     let dateView = null;
-    const VIEWS = ['positions', 'journal', 'compound', 'themes'];
+    const VIEWS = ['positions', 'journal', 'compound', 'themes', 'rs'];
     let view = 'positions';
     let viewReady = false;
     const viewFilters = { positions: 'active', journal: 'all' };
@@ -1742,7 +1742,9 @@
         if ($('calcHowBlock')) $('calcHowBlock').hidden = view !== 'positions';
         if ($('compoundView')) $('compoundView').hidden = view !== 'compound';
         if ($('themesView')) $('themesView').hidden = view !== 'themes';
+        if ($('rsView')) $('rsView').hidden = view !== 'rs';
         if (view === 'themes') THEME_TRACKER.render();
+        if (view === 'rs') RANK_HISTORY.render();
         if ($('journalSeg')) $('journalSeg').hidden = view !== 'journal';
         if ($('statusSeg')) $('statusSeg').hidden = view !== 'positions';
         if (view === 'positions') {
@@ -1761,19 +1763,25 @@
         } else if (view === 'themes') {
             window.scrollTo(0, 0);
             THEME_TRACKER.render();
+        } else if (view === 'rs') {
+            window.scrollTo(0, 0);
+            RANK_HISTORY.render();
         }
         if ($('fbCalc')) $('fbCalc').textContent = 'Calculator';
         renderJournalSummary();
         renderTable();
         document.body.offsetHeight;
         refreshFilterSegs();
-        if (view !== 'compound' && view !== 'themes' && prefs.metricsOpen !== false) {
+        if (view !== 'compound' && view !== 'themes' && view !== 'rs' && prefs.metricsOpen !== false) {
             const wrap = $('metricsRowWrap');
             if (wrap) wrap.style.height = 'auto';
             requestAnimationFrame(() => segs.scope?.refresh());
         }
         if (animate) {
-            const incoming = view === 'compound' ? $('compoundView') : $('trackerMount');
+            const incoming = view === 'compound' ? $('compoundView')
+                : view === 'themes' ? $('themesView')
+                : view === 'rs' ? $('rsView')
+                : $('trackerMount');
             M.rowEnter(incoming);
         }
         viewReady = true;
@@ -4854,6 +4862,7 @@
         COMPOUND.init({ account, parseNum, bindMoneyNotation });
         notebookMotion.wire();
         THEME_TRACKER.init();
+        RANK_HISTORY.init();
         window.addEventListener('skyler:size-trade', (event) => {
             const ticker = event.detail && event.detail.ticker;
             if (ticker) sizeTrade(ticker);

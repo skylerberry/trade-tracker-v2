@@ -147,6 +147,14 @@ def main():
     temporary.write_text(json.dumps(catalog, indent=2, allow_nan=False) + '\n')
     temporary.replace(target)
     report = {'asOf': session, 'names': len(assigned), 'themes': len(themes), 'doesCoverage': len(assigned)-len(missing), 'missingDoes': missing, 'unassigned': unassigned}
+    try:
+        rank_spec = importlib.util.spec_from_file_location('theme_ranks', ROOT / 'scripts' / 'theme_ranks.py')
+        theme_ranks = importlib.util.module_from_spec(rank_spec)
+        rank_spec.loader.exec_module(theme_ranks)
+        history = theme_ranks.append_catalog(ROOT / 'data' / 'theme-ranks.json', catalog)
+        report['rankSessions'] = len(history.get('sessions') or [])
+    except Exception as exc:
+        report['rankError'] = str(exc)
     print(json.dumps(report, indent=2))
 
 if __name__ == '__main__':

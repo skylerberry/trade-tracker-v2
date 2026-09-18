@@ -151,6 +151,7 @@
 <script>paintFaviconFromStorage();</script>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="themes.css">
+<link rel="stylesheet" href="rs.css">
 </head>
 <body>
 
@@ -211,6 +212,7 @@
                 <button data-seg="journal" role="tab">Journal</button>
                 <button data-seg="compound" role="tab">Compound</button>
                 <button data-seg="themes" role="tab">Themes</button>
+                <button data-seg="rs" role="tab">RS</button>
             </div>
             <button type="button" class="metrics-toggle" id="metricsToggle" aria-expanded="true" aria-controls="metricsRowWrap" aria-label="Hide summary">
                 <span class="metrics-eye" aria-hidden="true">
@@ -974,6 +976,31 @@
 <div id="themes-searchFeedback" aria-live="polite"></div><div id="themes-workspace"></div>
 </section>
 
+    <section class="themes-view" id="rsView" hidden aria-labelledby="rsTitle">
+        <div class="titleline">
+            <header class="view-head">
+                <h1 class="view-title" id="rsTitle">Relative Strength</h1>
+                <p class="view-sub">Theme rank after each close, same taxonomy as Themes.</p>
+            </header>
+            <span class="date"><span class="dot" aria-hidden="true"></span><span id="rs-asof"></span></span>
+        </div>
+        <div class="toolbar">
+            <div class="scope" role="tablist" aria-label="Theme set"><span class="seg-pill" aria-hidden="true"></span><button type="button" role="tab" data-seg="focus" class="is-active">Focused</button><button type="button" role="tab" data-seg="all">All</button></div>
+            <div class="windows" role="tablist" aria-label="Rank window"><span class="seg-pill" aria-hidden="true"></span><button role="tab" data-win="d" data-seg="d">Daily</button><button role="tab" data-win="w" data-seg="w">1W</button><button role="tab" data-win="m" data-seg="m" class="is-active">1M</button><button role="tab" data-win="q" data-seg="q">3M</button><button role="tab" data-win="h" data-seg="h">6M</button><button role="tab" data-win="y" data-seg="y">YTD</button></div>
+            <label class="search-field themes-search-field"><span class="search-ic" data-icon="search" aria-hidden="true"></span><input id="rs-search" type="search" aria-label="Search themes" placeholder="Search themes" autocomplete="off" spellcheck="false"></label>
+            <button type="button" id="rs-aboutToggle" class="themes-about-btn" aria-expanded="false"><span data-icon="info" aria-hidden="true"></span>How it works</button>
+        </div>
+        <div class="collapsible" id="rs-aboutBlock"><div class="disclosure-wrap" id="rs-aboutWrap"><div class="disclosure about">
+            Rank is the order of theme means after that close (3% ADR, $100M ADV). Color is rank that day among the themes on screen. Click a row to open it in Themes.
+        </div></div></div>
+        <div class="tracker" aria-label="Theme rank history">
+            <div class="tracker-heading"><h2>Theme rank</h2><span class="tracker-count" id="rs-count"></span><span class="tracker-period" id="rs-period"></span></div>
+            <div class="rs-legend"><span>bottom</span><span class="rs-swatch"></span><span>top</span><span>· one cell per session</span></div>
+            <div id="rs-board"></div>
+        </div>
+        <div class="rs-tip" id="rs-tip" hidden></div>
+    </section>
+
 </main>
 
 <footer class="app-footer">
@@ -1474,6 +1501,7 @@
 <script src="compound.js"></script>
 <script src="guide.js"></script>
 <script src="themes.js"></script>
+<script src="rs.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

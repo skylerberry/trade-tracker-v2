@@ -20,6 +20,11 @@ assert.match(readFileSync(new URL('../themes.js',import.meta.url),'utf8'), /h: '
 assert.match(readFileSync(new URL('../scripts/update-themes.py',import.meta.url),'utf8'), /'h': r\.get\('ret6m'\)/);
 assert.match(readFileSync(new URL('../themes.js',import.meta.url),'utf8'), /is-stale/);
 assert.match(readFileSync(new URL('../themes.css',import.meta.url),'utf8'), /\.date\.is-stale \.dot/);
+const rankFixture=JSON.parse(readFileSync(new URL('./fixtures/theme-ranks-catalog.json',import.meta.url),'utf8'));
+const dailyRanked=computeThemes(rankFixture,{window:'d',scope:'all'}).filter(t=>t.id!=='unclustered' && Number.isFinite(t.mean));
+assert.deepEqual(dailyRanked.map(t=>t.id),['oil-gas','mag-7','semiconductors'],'Python rank history uses the same daily means as Themes');
+const monthRanked=computeThemes(rankFixture,{window:'m',scope:'all'}).filter(t=>t.id!=='unclustered' && Number.isFinite(t.mean));
+assert.deepEqual(monthRanked.map(t=>t.id),['mag-7','semiconductors','oil-gas']);
 assert.equal(filterReasons({...data.companies.META,ext:0},{aboveOnly:true}).length,1);
 assert.equal(filterReasons({...data.companies.META,ext:null},{aboveOnly:true})[0],'50-day SMA unavailable');
 assert.equal(filterReasons({...data.companies.META,ema10:-1},{above10:true})[0],'Not above 10 EMA');
@@ -49,4 +54,4 @@ assert.equal(searchMatch('rents data center space and power','data-center'), tru
 assert.equal(searchMatch('Mines silver in Mexico','datacenter'), false);
 assert.equal(searchMatch('NVDA NVIDIA','$nvda'), true);
 assert.deepEqual(loosenFor({adr:2.577,dv:2e10,ext:3,ema10:1,ema21:1,sma200:1},{minAdr:3,minDv:100,aboveOnly:false,above10:false,above21:false,above200:false}),{minAdr:2.5,minDv:100,aboveOnly:false,above10:false,above21:false,above200:false});
-console.log('Themes: 39 assertions passed');
+console.log('Themes: assertions passed');

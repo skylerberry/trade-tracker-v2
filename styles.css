@@ -2187,13 +2187,17 @@ body[data-view="journal"] #formSection:not(.is-open):not(.is-exiting) { display:
 body[data-view="journal"] #statusSeg { display: none; }
 body[data-view="positions"] #journalSeg { display: none; }
 body[data-view="compound"] #trackerMount,
-body[data-view="themes"] #trackerMount { display: none; }
+body[data-view="themes"] #trackerMount,
+body[data-view="rs"] #trackerMount { display: none; }
 body[data-view="compound"] #compoundView { display: block; }
 body[data-view="themes"] #themesView { display: flex; }
+body[data-view="rs"] #rsView { display: flex; }
 body[data-view="compound"] .metrics-block,
 body[data-view="compound"] .metrics-toggle,
 body[data-view="themes"] .metrics-block,
-body[data-view="themes"] .metrics-toggle { display: none; }
+body[data-view="themes"] .metrics-toggle,
+body[data-view="rs"] .metrics-block,
+body[data-view="rs"] .metrics-toggle { display: none; }
 /* The floating pill mirrors the metrics row, which Compound and Themes hide —
    carrying "Risk $0.00 · 0 logged" onto a reference page only confuses. */
 body[data-view="compound"] .float-bar .fb-metric,
@@ -2201,7 +2205,10 @@ body[data-view="compound"] .float-bar .fb-score,
 body[data-view="compound"] .float-bar .fb-sep,
 body[data-view="themes"] .float-bar .fb-metric,
 body[data-view="themes"] .float-bar .fb-score,
-body[data-view="themes"] .float-bar .fb-sep { display: none; }
+body[data-view="themes"] .float-bar .fb-sep,
+body[data-view="rs"] .float-bar .fb-metric,
+body[data-view="rs"] .float-bar .fb-score,
+body[data-view="rs"] .float-bar .fb-sep { display: none; }
 
 /* equity curve card (journal) — number + drawdown left, curve right */
 .equity-card {

@@ -425,5 +425,5 @@ const THEME_TRACKER = (() => {
             render();
         }).catch(() => { error = true; data = null; render(); });
     }
-    return { init, render, computeThemes, filterReasons, parseRoute, themeForTicker, tickersLine, loosenFor, searchMatch };
+    return { init, render, computeThemes, filterReasons, parseRoute, themeForTicker, tickersLine, loosenFor, searchMatch, FOCUSED, WINDOWS };
 })();
