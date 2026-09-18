@@ -979,20 +979,27 @@
     <section class="themes-view" id="rsView" hidden aria-labelledby="rsTitle">
         <div class="titleline">
             <header class="view-head">
-                <h1 class="view-title" id="rsTitle">Relative Strength</h1>
-                <p class="view-sub">Theme rank after each close, same taxonomy as Themes.</p>
+                <h1 class="view-title" id="rsTitle">Relative strength</h1>
+                <p class="view-sub">See which themes have led after each close.</p>
             </header>
             <span class="date"><span class="dot" aria-hidden="true"></span><span id="rs-asof"></span></span>
         </div>
         <div class="toolbar">
             <div class="scope" role="tablist" aria-label="Theme set"><span class="seg-pill" aria-hidden="true"></span><button type="button" role="tab" data-seg="focus" class="is-active">Focused</button><button type="button" role="tab" data-seg="all">All</button></div>
             <div class="windows" role="tablist" aria-label="Rank window"><span class="seg-pill" aria-hidden="true"></span><button role="tab" data-win="d" data-seg="d">Daily</button><button role="tab" data-win="w" data-seg="w">1W</button><button role="tab" data-win="m" data-seg="m" class="is-active">1M</button><button role="tab" data-win="q" data-seg="q">3M</button><button role="tab" data-win="h" data-seg="h">6M</button><button role="tab" data-win="y" data-seg="y">YTD</button></div>
-            <label class="search-field themes-search-field"><span class="search-ic" data-icon="search" aria-hidden="true"></span><input id="rs-search" type="search" aria-label="Search themes" placeholder="Search themes" autocomplete="off" spellcheck="false"></label>
+            <div class="bench" role="tablist" aria-label="Index"><span class="seg-pill" aria-hidden="true"></span><button type="button" role="tab" data-seg="SPY" class="is-active">SPY</button><button type="button" role="tab" data-seg="QQQ">QQQ</button></div>
+            <label class="search-field themes-search-field"><span class="search-ic" data-icon="search" aria-hidden="true"></span><input id="rs-search" type="search" aria-label="Search themes" placeholder="Search themes" autocomplete="off" spellcheck="false"><button type="button" class="search-clear" id="rs-searchClear" data-tip="Clear search" aria-label="Clear search" hidden><span data-icon="x" aria-hidden="true"></span></button></label>
             <button type="button" id="rs-aboutToggle" class="themes-about-btn" aria-expanded="false"><span data-icon="info" aria-hidden="true"></span>How it works</button>
         </div>
-        <div class="collapsible" id="rs-aboutBlock"><div class="disclosure-wrap" id="rs-aboutWrap"><div class="disclosure about">
-            Rank is the order of theme means after that close (3% ADR, $100M ADV). Color is rank that day among the themes on screen. Click a row to open it in Themes.
-        </div></div></div>
+        <div class="collapsible" id="rs-aboutBlock"><div class="disclosure-wrap" id="rs-aboutWrap"><div id="rs-about" class="disclosure about">
+<dl>
+<div><dt>Rank</dt><dd>After each close, each theme’s mean (3% ADR and $100M ADV, same as Themes) minus the index return for that window. Stronger excess ranks higher.</dd></div>
+<div><dt>Index</dt><dd>SPY is the default. Switch to QQQ for a Nasdaq-relative view. The period line shows which index is active.</dd></div>
+<div><dt>Color</dt><dd>Green is the strongest rank that day among the themes on screen; red is the weakest. One cell per session.</dd></div>
+<div><dt>Open a theme</dt><dd>Click a row to see its stocks on Themes. Focused and All use the same roster as Themes.</dd></div>
+</dl>
+<p class="about-note">Until a close records SPY and QQQ in the history file, order is among themes by the same mean Themes uses.</p>
+</div></div></div>
         <div class="tracker" aria-label="Theme rank history">
             <div class="tracker-heading"><h2>Theme rank</h2><span class="tracker-count" id="rs-count"></span><span class="tracker-period" id="rs-period"></span></div>
             <div class="rs-legend"><span>bottom</span><span class="rs-swatch"></span><span>top</span><span>· one cell per session</span></div>

@@ -47,6 +47,23 @@ const RANK_HISTORY = (() => {
         return marks;
     }
 
+    function rankVsBenchmark(means, benchmarkReturn) {
+        if (!Number.isFinite(benchmarkReturn) || !means) return {};
+        return Object.keys(means)
+            .filter(id => Number.isFinite(means[id]))
+            .sort((a, b) => (means[b] - benchmarkReturn) - (means[a] - benchmarkReturn) || a.localeCompare(b))
+            .reduce((map, id, index) => { map[id] = index + 1; return map; }, {});
+    }
+
+    function sessionRanks(session, ids, win, bench) {
+        const stored = session && session.ranks && session.ranks[win] || {};
+        const means = session && session.means && session.means[win] || {};
+        const benchRet = session && session.benchmarks && session.benchmarks[bench] && session.benchmarks[bench][win];
+        const excess = Number.isFinite(benchRet) ? rankVsBenchmark(means, benchRet) : {};
+        const source = Object.keys(excess).length ? excess : stored;
+        return denseRanks(source, ids);
+    }
+
     function visibleIds(history, names, { scope = 'focus', query = '', window: win = 'm' } = {}) {
         const latest = history.sessions[history.sessions.length - 1];
         const ranks = latest && latest.ranks && latest.ranks[win] || {};
@@ -60,8 +77,8 @@ const RANK_HISTORY = (() => {
     }
 
     let history = null, names = {}, error = false, wired = false;
-    let win = 'm', scope = 'focus', query = '';
-    let pill = null, scopePill = null, pillPlaced = false;
+    let win = 'm', scope = 'focus', query = '', bench = 'SPY';
+    let pill = null, scopePill = null, benchPill = null, pillPlaced = false;
 
     function sessionsForWindow() {
         if (!history) return [];
@@ -74,6 +91,7 @@ const RANK_HISTORY = (() => {
         if (!pillPlaced && root.getClientRects().length) {
             pill?.set(win, true);
             scopePill?.set(scope, true);
+            benchPill?.set(bench, true);
             pillPlaced = true;
         }
         const board = $('board');
@@ -90,9 +108,9 @@ const RANK_HISTORY = (() => {
         const dates = sessions.map(session => session.asOf);
         const latest = sessions[sessions.length - 1];
         const ids = visibleIds({ sessions: [latest] }, names, { scope, query, window: win });
-        const latestDense = denseRanks(latest.ranks[win], ids);
+        const latestDense = sessionRanks(latest, ids, win, bench);
         const past = sessions[Math.max(0, sessions.length - 1 - CHG_LOOKBACK)];
-        const pastDense = denseRanks(past.ranks[win], ids);
+        const pastDense = sessionRanks(past, ids, win, bench);
         ids.sort((a, b) => (latestDense[a] - latestDense[b]) || a.localeCompare(b));
         const n = ids.length;
         const grid = `repeat(${dates.length}, minmax(0, 1fr))`;
@@ -103,7 +121,7 @@ const RANK_HISTORY = (() => {
         }).join('');
         const start = dates[0] ? new Date(dates[0] + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '';
         const end = dates[dates.length - 1] ? new Date(dates[dates.length - 1] + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '';
-        $('period').textContent = `${start} – ${end} · ${WINDOWS[win] || win}`;
+        $('period').textContent = `${start} – ${end} · ${WINDOWS[win] || win} · vs ${bench}`;
         $('count').textContent = `${n} theme${n === 1 ? '' : 's'}`;
         const rows = ids.map(id => {
             const rank = latestDense[id];
@@ -112,7 +130,7 @@ const RANK_HISTORY = (() => {
             const chgCls = chg > 0 ? 'up' : chg < 0 ? 'dn' : 'flat';
             const chgTxt = chg == null ? '—' : chg > 0 ? `+${chg}` : String(chg);
             const cells = sessions.map((session, index) => {
-                const dense = denseRanks(session.ranks[win], ids);
+                const dense = sessionRanks(session, ids, win, bench);
                 const rk = dense[id];
                 const nDay = Object.keys(dense).length;
                 return `<button type="button" class="rs-cell" data-id="${escapeHtml(id)}" data-i="${index}" style="background:${rankColor(rk, nDay)}" aria-label="${dates[index]} rank ${rk ?? '—'}"></button>`;
@@ -124,8 +142,8 @@ const RANK_HISTORY = (() => {
             </div>`;
         }).join('');
         board.innerHTML = `
-            <div class="rs-months"><span></span><div class="rs-month-grid" style="grid-template-columns:${grid}">${monthHtml}</div><span>CHG</span></div>
-            ${rows || `<p class="empty">No themes match.</p>`}`;
+            <div class="rs-months"><span>Theme</span><div class="rs-month-grid" style="grid-template-columns:${grid}">${monthHtml}</div><span>Chg</span></div>
+            <div class="rs-rows">${rows || `<p class="empty">No themes match.</p>`}</div>`;
     }
 
     function paintTip(event) {
@@ -138,7 +156,7 @@ const RANK_HISTORY = (() => {
         const session = sessions[i];
         if (!session) { tip.hidden = true; return; }
         const ids = visibleIds({ sessions: [sessions[sessions.length - 1]] }, names, { scope, query, window: win });
-        const dense = denseRanks(session.ranks[win], ids);
+        const dense = sessionRanks(session, ids, win, bench);
         const date = new Date(session.asOf + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
         tip.hidden = false;
         tip.textContent = `${names[id] || id} · ${date} · #${dense[id] ?? '—'}`;
@@ -155,7 +173,13 @@ const RANK_HISTORY = (() => {
         pill = MOTION.segmented(segment, value => { win = value; render(); });
         const scopeSeg = root.querySelector('.scope');
         scopePill = MOTION.segmented(scopeSeg, value => { scope = value; render(); });
-        $('search').addEventListener('input', event => { query = event.target.value; render(); });
+        const benchSeg = root.querySelector('.bench');
+        benchPill = MOTION.segmented(benchSeg, value => { bench = value; render(); });
+        const search = $('search');
+        const clear = $('searchClear');
+        const syncClear = () => { if (clear) clear.hidden = !search.value; };
+        search.addEventListener('input', event => { query = event.target.value; syncClear(); render(); });
+        clear?.addEventListener('click', () => { search.value = ''; query = ''; syncClear(); render(); search.focus(); });
         const board = $('board');
         board.addEventListener('pointermove', paintTip);
         board.addEventListener('pointerleave', () => { const tip = $('tip'); if (tip) tip.hidden = true; });
@@ -166,8 +190,11 @@ const RANK_HISTORY = (() => {
         });
         const about = $('aboutToggle');
         const aboutBlock = document.getElementById('rs-aboutBlock');
+        const aboutWrap = document.getElementById('rs-aboutWrap');
+        const setAbout = MOTION.collapsible(aboutBlock, aboutWrap, false);
         about?.addEventListener('click', () => {
-            const open = aboutBlock.classList.toggle('is-open');
+            const open = !aboutBlock.classList.contains('is-open');
+            setAbout(open);
             about.setAttribute('aria-expanded', String(open));
         });
         fetch('data/daily-scan.json', { cache: 'no-store' }).then(res => res.ok ? res.json() : null).then(catalog => {
@@ -198,5 +225,5 @@ const RANK_HISTORY = (() => {
         }).catch(() => { error = true; history = null; render(); });
     }
 
-    return { init, render, denseRanks, rankColor, visibleIds, monthMarks, CHG_LOOKBACK };
+    return { init, render, denseRanks, rankColor, rankVsBenchmark, sessionRanks, visibleIds, monthMarks, CHG_LOOKBACK };
 })();

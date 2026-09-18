@@ -96,10 +96,11 @@ def main():
         headers = scan.load_credentials()
         universe = scan.fetch_universe(headers, False, False, False, True)
         days = max(420, (now.date() - date(now.year - 1, 12, 20)).days)
-        bars = scan.fetch_bars(sorted(set(universe) | set(MAG7)), days, 'sip', 'all', headers, None, 16, False)
+        bars = scan.fetch_bars(sorted(set(universe) | set(MAG7) | {'SPY', 'QQQ'}), days, 'sip', 'all', headers, None, 16, False)
         # SPY is requested separately only if absent; its bar date identifies the session.
-        if 'SPY' not in bars:
-            bars.update(scan.fetch_bars(['SPY'], days, 'sip', 'all', headers, None, 1, False))
+        missing_index = [symbol for symbol in ('SPY', 'QQQ') if symbol not in bars]
+        if missing_index:
+            bars.update(scan.fetch_bars(missing_index, days, 'sip', 'all', headers, None, 1, False))
         session = bars.get('SPY', {}).get('d')
         if not session or session != now.date().isoformat():
             sys.exit(f'No completed current-day session ({session or "unavailable"}); catalog left unchanged.')
@@ -151,7 +152,22 @@ def main():
         rank_spec = importlib.util.spec_from_file_location('theme_ranks', ROOT / 'scripts' / 'theme_ranks.py')
         theme_ranks = importlib.util.module_from_spec(rank_spec)
         rank_spec.loader.exec_module(theme_ranks)
-        history = theme_ranks.append_catalog(ROOT / 'data' / 'theme-ranks.json', catalog)
+        indexes = {}
+        for symbol in ('SPY', 'QQQ'):
+            entry = bars.get(symbol)
+            if not entry:
+                continue
+            derived_idx = derive(entry, session)
+            if derived_idx is None:
+                continue
+            row = scan.compute_row(symbol, symbol, {'b': [b for b in entry['b'] if b[0] <= session], 'd': session}, 20, 30)
+            if not row:
+                continue
+            indexes[symbol] = {
+                'd': row.get('chg'), 'w': row.get('ret1w'), 'm': row.get('ret1m'),
+                'q': row.get('ret3m'), 'h': row.get('ret6m'), 'y': derived_idx.get('ytd'),
+            }
+        history = theme_ranks.append_catalog(ROOT / 'data' / 'theme-ranks.json', catalog, indexes)
         report['rankSessions'] = len(history.get('sessions') or [])
     except Exception as exc:
         report['rankError'] = str(exc)

@@ -37,6 +37,19 @@ class ThemeRankTests(unittest.TestCase):
         self.assertEqual(order['semiconductors'], 3)
         self.assertNotIn('unclustered', order)
 
+    def test_excess_vs_spy_reorders(self):
+        means = {'oil-gas': 3.0, 'semiconductors': 1.5, 'mag-7': 2.0}
+        order = ranks.rank_vs_benchmark(means, 2.5)
+        self.assertEqual(order['oil-gas'], 1)
+        self.assertEqual(order['mag-7'], 2)
+        self.assertEqual(order['semiconductors'], 3)
+        self.assertEqual(ranks.rank_vs_benchmark(means, None), {})
+
+    def test_session_stores_benchmarks(self):
+        record = ranks.session_record(FIXTURE, {'SPY': {'d': 0.4, 'm': 1.2}, 'QQQ': {'d': 0.8}})
+        self.assertEqual(record['benchmarks']['SPY']['d'], 0.4)
+        self.assertEqual(record['benchmarks']['QQQ']['d'], 0.8)
+
     def test_one_month_rank_order(self):
         order, _, _ = ranks.rank_window(FIXTURE, 'm')
         self.assertEqual(order['mag-7'], 1)

@@ -64,7 +64,16 @@ def rank_window(catalog, window):
     return ranks, means, ranked
 
 
-def session_record(catalog):
+def rank_vs_benchmark(means, benchmark_return):
+    """Order themes by excess return vs an index. Higher excess is rank 1."""
+    if not _finite(benchmark_return) or not means:
+        return {}
+    scored = [(value - benchmark_return, theme_id) for theme_id, value in means.items() if _finite(value)]
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    return {theme_id: index + 1 for index, (_, theme_id) in enumerate(scored)}
+
+
+def session_record(catalog, benchmarks=None):
     as_of = catalog.get('asOf')
     if not isinstance(as_of, str):
         raise ValueError('catalog asOf is required')
@@ -76,6 +85,15 @@ def session_record(catalog):
         record['ranks'][window] = ranks
         record['means'][window] = {key: round(value, 6) for key, value in means.items()}
         record['ranked'][window] = ranked
+    clean = {}
+    for symbol, windows in (benchmarks or {}).items():
+        if not isinstance(windows, dict):
+            continue
+        vals = {key: value for key, value in windows.items() if key in WINDOWS and _finite(value)}
+        if vals:
+            clean[str(symbol).upper()] = vals
+    if clean:
+        record['benchmarks'] = clean
     return record
 
 
@@ -122,8 +140,8 @@ def save_history(path, history):
     return path
 
 
-def append_catalog(path, catalog):
-    history = upsert_session(load_history(path), session_record(catalog))
+def append_catalog(path, catalog, benchmarks=None):
+    history = upsert_session(load_history(path), session_record(catalog, benchmarks))
     save_history(path, history)
     return history
 
