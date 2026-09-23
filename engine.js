@@ -287,18 +287,32 @@ const ENGINE = (() => {
         return res;
     }
 
-    /* Purchased call/put sizing from a manually entered entry delta. This is
-       deliberately a first-order estimate, capped by premium paid. */
-    function calcOptionPosition({ account, riskPct, maxPct, entry, stop, delta, premium, direction = 'long', multiplier = 100 }) {
+    /* Purchased call/put sizing. Two stop bases:
+       - 'underlying' (default): stop on the stock, first-order delta estimate
+         of the premium lost there, capped by premium paid.
+       - 'premium': hard stop at premiumStopPct% below the premium paid. The
+         underlying entry/stop are optional and only feed the R map. */
+    function calcOptionPosition({ account, riskPct, maxPct, entry, stop, delta, premium, direction = 'long', multiplier = 100, stopMode = 'underlying', premiumStopPct }) {
+        direction = directionOf(direction);
+        const premiumMode = stopMode === 'premium';
         const base = calcPosition({ account, riskPct, maxPct: 100, entry, stop, direction });
-        if (!base.rps) return { valid: false, invalidStop: !!base.invalidStop, direction: directionOf(direction) };
-        const absDelta = Math.abs(delta);
-        if (!isNum(delta) || absDelta <= 0 || absDelta > 1) return { valid: false, invalidDelta: true, direction: directionOf(direction), rps: base.rps };
-        if (!isNum(premium) || premium <= 0) return { valid: false, invalidPremium: true, direction: directionOf(direction), rps: base.rps };
-        if (!isNum(multiplier) || multiplier <= 0) return { valid: false, invalidMultiplier: true, direction: directionOf(direction), rps: base.rps };
+        let estimatedPremiumLoss, stopPremium = null, absDelta = null;
+        if (premiumMode) {
+            if (!isNum(account) || account <= 0) return { valid: false, direction, stopMode };
+            if (!isNum(premium) || premium <= 0) return { valid: false, invalidPremium: true, direction, stopMode };
+            if (!isNum(premiumStopPct) || premiumStopPct <= 0 || premiumStopPct > 100) return { valid: false, invalidPremiumStop: true, direction, stopMode };
+            estimatedPremiumLoss = premium * premiumStopPct / 100;
+            stopPremium = round2(premium - estimatedPremiumLoss);
+        } else {
+            if (!base.rps) return { valid: false, invalidStop: !!base.invalidStop, direction, stopMode };
+            absDelta = Math.abs(delta);
+            if (!isNum(delta) || absDelta <= 0 || absDelta > 1) return { valid: false, invalidDelta: true, direction, stopMode, rps: base.rps };
+            if (!isNum(premium) || premium <= 0) return { valid: false, invalidPremium: true, direction, stopMode, rps: base.rps };
+            estimatedPremiumLoss = Math.min(premium, absDelta * base.rps);
+        }
+        if (!isNum(multiplier) || multiplier <= 0) return { valid: false, invalidMultiplier: true, direction, stopMode, rps: base.rps ?? null };
 
         const riskBudget = account * (riskPct / 100);
-        const estimatedPremiumLoss = Math.min(premium, absDelta * base.rps);
         const riskPerContract = round2(estimatedPremiumLoss * multiplier);
         const premiumPerContract = round2(premium * multiplier);
         const rawContracts = riskPerContract > 0 ? Math.floor(riskBudget / riskPerContract) : 0;
@@ -309,8 +323,10 @@ const ENGINE = (() => {
         const premiumOutlay = round2(contracts * premiumPerContract);
         return {
             valid: contracts > 0,
-            direction: directionOf(direction), optionType: directionOf(direction) === 'short' ? 'put' : 'call',
-            multiplier, delta: absDelta, premium, rps: base.rps, stopDistPct: base.stopDistPct,
+            direction, optionType: direction === 'short' ? 'put' : 'call', stopMode,
+            multiplier, delta: absDelta, premium,
+            premiumStopPct: premiumMode ? premiumStopPct : null, stopPremium,
+            rps: base.rps ?? null, stopDistPct: base.stopDistPct ?? null,
             riskBudget, estimatedPremiumLoss, riskPerContract, premiumPerContract,
             rawContracts, maxContracts, contracts,
             capped: rawContracts > contracts,
@@ -318,7 +334,7 @@ const ENGINE = (() => {
             totalRisk, totalRiskPct: account ? totalRisk / account * 100 : null,
             premiumOutlay, maxLoss: premiumOutlay,
             pctOfAccount: account ? premiumOutlay / account * 100 : null,
-            rPrices: base.rPrices,
+            rPrices: base.rPrices ?? null,
         };
     }
 

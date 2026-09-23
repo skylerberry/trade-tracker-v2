@@ -1190,7 +1190,7 @@ body.is-splash > .app-footer {
 }
 .setting { display: flex; flex-direction: column; gap: 5px; }
 .setting-label-row { display: flex; align-items: center; }
-.setting > label, .setting-label-row > label, .field > label {
+.setting > label, .setting-label-row > label, .field > label, .field > .field-label {
     font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em;
     text-transform: uppercase; color: var(--text-3);
     display: flex; align-items: center; gap: 6px;
@@ -1400,7 +1400,7 @@ body.is-splash > .app-footer {
 #stopLossField.has-error .stepper-wrap input:focus { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-soft); }
 .option-inputs {
     display: grid;
-    grid-template-columns: minmax(150px, 0.7fr) minmax(150px, 0.7fr) minmax(280px, 2fr);
+    grid-template-columns: auto minmax(130px, 0.7fr) minmax(130px, 0.7fr) minmax(240px, 2fr);
     align-items: start;
     gap: 12px;
     margin-top: 12px;
@@ -1410,7 +1410,11 @@ body.is-splash > .app-footer {
     background: color-mix(in srgb, var(--primary) 4%, var(--surface));
 }
 .option-inputs[hidden] { display: none; }
+.option-inputs .field[hidden] { display: none; }
 .option-inputs .input-money input { width: 100%; }
+.option-stop-basis .seg-mode button { min-width: 0; }
+.input-suffix input { padding-left: 12px; padding-right: 34px; }
+.input-suffix .currency-suffix { position: absolute; right: 12px; color: var(--text-3); font-weight: 600; pointer-events: none; }
 .option-guidance {
     display: flex;
     align-items: flex-start;
@@ -4784,6 +4788,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 @media (max-width: 860px) {
     .calc-inputs { grid-template-columns: 1fr 1fr; }
     .option-inputs { grid-template-columns: 1fr 1fr; }
+    .option-stop-basis { grid-column: 1 / -1; }
     .option-guidance {
         grid-column: 1 / -1;
         min-height: 0;

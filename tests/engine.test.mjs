@@ -53,6 +53,27 @@ const costCapped = E.calcOptionPosition({ account: 10000, riskPct: 1, maxPct: 5,
 eq(costCapped.contracts, 1, 'premium allocation cap constrains contracts');
 eq(costCapped.limitedBy, 'allocation', 'allocation constraint is identified');
 
+/* ---- purchased option sizing: hard stop at N% of premium ---- */
+const hard = E.calcOptionPosition({ account: 50000, riskPct: 0.5, maxPct: 20, premium: 2.4, stopMode: 'premium', premiumStopPct: 50 });
+eq(hard.riskPerContract, 120, 'premium stop risk per contract = premium × pct × 100');
+eq(hard.stopPremium, 1.2, 'premium stop exit price');
+eq(hard.contracts, 2, 'premium stop sizes from risk budget');
+eq(hard.totalRisk, 240, 'premium stop total risk');
+eq(hard.stopMode, 'premium', 'premium stop mode is reported');
+eq(hard.rPrices, null, 'no underlying R map without entry and stop');
+const hardWithUnderlying = E.calcOptionPosition({ account: 50000, riskPct: 0.5, maxPct: 20, entry: 100, stop: 95, premium: 2.4, stopMode: 'premium', premiumStopPct: 50 });
+eq(hardWithUnderlying.contracts, 2, 'underlying stop does not change premium-stop sizing');
+eq(hardWithUnderlying.rPrices[0], 105, 'underlying R map still shown when entry and stop are set');
+const hardBadUnderlying = E.calcOptionPosition({ account: 50000, riskPct: 0.5, maxPct: 20, entry: 100, stop: 105, premium: 2.4, stopMode: 'premium', premiumStopPct: 50 });
+eq(hardBadUnderlying.contracts, 2, 'wrong-side underlying stop does not block premium-stop sizing');
+eq(hardBadUnderlying.rPrices, null, 'wrong-side underlying stop drops the R map');
+eq(E.calcOptionPosition({ account: 50000, riskPct: 0.5, maxPct: 20, premium: 2.4, stopMode: 'premium', premiumStopPct: 0 }).invalidPremiumStop, true, 'rejects 0% premium stop');
+eq(E.calcOptionPosition({ account: 50000, riskPct: 0.5, maxPct: 20, premium: 2.4, stopMode: 'premium', premiumStopPct: 101 }).invalidPremiumStop, true, 'rejects >100% premium stop');
+eq(E.calcOptionPosition({ account: 50000, riskPct: 0.5, maxPct: 20, premium: 2.4, stopMode: 'premium', premiumStopPct: 100 }).riskPerContract, 240, '100% premium stop risks full premium');
+const hardCapped = E.calcOptionPosition({ account: 10000, riskPct: 2, maxPct: 5, premium: 4, stopMode: 'premium', premiumStopPct: 25 });
+eq(hardCapped.contracts, 1, 'premium allocation cap still applies to premium stop');
+eq(hardCapped.limitedBy, 'allocation', 'premium stop allocation constraint is identified');
+
 /* ---- exits model / derived status ---- */
 const t = {
     id: 't1', ticker: 'NVDA', entryPrice: 100, initialSL: 98, currentSL: 98,

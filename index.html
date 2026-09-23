@@ -405,7 +405,7 @@
                         </div>
                     </div>
                     <div class="field" id="stopLossField">
-                        <label for="stopLoss">Stop loss <button id="copyStop" class="tiny-link" tabindex="-1" title="Copy stop price">copy</button></label>
+                        <label for="stopLoss"><span id="stopLossLabelText">Stop loss</span> <button id="copyStop" class="tiny-link" tabindex="-1" title="Copy stop price">copy</button></label>
                         <div class="stepper-wrap currency-input">
                             <span class="currency-prefix" aria-hidden="true">$</span>
                             <input type="text" inputmode="decimal" id="stopLoss" autocomplete="off" placeholder="0.00">
@@ -443,9 +443,13 @@
                 </div>
 
                 <div class="option-inputs" id="optionInputs" hidden>
-                    <div class="field">
-                        <label for="optionDelta">Entry delta <span class="label-opt">(absolute)</span></label>
-                        <input type="text" inputmode="decimal" id="optionDelta" autocomplete="off" placeholder="0.50">
+                    <div class="field option-stop-basis">
+                        <span class="field-label" id="optionStopSegLabel">Option stop</span>
+                        <div class="seg seg-mode" id="optionStopSeg" role="tablist" aria-labelledby="optionStopSegLabel">
+                            <span class="seg-pill" aria-hidden="true"></span>
+                            <button data-seg="underlying" role="tab" title="Stop on the underlying; delta estimates the premium lost there">Underlying</button>
+                            <button data-seg="premium" role="tab" title="Hard stop at a percent below the premium paid">Premium %</button>
+                        </div>
                     </div>
                     <div class="field">
                         <label for="optionPremium">Option premium</label>
@@ -454,11 +458,22 @@
                             <input type="text" inputmode="decimal" id="optionPremium" autocomplete="off" placeholder="2.40">
                         </div>
                     </div>
+                    <div class="field" id="optionDeltaField">
+                        <label for="optionDelta">Entry delta <span class="label-opt">(absolute)</span></label>
+                        <input type="text" inputmode="decimal" id="optionDelta" autocomplete="off" placeholder="0.50">
+                    </div>
+                    <div class="field" id="optionStopPctField" hidden>
+                        <label for="optionStopPct">Stop <span class="label-opt">(% of premium)</span></label>
+                        <div class="input-money input-suffix">
+                            <input type="text" inputmode="decimal" id="optionStopPct" autocomplete="off" placeholder="50">
+                            <span class="currency-suffix" aria-hidden="true">%</span>
+                        </div>
+                    </div>
                     <div class="option-guidance">
                         <span data-icon="info" aria-hidden="true"></span>
                         <ul class="option-guidance-list" id="optionGuidanceText">
                             <li id="optionGuidanceKind">Long calls only</li>
-                            <li>Delta estimates the premium at your stop</li>
+                            <li id="optionGuidanceBasis">Delta estimates the premium at your stop</li>
                             <li>Not a live quote</li>
                         </ul>
                     </div>

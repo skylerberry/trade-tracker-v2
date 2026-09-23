@@ -77,6 +77,7 @@
     };
     const RISK_HELP_SHARES = 'The percentage of your account you plan to risk on this trade. Combined with your entry and stop, it determines position size.';
     const RISK_HELP_OPTIONS = 'Contract count uses your risk budget, the underlying entry and stop, delta, and premium.';
+    const RISK_HELP_OPTIONS_PREMIUM = 'Contract count uses your risk budget, the premium, and your stop as a percent of premium.';
     function journalDefaultKind(trade, journal) {
         const status = E.deriveStatus(trade);
         const closed = status === 'closed' || status === 'stopped';
@@ -114,6 +115,8 @@
         try { Object.assign(prefs, JSON.parse(localStorage.getItem(K.prefs)) || {}); } catch { /* keep defaults */ }
         prefs.direction = prefs.direction === 'short' ? 'short' : 'long';
         prefs.vehicle = prefs.vehicle === 'option' ? 'option' : 'shares';
+        prefs.optionStop = prefs.optionStop === 'premium' ? 'premium' : 'underlying';
+        prefs.optionStopPct = E.isNum(prefs.optionStopPct) && prefs.optionStopPct > 0 && prefs.optionStopPct <= 100 ? prefs.optionStopPct : 50;
         prefs.journalTab = prefs.journalTab === 'notes' ? 'notes' : 'trades';
     }
     function saveTrades() {
@@ -123,6 +126,13 @@
     function saveNotes({ skipPush = false } = {}) {
         localStorage.setItem(K.notes, JSON.stringify(notes));
         if (!skipPush) schedulePush('notes');
+    }
+    /* Option stop basis + hard-stop % travel with backups and gist settings. */
+    function applyOptionStopSettings(src) {
+        if (src?.optionStop === 'premium' || src?.optionStop === 'underlying') prefs.optionStop = src.optionStop;
+        if (E.isNum(src?.optionStopPct) && src.optionStopPct > 0 && src.optionStopPct <= 100) prefs.optionStopPct = src.optionStopPct;
+        segs.optionStop?.set(prefs.optionStop, true);
+        $('optionStopPct').value = String(prefs.optionStopPct);
     }
     function savePrefs() {
         schedulePush('settings');
@@ -732,6 +742,10 @@
             prefs.vehicle = v === 'option' ? 'option' : 'shares';
             savePrefs(); syncCalculatorMode(); recalc();
         });
+        segs.optionStop = M.segmented($('optionStopSeg'), (v) => {
+            prefs.optionStop = v === 'premium' ? 'premium' : 'underlying';
+            savePrefs(); syncCalculatorMode(); recalc();
+        });
         segs.risk = M.segmented($('riskSeg'), (v) => {
             prefs.riskPreset = v;
             if (v === 'custom') { $('riskCustom').focus(); $('riskCustom').select(); }
@@ -765,8 +779,8 @@
     /* ============================================================
        CALCULATOR
        ============================================================ */
-    const calcFields = ['accountSize', 'entryPrice', 'stopLoss', 'tickerInput', 'targetPrice', 'optionDelta', 'optionPremium'];
-    const numericCalcFields = ['riskCustom', 'maxCustom', 'entryPrice', 'stopLoss', 'targetPrice', 'optionDelta', 'optionPremium'];
+    const calcFields = ['accountSize', 'entryPrice', 'stopLoss', 'tickerInput', 'targetPrice', 'optionPremium', 'optionDelta', 'optionStopPct'];
+    const numericCalcFields = ['riskCustom', 'maxCustom', 'entryPrice', 'stopLoss', 'targetPrice', 'optionDelta', 'optionPremium', 'optionStopPct'];
 
     function decimalOnly(value) {
         let clean = '', hasDecimal = false;
@@ -906,13 +920,22 @@
             direction: prefs.direction,
             delta: parseNum($('optionDelta').value),
             premium: parseNum($('optionPremium').value),
+            stopMode: prefs.optionStop,
+            premiumStopPct: parseNum($('optionStopPct').value),
         };
     }
 
     function syncCalculatorMode() {
         const optionMode = prefs.vehicle === 'option';
         const short = prefs.direction === 'short';
+        const premiumStop = optionMode && prefs.optionStop === 'premium';
         $('optionInputs').hidden = !optionMode;
+        $('optionDeltaField').hidden = premiumStop;
+        $('optionStopPctField').hidden = !premiumStop;
+        $('optionGuidanceBasis').textContent = premiumStop
+            ? 'Underlying entry and stop are optional · they only draw the R map'
+            : 'Delta estimates the premium at your stop';
+        $('stopLossLabelText').textContent = premiumStop ? 'Stop (optional)' : 'Stop loss';
         $('maxPctLabelText').textContent = optionMode ? 'Max prem %' : 'Max %';
         $('maxPctHelp').textContent = optionMode
             ? 'Caps how much of your account can be committed to option premium. If this limit reduces your risk-based contract count, the original count is shown struck through.'
@@ -924,17 +947,19 @@
         $('optionGuidanceKind').textContent = `Long ${short ? 'puts' : 'calls'} only`;
         $('positionUnitLabel').textContent = optionMode ? 'contracts' : 'shares';
         $('sharesCopyBtn').title = optionMode ? 'Copy contract count' : 'Enter a share count to calculate its risk';
-        if ($('riskHelp')) $('riskHelp').textContent = optionMode ? RISK_HELP_OPTIONS : RISK_HELP_SHARES;
+        if ($('riskHelp')) $('riskHelp').textContent = premiumStop ? RISK_HELP_OPTIONS_PREMIUM : optionMode ? RISK_HELP_OPTIONS : RISK_HELP_SHARES;
         $('sharesCopyMini').hidden = optionMode;
-        $('rStopDistLabel').textContent = optionMode ? 'Estimated loss / contract' : 'Stop distance';
+        $('rStopDistLabel').textContent = premiumStop ? 'Loss / contract at stop' : optionMode ? 'Estimated loss / contract' : 'Stop distance';
         $('rPosSizeLabel').textContent = optionMode ? 'Premium outlay' : 'Position size';
         $('rTotalRiskLabel').textContent = optionMode ? 'Max loss (premium paid)' : 'Total risk';
-        $('rPctAcctLabel').textContent = optionMode ? 'Estimated stop risk' : '% of account';
+        $('rPctAcctLabel').textContent = premiumStop ? 'Stop risk' : optionMode ? 'Estimated stop risk' : '% of account';
         $('freerollPlan').classList.toggle('is-option-mode', optionMode);
         $('planTitle').textContent = optionMode ? 'Underlying R map' : 'Freeroll plan';
         $('planSeg').hidden = optionMode;
         if ($('calcHowSizeText')) {
-            $('calcHowSizeText').textContent = optionMode
+            $('calcHowSizeText').textContent = premiumStop
+                ? 'Your account size, risk percentage, the option’s premium, and your stop as a percent of premium determine how many contracts to trade.'
+                : optionMode
                 ? 'Your account size, risk percentage, and the option’s delta and premium determine how many contracts to trade.'
                 : 'Your account size, risk percentage, and distance from entry to stop determine how many shares to trade.';
         }
@@ -985,7 +1010,10 @@
             $('riskScenariosBody').style.height = 'auto';
         }
         if (!ready) {
-            context.textContent = E.isNum(c.entry) && E.isNum(c.stop)
+            const premiumStop = optionMode && c.stopMode === 'premium';
+            context.textContent = premiumStop
+                ? (E.isNum(c.premium) ? 'Complete the setup to compare' : 'Fill premium and stop % to compare')
+                : E.isNum(c.entry) && E.isNum(c.stop)
                 ? 'Complete the setup to compare'
                 : 'Fill entry and stop to compare';
             return;
@@ -1053,7 +1081,9 @@
                 <span class="shares-cap-reason">${maxPct()}% account cap</span>`;
         }
         $('rStopDist').textContent = res.valid ? (optionMode
-            ? E.fmtMoney(res.riskPerContract)
+            ? (res.stopMode === 'premium'
+                ? `${E.fmtMoney(res.riskPerContract)} (exit ${E.fmtPrice(res.stopPremium)})`
+                : E.fmtMoney(res.riskPerContract))
             : `$${res.rps.toFixed(2)} (${res.stopDistPct.toFixed(2)}%)`) : '—';
         $('rPosSize').textContent = res.valid ? E.fmtMoney(optionMode ? res.premiumOutlay : res.posSize) : '—';
         $('rTotalRisk').textContent = res.valid ? (optionMode
@@ -1164,10 +1194,18 @@
         }
 
         if (prefs.vehicle === 'option') {
-            sentence.textContent = res.valid
-                ? 'R levels follow the underlying. Option target P&L is not estimated from entry delta.'
-                : 'Fill the underlying entry, stop, delta, and premium to size the position.';
-            if (res.valid) showLadder({ optionMode: true });
+            const premiumStop = prefs.optionStop === 'premium';
+            const exitNote = premiumStop && res.valid
+                ? `Hard stop: exit the option at ${E.fmtPrice(res.stopPremium)} (−${formatRiskValue(res.premiumStopPct)}% of premium).` : '';
+            sentence.textContent = !res.valid
+                ? (premiumStop ? (res.riskPerContract > 0
+                    ? `Risk budget is below one contract’s ${E.fmtMoney(res.riskPerContract)} loss at the stop.`
+                    : 'Fill the premium and stop % to size the position.')
+                    : 'Fill the underlying entry, stop, delta, and premium to size the position.')
+                : premiumStop
+                    ? (res.rPrices ? `${exitNote} R levels follow the underlying.` : `${exitNote} Add underlying entry and stop for an R map.`)
+                    : 'R levels follow the underlying. Option target P&L is not estimated from entry delta.';
+            if (res.valid && res.rPrices) showLadder({ optionMode: true });
             else hideLadder();
             return;
         }
@@ -1227,7 +1265,7 @@
         el.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const activeFields = calcFields.filter(fieldId => prefs.vehicle === 'option' || !['optionDelta', 'optionPremium'].includes(fieldId));
+                const activeFields = calcFields.filter(fieldId => !$(fieldId).closest('[hidden]'));
                 const next = activeFields[activeFields.indexOf(id) + 1];
                 if (next) $(next).focus();
                 else $('logTradeBtn').focus();
@@ -1238,6 +1276,10 @@
             if (id === 'accountSize') {
                 account = parseNum(el.value) ?? account;
                 savePrefs(); renderHeader();
+            }
+            if (id === 'optionStopPct') {
+                const pct = parseNum(el.value);
+                if (E.isNum(pct) && pct > 0 && pct <= 100) { prefs.optionStopPct = pct; savePrefs(); }
             }
             recalc();
         });
@@ -4180,6 +4222,7 @@
             settings: {
                 accountSize: account, defaultRiskPercent: riskPct(), defaultMaxPercent: maxPct(),
                 direction: prefs.direction, vehicle: prefs.vehicle,
+                optionStop: prefs.optionStop, optionStopPct: prefs.optionStopPct,
             },
             watchlist,
             notes,
@@ -4303,6 +4346,7 @@
             if (E.isNum(acct)) { account = acct; $('accountSize').value = account.toLocaleString('en-US'); }
             if (data.settings?.direction === 'long' || data.settings?.direction === 'short') prefs.direction = data.settings.direction;
             if (data.settings?.vehicle === 'shares' || data.settings?.vehicle === 'option') prefs.vehicle = data.settings.vehicle;
+            applyOptionStopSettings(data.settings);
             segs.direction.set(prefs.direction, true);
             segs.vehicle.set(prefs.vehicle, true);
             syncCalculatorMode();
@@ -4353,6 +4397,7 @@
             accountSize: account, defaultRiskPercent: riskPct(), defaultMaxPercent: maxPct(),
             calcExpanded: prefs.calcOpen, watchlist,
             direction: prefs.direction, vehicle: prefs.vehicle,
+            optionStop: prefs.optionStop, optionStopPct: prefs.optionStopPct,
             theme: themeMode(), accent: accentName,
         }, null, 2);
     }
@@ -4421,6 +4466,7 @@
                     if (Array.isArray(s.watchlist)) { watchlist = s.watchlist; renderWatchlist(); }
                     if (s.direction === 'long' || s.direction === 'short') prefs.direction = s.direction;
                     if (s.vehicle === 'shares' || s.vehicle === 'option') prefs.vehicle = s.vehicle;
+                    applyOptionStopSettings(s);
                     /* appearance follows the gist too, so a paired phone matches */
                     if (s.theme === 'light' || s.theme === 'dark' || s.theme === 'oled') {
                         setTheme(s.theme);
@@ -4857,6 +4903,7 @@
         if (prefs.formOpen === undefined) { prefs.formOpen = false; panels.formSection.set(false, true); }
         $('fDate').value = E.todayLocalISO();
         fDateField.sync();
+        $('optionStopPct').value = String(prefs.optionStopPct);
         syncCalculatorMode();
         syncRiskLabels();
         COMPOUND.init({ account, parseNum, bindMoneyNotation });
@@ -4878,6 +4925,7 @@
             segs.scope.set(prefs.scope, true);
             segs.direction.set(prefs.direction, true);
             segs.vehicle.set(prefs.vehicle, true);
+            segs.optionStop.set(prefs.optionStop, true);
             if (prefs.riskPreset === 'custom') $('riskCustom').value = String(prefs.riskCustom);
             segs.risk.set(prefs.riskPreset, true);
             if (prefs.maxPreset === 'custom') $('maxCustom').value = String(prefs.maxCustom);
