@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RS heatmap mockup</title>
+<!-- Mockup: the Magic Scan RS heatmap grammar applied to skyler.tools theme ranks.
+     Cell = that session's theme mean minus the index's daily return (excess %).
+     Reads ../../data/theme-ranks.json and ../../data/daily-scan.json — serve the repo (npm start). -->
+<style>
+:root{
+  --bg:#fbfbfc;--surface:#fff;--surface-2:#f4f4f5;--border:#e4e4e7;--text:#18181b;--text-2:#3f3f46;--text-3:#71717a;
+  --success:#16a34a;--danger:#dc2626;--primary:#2b7a9b;--primary-contrast:#fff;--row-hover:#f6f6f7;
+  --rs-lag:#c75b52;--rs-flat:#f4f4f5;--rs-lead:#2f8f5b;--rs-null:#ececee;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#18181b;--surface:#27272a;--surface-2:#1f1f22;--border:#3f3f46;--text:#f4f4f5;--text-2:#d4d4d8;--text-3:#a1a1aa;
+  --success:#22c55e;--danger:#ef4444;--row-hover:#2f2f33;--rs-lag:#b4463f;--rs-flat:#2f2f33;--rs-lead:#2a8a55;--rs-null:#232326;
+}}
+:root[data-theme="dark"]{
+  --bg:#18181b;--surface:#27272a;--surface-2:#1f1f22;--border:#3f3f46;--text:#f4f4f5;--text-2:#d4d4d8;--text-3:#a1a1aa;
+  --success:#22c55e;--danger:#ef4444;--row-hover:#2f2f33;--rs-lag:#b4463f;--rs-flat:#2f2f33;--rs-lead:#2a8a55;--rs-null:#232326;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 -apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums;padding:28px 16px}
+.wrap{max-width:1240px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.3px}
+.sub{color:var(--text-3);margin:0 0 18px;font-size:13px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.seg{display:flex;gap:2px;border:1px solid var(--border);background:var(--surface-2);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--text-3);font:600 12px/1 inherit;padding:6px 11px;border-radius:999px;cursor:pointer}
+.seg button.on{background:var(--primary);color:var(--primary-contrast)}
+.card{border:1px solid var(--border);border-radius:16px;background:var(--surface);overflow:hidden}
+.head{display:flex;align-items:center;gap:9px;padding:13px 17px;border-bottom:1px solid var(--border)}
+.head h2{font-size:13px;margin:0}
+.head .muted{color:var(--text-3);font-size:11px}
+.head .right{margin-left:auto}
+.scroll{overflow:auto;max-height:calc(100vh - 230px)}
+table{border-collapse:separate;border-spacing:0;font-size:11px;font-weight:600;width:max-content;min-width:100%}
+th,td{padding:0;height:30px;white-space:nowrap}
+thead th{position:sticky;top:0;z-index:3;background:var(--surface);color:var(--text-3);font-size:9.5px;letter-spacing:.4px;font-weight:600;border-bottom:1px solid var(--border);height:34px}
+thead th.date{min-width:46px;text-align:center}
+thead th.date .m{display:block;font-size:8.5px;opacity:.7}
+thead th.date.nobench{font-style:italic;opacity:.65}
+.stub{position:sticky;left:0;z-index:2;background:var(--surface);text-align:left;padding:0 12px 0 14px;min-width:190px;max-width:190px;box-shadow:1px 0 0 var(--border)}
+thead .stub{z-index:4}
+.stub .rk{display:inline-block;width:20px;color:var(--text-3);text-align:right;margin-right:10px;font-weight:500}
+.stub .nm{font-weight:500;font-size:12px;color:var(--text)}
+td.cell{min-width:46px;text-align:center;font-size:10.5px;border-right:1px solid var(--surface);border-bottom:1px solid var(--surface);cursor:default}
+td.cell.raw{font-style:italic}
+td.cell .ghost{opacity:.55}
+tr:hover td.cell{filter:brightness(.97)}
+tr:hover .stub,tr:hover .stat{background:var(--row-hover)}
+.stat{position:sticky;background:var(--surface);text-align:right;padding:0 10px;min-width:56px;color:var(--text-2)}
+thead .stat{z-index:4}
+.stat.s1{right:112px;box-shadow:-1px 0 0 var(--border)}
+.stat.s2{right:56px}
+.stat.s3{right:0}
+.pos{color:var(--success)}.neg{color:var(--danger)}
+.pill{display:inline-block;min-width:44px;padding:3px 6px;border-radius:6px;text-align:center;font-weight:700}
+.note{color:var(--text-3);font-size:11.5px;margin:12px 2px 0;max-width:820px}
+.note b{color:var(--text-2)}
+@media(max-width:640px){.stub{min-width:130px;max-width:130px}.stat{min-width:48px}.stat.s1{right:96px}.stat.s2{right:48px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Relative strength</h1>
+  <p class="sub">Heatmap mockup — each cell is that session's theme mean minus the index's day. Rows sort by the window rank.</p>
+  <div class="toolbar">
+    <div class="seg" data-k="scope"><button data-v="focus" class="on">Focused</button><button data-v="all">All</button></div>
+    <div class="seg" data-k="win"><button data-v="w">1W</button><button data-v="m" class="on">1M</button><button data-v="all">All</button></div>
+    <div class="seg" data-k="bench"><button data-v="SPY" class="on">SPY</button><button data-v="QQQ">QQQ</button></div>
+    <div class="seg" data-k="mode"><button data-v="excess" class="on">Excess %</button><button data-v="rank">Rank</button></div>
+  </div>
+  <div class="card">
+    <div class="head"><h2>Theme rank</h2><span class="muted" id="count"></span><span class="muted right" id="period"></span></div>
+    <div class="scroll"><table id="grid"></table></div>
+  </div>
+  <p class="note"><b>Excess %</b>: green beat the index that day, red lagged, deeper = bigger gap (clamped at ±3%). Big moves print bold; small ones are ghosted.
+    <b>Beat</b> = share of shown sessions above the index. <b>L5</b> = last 5 sessions summed. <b>Total</b> = the window's excess, which sets the rank.
+    <i>Italic</i> columns predate stored SPY/QQQ (before Sep 18) and show the raw theme mean.</p>
+</div>
+<script>
+const FOCUSED = new Set(['semiconductors','software-related','cybersecurity','drones-related','quantum-computing','space-satellite','robotics','neoclouds','crypto','gold-miners','silver-miners','copper','commodity-mining','ai-storage-infra','healthcare-biotech','optics-photonics','oil-gas','mag-7']);
+const WIN_SESSIONS = { w: 5, m: 21, all: Infinity };
+const RANK_WIN = { w: 'w', m: 'm', all: 'm' };
+const CLAMP = 3;
+const st = { scope: 'focus', win: 'm', bench: 'SPY', mode: 'excess' };
+let names = {}, hist = null;
+
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const mix = (a, b, t) => { const A = hex(a), B = hex(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
+const lum = h => { const [r, g, b] = hex(h).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function color(v, clamp = CLAMP) {
+  if (v == null || !Number.isFinite(v)) return { bg: css('--rs-null'), fg: css('--text-3') };
+  const c = Math.max(-clamp, Math.min(clamp, v)), t = Math.abs(c) / clamp;
+  const bg = mix(css('--rs-flat'), css(c < 0 ? '--rs-lag' : '--rs-lead'), t);
+  return { bg, fg: lum(bg) > .42 ? '#18181b' : '#f4f4f5' };
+}
+const sign = (v, d = 1) => v == null || !Number.isFinite(v) ? '—' : (v > 0 ? '+' : '') + v.toFixed(d);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function dayExcess(session, id) {
+  const mean = session.means?.d?.[id];
+  if (!Number.isFinite(mean)) return { v: null, raw: false };
+  const b = session.benchmarks?.[st.bench]?.d;
+  return Number.isFinite(b) ? { v: mean - b, raw: false } : { v: mean, raw: true };
+}
+function windowRanks(session, ids) {
+  const w = RANK_WIN[st.win], means = session.means?.[w] || {}, b = session.benchmarks?.[st.bench]?.[w];
+  const score = id => Number.isFinite(means[id]) ? means[id] - (Number.isFinite(b) ? b : 0) : null;
+  const order = ids.filter(id => score(id) != null).sort((x, y) => score(y) - score(x) || x.localeCompare(y));
+  return { rank: Object.fromEntries(order.map((id, i) => [id, i + 1])), score };
+}
+
+function render() {
+  if (!hist) return;
+  const all = hist.sessions.filter(s => s.means?.d);
+  const sessions = all.slice(-Math.min(all.length, WIN_SESSIONS[st.win]));
+  const latest = sessions[sessions.length - 1];
+  const ids = Object.keys(latest.means.d).filter(id => st.scope === 'all' || FOCUSED.has(id));
+  const { rank, score } = windowRanks(latest, ids);
+  const rows = ids.filter(id => rank[id]).sort((a, b) => rank[a] - rank[b]);
+  const perSession = sessions.map(s => windowRanks(s, ids).rank);
+
+  let prevMonth = '';
+  const dateHeads = sessions.map(s => {
+    const d = new Date(s.asOf + 'T12:00:00Z');
+    const mon = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase();
+    const m = mon !== prevMonth ? mon : '&nbsp;'; prevMonth = mon;
+    const nb = !Number.isFinite(s.benchmarks?.[st.bench]?.d);
+    return `<th class="date${nb ? ' nobench' : ''}" title="${s.asOf}${nb ? ' · no stored ' + st.bench + ', raw mean' : ''}"><span class="m">${m}</span>${d.getUTCDate()}</th>`;
+  }).join('');
+  const head = `<thead><tr><th class="stub">Theme</th>${dateHeads}<th class="stat s1">Beat</th><th class="stat s2">L5</th><th class="stat s3">Total</th></tr></thead>`;
+
+  const n = rows.length;
+  const body = rows.map(id => {
+    const ex = sessions.map(s => dayExcess(s, id));
+    const cells = ex.map(({ v, raw }, i) => {
+      if (st.mode === 'rank') {
+        const r = perSession[i][id], t = r && n > 1 ? 1 - 2 * (r - 1) / (n - 1) : null;
+        const c = color(t == null ? null : t * CLAMP);
+        return `<td class="cell" style="background:${c.bg};color:${c.fg}" title="${sessions[i].asOf} · rank ${r ?? '—'} of ${n}">${r ?? ''}</td>`;
+      }
+      const c = color(v), big = v != null && Math.abs(v) >= 1;
+      const txt = v == null ? '' : big ? `<b>${sign(v)}</b>` : `<span class="ghost">${sign(v)}</span>`;
+      return `<td class="cell${raw ? ' raw' : ''}" style="background:${c.bg};color:${c.fg}" title="${sessions[i].asOf} · ${raw ? 'raw mean ' : 'vs ' + st.bench + ' '}${sign(v, 2)}%">${txt}</td>`;
+    }).join('');
+    const vs = ex.filter(e => !e.raw && e.v != null).map(e => e.v);
+    const beat = vs.length ? Math.round(100 * vs.filter(v => v > 0).length / vs.length) : null;
+    const l5 = ex.slice(-5).filter(e => !e.raw && e.v != null).reduce((a, e) => a + e.v, 0);
+    const tot = score(id), tc = color(tot, CLAMP * 3);
+    return `<tr><td class="stub"><span class="rk">${rank[id]}</span><span class="nm">${esc(names[id] || id)}</span></td>${cells}` +
+      `<td class="stat s1${beat >= 60 ? ' pos' : beat != null && beat < 40 ? ' neg' : ''}">${beat == null ? '—' : beat + '%'}</td>` +
+      `<td class="stat s2 ${l5 >= 0 ? 'pos' : 'neg'}">${sign(l5)}</td>` +
+      `<td class="stat s3"><span class="pill" style="background:${tc.bg};color:${tc.fg}">${sign(tot)}</span></td></tr>`;
+  }).join('');
+  document.getElementById('grid').innerHTML = head + '<tbody>' + body + '</tbody>';
+  document.getElementById('count').textContent = `${n} themes`;
+  const f = d => new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  document.getElementById('period').textContent = `${f(sessions[0].asOf)} – ${f(latest.asOf)} · ranked on ${RANK_WIN[st.win] === 'w' ? '1W' : '1M'} vs ${st.bench}`;
+  const sc = document.querySelector('.scroll'); sc.scrollLeft = sc.scrollWidth;
+}
+
+document.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  st[seg.dataset.k] = b.dataset.v; render();
+}));
+Promise.all([
+  fetch('../../data/daily-scan.json').then(r => r.json()),
+  fetch('../../data/theme-ranks.json').then(r => r.json()),
+]).then(([cat, h]) => { (cat.themes || []).forEach(t => names[t.id] = t.name); hist = h; render(); })
+  .catch(err => { document.getElementById('grid').innerHTML = `<tr><td style="padding:30px;color:var(--text-3)">Couldn't load data — serve the repo root (npm start). ${esc(err.message)}</td></tr>`; });
+</script>
+</body>
+</html>
