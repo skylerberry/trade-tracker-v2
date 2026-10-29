@@ -11,8 +11,16 @@ dist/
 _backup/
 _import/
 _greens.html
-.cursor/
 compound-feedback.txt
+
+# Local Cursor scratch — keep the shipped verify skill, drop run output
+.cursor/*
+!.cursor/skills/
+.cursor/skills/*
+!.cursor/skills/verify-skyler-tools/
+!.cursor/skills/verify-skyler-tools/**
+.cursor/skills/verify-skyler-tools/.run/
+.cursor/skills/verify-skyler-tools/evidence/
 
 # Screenshots are local context, not committed
 screenshots/*.png

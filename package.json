@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node serve.mjs",
+    "verify": "node .cursor/skills/verify-skyler-tools/cli.mjs",
     "build": "mkdir -p dist/data && cp index.html curate.html curate.js styles.css app.js engine.js compound.js guide.js themes.js themes.css rs.js rs.css motion.js icons.js qr.js gist-sync.js favicon.svg robots.txt llms.txt dist/ && cp data/guide.json data/movers.json dist/data/ && if [ -f data/daily-scan.json ]; then cp data/daily-scan.json dist/data/; fi && if [ -f data/theme-ranks.json ]; then cp data/theme-ranks.json dist/data/; fi && cp docs/promo/og-1200x630.png dist/og.png && sed \"s/__LASTMOD__/$(date -u +%Y-%m-%d)/\" sitemap.xml > dist/sitemap.xml",
     "scan:themes": "node scripts/from-daily-scan.mjs",
     "mockup:oled": "node -e \"console.log('OLED journal mockup \u2192 http://localhost:4173/docs/mockups/oled-journal-separation.html')\" && node serve.mjs",
@@ -13,5 +14,8 @@
     "themes:update": "python3 scripts/update-themes.py"
   },
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright-core": "^1.56.1"
+  }
 }
