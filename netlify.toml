@@ -5,6 +5,12 @@
   command = "npm run build"
   publish = "dist"
 
+# Event functions live beside the static publish dir, not inside dist/.
+# `netlify deploy --dir=dist --no-build` still reads this from repo-root
+# netlify.toml and uploads the folder.
+[functions]
+  directory = "netlify/functions"
+
 # Hash views (#positions / #journal / #compound / #themes). No SPA rewrite needed.
 
 [[headers]]

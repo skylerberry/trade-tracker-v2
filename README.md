@@ -85,6 +85,36 @@ Deployed on the existing Netlify site for [skyler.tools](https://skyler.tools)
 (`unique-cupcake-bbbd71`). Pushes to `main` publish through GitHub Actions.
 `netlify.toml` copies the runtime files into `dist/` and publishes that folder.
 
+## Feedback inbox
+
+Verified submissions of the Netlify form named `feedback` are forwarded by a
+`submission-created` function to a Grok Bot routine webhook. Netlify's built-in
+HTTP POST form notification cannot send an `Authorization` header, so it cannot
+wake that webhook on its own.
+
+Set these in the Netlify UI (Site configuration → Environment variables,
+production and any branch you care about) **before** expecting the bot to see
+mail. Never commit the values.
+
+| Variable | What to paste |
+| --- | --- |
+| `INBOX_WEBHOOK_URL` | The routine's **POST to** URL |
+| `INBOX_WEBHOOK_AUTH` | The routine's **header** field — the full `Authorization` value, usually `Bearer <key>` |
+
+If you copy the routine's **key** instead of (or as well as) the header:
+
+| Variable | What to paste |
+| --- | --- |
+| `INBOX_WEBHOOK_KEY` | The routine's **key**. Sent as `X-Automation-Key`. If `INBOX_WEBHOOK_AUTH` is unset, also sent as `Authorization: Bearer <key>` |
+
+A missing variable logs a warning (names only, never values) and returns 200 so
+the Netlify submission is kept.
+
+Once this function is live on production, **delete** the existing HTTP POST
+form notification that pointed at the same webhook. Leaving it up cannot attach
+auth, so it still will not wake Grok Bot — but it is a second delivery path if
+the webhook ever starts accepting unsigned posts.
+
 ## Test
 
 ```bash
@@ -116,5 +146,6 @@ available without enabling sync.
 - `motion.js` — animation primitives and reduced-motion behavior
 - `icons.js` — bundled inline icon set
 - `serve.mjs` — local static preview server
+- `netlify/functions/submission-created.js` — relays verified feedback to the inbox webhook
 - `docs/WIREFRAME_SPEC.md` — long-term behavior contract
 - `V2_NOTES.md` — current-release implementation notes
