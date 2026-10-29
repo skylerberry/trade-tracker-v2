@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Refresh the public derived Themes catalog. Never exports bars or credentials.
 
-Default: fresh SIP daily bars via the local Magic Scan engine, weekday after 16:15 ET.
+Default: fresh SIP daily bars for the latest completed cash session (16:15 ET;
+a weekend or pre-close run uses the previous weekday).
 For reproducible rebuilds: --bars-cache PATH --as-of YYYY-MM-DD.
 """
 import argparse
@@ -11,7 +12,7 @@ import importlib.util
 import json
 import os
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -20,13 +21,20 @@ MAG7 = ['AAPL', 'MSFT', 'AMZN', 'GOOGL', 'META', 'NVDA', 'TSLA']
 ET = ZoneInfo('America/New_York')
 
 
-def live_gate(now):
-    """Refuse a live SIP refresh on weekends or before the cash close is complete."""
-    if now.weekday() >= 5:
-        return 'US markets are closed (weekend). Catalog left unchanged.'
-    if (now.hour, now.minute) < (16, 15):
-        return 'Run after 16:15 ET so the current session is complete.'
-    return None
+def latest_completed_session(now):
+    """Latest weekday cash session that is already complete (16:15 ET).
+
+    A weekday at or after 16:15 ET targets that day. Saturday, Sunday, and a
+    weekday before the close target the previous weekday. Friday evening
+    Pacific is already Saturday Eastern; that still targets Friday.
+    """
+    day = now.date()
+    if day.weekday() < 5 and (now.hour, now.minute) >= (16, 15):
+        return day
+    cursor = day - timedelta(days=1)
+    while cursor.weekday() >= 5:
+        cursor -= timedelta(days=1)
+    return cursor
 
 
 def derive(entry, session):
@@ -66,17 +74,27 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--scanner-dir', type=Path, default=Path(os.environ.get('MAGIC_SCAN_DIR', str(Path.home() / 'Projects/magic-scan'))))
     parser.add_argument('--bars-cache', type=Path)
-    parser.add_argument('--as-of', help='Required with --bars-cache; expected completed session')
+    parser.add_argument('--as-of', help='Completed session to publish. Default: latest session at or after 16:15 ET')
     args = parser.parse_args()
     if args.bars_cache and not args.as_of:
         parser.error('--bars-cache requires --as-of')
-    if args.as_of:
-        date.fromisoformat(args.as_of)
     now = datetime.now(ET)
-    if not args.bars_cache:
-        blocked = live_gate(now)
-        if blocked:
-            sys.exit(blocked)
+    if args.as_of:
+        target = date.fromisoformat(args.as_of)
+        if target > now.date():
+            sys.exit(f'Refusing a future session ({target.isoformat()}). Catalog left unchanged.')
+        if target == now.date() and (now.hour, now.minute) < (16, 15):
+            sys.exit('Run after 16:15 ET so the current session is complete.')
+    else:
+        target = latest_completed_session(now)
+    target_iso = target.isoformat()
+    previous = json.loads((ROOT / 'data/daily-scan.json').read_text())
+    if not args.bars_cache and previous.get('asOf', '') >= target_iso:
+        print(json.dumps({'asOf': previous['asOf'], 'status': 'already-current', 'target': target_iso}))
+        return
+    scan_dir = str(args.scanner_dir)
+    if scan_dir not in sys.path:
+        sys.path.insert(0, scan_dir)
     spec = importlib.util.spec_from_file_location('themes_scan_engine', args.scanner_dir / 'scan.py')
     scan = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(scan)
@@ -91,7 +109,7 @@ def main():
         payload = json.load(gzip.open(args.bars_cache, 'rt'))
         bars = payload['bars']
         universe = {s: descriptions.get(s, {}).get('name', s) for s in payload['universe']}
-        session = args.as_of
+        session = target_iso
     else:
         headers = scan.load_credentials()
         universe = scan.fetch_universe(headers, False, False, False, True)
@@ -102,9 +120,11 @@ def main():
         if missing_index:
             bars.update(scan.fetch_bars(missing_index, days, 'sip', 'all', headers, None, 1, False))
         session = bars.get('SPY', {}).get('d')
-        if not session or session != now.date().isoformat():
-            sys.exit(f'No completed current-day session ({session or "unavailable"}); catalog left unchanged.')
-    previous = json.loads((ROOT / 'data/daily-scan.json').read_text())
+        if not session or session < target_iso:
+            if not session or session <= previous.get('asOf', ''):
+                sys.exit(f'No completed session for {target_iso} ({session or "unavailable"}); catalog left unchanged.')
+        else:
+            session = target_iso
     if session < previous['asOf']:
         sys.exit('Refusing to replace the catalog with an older session.')
     companies = {}
