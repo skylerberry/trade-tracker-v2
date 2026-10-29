@@ -24,4 +24,4 @@ Pushes to `main` deploy production (`netlify deploy --prod`) and cost **15 Netli
 
 ## Prove UI changes
 
-Before opening a PR that changes what people see, follow `.cursor/skills/verify-skyler-tools/SKILL.md`. Use the shipped CLI (`npm run verify -- launch|doctor|check <feature>|shot <route>|cleanup`) to drive Calculator, Journal, Compound, Themes, RS, curate, or footer chrome in a real browser. Keep the evidence folder. Do not ask a human to click through the app for you.
+Before opening a PR, run `npm test` (catalog/nav/serve/ranks/publish contracts live there) and follow `.cursor/skills/verify-skyler-tools/SKILL.md` for anything people see. Use the shipped CLI (`npm run verify -- launch|doctor|check <feature>|shot <route>|cleanup`) to drive Calculator, Journal, Compound, Themes, RS, curate, or footer chrome in a real browser. Keep the evidence folder. Do not ask a human to click through the app for you.

@@ -10,7 +10,7 @@
     "scan:themes": "node scripts/from-daily-scan.mjs",
     "mockup:oled": "node -e \"console.log('OLED journal mockup \u2192 http://localhost:4173/docs/mockups/oled-journal-separation.html')\" && node serve.mjs",
     "mockup:themes-board": "node docs/mockups/compile-themes-board.mjs && node -e \"console.log('Themes board \u2192 http://localhost:4173/docs/mockups/themes-board.html?variant=A')\" && node serve.mjs",
-    "test": "node tests/engine.test.mjs && node tests/qr.test.mjs && node tests/sync.test.mjs && node tests/guide.test.mjs && node tests/themes.test.mjs && node tests/rs.test.mjs",
+    "test": "node tests/engine.test.mjs && node tests/qr.test.mjs && node tests/sync.test.mjs && node tests/guide.test.mjs && node tests/themes.test.mjs && node tests/rs.test.mjs && node tests/contracts.test.mjs",
     "themes:update": "python3 scripts/update-themes.py"
   },
   "license": "ISC",
