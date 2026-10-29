@@ -15,22 +15,33 @@ class DerivationTests(unittest.TestCase):
   from datetime import date,timedelta
   rows=[[(date(2025,1,1)+timedelta(days=i)).isoformat(),200 if i==0 else 100,80,90] for i in range(253)]
   self.assertAlmostEqual(module.derive({'b':rows},rows[-1][0])['dist52h'],10)
-class LiveGateTests(unittest.TestCase):
- def test_weekend_is_refused(self):
+class LatestSessionTests(unittest.TestCase):
+ def test_saturday_targets_friday(self):
   from datetime import datetime
   from zoneinfo import ZoneInfo
   et=ZoneInfo('America/New_York')
-  self.assertIn('weekend', module.live_gate(datetime(2026,9,12,17,0,tzinfo=et)))
- def test_weekday_before_close_is_refused(self):
+  # Friday 2026-09-25 9pm PT is Saturday 00:00 ET.
+  self.assertEqual(module.latest_completed_session(datetime(2026,9,26,0,0,tzinfo=et)).isoformat(),'2026-09-25')
+ def test_sunday_targets_friday(self):
   from datetime import datetime
   from zoneinfo import ZoneInfo
   et=ZoneInfo('America/New_York')
-  self.assertIn('16:15', module.live_gate(datetime(2026,9,11,16,14,tzinfo=et)))
- def test_weekday_after_close_is_allowed(self):
+  self.assertEqual(module.latest_completed_session(datetime(2026,9,27,15,0,tzinfo=et)).isoformat(),'2026-09-25')
+ def test_weekday_before_close_targets_previous_weekday(self):
   from datetime import datetime
   from zoneinfo import ZoneInfo
   et=ZoneInfo('America/New_York')
-  self.assertIsNone(module.live_gate(datetime(2026,9,11,16,15,tzinfo=et)))
+  self.assertEqual(module.latest_completed_session(datetime(2026,9,25,16,14,tzinfo=et)).isoformat(),'2026-09-24')
+ def test_weekday_after_close_targets_that_day(self):
+  from datetime import datetime
+  from zoneinfo import ZoneInfo
+  et=ZoneInfo('America/New_York')
+  self.assertEqual(module.latest_completed_session(datetime(2026,9,25,16,15,tzinfo=et)).isoformat(),'2026-09-25')
+ def test_monday_morning_targets_friday(self):
+  from datetime import datetime
+  from zoneinfo import ZoneInfo
+  et=ZoneInfo('America/New_York')
+  self.assertEqual(module.latest_completed_session(datetime(2026,9,28,9,0,tzinfo=et)).isoformat(),'2026-09-25')
 class CatalogWindowTests(unittest.TestCase):
  def test_six_month_return_is_mapped_from_scanner(self):
   src=Path(__file__).resolve().parents[1].joinpath('scripts/update-themes.py').read_text()

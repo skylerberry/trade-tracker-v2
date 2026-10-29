@@ -50,6 +50,12 @@ class ThemeRankTests(unittest.TestCase):
         self.assertEqual(record['benchmarks']['SPY']['d'], 0.4)
         self.assertEqual(record['benchmarks']['QQQ']['d'], 0.8)
 
+    def test_weekday_dates_skip_weekends(self):
+        days = ranks.weekday_dates('2026-09-17', 5)
+        self.assertEqual(days[-1], '2026-09-17')
+        self.assertNotIn('2026-09-12', days)
+        self.assertEqual(len(days), 5)
+
     def test_one_month_rank_order(self):
         order, _, _ = ranks.rank_window(FIXTURE, 'm')
         self.assertEqual(order['mag-7'], 1)
