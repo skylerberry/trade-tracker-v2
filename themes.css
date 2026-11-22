@@ -71,6 +71,7 @@
 #themesView .number-control:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
 #themesView .unit{color:var(--text-3);font-size:10px;font-weight:500;line-height:1}
 #themesView .number-control .prefix{display:grid;place-items:center;width:16px;height:16px;margin-right:1px;border:1px solid color-mix(in srgb,var(--primary) 30%,var(--border));border-radius:50%;color:var(--primary);background:color-mix(in srgb,var(--primary) 7%,var(--surface));font-size:9px;font-weight:600;line-height:1}
+#themesView .number-control .prefix svg{width:1em;height:1em;display:block}
 #themesView .number-steps{position:absolute;right:3px;top:4px;bottom:4px;display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);width:18px;margin:0;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);overflow:hidden}
 #themesView .disclosure .number-steps button{display:grid;place-items:center;min-height:0;min-width:0;width:100%;height:100%;padding:0;border:0;border-radius:0;background:transparent;color:var(--text-3);font-size:.62rem;font-weight:500;line-height:1;transition:background-color var(--dur-fast),color var(--dur-fast)}
 #themesView .disclosure .number-steps button+button{border-top:1px solid var(--border)}
